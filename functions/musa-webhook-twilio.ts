@@ -222,8 +222,12 @@ function preguntaPrecio(norm: string): boolean {
 }
 
 function detectarPaisHeuristico(norm: string, original: string): string | null {
-  const ve = /venez|vzla|🇻🇪/.test(norm) || /🇻🇪/.test(original) || norm === "ve";
-  const co = /colomb|🇨🇴/.test(norm) || /🇨🇴/.test(original) || norm === "co";
+  // Abreviaturas y variantes como PALABRA exacta (\b), nunca como subcadena:
+  // "col" no debe dispararse dentro de "escolar" ni "ven" dentro de "vender".
+  const ve = /venez|vzla|vnzla|🇻🇪/.test(norm) || /🇻🇪/.test(original) ||
+    /\b(ven|vene|vzla|vnzla|venezuela)\b/.test(norm) || norm === "ve";
+  const co = /colomb|🇨🇴/.test(norm) || /🇨🇴/.test(original) ||
+    /\b(col|colombia)\b/.test(norm) || norm === "co";
   if (ve && !co) return "VE";
   if (co && !ve) return "CO";
   return null;
@@ -359,6 +363,7 @@ async function clasificarGPT(
     `Responde SOLO un JSON valido, sin texto extra, con esta forma: ` +
     `{"tipo":"afirmativo"|"negativo"|"objecion"|"pregunta"|"pais"|"edad_si"|"edad_menor"|"otro","objecion_id":numero opcional 1-13,"pais":"VE"|"CO"|"OTRO" opcional}. ` +
     `"pais": usalo si el mensaje indica un pais (Venezuela=VE, Colombia=CO, cualquier otro pais real=OTRO). ` +
+    `Abreviaturas o variantes cortas TAMBIEN son pais: "ven", "vene", "vzla", "vnzla" => VE; "col" => CO. ` +
     `"edad_si": SOLO si confirma de forma inequivoca tener 18 anos o mas (ej: "si", "si, tengo 25", "soy mayor de edad"). ` +
     `Risas ("jaja"), un "ok" suelto o respuestas ambiguas NUNCA son edad_si: clasificalas como "otro" o "afirmativo". ` +
     `"edad_menor": dice o implica tener menos de 18. ` +
@@ -630,9 +635,32 @@ const MSG_GATE18_REASK2 =
 const MSG_NEGATIVO_SUAVE =
   "Todo bien, sin presión 😊 Aquí quedo por si te animas más adelante; cualquier duda me la escribes con confianza 💜";
 const MSG_ESCALADO_ACK =
-  "Te leo 🙏 Tu mensaje ya quedó con el equipo; apenas tengan la respuesta te escriben por aquí mismo 💜";
+  "El equipo ya está revisando tu consulta 🙏 Te escribo por aquí apenas tengan la respuesta";
 const MSG_ESCALADO_ACK2 =
-  "Sigo aquí 😊 El equipo ya tiene tu mensaje pendiente y te responde por este mismo chat; gracias por la paciencia 💜";
+  "Sigo pendiente de tu caso con el equipo 💜 Apenas tenga novedad te aviso";
+
+/**
+ * Cuántos acuses de escalado se han enviado DESPUÉS del último evento
+ * 'escalado' de este lead (si no hay 'escalado', cuenta todos los acuses).
+ */
+async function contarAcusesEscalado(admin: Admin, phone: string): Promise<number> {
+  const { data: esc } = await admin.database
+    .from("musa_funnel_events")
+    .select("id")
+    .eq("lead_phone", phone)
+    .eq("evento", "escalado")
+    .order("id", { ascending: false })
+    .limit(1);
+  let q = admin.database
+    .from("musa_funnel_events")
+    .select("id")
+    .eq("lead_phone", phone)
+    .eq("evento", "acuse_escalado");
+  const escaladoId = esc?.[0]?.id;
+  if (escaladoId != null) q = q.gt("id", escaladoId);
+  const { data: acuses } = await q;
+  return (acuses ?? []).length;
+}
 
 /** último mensaje enviado por el bot a este lead (para no repetirnos nunca dos veces seguidas) */
 async function ultimoMensajeOut(admin: Admin, phone: string): Promise<string | null> {
@@ -1104,12 +1132,15 @@ export default async function (req: Request): Promise<Response> {
     }
 
     if (lead.escalado_humano) {
-      // Bot en pausa: lo atiende un humano, pero NUNCA silencio total — el lead
-      // debe saber que su mensaje no se perdió. Ack corto, alternando redacción
-      // para no repetir jamás el mismo mensaje dos veces seguidas.
-      const ultimo = await ultimoMensajeOut(admin, phone);
-      const ack = ultimo === MSG_ESCALADO_ACK ? MSG_ESCALADO_ACK2 : MSG_ESCALADO_ACK;
-      await registrarEvento(admin, phone, "escalado_ack", {});
+      // Bot en pausa: lo atiende un humano, pero no silencio inmediato — el lead
+      // debe saber que su mensaje no se perdió. UN acuse por mensaje entrante,
+      // rotando entre 2 variantes, con LÍMITE de 2 acuses por escalación
+      // (después sí silencio, anti-spam). Se cuentan eventos 'acuse_escalado'
+      // posteriores al último evento 'escalado'.
+      const nAcuses = await contarAcusesEscalado(admin, phone);
+      if (nAcuses >= 2) return emptyTwiml();
+      const ack = nAcuses === 0 ? MSG_ESCALADO_ACK : MSG_ESCALADO_ACK2;
+      await registrarEvento(admin, phone, "acuse_escalado", { n: nAcuses + 1 });
       await enviarMensajes(admin, lead, [ack]);
       return emptyTwiml();
     }

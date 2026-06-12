@@ -1,3 +1,9 @@
+// ⚠️ ADVERTENCIA (12-jun-2026): la FUENTE DE VERDAD del gpt_system es la fila
+// 'gpt_system' en musa_settings (BD) — fue parcheada en vivo con bloques nuevos
+// (REGISTRO DE PAIS, DETALLE DEL PRODUCTO, acuses de escalado). Este script tiene
+// una versión VIEJA: NO re-ejecutar ni aplicar su SQL sin antes sincronizarlo con
+// la BD (select value->>'prompt' from musa_settings where key='gpt_system').
+//
 // Genera la migración fase2-funnel-copy a partir del copy transformado.
 // Transformaciones vs investigacion/funnel-ventas.json:
 //  - Valentina/Vale -> Musa (firma "— Musa 💜 | Modelos IA")
