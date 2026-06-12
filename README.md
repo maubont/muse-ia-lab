@@ -26,7 +26,7 @@ Al hacer push a `main` con cambios en `migrations/` o `functions/`, GitHub Actio
 2. Redespliega cada función de `functions/*.ts`
 
 Secretos requeridos en el repo (Settings → Secrets → Actions):
-- `INSFORGE_ACCESS_TOKEN` — token del CLI de InsForge. Si caduca, regenerarlo: `npx @insforge/cli login` en local y copiar `access_token` de `~/.insforge/credentials.json`.
+- `INSFORGE_CREDENTIALS` — el contenido COMPLETO de `~/.insforge/credentials.json` local (el CLI exige access_token Y refresh_token). Si el CI falla con "not authenticated"/"refresh token": `gh secret set INSFORGE_CREDENTIALS --body (Get-Content "$env:USERPROFILE\.insforge\credentials.json" -Raw) --repo maubont/muse-ia-lab`.
 - `INSFORGE_PROJECT_ID` — `cbe1fd11-a22f-4017-a1a4-f0a641e0c7aa` (proyecto cv-mauricio; el bot usa prefijo `musa_`).
 
 ⚠️ El backend se comparte con el CV profesional (límite del plan gratis de InsForge): **no tocar** la función `valentina-chat` ni la tabla `contact_messages`.

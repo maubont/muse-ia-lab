@@ -16,7 +16,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      INSFORGE_ACCESS_TOKEN: ${{ secrets.INSFORGE_ACCESS_TOKEN }}
+      INSFORGE_CREDENTIALS: ${{ secrets.INSFORGE_CREDENTIALS }}
       INSFORGE_PROJECT_ID: ${{ secrets.INSFORGE_PROJECT_ID }}
       INSFORGE_ORG_ID: da15b50d-ff22-43f7-8042-f75b9b509c3e
     steps:
@@ -29,7 +29,7 @@ jobs:
       - name: Autenticar CLI de InsForge
         run: |
           mkdir -p ~/.insforge
-          printf '{"access_token":"%s","refresh_token":""}' "$INSFORGE_ACCESS_TOKEN" > ~/.insforge/credentials.json
+          printf '%s' "$INSFORGE_CREDENTIALS" > ~/.insforge/credentials.json
           npx --yes @insforge/cli whoami
           npx --yes @insforge/cli link --project-id "$INSFORGE_PROJECT_ID" --org-id "$INSFORGE_ORG_ID" -y --json
 
