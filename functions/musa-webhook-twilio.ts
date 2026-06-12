@@ -406,8 +406,20 @@ async function fallbackGPT(
         role: m.direction === "in" ? "user" : "assistant",
         content: m.body.slice(0, 1000),
       }));
+    // Guardia dura pre-gate (regla 4): mientras el lead NO haya confirmado ser
+    // mayor de 18, el GPT libre JAMÁS puede dar el gate por pasado ni acercar el
+    // cierre ("jaja ok" NO es una confirmación de edad).
+    const preGate = lead.mayor_18 !== true &&
+      ["S00_LLEGADA", "S03_PAIS", "S04_GATE18"].includes(lead.estado_funnel);
+    const guardiaGate = preGate
+      ? "\nREGLA DURA EN ESTE MENSAJE: este lead AÚN NO ha confirmado ser mayor de 18. " +
+        'Un "ok", "dale", "jaja" o cualquier respuesta ambigua NO cuenta como confirmación. ' +
+        "PROHIBIDO darle la edad por confirmada, decir que \"seguimos\" con la venta, ofrecer métodos o datos de pago, o avanzar al cierre. " +
+        "Responde su duda solo con los HECHOS CERRADOS y cierra SIEMPRE volviendo a preguntar si ya tiene 18 años o más."
+      : "";
     const system = resolverPlaceholders(cfg.gptSystem?.prompt ?? "", lead, cfg) +
-      `\n\nETAPA ACTUAL: ${lead.estado_funnel} | PREGUNTA PENDIENTE QUE DEBES RETOMAR AL FINAL: ${preguntaPendiente}`;
+      `\n\nETAPA ACTUAL: ${lead.estado_funnel} | PREGUNTA PENDIENTE QUE DEBES RETOMAR AL FINAL: ${preguntaPendiente}` +
+      guardiaGate;
     const contenido = await openaiChat({
       model: cfg.modelos?.conversacion || MODELO_CONVERSACION_DEFAULT,
       messages: [{ role: "system", content: system }, ...mensajes],
@@ -613,8 +625,32 @@ const MSG_VERIFICANDO =
   "Seguimos verificando tu pago ✅ Tu acceso queda asegurado; te confirmo por aquí mismo apenas esté listo 💜";
 const MSG_GATE18_REASK =
   "Solo para estar segura antes de seguir 😊 ¿Ya tienes *18 años o más*? Respóndeme con un *sí* o dime tu edad, porfa 🙏";
+const MSG_GATE18_REASK2 =
+  "Jeje va 😊 pero necesito que me lo confirmes clarito: ¿ya tienes *18 años o más*? Apenas me digas que sí, seguimos con todos los detalles 🙏";
 const MSG_NEGATIVO_SUAVE =
   "Todo bien, sin presión 😊 Aquí quedo por si te animas más adelante; cualquier duda me la escribes con confianza 💜";
+const MSG_ESCALADO_ACK =
+  "Te leo 🙏 Tu mensaje ya quedó con el equipo; apenas tengan la respuesta te escriben por aquí mismo 💜";
+const MSG_ESCALADO_ACK2 =
+  "Sigo aquí 😊 El equipo ya tiene tu mensaje pendiente y te responde por este mismo chat; gracias por la paciencia 💜";
+
+/** último mensaje enviado por el bot a este lead (para no repetirnos nunca dos veces seguidas) */
+async function ultimoMensajeOut(admin: Admin, phone: string): Promise<string | null> {
+  const { data } = await admin.database
+    .from("musa_messages")
+    .select("body")
+    .eq("lead_phone", phone)
+    .eq("direction", "out")
+    .order("id", { ascending: false })
+    .limit(1);
+  return data?.[0]?.body ?? null;
+}
+
+/** re-pregunta del gate 18+ alternando redacción para no repetir el mismo mensaje seguido */
+async function gateReask(admin: Admin, lead: Lead): Promise<string> {
+  const ultimo = await ultimoMensajeOut(admin, lead.phone);
+  return ultimo === MSG_GATE18_REASK ? MSG_GATE18_REASK2 : MSG_GATE18_REASK;
+}
 
 // ============================== máquina de estados ==============================
 
@@ -786,7 +822,15 @@ async function manejarS04(admin: Admin, lead: Lead, cfg: Cfg, body: string, norm
   if (cls?.tipo === "afirmativo") {
     // afirmación ambigua: re-preguntar explícito, sin avanzar el gate
     await registrarEvento(admin, lead.phone, "gate18_reask", {});
-    await enviarMensajes(admin, lead, [MSG_GATE18_REASK]);
+    await enviarMensajes(admin, lead, [await gateReask(admin, lead)]);
+    return;
+  }
+  if (!contienePregunta(body, norm)) {
+    // Mensaje ambiguo SIN pregunta real ("jaja ok", "mmm", emojis): el gate
+    // NUNCA se da por pasado ni se delega al GPT libre (regla 4). Se
+    // re-pregunta la edad de forma determinista.
+    await registrarEvento(admin, lead.phone, "gate18_reask", { motivo: "ambiguo_sin_pregunta" });
+    await enviarMensajes(admin, lead, [await gateReask(admin, lead)]);
     return;
   }
   await responderFallback(admin, lead, cfg);
@@ -1047,18 +1091,30 @@ export default async function (req: Request): Promise<Response> {
     });
 
     if (lead.opt_out) return emptyTwiml(); // silencio total permanente
-    if (lead.escalado_humano) return emptyTwiml(); // bot en pausa: lo atiende un humano
 
-    const cfg = await cargarSettings(admin);
     const norm = normalizar(body);
 
     // --- Comandos globales ---
+    // STOP/SALIR funciona SIEMPRE, incluso con el bot en pausa por escalado.
     if (esStopTotal(norm)) {
       await actualizarLead(admin, lead, { opt_out: true });
       await registrarEvento(admin, phone, "optout", {});
       await enviarMensajes(admin, lead, [MSG_OPTOUT]);
       return emptyTwiml();
     }
+
+    if (lead.escalado_humano) {
+      // Bot en pausa: lo atiende un humano, pero NUNCA silencio total — el lead
+      // debe saber que su mensaje no se perdió. Ack corto, alternando redacción
+      // para no repetir jamás el mismo mensaje dos veces seguidas.
+      const ultimo = await ultimoMensajeOut(admin, phone);
+      const ack = ultimo === MSG_ESCALADO_ACK ? MSG_ESCALADO_ACK2 : MSG_ESCALADO_ACK;
+      await registrarEvento(admin, phone, "escalado_ack", {});
+      await enviarMensajes(admin, lead, [ack]);
+      return emptyTwiml();
+    }
+
+    const cfg = await cargarSettings(admin);
 
     if (lead.estado_funnel === "S92_MENOR") {
       // terminal: una sola línea amable, sin venta, sin reintentos
