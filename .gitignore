@@ -1,0 +1,22 @@
+# Credenciales y vínculo local de InsForge (contiene la API key admin) — NUNCA subir
+.insforge
+
+# Carpetas de agentes/IDE locales
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+# Sistema / dependencias
+node_modules/
+*.log
+Thumbs.db
+desktop.ini

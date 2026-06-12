@@ -1,0 +1,268 @@
+{
+  "estrategia": "Funnel de conversión rápida tipo \"demo-first\": el diferenciador es enseñar el producto funcionando (video del avatar saludando por nombre) ANTES de vender, lo que destruye la objeción de desconfianza que domina en VE/CO. Estructura: llegada → saludo cálido → MOMENTO AVATAR (demo viva) → calificación país (define moneda y cuentas) → stack de valor compacto + gate 18+ → precio único 9 USD con anclaje HONESTO (\"antes se vendía por partes, hoy todo junto\") → cierre directo → datos de pago por país → captura → verificación → entrega en 3 bloques → comunidad post-venta. Principios: (1) el ticket de 9 USD es precio de impulso, así que el funnel debe poder cerrarse en menos de 15 minutos y nunca tener más de 2 mensajes seguidos sin pregunta que invite a responder; (2) toda urgencia es real y sostenible: la tasa del bolívar cambia a diario (urgencia verdadera en VE) y existe un bono real de acción rápida (\"Plan de Acción 7 Días\", PDF propio que solo se entrega a quien paga dentro de las primeras 24h de contacto, con timestamp del bot como mecanismo de control); (3) la asesora (Valentina) es transparente: si le preguntan si es bot, lo admite con gracia y lo convierte en prueba del producto (\"estás chateando con lo que el curso enseña a construir\"); (4) GPT-5.1 actúa como fallback para preguntas fuera de guion con contexto cerrado del producto y lista negra, y siempre devuelve la conversación al estado pendiente con la pregunta de cierre de esa etapa; (5) máquina de estados con flags por lead: avatar_enviado (una sola vez), pais, mayor_18, captura_recibida, pagado, bono_rapido_elegible. Verificación de pago manual asistida: el bot acusa recibo de la captura al instante y promete ventana real (<15 min en horario 8am–10pm; fuera de horario, dice la verdad y entrega al abrir). Volumen 50–150 leads/día con conversión objetivo 3–8% es alcanzable si el tiempo primera-respuesta es <60 segundos y los 3 seguimientos dentro de 24h están automatizados.",
+  "decisiones": {
+    "cuandoRevelarPrecio": "DESPUÉS del stack de valor, pero dentro de los primeros ~6 intercambios (a los 3-5 minutos de chat). Justificación: 9 USD es precio de impulso; revelarlo antes del stack lo hace ver 'sospechosamente barato' (alimenta la objeción de estafa) y revelarlo demasiado tarde quema leads en un mercado impaciente. La secuencia avatar→stack→precio hace que 9 USD aterrice como ganga creíble: el avatar prueba que el producto es real, el stack construye el anclaje honesto (13 módulos + 4 bonos que antes se vendían por separado), y el precio cae como alivio, no como emboscada. NUNCA esconder el precio si el lead lo pregunta antes: se responde de inmediato ('9 USD todo incluido, déjame mostrarte qué trae') y se retoma el guion — ocultarlo destruye confianza.",
+    "grupoWhatsapp": "Se ELIMINA como requisito pre-venta y se mueve a POST-venta como comunidad de alumnos. Justificación: pedir unirse a un grupo antes de comprar (modelo anterior) agrega fricción, gotea leads hacia un canal sin máquina de estados, y un grupo lleno de desconocidos preguntando '¿esto es real?' es anti-prueba-social. En cambio, como comunidad post-compra: (1) sube el valor percibido del paquete ('acceso a la comunidad privada de alumnos' se menciona en el stack como parte de lo que recibes), (2) genera testimonios reales reutilizables, (3) reduce soporte 1:1, (4) es el canal de siembra para futuras ofertas. Durante la venta solo se menciona, no se exige: 'al confirmar tu pago entras también al grupo privado de alumnos'.",
+    "miniTeaserGratis": "SÍ, pero táctico, no por defecto. El MOMENTO AVATAR ya ES el teaser principal (demo del producto sin regalar producto). Adicional: un único PROMPT_MUESTRA (1 prompt real del curso + 1 imagen generada con él) que se usa solo en dos momentos: (a) como respuesta a la objeción '¿es estafa?' y (b) en el seguimiento de 4h para leads fríos. Justificación: es material de marketing, no rompe la regla 'nada se da gratis' (el producto completo jamás se entrega sin pago), baja la desconfianza con evidencia en vez de palabras, y al ser UN solo prompt genera el efecto 'si esto es la muestra, imagínate el curso'. No se da una lección completa: alarga el funnel y reduce la urgencia de comprar.",
+    "nombreAsesora": "VALENTINA (diminutivo 'Vale'). Justificación: nombre femenino top en Venezuela y Colombia simultáneamente, suena joven, cercano y profesional, fácil de pronunciar/escribir, sin connotación sexual (importante: la asesora NO es la modelo IA y el nombre no debe confundirse con las modelos del producto). Firma de marca: 'Valentina 💜 | Modelos IA'. Si preguntan si es humana: admite ser asistente virtual del equipo y lo usa como demo del módulo de automatización del curso."
+  },
+  "etapas": [
+    {
+      "id": "S00_LLEGADA",
+      "objetivo": "Registrar el lead, capturar metadatos (nombre de perfil de WhatsApp, ad_id/referral del anuncio CTWA, timestamp para la ventana del bono de acción rápida) y disparar el saludo en menos de 60 segundos.",
+      "disparador": "Primer mensaje entrante de un número sin estado previo (típicamente el prellenado '¡Hola! Quiero más información.').",
+      "mensajes": [],
+      "notas": "Sin mensaje propio: es un estado interno. Acciones: crear lead en Postgres (InsForge), guardar profile_name crudo, evaluar usabilidad del nombre con regex + lista de nombres de pila LATAM (rechazar: emojis, números, palabras de negocio, frases, >2 palabras raras), setear flags avatar_enviado=false, bono_rapido_hasta=now+24h. Transición inmediata a S01_SALUDO."
+    },
+    {
+      "id": "S01_SALUDO",
+      "objetivo": "Abrir con calidez, presentar a Valentina, plantar la promesa del producto y generar expectativa para el video del avatar.",
+      "disparador": "Transición automática desde S00_LLEGADA.",
+      "mensajes": [
+        "¡Hola! 😄 Qué bueno tenerte por aquí. Soy *Valentina*, asesora de *Modelos IA* 💜",
+        "Aquí vas a descubrir cómo crear modelos virtuales hiperrealistas con inteligencia artificial y monetizarlas en internet 💻✨",
+        "Pero antes de contarte los detalles… déjame mostrarte algo que te va a encantar 👀 Dame unos segunditos ⏳"
+      ],
+      "notas": "Los 3 mensajes salen seguidos con 1-2s de separación (efecto tecleo). Transición automática a S02_AVATAR sin esperar respuesta."
+    },
+    {
+      "id": "S02_AVATAR",
+      "objetivo": "MOMENTO AVATAR (solo UNA vez por lead, flag avatar_enviado): demostrar el producto en vivo con el video de ~6s del avatar saludando por nombre, y conectarlo con 'esto lo vas a saber crear tú'.",
+      "disparador": "Transición automática desde S01_SALUDO. Rama A: nombre de perfil usable → enviar video personalizado. Rama B: nombre no usable → preguntar el nombre primero. Rama C: hay nombre pero no existe video para ese nombre → video genérico.",
+      "mensajes": [
+        "[RAMA A — nombre usable] [VIDEO_AVATAR]",
+        "[RAMA A — tras el video] ¿Viste eso, {{nombre}}? 😏 Esa chica NO existe. Es un modelo creado 100% con inteligencia artificial… y te saludó por tu nombre. Eso exactamente es lo que vas a aprender a crear tú, paso a paso, aunque hoy no sepas nada de IA.",
+        "[RAMA B — nombre no usable] Por cierto, ¿cómo te llamas? 😊 Quiero mostrarte algo especial y me gustaría hacerlo bien.",
+        "[RAMA B — al recibir el nombre, si hay video] ¡Listo, {{nombre}}! Mira esto 👇 [VIDEO_AVATAR]",
+        "[RAMA B/C — si no hay video con ese nombre] Mira esto 👇 [VIDEO_AVATAR_GENERICO]",
+        "[RAMA B/C — tras el video] Esa chica NO existe 🤯 Está creada 100% con inteligencia artificial: su cara, su voz, sus gestos… todo. Y eso exactamente es lo que vas a aprender a crear tú, paso a paso, aunque hoy estés empezando de cero."
+      ],
+      "notas": "Regla dura: una sola vez por lead (si el lead vuelve días después, NO se reenvía). El backend mantiene una biblioteca de videos pre-renderizados por nombre frecuente (top ~200 nombres VE/CO) + 1 genérico; cron de InsForge puede encolar la generación de nombres nuevos para futuros leads. Tras el mensaje puente, transición automática a S03_PAIS."
+    },
+    {
+      "id": "S03_PAIS",
+      "objetivo": "Calificación ligera: identificar país (Venezuela/Colombia/otro) para elegir moneda, monto y cuentas de pago. Una sola pregunta, cero interrogatorio.",
+      "disparador": "Transición automática desde S02_AVATAR (3-4s después del mensaje puente).",
+      "mensajes": [
+        "Cuéntame algo rapidito para darte la info exacta de tu zona: ¿me escribes desde *Venezuela* 🇻🇪 o desde *Colombia* 🇨🇴?",
+        "[SI RESPONDE OTRO PAÍS] ¡Qué chévere, también te puedo atender! 🙌 El curso funciona desde cualquier país (todo es online). Para el pago te confirmo en un momento las opciones disponibles para tu zona, ¿vale? Mientras, déjame contarte qué incluye 👇"
+      ],
+      "notas": "Usar botones/quick-reply de WhatsApp si la línea los soporta ('Venezuela 🇻🇪' / 'Colombia 🇨🇴'). Guardar flag pais. 'Otro país' → tag #otro_pais y escalar a humano SOLO el tema método de pago (el dueño define si habilita Binance/PayPal); el funnel continúa normal con precio en USD. Respuesta → S04_STACK_18."
+    },
+    {
+      "id": "S04_STACK_18",
+      "objetivo": "Stack de valor compacto (13 módulos + 4 bonos + comunidad) y confirmación de mayoría de edad ANTES de detallar el material +18.",
+      "disparador": "Respuesta de país recibida en S03_PAIS.",
+      "mensajes": [
+        "Mira TODO lo que incluye *Modelos IA* 👇\n\n🤖 *13 módulos paso a paso:*\n• Cómo funciona el mercado de modelos IA 📊\n• Crear tu modelo hiperrealista desde cero\n• Generar contenido ilimitado con su rostro y estilo\n• Prompts avanzados de imagen y video\n• Automatizar respuestas y atención (como esta 😉)\n• Monetizar packs, suscripciones y contenido exclusivo\n• Atraer tráfico desde TikTok e Instagram\n\n🎁 *Y además 4 bonos:*\n1️⃣ Colección de +20 modelos IA premium (material para adultos 🔞)\n2️⃣ Audios FemPro\n3️⃣ YouTube Money Machine\n4️⃣ MegaPack Master IA\n\n👥 Más acceso al *grupo privado de alumnos* para resolver dudas y compartir avances.",
+        "Eso sí, importante ⚠️: parte del material de los bonos es *solo para mayores de 18 años*. ¿Me confirmas que ya eres mayor de edad?",
+        "[SI RESPONDE QUE ES MENOR] Te agradezco un montón la sinceridad 🙏 Este programa incluye material exclusivo para adultos, así que solo puedo venderlo a mayores de 18. Cuando los cumplas, aquí estaré. ¡Cuídate mucho! 💜"
+      ],
+      "notas": "Si confirma 18+ → flag mayor_18=true → S05_PRECIO. Si dice ser menor → estado terminal S92_MENOR (tag #menor, bloquear venta, NO insistir, NO seguimientos). Si evade la pregunta, GPT responde lo que haya preguntado y re-pregunta la confirmación: sin confirmación explícita no se avanza ni se detalla el bono 1. El copy del chat jamás describe el contenido +18 más allá del nombre del bono."
+    },
+    {
+      "id": "S05_PRECIO",
+      "objetivo": "Revelar el precio único de 9 USD con el anclaje honesto (antes se vendía por partes, hoy todo junto) y el equivalente en moneda local.",
+      "disparador": "Confirmación 18+ recibida en S04_STACK_18.",
+      "mensajes": [
+        "¿Y sabes qué es lo mejor? Antes el curso y los bonos se vendían por separado. Hoy TODO va junto en un único pago de *9 USD* 💥\n\n✅ 13 módulos completos\n✅ Los 4 bonos\n✅ Grupo privado de alumnos\n✅ Acceso de por vida, sin mensualidades\n\n[VE] En bolívares son *{{precio_bs}} Bs* a la tasa de hoy 🇻🇪\n[CO] En pesos son *{{precio_cop}} COP* 🇨🇴",
+        "Y apenas confirme tu pago, te entrego TODO por aquí mismo: enlaces directos de Google Drive, sin esperas ni trámites 🚀"
+      ],
+      "notas": "Mostrar solo la línea de moneda del país del lead. La tasa en Bs se actualiza a diario vía cron (InsForge) — esto habilita la urgencia REAL del seguimiento de 20h. Transición automática a S06_CIERRE."
+    },
+    {
+      "id": "S06_CIERRE",
+      "objetivo": "Pedir la venta de forma directa y sin presión falsa: una pregunta de cierre clara.",
+      "disparador": "Transición automática desde S05_PRECIO (2-3s después).",
+      "mensajes": [
+        "¿Te animas a empezar hoy, {{nombre}}? 😊 ¿Te paso los datos de pago?"
+      ],
+      "notas": "SÍ/dale/ok → S07_DATOS_PAGO. Objeción → matriz de objeciones (respuesta exacta) y re-cierre suave. Pregunta fuera de guion → S90_FALLBACK_GPT. Silencio → S93_FRIO (seguimientos 30min/4h/20h). NUNCA repetir la pregunta de cierre más de 2 veces seguidas sin aportar algo nuevo (muestra, beneficio, respuesta)."
+    },
+    {
+      "id": "S07_DATOS_PAGO",
+      "objetivo": "Entregar los datos de pago del país correcto, el monto exacto y la instrucción clara de enviar la captura.",
+      "disparador": "Aceptación del cierre ('sí', 'dale', 'cómo pago', 'pásame los datos') en cualquier etapa posterior al precio.",
+      "mensajes": [
+        "[VE] ¡De una, {{nombre}}! 🙌 Estos son los datos para tu pago de *{{precio_bs}} Bs* (9 USD a tasa del día):\n\n{{cuentas_venezuela}}\n\nCuando hagas el Pago Móvil o la transferencia, envíame la *captura del comprobante* por aquí 📸 y lo verifico enseguida.",
+        "[CO] ¡De una, {{nombre}}! 🙌 Estos son los datos para tu pago de *{{precio_cop}} COP*:\n\n{{cuentas_colombia}}\n\nCuando hagas la transferencia (Nequi, Daviplata, Bancolombia o llave Bre-B), envíame la *captura del comprobante* por aquí 📸 y lo verifico enseguida."
+      ],
+      "notas": "Transición a S08_ESPERA_CAPTURA. Las cuentas viven en secrets/tabla de InsForge para rotarlas sin tocar código. El bot JAMÁS pide datos de tarjeta, claves ni códigos OTP: solo la captura."
+    },
+    {
+      "id": "S08_ESPERA_CAPTURA",
+      "objetivo": "Sostener al lead durante el pago, resolver dudas operativas de la transferencia y recibir la imagen del comprobante.",
+      "disparador": "Entrada automática tras S07_DATOS_PAGO. Sub-disparador de recordatorio: 15 minutos sin imagen recibida.",
+      "mensajes": [
+        "[RECORDATORIO 15 MIN] ¿Cómo vas con el pago, {{nombre}}? 😊 Si te surgió algún detalle con la transferencia (banco caído, datos, monto), dime y lo resolvemos juntos.",
+        "[SI ENVÍA TEXTO EN VEZ DE IMAGEN, ej. 'ya pagué'] ¡Buenísimo! 🙌 Envíame la captura del comprobante por aquí mismo para verificarlo y entregarte todo de una vez 📸"
+      ],
+      "notas": "Imagen recibida → S09_VERIFICACION. Texto/duda → GPT-5.1 con contexto de pagos (puede explicar cómo hacer un Pago Móvil o usar llave Bre-B en pasos genéricos) y re-pedir la captura. 45 min sin nada → pasa al circuito S93_FRIO con copy adaptado ('quedó pendiente tu pago')."
+    },
+    {
+      "id": "S09_VERIFICACION",
+      "objetivo": "Acusar recibo de la captura al instante, fijar expectativa REAL de tiempo y validar el pago (humano u OCR asistido) antes de entregar.",
+      "disparador": "Mensaje entrante con imagen estando en S08_ESPERA_CAPTURA (o en cualquier estado posterior al precio).",
+      "mensajes": [
+        "¡Recibido, {{nombre}}! 🙌 Dame unos minutos mientras verifico tu pago ✅ Normalmente tarda menos de 15 minutos (en horario de 8am a 10pm).",
+        "[FUERA DE HORARIO] ¡Recibido, {{nombre}}! 🙌 Tu comprobante quedó en cola. Nuestro horario de verificación es de 8am a 10pm, así que apenas abramos mañana lo confirmo y te entrego TODO de inmediato. Tu acceso está asegurado, tranqui 💜",
+        "[COMPROBANTE ILEGIBLE O NO CUADRA] Mmm, no logro validar este comprobante 🤔 ¿Me confirmas el *número de referencia*, el *banco desde el que pagaste* y la *hora* de la operación? Con eso lo reviso de nuevo.",
+        "[PAGO INCOMPLETO] {{nombre}}, veo que el monto no coincide con el total ({{precio_bs}} Bs / {{precio_cop}} COP). ¿Me ayudas completando la diferencia y me envías esa captura? Apenas cuadre, te entrego todo 🙌"
+      ],
+      "notas": "Flujo operativo: la captura se sube a Storage (InsForge), edge function notifica al verificador humano (o corre OCR para pre-validar referencia/monto/fecha) y el humano aprueba con un toque. Aprobado → S10_ENTREGA. Sospecha de captura falsa/editada → tag #fraude y escalar a S91_HUMANO sin acusar al cliente ('necesito validar un detalle adicional con el equipo, ya te confirmo'). Prometer SOLO tiempos que se cumplen: la promesa de 15 min exige cobertura real en ese horario."
+    },
+    {
+      "id": "S10_ENTREGA",
+      "objetivo": "Confirmar el pago, entregar los 17 enlaces ordenados en 3 bloques (sin parecer spam), invitar al grupo y dejar al alumno con un primer paso concreto.",
+      "disparador": "Verificación aprobada en S09_VERIFICACION.",
+      "mensajes": [
+        "✅ ¡Pago confirmado! Bienvenido oficialmente a *Modelos IA*, {{nombre}} 🎉 Hiciste una gran inversión en ti.",
+        "Te entrego todo organizado en *3 bloques* para que no se te pierda nada. Tip: fija este chat o guarda los enlaces en tus mensajes destacados 📌",
+        "📚 *BLOQUE 1 — Curso completo (13 módulos):*\n[ENTREGA_LINKS:modulos_1_13]",
+        "🎁 *BLOQUE 2 — Tus 4 bonos:*\n[ENTREGA_LINKS:bonos_1_4]\n\n(Recuerda: el material 🔞 es de uso personal y solo para adultos)",
+        "👥 *BLOQUE 3 — Tu comunidad:*\nÚnete al grupo privado de alumnos aquí: {{link_grupo}}\nAhí compartimos avances, resolvemos dudas y los alumnos se enteran PRIMERO de todo lo nuevo.",
+        "Mi consejo para arrancar 💪: empieza HOY por el *Módulo 1* (te toma ~20 minutos) y mañana ya estarás creando tu primer modelo. Cualquier duda, me escribes por aquí. ¡Nos vemos adentro! 💜 — Valentina"
+      ],
+      "notas": "Los enlaces se agrupan en 2 mensajes (módulos / bonos) usando listas dentro del mensaje, NUNCA 17 mensajes separados (parece spam y degrada la calidad del número ante Meta). Verificar que mayor_18=true antes de soltar el Bloque 2 (si por algún camino raro no está confirmado, confirmar antes de entregar bonos). Marcar pagado=true, programar tarea a 48h para testimonio. Transición a S11_POSTVENTA."
+    },
+    {
+      "id": "S11_POSTVENTA",
+      "objetivo": "Retener, generar testimonios reales y sembrar futuras ofertas sin quemar el canal.",
+      "disparador": "48h después de la entrega (tarea programada con cron de InsForge). Si la ventana de 24h está cerrada, usar template aprobado de seguimiento post-compra.",
+      "mensajes": [
+        "[48H — DENTRO DE VENTANA] Hola {{nombre}} 😊 ¿Cómo vas con el curso? ¿Ya creaste tu primer modelo? Cuéntame, me encanta ver los avances 👀",
+        "[SI RESPONDE POSITIVO] ¡Qué nota! 🙌 ¿Me regalas una mini-reseña por aquí (texto o audio)? Con tu permiso la compartimos para que más personas se animen. Y si la subes al grupo, mejor todavía 💜",
+        "[SI RESPONDE CON PROBLEMA] Gracias por contarme 🙏 Vamos a resolverlo: dime exactamente en qué módulo o enlace tuviste el detalle y lo arreglo de una."
+      ],
+      "notas": "Los testimonios recibidos se guardan (texto + permiso explícito) en Postgres: SOLO estos se pueden citar en ventas futuras, siempre reales y con permiso. Siembra de ofertas: tag #comprador + mensaje ocasional en el grupo ('los alumnos se enteran primero'); pedir en la entrega permiso explícito para avisar de novedades (opt-in para futuros templates de marketing)."
+    },
+    {
+      "id": "S90_FALLBACK_GPT",
+      "objetivo": "Responder CUALQUIER pregunta fuera de guion con GPT-5.1 y devolver la conversación al riel del estado pendiente.",
+      "disparador": "Mensaje entrante que el clasificador de la etapa actual no reconoce (no es respuesta esperada, ni objeción mapeada, ni captura).",
+      "mensajes": [
+        "[PLANTILLA DE COMPORTAMIENTO, NO COPY FIJO] GPT-5.1 responde en máximo 3 líneas, tono Valentina, usando SOLO el contexto del producto (qué es, qué incluye, precio 9 USD, métodos de pago, entrega por Drive, garantía de entrega, comunidad) + lista negra de cumplimiento. Cierra SIEMPRE reconectando con la pregunta pendiente de la etapa actual. Ejemplo de remate: 'Bueno {{nombre}}, ¿en qué quedamos? ¿Te paso los datos de pago? 😊'"
+      ],
+      "notas": "System prompt del fallback: identidad (asistente virtual llamada Valentina, NO finge ser humana si le preguntan directo, NO es la modelo del video), hechos cerrados del producto, precios/cuentas como variables, lista negra completa (ver notasCumplimiento), instrucción de NUNCA inventar datos del curso ni prometer ingresos. Si la confianza es baja o el tema es delicado (reembolsos, amenazas, fraude, prensa) → S91_HUMANO."
+    },
+    {
+      "id": "S91_HUMANO",
+      "objetivo": "Escalar a un humano del equipo sin romper la experiencia.",
+      "disparador": "Tag #fraude, #otro_pais (definir método de pago), solicitud explícita de hablar con una persona, queja fuerte, o baja confianza del fallback.",
+      "mensajes": [
+        "Dame un momentico, {{nombre}} 🙏 Voy a consultar esto con el equipo para darte una respuesta exacta. Te escribo en un ratico por aquí mismo."
+      ],
+      "notas": "Notificación push al operador (edge function → WhatsApp del dueño o panel). El bot pausa la automatización en ese chat hasta que el humano marque 'resuelto'."
+    }
+  ],
+  "objeciones": [
+    {
+      "objecion": "¿Es estafa? / no confío",
+      "respuesta": "Te entiendo perfecto, {{nombre}}, en internet hay que cuidarse 🙏 Por eso mismo empezamos mostrándote el video: esa modelo la creamos con las mismas técnicas del curso, no es un truco. Y mira, te dejo una muestra real de lo que hay adentro 👇 [PROMPT_MUESTRA] Pruébalo tú mismo. Además la entrega es inmediata: pagas, verifico tu comprobante y recibes TODOS los enlaces por este mismo chat, así que puedes comprobarlo todo al instante. ¿Qué otra duda te queda?"
+    },
+    {
+      "objecion": "Está caro / no tengo plata",
+      "respuesta": "Tranquilo, te entiendo 🙏 Por eso el precio es el que es: 9 USD una sola vez ({{precio_bs}} Bs / {{precio_cop}} COP), menos de lo que cuesta una pizza 🍕, por 13 módulos + 4 bonos + comunidad, con acceso de por vida. No hay mensualidades ni cobros escondidos. Si hoy no puedes, no pasa nada: dime cuándo te queda mejor y te guardo la info actualizada. ¿Te parece?"
+    },
+    {
+      "objecion": "¿Me llega de inmediato?",
+      "respuesta": "¡Sí! 🚀 Apenas verifico tu comprobante (normalmente menos de 15 minutos en horario de 8am a 10pm), te entrego TODO por este mismo chat: los 13 módulos y los 4 bonos como enlaces directos de Google Drive, más el acceso al grupo de alumnos. Nada de esperar correos ni plataformas raras."
+    },
+    {
+      "objecion": "¿Sirve para principiantes?",
+      "respuesta": "Totalmente 💪 El curso arranca desde CERO: el módulo 1 te explica cómo funciona este mercado y de ahí vas paso a paso hasta crear tu primer modelo. No necesitas saber de diseño ni de programación, solo un celular o compu con internet. De hecho, la mayoría de los alumnos empiezan sin experiencia."
+    },
+    {
+      "objecion": "¿Funciona en mi país?",
+      "respuesta": "Sí 🌎 Todo el curso es online y las herramientas de IA que se enseñan funcionan desde cualquier país. La monetización también: las plataformas para vender contenido y atraer tráfico (TikTok, Instagram, etc.) están disponibles en Venezuela, Colombia y prácticamente toda LATAM. Lo único que cambia según tu país es el método de pago, y de eso me encargo yo 😉"
+    },
+    {
+      "objecion": "¿Puedo pagar en bolívares / en pesos?",
+      "respuesta": "¡Claro que sí! 🙌 En Venezuela 🇻🇪 pagas {{precio_bs}} Bs (el equivalente a 9 USD a la tasa de hoy) por Pago Móvil o transferencia Banco de Venezuela. En Colombia 🇨🇴 pagas {{precio_cop}} COP por Nequi, Daviplata, Bancolombia o llave Bre-B. ¿Te paso los datos?"
+    },
+    {
+      "objecion": "¿Qué incluye exactamente?",
+      "respuesta": "Te lo resumo completico 👇 *13 módulos*: mercado de modelos IA, creación de tu modelo hiperrealista desde cero, contenido ilimitado, prompts avanzados de imagen y video, automatización de respuestas, monetización de packs y suscripciones, y tráfico desde TikTok e Instagram. *4 bonos*: colección +20 modelos IA premium (solo adultos 🔞), Audios FemPro, YouTube Money Machine y MegaPack Master IA. Más el *grupo privado de alumnos*. Todo con acceso de por vida por un único pago de 9 USD."
+    },
+    {
+      "objecion": "¿Es legal?",
+      "respuesta": "Sí 😊 Crear modelos virtuales con IA y vender contenido digital propio es una actividad legal: es contenido generado por ti, de personas que no existen, con herramientas públicas de IA. El curso además te enseña a trabajar dentro de las normas de cada plataforma. Lo que compras es formación: videos y guías paso a paso."
+    },
+    {
+      "objecion": "Soy mujer, ¿me sirve?",
+      "respuesta": "¡Por supuesto! 💜 De hecho hay muchas mujeres en esto, y con ventaja: el negocio es crear y gestionar modelos VIRTUALES, tú nunca pones tu cara ni tu cuerpo, tú eres la dueña del negocio detrás. El método es exactamente el mismo: creas tu modelo con IA, generas el contenido y monetizas."
+    },
+    {
+      "objecion": "¿Hay garantía?",
+      "respuesta": "Te garantizo la entrega completa: pagas y recibes los 13 módulos + 4 bonos verificables al instante, por este mismo chat 📲 Y no te vendo humo: esto es formación, los resultados dependen de que apliques lo que aprendes, como en cualquier curso. Lo que sí te aseguro es que recibes exactamente todo lo que te describí, con acceso de por vida, y me tienes aquí para cualquier problema con tu acceso."
+    },
+    {
+      "objecion": "¿Por qué tan barato?",
+      "respuesta": "Buena pregunta 😄 Antes esto se vendía por partes (el curso por un lado, los bonos por otro). Decidimos juntarlo TODO a un precio que cualquiera en Venezuela o Colombia pueda pagar, porque el negocio crece con una comunidad grande de alumnos activos, no exprimiendo a cada uno. 9 USD, una vez, todo incluido. Sin letra pequeña."
+    },
+    {
+      "objecion": "Déjame pensarlo",
+      "respuesta": "¡Claro, {{nombre}}, tómate tu tiempo! 😊 Solo dos cositas para que las tengas en cuenta: el monto en bolívares se ajusta con la tasa del día, así que hoy queda en {{precio_bs}} Bs; y a quienes deciden el mismo día de su primer contacto les incluimos el *Plan de Acción 7 Días* de regalo (una guía extra que solo damos por decisión rápida, de verdad). Cualquier duda que te esté frenando, dímela con confianza, para eso estoy 💜"
+    },
+    {
+      "objecion": "¿Eres un bot?",
+      "respuesta": "Sí 😄 Soy Valentina, la asistente virtual del equipo de Modelos IA. Y te cuento un secreto: automatizar la atención así, con IA, es UNA de las cosas que enseña el curso (módulo de automatización 😉). Detrás hay un equipo humano real que verifica cada pago y te apoya si algo se complica. ¿Seguimos? ¿Qué más quieres saber?"
+    }
+  ],
+  "seguimientos": [
+    {
+      "retraso": "30 minutos sin respuesta (post-precio o post-cierre)",
+      "mensaje": "{{nombre}}, ¿quedaste con alguna duda? 😊 Pregúntame con confianza, para eso estoy. Te lo resumo en una línea: curso completo (13 módulos) + 4 bonos + comunidad, pago único de 9 USD, entrega inmediata por este chat. ¿Te paso los datos de pago?"
+    },
+    {
+      "retraso": "4 horas sin respuesta",
+      "mensaje": "Hola {{nombre}} 👋 Te dejo una muestra REAL de lo que hay dentro del curso para que lo veas con tus propios ojos 👇\n\n[PROMPT_MUESTRA]\n\nEse es solo UNO de los prompts del módulo de creación de modelos. Pruébalo gratis en cualquier IA de imágenes y me cuentas qué tal 😏 Imagínate con los 13 módulos completos. ¿Retomamos?"
+    },
+    {
+      "retraso": "20 horas sin respuesta (última ventana antes de las 24h)",
+      "mensaje": "{{nombre}}, paso a contarte dos cosas reales antes de cerrar tu chat de hoy 😊\n\n1️⃣ [SOLO VE] La tasa cambia cada día: hoy tu acceso queda en *{{precio_bs}} Bs*; mañana el monto se recalcula. / [SOLO CO] Tu acceso sigue disponible en *{{precio_cop}} COP*.\n2️⃣ A quienes confirman su pago dentro de las primeras 24 horas les incluimos de regalo el *Plan de Acción 7 Días* 🎁: una guía extra con el paso a paso exacto de tu primera semana. Es real y solo se entrega por decisión rápida (tu plazo vence hoy a las {{hora_limite}}).\n\nSi te animas, te paso los datos en 10 segundos. Y si no es tu momento, todo bien, aquí quedo 💜"
+    }
+  ],
+  "templatePost24h": "Nombre sugerido del template: reactivacion_info_pendiente (categoría MARKETING, idioma es). Cuerpo: \"Hola {{1}} 👋 Soy Valentina, del equipo de Modelos IA. Hace poco me pediste información sobre nuestro curso para crear y monetizar modelos virtuales con inteligencia artificial, y quedó pendiente completar tu acceso. Si todavía te interesa, responde SÍ y te envío la información actualizada con el precio en tu moneda local a la tasa del día. Si prefieres no recibir más mensajes, responde STOP y no te volvemos a escribir.\" — Notas de aprobación Meta: sin promesas de ingresos, sin urgencia artificial, sin contenido para adultos, con opt-out explícito (obligatorio en marketing), variable {{1}} = nombre. Botones sugeridos: respuesta rápida \"SÍ, quiero la info\" y \"STOP\". Enviar máximo 1 vez por lead frío, entre 24 y 72h después del último mensaje; respetar STOP de forma permanente (flag opt_out en Postgres).",
+  "postVenta": [
+    "CONFIRMACIÓN: mensaje inmediato '✅ ¡Pago confirmado! Bienvenido oficialmente a Modelos IA, {{nombre}} 🎉' + registro de venta (monto, país, método, timestamp) en Postgres y marca pagado=true.",
+    "ENTREGA ORDENADA DE LOS 17 ENLACES (anti-spam): agrupar en exactamente 3 mensajes de contenido: (1) BLOQUE 1 'Curso completo — 13 módulos' con los 13 enlaces numerados en UNA sola lista dentro de un mensaje; (2) BLOQUE 2 'Tus 4 bonos' con los 4 enlaces (verificar flag mayor_18 antes de enviar; recordatorio de uso personal del material 🔞 sin describirlo); (3) BLOQUE 3 'Comunidad' con {{link_grupo}}. Nunca 17 mensajes separados: degrada la calidad del número ante Meta y abruma al cliente. Precedido por el tip de fijar el chat/guardar enlaces.",
+    "INVITACIÓN AL GRUPO: el grupo privado de WhatsApp es POST-venta (comunidad de alumnos). Copy: 'Únete aquí: {{link_grupo}} — ahí compartimos avances, resolvemos dudas y los alumnos se enteran PRIMERO de todo lo nuevo.' Registrar union_grupo cuando sea verificable.",
+    "PRIMER PASO CONCRETO: cerrar la entrega con dirección ('empieza HOY por el Módulo 1, ~20 minutos, y mañana creas tu primer modelo'). Reduce arrepentimiento de compra y aumenta la probabilidad de testimonio.",
+    "TESTIMONIO A LAS 48H: tarea programada (cron InsForge). Si la ventana de 24h sigue abierta, mensaje de sesión: '¿Cómo vas con el curso? ¿Ya creaste tu primer modelo?' y si responde positivo, pedir mini-reseña en texto o audio CON permiso explícito para compartirla. Si la ventana está cerrada, usar template UTILITY aprobado tipo seguimiento_alumno: 'Hola {{1}}, soy Valentina de Modelos IA. Han pasado 2 días desde tu compra y quiero saber cómo vas con el curso y si necesitas ayuda con tu acceso. Responde y te leo.' Solo testimonios reales y con permiso se citan en ventas futuras.",
+    "SOPORTE POST-VENTA: cualquier reporte de enlace caído o acceso fallido tiene prioridad máxima → escalar a humano si el bot no resuelve en 1 intercambio; un comprador frustrado en VE/CO se convierte en denuncia pública de estafa muy rápido.",
+    "SEMILLA DE FUTURAS OFERTAS: (1) en la entrega, pedir opt-in explícito: '¿Quieres que te avise cuando saquemos material nuevo o mejoras del curso? Responde SÍ y quedas en la lista VIP' (habilita templates de marketing futuros con consentimiento); (2) tag #comprador + fecha en Postgres como base segmentada; (3) cultura en el grupo de que 'los alumnos se enteran primero', de modo que un futuro lanzamiento (curso avanzado, packs nuevos, servicio done-for-you) tenga canal caliente sin quemar el 1:1."
+  ],
+  "metricas": [
+    "leads_nuevos por día, segmentados por ad_id/campaña (referral del click-to-WhatsApp) — base del CPL real por anuncio",
+    "tiempo_primera_respuesta del bot (objetivo <60s) y tasa de respuesta al saludo (S01)",
+    "MOMENTO AVATAR: % nombre de perfil usable vs no usable vs sin video (rama A/B/C), % que responde tras el video (señal del diferenciador), % que entrega su nombre cuando se le pide",
+    "calificación: % que responde país, distribución VE/CO/otro (define mezcla de métodos de pago y caja)",
+    "gate 18+: % confirma, % menor (descarte), % abandona en la pregunta",
+    "alcance de etapa: % de leads que llegan a stack (S04), precio (S05) y cierre (S06) — embudo de caída por estado",
+    "tasa de aceptación de cierre: % que pide datos de pago tras ver el precio (métrica reina del copy de precio)",
+    "pagos: capturas recibidas, % verificadas OK, % rechazadas/ilegibles, % sospecha de fraude, tiempo medio de verificación (cumplimiento de la promesa de 15 min)",
+    "conversión global lead→venta (objetivo 3–8%) y por país, ingresos/día, y tiempo mediano lead→pago",
+    "seguimientos: tasa de respuesta y ventas atribuidas a cada toque (30min / 4h con muestra / 20h con incentivo real) — el de 4h mide el poder del PROMPT_MUESTRA",
+    "template post-24h: enviados, entregados, respuestas SÍ, ventas recuperadas, STOPs (si STOP > 8-10% revisar copy/frecuencia)",
+    "fallback GPT-5.1: nº de intervenciones por conversación, top temas/objeciones detectadas (clusterizar semanalmente para mejorar el guion), % escaladas a humano, costo de tokens por lead",
+    "post-venta: % unión al grupo, % testimonios a 48h, % opt-in lista VIP, reportes de enlaces caídos",
+    "salud del canal: quality rating del número en Meta, % bloqueos/reportes por leads contactados (si sube, bajar agresividad de seguimientos), y costo por venta final (ad spend + Twilio + OpenAI / ventas)"
+  ],
+  "notasCumplimiento": [
+    "NUNCA inventar cifras de compradores, contadores de ventas, 'X personas compraron hoy' ni montos de contribución ficticios (prohibido el patrón 'muchas personas contribuyen con $39.200' del modelo anterior).",
+    "NUNCA usar precios 'antes' fabricados (prohibido 'Antes $180.000, HOY $8.000'). El ÚNICO anclaje permitido es el real: 'antes el curso y los bonos se vendían por separado; hoy todo junto por 9 USD'.",
+    "NUNCA usar urgencia falsa: prohibido 'oferta válida 5 minutos', 'solo por hoy' (salvo el bono de acción rápida, que SÍ vence de verdad y se deniega operativamente a quien paga fuera de plazo) y 'últimos cupos' (es un producto digital sin cupos). Urgencias permitidas porque son reales: la tasa del bolívar cambia a diario y el Plan de Acción 7 Días solo dentro de las primeras 24h con timestamp verificado.",
+    "NUNCA prometer ingresos: prohibido 'vas a ganar X al mes', 'ingresos garantizados', 'recuperas la inversión en una semana', 'dinero fácil/rápido'. Frase marco: 'esto es formación; los resultados dependen de aplicar lo aprendido'. (Además protege la cuenta ante las políticas de Meta.)",
+    "NUNCA inventar testimonios ni citar reseñas que no existan con permiso registrado en base de datos.",
+    "NUNCA describir, detallar o enviar muestras del material +18 en el chat; solo nombrar el bono. NUNCA entregarlo sin confirmación explícita de mayoría de edad registrada (flag mayor_18). Si el lead dice ser menor: cortar la venta de TODO el producto, sin excepciones ni reintentos.",
+    "NUNCA fingir ser humana ante la pregunta directa '¿eres un bot?' — admitirlo siempre. NUNCA afirmar ser la modelo del video ni que la modelo es una persona real.",
+    "NUNCA pedir datos sensibles: tarjetas, claves, PIN, códigos OTP, cédula completa innecesaria. Solo se recibe la captura del comprobante.",
+    "NUNCA prometer tiempos de entrega que no se cumplen: si la verificación es manual y es de madrugada, decir la verdad ('te confirmo apenas abramos a las 8am').",
+    "NUNCA decir 'gratis' sobre nada que requiera pago, ni resucitar el patrón de 'contribución voluntaria' que esconde un cobro.",
+    "NUNCA presionar tras un 'no' claro: máximo los 3 seguimientos definidos + 1 template post-24h; un STOP es permanente e irreversible en la base de datos.",
+    "NUNCA usar lenguaje sexual explícito, ni dar consejo financiero/legal/médico; ante temas legales finos, reembolsos disputados, amenazas o fraude, escalar a humano (S91).",
+    "NUNCA inventar contenido del curso que no exista (módulos, herramientas, soporte 1:1 no ofrecido): el fallback GPT-5.1 responde solo desde el contexto cerrado del producto y si no sabe, dice 'déjame confirmarlo con el equipo' y escala.",
+    "NUNCA enviar los 17 enlaces antes del pago verificado, ni 'adelantos' del producto distintos del PROMPT_MUESTRA autorizado: el pago es siempre ANTES de la entrega."
+  ]
+}

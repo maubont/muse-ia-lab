@@ -1,0 +1,37 @@
+name: Desplegar backend (InsForge)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'migrations/**'
+      - 'functions/**'
+      - '.github/workflows/deploy-backend.yml'
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      INSFORGE_ACCESS_TOKEN: ${{ secrets.INSFORGE_ACCESS_TOKEN }}
+      INSFORGE_PROJECT_ID: ${{ secrets.INSFORGE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Aplicar migraciones pendientes
+        run: npx --yes @insforge/cli db migrations up --all
+
+      - name: Desplegar edge functions
+        run: |
+          for f in functions/*.ts; do
+            slug=$(basename "$f" .ts)
+            echo "── Desplegando $slug ──"
+            npx --yes @insforge/cli functions deploy "$slug" --file "$f"
+          done

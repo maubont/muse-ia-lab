@@ -1,0 +1,68 @@
+{
+  "modelos": [
+    {
+      "id": "gpt-5.1 (snapshot: gpt-5.1-2025-11-13)",
+      "inputPor1M": "$1.25",
+      "outputPor1M": "$10.00",
+      "cacheInput": "$0.125 (90% descuento)",
+      "vision": true,
+      "notas": "CONFIRMADO en página oficial del modelo. Flagship con razonamiento adaptativo (reasoning_effort configurable, incluye 'none' para chat rápido según el anuncio de lanzamiento). Contexto 400K, salida máx 128K. Function calling, structured outputs, Responses API (/v1/responses) y prompt caching extendido 24h soportados. Imagen: solo input (sirve para leer comprobantes). Nota: en junio 2026 OpenAI ya tiene flagships más nuevos (gpt-5.4/gpt-5.5), pero gpt-5.1 sigue disponible y documentado."
+    },
+    {
+      "id": "gpt-5.1-chat-latest (GPT-5.1 Instant)",
+      "inputPor1M": "$1.25",
+      "outputPor1M": "$10.00",
+      "cacheInput": "$0.125",
+      "vision": true,
+      "notas": "CONFIRMADO. Mismo precio que gpt-5.1 pero contexto 128K y salida máx 16,384. Variante 'Instant' orientada a conversación; soporta function calling y structured outputs. Para un agente con herramientas conviene gpt-5.1 estándar (más contexto y snapshot fijable)."
+    },
+    {
+      "id": "gpt-5.1-mini — NO EXISTE",
+      "inputPor1M": "n/a",
+      "outputPor1M": "n/a",
+      "cacheInput": "n/a",
+      "vision": false,
+      "notas": "CONFIRMADO POR AUSENCIA: la URL oficial developers.openai.com/api/docs/models/gpt-5.1-mini devuelve 404 y no aparece en el pricing oficial. La familia 5.1 de API se lanzó (13-nov-2025) como gpt-5.1, gpt-5.1-chat-latest, gpt-5.1-codex y gpt-5.1-codex-mini. El tier mini/nano de propósito general sigue siendo gpt-5-mini / gpt-5-nano."
+    },
+    {
+      "id": "gpt-5-mini (snapshot: gpt-5-mini-2025-08-07)",
+      "inputPor1M": "$0.25",
+      "outputPor1M": "$2.00",
+      "cacheInput": "$0.025",
+      "vision": true,
+      "notas": "CONFIRMADO en página oficial. Es el 'mini' real a usar junto a gpt-5.1: 5x más barato en input y output. Contexto 400K, function calling y structured outputs soportados. Ideal para clasificación de intención y normalización de texto."
+    },
+    {
+      "id": "gpt-5-nano",
+      "inputPor1M": "$0.05",
+      "outputPor1M": "$0.40",
+      "cacheInput": "$0.005",
+      "vision": true,
+      "notas": "CONFIRMADO en página oficial. 'Fastest, most cost-efficient version of GPT-5', recomendado por OpenAI para clasificación y resumen. 25x más barato que gpt-5.1. Opción aún más barata que gpt-5-mini para clasificar intención o normalizar nombres de perfil."
+    },
+    {
+      "id": "gpt-5.1-codex-mini",
+      "inputPor1M": "$0.25",
+      "outputPor1M": "$2.00",
+      "cacheInput": "$0.025",
+      "vision": true,
+      "notas": "CONFIRMADO, pero NO usarlo aquí: es una versión especializada en generación de código (Codex), no para conversación de ventas ni clasificación general."
+    }
+  ],
+  "setupRecomendado": "ARQUITECTURA (Responses API /v1/responses, todo con la misma API key ya pagada): 1) CONVERSACIÓN DE VENTA → gpt-5.1 con reasoning_effort bajo o 'none' (latencia de chat) y las 5 herramientas definidas como tools con JSON Schema y strict:true (structured outputs garantiza argumentos válidos): enviar_video_avatar, mostrar_cuentas_pago, verificar_recibo, entregar_producto, escalar_a_humano. Loop estándar: el modelo emite function_call → tu backend ejecuta (envía el video por WhatsApp API, etc.) → devuelves function_call_output → el modelo redacta la respuesta al cliente. escalar_a_humano debe marcar la conversación y silenciar al bot. 2) PROMPT CACHING: pon el system prompt (~2.500 tokens) + definiciones de tools PRIMERO (prefijo estático; el caching es automático desde 1.024 tokens y da 90% de descuento), contenido dinámico al final. Activa prompt_cache_retention:\"24h\" (gpt-5.1 lo soporta oficialmente) — crítico en WhatsApp donde el lead responde horas después — y usa prompt_cache_key por lead/conversación. Como el historial es append-only, cada turno solo paga tarifa completa por el mensaje nuevo; todo lo anterior entra como cached input a $0.125/1M. Monitorea usage.prompt_tokens_details.cached_tokens. 3) VERIFICAR_RECIBO (visión) → gpt-5.1 con la imagen del comprobante como input_image + structured output (JSON: banco, monto, fecha, referencia, coincide_cuenta, score_fraude). Usa gpt-5.1 (no mini) porque un falso positivo aquí cuesta dinero real; el sobrecosto es ~medio centavo. 4) TAREAS AUXILIARES → gpt-5-mini o gpt-5-nano: clasificar intención del primer mensaje, normalizar nombres de perfil de WhatsApp, detectar idioma, etiquetar resultado de la conversación. REGLA PRÁCTICA: gpt-5.1 donde hay persuasión, decisiones con herramientas o dinero (la venta, la verificación); gpt-5-mini/nano donde la tarea es mecánica y de un solo paso (clasificar, normalizar, resumir). No usar gpt-5.1-codex-mini (es para código). Fija snapshots (gpt-5.1-2025-11-13) en producción para evitar cambios de comportamiento.",
+  "costoPorConversacionUSD": 0.09,
+  "costoPorVerificacionReciboUSD": 0.007,
+  "costoMensual100LeadsDia": "~US$280/mes (ESTIMADO; rango razonable US$200–400). Desglose: 100 conversaciones/día × ~$0.09 = $9.00/día; ~40 verificaciones de comprobante/día (40% de cierre) × ~$0.007 = $0.28/día; clasificación de intención + normalización de nombres en gpt-5-mini/nano ≈ $0.05/día. Total ≈ $9.3/día × 30 = ~$280. Supuestos de la conversación tipo (ESTIMADOS): 25 turnos, system prompt + tools ~3.300 tokens cacheados, mensajes de usuario ~50 tokens, respuestas ~150 tokens, ~6 llamadas a herramientas; con cache 24h funcionando el output ($10/1M) domina el costo (~50%), el historial cacheado ($0.125/1M) ~25%, e incluye ~30% de margen por cache misses. Sin prompt caching el costo por conversación subiría a ~$0.22–0.25 (el caching ahorra ~60%). Verificación de recibo (ESTIMADO): captura de celular ≈ 1.000–1.600 tokens de imagen (gpt-5.1 no aparece explícito en la tabla de cálculo de imagen de la guía oficial, se estimó con el método documentado para la familia GPT-5) ≈ $0.0013–0.002 de imagen + 500 tokens de salida ($0.005) ≈ $0.007 total.",
+  "fuentes": [
+    "https://developers.openai.com/api/docs/models/gpt-5.1 — precios gpt-5.1 ($1.25/$0.125/$10.00), visión input-only, 400K contexto, function calling/structured outputs/Responses API",
+    "https://developers.openai.com/api/docs/models/gpt-5.1-chat-latest — precios y límites de la variante Instant",
+    "https://developers.openai.com/api/docs/models/gpt-5-mini — precios gpt-5-mini ($0.25/$0.025/$2.00), visión, structured outputs",
+    "https://developers.openai.com/api/docs/models/gpt-5-nano — precios gpt-5-nano ($0.05/$0.005/$0.40)",
+    "https://developers.openai.com/api/docs/models/gpt-5.1-codex-mini — precios y especialización en código",
+    "https://developers.openai.com/api/docs/models/gpt-5.1-mini — devuelve 404 (el modelo no existe)",
+    "https://developers.openai.com/api/docs/guides/prompt-caching — mínimo 1.024 tokens, ~90% descuento, prompt_cache_retention:'24h' soportado por gpt-5.1, prompt_cache_key, usage.prompt_tokens_details.cached_tokens",
+    "https://developers.openai.com/api/docs/guides/images-vision — método oficial de cálculo de tokens de imagen (base/tiles y patches 32px con multiplicadores); gpt-5.1 no listado explícitamente, costo por imagen marcado como estimado",
+    "https://developers.openai.com/api/docs/pricing — página general de precios (hoy destaca gpt-5.4/5.5; los precios 5.1 se confirmaron en las páginas de cada modelo)",
+    "https://openai.com/index/gpt-5-1/ — anuncio de lanzamiento (variantes Instant/Thinking, razonamiento adaptativo); la página 'GPT-5.1 for developers' devolvió 403 al verificar"
+  ]
+}
