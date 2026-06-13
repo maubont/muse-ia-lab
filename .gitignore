@@ -29,6 +29,9 @@ avatar/*.jpg
 tmp/
 comprobantes-prueba/
 
+# Bundle de despliegue del panel (CV + consola juntos); la fuente del dashboard vive en dashboard/
+panel-deploy/
+
 # Sistema / dependencias
 node_modules/
 *.log

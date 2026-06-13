@@ -427,10 +427,27 @@ function pideDatosDirecto(norm: string): boolean {
 const MODELO_CONVERSACION_DEFAULT = "gpt-5.1";
 const MODELO_CLASIFICADOR_DEFAULT = "gpt-5-mini";
 
+/**
+ * Recipiente opcional para instrumentar el consumo de tokens de OpenAI. openaiChat
+ * (y las llamadas de visión/transcripción) lo rellenan en cada éxito; el llamador
+ * decide si lo persiste en el detalle de un evento que YA escribe. Es best-effort:
+ * si la respuesta no trae usage, queda como null y no se rompe nada.
+ */
+type UsageOut = {
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+    [k: string]: unknown;
+  } | null;
+  model?: string | null;
+};
+
 async function openaiChat(
   // deno-lint-ignore no-explicit-any
   payload: Record<string, any>,
   timeoutMs: number,
+  usageOut?: UsageOut,
 ): Promise<string | null> {
   const apiKey = Deno.env.get("OPENAI_API_KEY");
   if (!apiKey) return null;
@@ -450,6 +467,10 @@ async function openaiChat(
       });
       if (res.ok) {
         const j = await res.json();
+        if (usageOut) {
+          usageOut.usage = j?.usage ?? null;
+          usageOut.model = j?.model ?? body?.model ?? null;
+        }
         return j?.choices?.[0]?.message?.content ?? null;
       }
       const errTxt = await res.text();
@@ -494,6 +515,7 @@ async function openaiChat(
 async function transcribirNotaVoz(
   mediaUrl: string,
   contentType: string,
+  usageOut?: UsageOut,
 ): Promise<string | null> {
   const apiKey = Deno.env.get("OPENAI_API_KEY");
   if (!apiKey || !mediaUrl) return null;
@@ -542,10 +564,14 @@ async function transcribirNotaVoz(
     const blob = new Blob([bytes], { type: blobType });
 
     // b) Transcribir con OpenAI.
+    const modeloTranscripcion = "gpt-4o-mini-transcribe";
     const fd = new FormData();
     fd.append("file", blob, `nota.${ext}`);
-    fd.append("model", "gpt-4o-mini-transcribe");
+    fd.append("model", modeloTranscripcion);
     fd.append("language", "es");
+    // response_format=json hace que los modelos gpt-4o-*-transcribe devuelvan el
+    // campo usage (input/output/total tokens). Best-effort: si no llega, null.
+    fd.append("response_format", "json");
     const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}` },
@@ -557,6 +583,10 @@ async function transcribirNotaVoz(
       return null;
     }
     const j = await res.json();
+    if (usageOut) {
+      usageOut.usage = j?.usage ?? null;
+      usageOut.model = modeloTranscripcion;
+    }
     const texto = (j?.text ?? "").trim();
     return texto.length > 0 ? texto : null;
   } catch (e) {
@@ -625,6 +655,71 @@ function bytesABase64(bytes: ArrayBuffer): string {
   return btoa(bin);
 }
 
+const BUCKET_CAPTURAS = "musa-capturas";
+
+/** extensión de archivo a partir del content-type de la imagen (fallback jpg). */
+function extDeContentType(ct: string): string {
+  const m = (ct || "").split(";")[0].trim().toLowerCase();
+  const TABLA: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+    "image/heic": "heic",
+    "image/heif": "heif",
+  };
+  return TABLA[m] ?? "jpg";
+}
+
+/**
+ * Sube los bytes del comprobante al bucket PRIVADO musa-capturas y devuelve el
+ * storage_key estable (no expira, requiere auth admin para leerse). Key:
+ *   comprobantes/<telefono sin +>/<short_id|fase>-<phash corto>.<ext>
+ * Best-effort: si la subida falla, loguea y devuelve null (el llamador conserva
+ * al menos el phash y nunca rompe el flujo del lead).
+ */
+async function subirComprobante(
+  admin: Admin,
+  leadPhone: string,
+  prefijo: string,
+  phash: string,
+  bytes: ArrayBuffer,
+  contentType: string,
+): Promise<string | null> {
+  try {
+    const telSeguro = (leadPhone || "").replace(/[^\d]/g, "") || "desconocido";
+    const ext = extDeContentType(contentType);
+    const phashCorto = (phash || "").slice(0, 16) || "sinhash";
+    const key = `comprobantes/${telSeguro}/${prefijo}-${phashCorto}.${ext}`;
+    const ct = contentType.startsWith("image/") ? contentType : "image/jpeg";
+    const blob = new Blob([bytes], { type: ct });
+    const { data, error } = await admin.storage
+      .from(BUCKET_CAPTURAS)
+      .upload(key, blob);
+    if (error) {
+      console.error("subirComprobante", JSON.stringify(error).slice(0, 200));
+      return null;
+    }
+    return (data?.key as string) ?? key;
+  } catch (e) {
+    console.error("subirComprobante err", String(e).slice(0, 200));
+    return null;
+  }
+}
+
+/**
+ * URL del objeto del bucket PRIVADO musa-capturas (para que el operador abra la
+ * captura). Es la ruta REST estándar; requiere auth admin para descargarse.
+ */
+function urlComprobante(storageKey: string | null): string | null {
+  const base = (Deno.env.get("INSFORGE_BASE_URL") ?? "").replace(/\/+$/, "");
+  if (!base || !storageKey) return null;
+  if (/^https?:\/\//i.test(storageKey)) return storageKey;
+  const encKey = storageKey.split("/").map(encodeURIComponent).join("/");
+  return `${base}/api/storage/buckets/${BUCKET_CAPTURAS}/objects/${encKey}`;
+}
+
 type DatosComprobante = {
   metodo: string | null;
   monto: number | null;
@@ -652,6 +747,7 @@ type DatosComprobante = {
 async function extraerComprobanteVision(
   cfg: Cfg,
   dataUrl: string,
+  usageOut?: UsageOut,
 ): Promise<DatosComprobante | null> {
   const sistema =
     "Eres un verificador de comprobantes de pago (capturas de pantalla de apps bancarias / Pago Móvil / Nequi / Bancolombia / Bre-B / transferencias). " +
@@ -684,7 +780,7 @@ async function extraerComprobanteVision(
     ],
     response_format: { type: "json_object" },
     max_completion_tokens: 500,
-  }, 20000);
+  }, 20000, usageOut);
   if (!contenido) return null;
   try {
     const limpio = contenido.replace(/```json|```/g, "").trim();
@@ -848,15 +944,6 @@ async function circuitBreakerActivo(admin: Admin, bancoApp: string | null): Prom
     if (mismoBanco.length >= 3) return true;
   }
   return false;
-}
-
-/** URL pública de un objeto del bucket (igual patrón que urlPublicaVideo). */
-function urlPublicaBucket(storageKey: string): string | null {
-  const base = (Deno.env.get("INSFORGE_BASE_URL") ?? "").replace(/\/+$/, "");
-  if (!base || !storageKey) return null;
-  // si ya es una URL completa, devolverla tal cual
-  if (/^https?:\/\//i.test(storageKey)) return storageKey;
-  return `${base}/api/storage/buckets/musa-avatares/objects/${storageKey}`;
 }
 
 /**
@@ -1821,6 +1908,12 @@ async function procesarComprobante(
   const dentro = dentroDeHorario(cfg);
   const acuseVerificando = dentro ? MSG_PAGO_VERIFICANDO_DENTRO : MSG_PAGO_VERIFICANDO_FUERA;
 
+  // storage_key DEFINITIVO del comprobante en el bucket privado musa-capturas.
+  // Se rellena tras subir los bytes (ya descargados para la visión). Si la subida
+  // falla, queda null: NUNCA guardamos la MediaUrl de Twilio (expira y requiere
+  // auth), solo el phash. Lo usan tanto el insert como la URL para el operador.
+  let storageKey: string | null = null;
+
   // Helper: cola humana => status revision, notificar al dueño, acuse al lead.
   const aColaHumana = async (
     motivo: string,
@@ -1831,7 +1924,7 @@ async function procesarComprobante(
     const fila: Record<string, unknown> = {
       metodo: datos?.metodo ? String(datos.metodo).slice(0, 60) : "por_clasificar",
       status: "revision",
-      storage_key: mediaUrl,
+      storage_key: storageKey,
       image_phash: phash,
       motivo_flag: motivo,
       datos_extraidos: datos ?? null,
@@ -1842,8 +1935,8 @@ async function procesarComprobante(
     const ins = await insertarPago(admin, lead.phone, fila);
     const shortId = ins && "shortId" in ins ? ins.shortId : null;
     await registrarEvento(admin, lead.phone, "pago_a_revision", { short_id: shortId, motivo });
-    // Notificar al dueño con los datos + la imagen.
-    const imagenUrl = mediaUrl ? urlPublicaBucket(mediaUrl) : null;
+    // Notificar al dueño con los datos + la imagen (bucket privado musa-capturas).
+    const imagenUrl = urlComprobante(storageKey);
     const texto =
       `🔔 Pago para revisar #${shortId ?? "?"}\n` +
       `Lead: ${lead.phone}\n` +
@@ -1866,6 +1959,20 @@ async function procesarComprobante(
     }
     const phash = await sha256Hex(media.bytes);
 
+    // 1b) PERSISTIR la imagen: subimos los bytes ya descargados al bucket privado
+    // musa-capturas con una key estable. Reemplaza guardar la MediaUrl de Twilio
+    // (que expira y requiere auth). Best-effort: si falla, storageKey queda null y
+    // conservamos al menos el phash. El short_id aún no existe aquí, así que el
+    // prefijo de la key es el phash corto (key estable e idempotente por imagen).
+    storageKey = await subirComprobante(
+      admin,
+      lead.phone,
+      phash.slice(0, 8),
+      phash,
+      media.bytes,
+      media.contentType,
+    );
+
     // 2) dedupe por imagen (phash) ANTES de gastar visión
     const { data: phashHit } = await admin.database
       .from("musa_payments")
@@ -1877,11 +1984,15 @@ async function procesarComprobante(
     // 3) visión
     const ct = media.contentType.startsWith("image/") ? media.contentType : "image/jpeg";
     const dataUrl = `data:${ct};base64,${bytesABase64(media.bytes)}`;
-    const datos = await extraerComprobanteVision(cfg, dataUrl);
+    const usageVision: UsageOut = {};
+    const datos = await extraerComprobanteVision(cfg, dataUrl, usageVision);
     await registrarEvento(admin, lead.phone, "comprobante_vision", {
       ok: !!datos,
       datos: datos ?? null,
       phash,
+      storage_key: storageKey,
+      usage: usageVision.usage ?? null,
+      modelo: usageVision.model ?? null,
     });
     if (!datos) {
       await aColaHumana("vision_fallida", null, phash, acuseVerificando);
@@ -1912,7 +2023,7 @@ async function procesarComprobante(
       const fila: Record<string, unknown> = {
         metodo: datos.metodo ? String(datos.metodo).slice(0, 60) : "por_clasificar",
         status: "revision",
-        storage_key: mediaUrl,
+        storage_key: storageKey,
         image_phash: phash,
         motivo_flag: decision.motivo,
         datos_extraidos: datos,
@@ -1944,7 +2055,7 @@ async function procesarComprobante(
         moneda: datos.moneda ?? null,
         fecha_pago: datos.fecha ?? null,
         image_phash: phash,
-        storage_key: mediaUrl,
+        storage_key: storageKey,
         status: "aprobado",
         datos_extraidos: datos,
         resolved_at: new Date().toISOString(),
@@ -1976,7 +2087,7 @@ async function procesarComprobante(
       moneda: datos.moneda ?? null,
       fecha_pago: datos.fecha ?? null,
       image_phash: phash,
-      storage_key: mediaUrl,
+      storage_key: storageKey,
       status: "revision",
       motivo_flag: decision.motivo,
       datos_extraidos: datos,
@@ -1997,7 +2108,7 @@ async function procesarComprobante(
       ? MSG_PAGO_EN_PROCESO
       : acuseVerificando;
     await registrarEvento(admin, lead.phone, "pago_a_revision", { short_id: shortId, motivo });
-    const imagenUrl = mediaUrl ? urlPublicaBucket(mediaUrl) : null;
+    const imagenUrl = urlComprobante(storageKey);
     const texto =
       `🔔 Pago para revisar #${shortId ?? "?"}\n` +
       `Lead: ${lead.phone}\n` +
@@ -2063,7 +2174,7 @@ async function procesarComandoOperador(
       `Fecha: ${pago.fecha_pago ?? d.fecha ?? "?"} | Motivo flag: ${pago.motivo_flag ?? "-"}\n` +
       `Señales: ${(d.senales_manipulacion ?? []).join(", ") || "ninguna"}\n` +
       `Confianza: ${JSON.stringify(d.confidence ?? {})}`;
-    const imagenUrl = pago.storage_key ? urlPublicaBucket(pago.storage_key) : null;
+    const imagenUrl = urlComprobante(pago.storage_key ?? null);
     await notificarOperador(admin, cfg, texto, imagenUrl);
     return;
   }
@@ -2338,8 +2449,9 @@ export default async function (req: Request): Promise<Response> {
         media_type: mediaContentType0,
         estado_funnel: lead.estado_funnel,
       });
+      const usageTranscripcion: UsageOut = {};
       const transcrito = mediaUrl0
-        ? await transcribirNotaVoz(mediaUrl0, mediaContentType0)
+        ? await transcribirNotaVoz(mediaUrl0, mediaContentType0, usageTranscripcion)
         : null;
       if (transcrito) {
         // Reemplaza el texto efectivo: el resto del handler lo trata como tecleado.
@@ -2349,6 +2461,8 @@ export default async function (req: Request): Promise<Response> {
           texto: transcrito,
           chars: transcrito.length,
           estado_funnel: lead.estado_funnel,
+          usage: usageTranscripcion.usage ?? null,
+          modelo: usageTranscripcion.model ?? null,
         });
         // Trazabilidad: guardamos el texto transcrito en el body del mensaje
         // entrante (que se insertó vacío por ser media). media_type/media_url ya
