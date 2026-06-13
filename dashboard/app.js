@@ -411,6 +411,15 @@ function PantallaChats({ data, loading, error, soloAtencion, onToggleFiltro, onA
   `;
 }
 
+// Estado principal de un chat: UNO solo, por prioridad, sin etiquetas que se solapen.
+function chatEstadoChip(c) {
+  const f = c.flags || {};
+  if (f.pagado) return html`<span class="tag tag-pago">✅ ya compró</span>`;
+  if (f.opt_out) return html`<span class="tag tag-out">no contactar</span>`;
+  if (f.escalado_humano) return html`<span class="tag tag-esc">🔴 te toca a ti</span>`;
+  return html`<span class="tag tag-etapa">${c.etiqueta}</span>`;
+}
+
 function ChatRow({ c, atencion, onAbrir }) {
   const last = c.ultimo_mensaje;
   return html`
@@ -427,13 +436,10 @@ function ChatRow({ c, atencion, onAbrir }) {
             : html`<span class="prev-dim">sin mensajes</span>`}
         </div>
         <div class="chat-tags">
-          <span class="tag tag-etapa">${c.etiqueta}</span>
-          ${c.le_toca === "lead"
-            ? html`<span class="tag tag-toca-lead">le toca a Musa</span>`
-            : html`<span class="tag tag-toca-musa">esperando respuesta</span>`}
-          ${c.flags?.escalado_humano ? html`<span class="tag tag-esc">🔴 escalado</span>` : null}
-          ${c.flags?.pagado ? html`<span class="tag tag-pago">ya compro</span>` : null}
-          ${c.flags?.opt_out ? html`<span class="tag tag-out">no contactar</span>` : null}
+          ${chatEstadoChip(c)}
+          ${(!c.flags?.pagado && !c.flags?.opt_out && !c.flags?.escalado_humano && c.le_toca === "lead")
+            ? html`<span class="tag tag-toca-lead">● te escribió</span>`
+            : null}
         </div>
       </div>
       <span class="chat-arrow">›</span>
@@ -481,7 +487,7 @@ function PantallaConversacion({ data, loading, error, onVolver, onTomarControl, 
 
       <div class="conv-tags">
         ${escalado ? html`<span class="tag tag-esc">🔴 bajo control humano</span>` : html`<span class="tag tag-toca-musa">Musa atiende</span>`}
-        ${lead.flags?.pagado ? html`<span class="tag tag-pago">ya compro</span>` : null}
+        ${lead.flags?.pagado ? html`<span class="tag tag-pago">✅ ya compró</span>` : null}
         ${lead.flags?.opt_out ? html`<span class="tag tag-out">no contactar</span>` : null}
       </div>
 
