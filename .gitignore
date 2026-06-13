@@ -37,3 +37,7 @@ node_modules/
 *.log
 Thumbs.db
 desktop.ini
+
+# Imagenes candidatas para revisar (viven en el bucket)
+creativos-revisar/
+avatar/creativos-candidatos/
