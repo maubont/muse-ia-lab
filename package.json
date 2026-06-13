@@ -1,0 +1,9 @@
+{
+  "name": "muse-ia-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scripts de generación de avatar y edge functions de Muse IA Lab",
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0"
+  }
+}

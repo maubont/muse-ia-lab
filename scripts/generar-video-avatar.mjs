@@ -10,6 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { comprimirSiPesado } from "./lib/comprimir-video.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(__dirname, "..");
@@ -158,9 +159,17 @@ if (!vRes.ok) morir(8, `DOWNLOAD_FAIL status=${vRes.status}`);
 const mp4 = Buffer.from(await vRes.arrayBuffer());
 writeFileSync(join(DIR_LOCAL, `${slug}.mp4`), mp4);
 
+// Comprimir si rebasa el límite práctico de WhatsApp/Twilio. Con veed/lipsync
+// (5-6 MB) es no-op; cuando este flujo se cablee a Kling (~15 MB) lo deja en <=10 MB.
+const comp = await comprimirSiPesado(mp4, { maxBytes: 10 * 1024 * 1024, etiqueta: slug });
+if (comp.comprimido) {
+  writeFileSync(join(DIR_LOCAL, `${slug}-comprimido.mp4`), comp.buffer);
+  console.error(`[${slug}] comprimido crf=${comp.crf} ${comp.bytesOriginal}b -> ${comp.bytesFinal}b dentroObjetivo=${comp.dentroObjetivo}`);
+}
+
 const videoKey = `videos/${slug}.mp4`;
-const videoUrl = await subirObjeto(videoKey, mp4, "video/mp4");
-console.error(`[${slug}] video subido: ${videoKey} (${mp4.length} bytes)`);
+const videoUrl = await subirObjeto(videoKey, comp.buffer, "video/mp4");
+console.error(`[${slug}] video subido: ${videoKey} (${comp.bytesFinal} bytes)`);
 
 // ---------- (f) upsert en musa_videos_cache ----------
 const HEADERS_DB = {
@@ -185,4 +194,4 @@ if (!ins.ok) morir(9, `CACHE_INSERT_FAIL status=${ins.status} body=${(await ins.
 console.error(`[${slug}] cache actualizada`);
 
 // ---------- (g) salida ----------
-console.log(JSON.stringify({ slug, url: videoUrl, bytes: mp4.length }));
+console.log(JSON.stringify({ slug, url: videoUrl, bytes: comp.bytesFinal, bytesOriginal: comp.bytesOriginal, comprimido: comp.comprimido }));

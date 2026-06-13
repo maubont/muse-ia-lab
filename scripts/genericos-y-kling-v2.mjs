@@ -6,6 +6,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { comprimirSiPesado } from "./lib/comprimir-video.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(__dirname, "..");
@@ -132,10 +133,17 @@ async function hacerKling(nombre, texto, key) {
   if (!vurl) throw new Error(`SIN_VIDEO_URL kling-${nombre} ${JSON.stringify(out).slice(0,400)}`);
   const mp4 = await descargar(vurl);
   writeFileSync(join(DIR, `kling-${nombre}.mp4`), mp4);
-  const url = await subir(key, mp4, "video/mp4");
+  // Kling sale ~15 MB por ~12 s y rebasa el límite de WhatsApp/Twilio: comprimir
+  // a <=10 MB antes de subir. (Si por algún motivo ya viene liviano, es no-op.)
+  const comp = await comprimirSiPesado(mp4, { maxBytes: 10 * 1024 * 1024, etiqueta: `kling-${nombre}` });
+  if (comp.comprimido) {
+    writeFileSync(join(DIR, `kling-${nombre}-comprimido.mp4`), comp.buffer);
+    console.error(`[kling-${nombre}] comprimido crf=${comp.crf} ${comp.bytesOriginal}b -> ${comp.bytesFinal}b dentroObjetivo=${comp.dentroObjetivo}`);
+  }
+  const url = await subir(key, comp.buffer, "video/mp4");
   const v = await verificar(key, "video");
-  resultados.push({ paso: `kling-${nombre}`, url, bytes: mp4.length, latencia_s: latencia, verif: v });
-  console.error(`[kling-${nombre}] LISTO ${mp4.length}b ${latencia}s`);
+  resultados.push({ paso: `kling-${nombre}`, url, bytes: comp.bytesFinal, bytesOriginal: comp.bytesOriginal, comprimido: comp.comprimido, crf: comp.crf, latencia_s: latencia, verif: v });
+  console.error(`[kling-${nombre}] LISTO ${comp.bytesFinal}b ${latencia}s`);
 }
 
 async function faseKling() {
