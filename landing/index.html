@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>Modelos IA — Crea modelos virtuales con inteligencia artificial</title>
+<meta name="description" content="Aprende a crear modelos virtuales hiperrealistas con IA, sin mostrar tu cara. Curso completo + 4 bonos, pago único de 9 USD, acceso de por vida.">
+<style>
+  :root{
+    --bg:#0f1115; --surf:#15181f; --surf2:#1b1f28; --line:#252a36;
+    --text:#e7e9ee; --dim:#aab0bd; --faint:#8b93a0;
+    --wa:#25d366; --wa-ink:#06210f; --accent:#7f77dd; --amber:#f5a623;
+    --r:14px; --r-sm:10px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:480px;margin:0 auto;padding-bottom:78px}
+  section{padding:22px 18px}
+  .kick{font-size:12px;letter-spacing:.6px;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+  .wa-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:var(--wa);color:var(--wa-ink);border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.22)}
+  .wa-btn svg{width:21px;height:21px;fill:currentColor}
+  /* HERO */
+  .hero{background:linear-gradient(180deg,#1c1536 0%,#0f1115 100%);padding:0}
+  .hero-media{position:relative;aspect-ratio:1/1;background:#241a3d;overflow:hidden}
+  .hero-media video{width:100%;height:100%;object-fit:cover;display:block}
+  .ia-badge{position:absolute;top:10px;left:10px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.6);color:#d7d9e0;font-size:11px;padding:4px 9px;border-radius:8px}
+  .hero-body{padding:18px}
+  h1{font-size:24px;font-weight:600;line-height:1.22;color:#fff;letter-spacing:-.2px}
+  .sub{font-size:14.5px;color:var(--dim);margin-top:9px}
+  .price-line{font-size:12.5px;color:var(--faint);margin:12px 0 4px}
+  .price-line b{color:var(--text)}
+  .ia-note{font-size:11px;color:#6b7280;text-align:center;margin-top:8px}
+  /* pagos strip */
+  .pay-strip{background:#13161c;border-top:.5px solid var(--line);border-bottom:.5px solid var(--line);padding:10px 14px;text-align:center;font-size:11.5px;color:var(--dim)}
+  .pay-strip b{color:var(--text);font-weight:600}
+  /* pasos */
+  .step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+  .step:last-child{margin-bottom:0}
+  .step-n{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(37,211,102,.14);color:var(--wa);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+  .step p{font-size:14px;color:#cdd2db}
+  /* stack */
+  .card{background:var(--surf);border:.5px solid var(--line);border-radius:var(--r);padding:18px}
+  .card h2{font-size:16px;font-weight:600;color:#fff;margin-bottom:12px}
+  .stack li{list-style:none;font-size:14px;color:#cdd2db;padding:5px 0;display:flex;gap:9px;align-items:flex-start}
+  .stack li svg{width:17px;height:17px;flex-shrink:0;margin-top:2px;fill:var(--wa)}
+  .anchor{font-size:12px;color:var(--faint);margin-top:12px;border-top:.5px solid var(--line);padding-top:11px}
+  .legal-mini{font-size:11px;color:#6b7280;margin-top:8px}
+  /* faq */
+  details{background:var(--surf);border:.5px solid var(--line);border-radius:var(--r-sm);margin-bottom:9px;overflow:hidden}
+  summary{padding:13px 15px;font-size:14px;color:#dfe3ea;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--faint);font-size:18px;font-weight:400}
+  details[open] summary::after{content:"–"}
+  details p{padding:0 15px 14px;font-size:13.5px;color:var(--dim)}
+  /* cierre */
+  .closing{text-align:center}
+  .closing h2{font-size:20px;color:#fff;font-weight:600}
+  .closing .real-urg{font-size:12.5px;color:var(--amber);margin:10px 0 16px}
+  /* sticky */
+  .sticky{position:fixed;left:0;right:0;bottom:0;background:rgba(15,17,21,.92);backdrop-filter:blur(6px);border-top:.5px solid var(--line);padding:10px 18px;z-index:10}
+  .sticky .wrap{padding:0;max-width:480px}
+  /* footer */
+  footer{padding:20px 18px 28px;text-align:center;border-top:.5px solid var(--line)}
+  footer p{font-size:11px;color:#6b7280;line-height:1.7}
+  footer a{color:var(--faint);text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="hero">
+    <div class="hero-media">
+      <video autoplay muted loop playsinline poster="" src="https://m2gnzrj8.us-east.insforge.app/api/storage/buckets/musa-avatares/objects/base/video-base-v2.mp4"></video>
+      <span class="ia-badge">✦ creado con inteligencia artificial</span>
+    </div>
+    <div class="hero-body">
+      <h1>La mujer de este video no existe. La creó una persona común con su teléfono.</h1>
+      <p class="sub">Aprende a crear modelos virtuales hiperrealistas con inteligencia artificial — sin mostrar tu cara, sin cámara, sin experiencia previa.</p>
+      <p class="price-line"><b>Curso completo + 4 bonos</b> · pago único de <b>9 USD</b> · acceso de por vida</p>
+      <a class="wa-btn" href="#" data-wa>
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm5.8 14.1c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.7-.6-3-1.3-5-4.3-5.1-4.5-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l.8-1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.4.1.2.1.8-.1 1.5z"/></svg>
+        Escríbele a Musa por WhatsApp
+      </a>
+      <p class="ia-note">Contenido generado con inteligencia artificial.</p>
+    </div>
+  </section>
+
+  <div class="pay-strip">Paga con lo que ya usas 👇 <b>Pago Móvil</b> · <b>Banco de Venezuela</b> · <b>Nequi</b> · <b>Bancolombia</b> · <b>Bre-B</b></div>
+
+  <section>
+    <div class="kick">Así de simple es empezar</div>
+    <div class="step"><span class="step-n">1</span><p>Escríbele a Musa por WhatsApp — te responde al instante.</p></div>
+    <div class="step"><span class="step-n">2</span><p>Pagas los 9 USD por Pago Móvil o transferencia y le envías la captura.</p></div>
+    <div class="step"><span class="step-n">3</span><p>Verifica tu pago y te entrega TODO el curso y los bonos al momento. Sin esperas.</p></div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2>Todo esto por 9 USD, hoy:</h2>
+      <ul class="stack">
+        <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Curso completo: 13 módulos paso a paso, del cero hasta tu modelo publicada</li>
+        <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>4 bonos: colección de modelos IA, Audios FemPro, YouTube Money Machine y MegaPack</li>
+        <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Plan de Acción 7 Días (PDF): qué hacer cada día para no quedarte trabado</li>
+        <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Acceso de por vida — pagas una vez, es tuyo para siempre</li>
+        <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Soporte directo por WhatsApp cuando te trabes</li>
+      </ul>
+      <p class="anchor">Un curso así suele cobrarse por mensualidad. Aquí es un solo pago de 9 USD y te queda de por vida.</p>
+      <p class="legal-mini">Incluye bonos adicionales para mayores de 18 años que se detallan dentro del chat tras verificar tu edad.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="kick">Preguntas frecuentes</div>
+    <details><summary>¿Esto es una estafa?</summary><p>Entendemos la duda, hoy hay de todo. Por eso ves el precio claro (9 USD, un solo pago), te explicamos paso a paso qué recibes, y pagas por métodos venezolanos donde envías tu captura y recibes el acceso de inmediato. Si algo no te cuadra, le preguntas a Musa antes de pagar.</p></details>
+    <details><summary>¿Sirve si no sé nada de inteligencia artificial?</summary><p>Sí, está hecho justo para eso. Empieza desde cero y te lleva de la mano. Si sabes mandar un mensaje de WhatsApp, puedes seguir el curso. No necesitas computadora cara ni saber programar.</p></details>
+    <details><summary>¿Por qué tan barato?</summary><p>Porque preferimos que entre mucha gente a 9 USD que poca gente a un precio alto. Es un solo pago, sin mensualidades, y te queda de por vida.</p></details>
+    <details><summary>¿Es legal?</summary><p>Sí. Crear modelos virtuales con IA y contenido digital propio es legal: son personas que no existen, creadas con herramientas públicas de IA. Lo que compras es formación: videos y guías paso a paso.</p></details>
+  </section>
+
+  <section class="closing">
+    <h2>Tú diriges, la IA la crea.</h2>
+    <p class="real-urg">El precio en bolívares cambia con la tasa del día — hoy te queda en 9 USD.</p>
+    <a class="wa-btn" href="#" data-wa>
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm5.8 14.1c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.7-.6-3-1.3-5-4.3-5.1-4.5-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l.8-1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.4.1.2.1.8-.1 1.5z"/></svg>
+      Escríbele a Musa · 9 USD
+    </a>
+  </section>
+
+  <footer>
+    <p>Modelos IA · Formación digital. Este curso es formativo y no constituye promesa de ingresos ni resultados específicos; los resultados dependen del esfuerzo de cada quien.</p>
+    <p><a href="#">Política de privacidad</a> · <a href="#">Términos</a> · Contenido generado con inteligencia artificial.</p>
+  </footer>
+
+</div>
+
+<div class="sticky">
+  <div class="wrap">
+    <a class="wa-btn" href="#" data-wa>
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm5.8 14.1c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.7-.6-3-1.3-5-4.3-5.1-4.5-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l.8-1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.4.1.2.1.8-.1 1.5z"/></svg>
+      Empezar ahora · 9 USD
+    </a>
+  </div>
+</div>
+
+<script>
+  // El número y el código Ref se inyectan aquí. En producción: número WABA real
+  // + Ref único por sesión generado por una edge function. Hoy: sandbox + Ref estático.
+  var WA_NUMERO = "14155238886";
+  var REF = "LP-WEB";
+  var texto = encodeURIComponent("Hola, quiero el curso Modelos IA - Ref: " + REF);
+  var url = "https://wa.me/" + WA_NUMERO + "?text=" + texto;
+  document.querySelectorAll("[data-wa]").forEach(function(a){
+    a.setAttribute("href", url);
+    a.addEventListener("click", function(){
+      // TODO producción: fbq('track','Contact') antes de navegar.
+      if (window.fbq) window.fbq("track","Contact");
+    });
+  });
+</script>
+</body>
+</html>
