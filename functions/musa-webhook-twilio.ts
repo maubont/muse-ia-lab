@@ -269,11 +269,53 @@ function detectarPaisHeuristico(norm: string, original: string): string | null {
 }
 
 /**
+ * CAMBIO 4 (Fase 4) — números deletreados en español → dígitos.
+ * Las notas de voz transcritas escriben la edad con palabras ("veinticinco"),
+ * no con dígitos, así que el extractor numérico del gate no la veía. Esta función
+ * inyecta el dígito equivalente (10–99) detrás de la palabra para que el resto de
+ * la heurística de edad lo lea igual que "25". Solo cubre el rango de edades
+ * plausibles; no toca el texto si no hay un número en palabras.
+ */
+function inyectarEdadDeletreada(norm: string): string {
+  const unidades: Record<string, number> = {
+    cero: 0, uno: 1, un: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5,
+    seis: 6, siete: 7, ocho: 8, nueve: 9,
+  };
+  const especiales: Record<string, number> = {
+    diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15,
+    dieciseis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19,
+    veinte: 20, veintiuno: 21, veintiun: 21, veintiuna: 21, veintidos: 22,
+    veintitres: 23, veinticuatro: 24, veinticinco: 25, veintiseis: 26,
+    veintisiete: 27, veintiocho: 28, veintinueve: 29,
+  };
+  const decenas: Record<string, number> = {
+    treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70,
+    ochenta: 80, noventa: 90,
+  };
+  // 1) palabras 10–29 directas.
+  for (const [w, n] of Object.entries(especiales)) {
+    if (new RegExp(`\\b${w}\\b`).test(norm)) return `${norm} ${n}`;
+  }
+  // 2) "treinta y cinco", "cuarenta y dos", etc.
+  for (const [dw, dn] of Object.entries(decenas)) {
+    const m = norm.match(new RegExp(`\\b${dw}(\\s+y\\s+(\\w+))?`));
+    if (m) {
+      let n = dn;
+      if (m[2] && unidades[m[2]] != null) n += unidades[m[2]];
+      return `${norm} ${n}`;
+    }
+  }
+  return norm;
+}
+
+/**
  * CAMBIO 2 — gate de edad inferido. Atajo heurístico para los casos obvios; si
  * NO decide (null = ambiguo) el llamador cae al clasificador GPT. Devuelve
  * "mayor" | "menor" | null (ambiguo).
  */
-function clasificarEdadHeuristico(norm: string): string | null {
+function clasificarEdadHeuristico(normRaw: string): string | null {
+  // Inyecta el dígito si la edad viene deletreada (notas de voz transcritas).
+  const norm = inyectarEdadDeletreada(normRaw);
   // --- SEÑALES DE MENOR (prioridad máxima: van ANTES del extractor de número) ---
   //
   // CAUSA RAÍZ RONDA 1 (Carlitos, 17): "nah todavia no, el ano que viene cumplo
@@ -426,6 +468,91 @@ async function openaiChat(
     return null;
   } catch (e) {
     console.error("openai err", String(e).slice(0, 200));
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * CAMBIO 4 (Fase 4) — transcripción de notas de voz.
+ * Descarga el audio de la nota (MediaUrl0) y lo transcribe con OpenAI.
+ *  a) Descarga: si la URL es de api.twilio.com usa Basic auth con las credenciales
+ *     de Twilio; si no (p.ej. una URL del bucket en modo prueba) hace fetch directo.
+ *  b) Transcribe: POST multipart a /v1/audio/transcriptions con gpt-4o-mini-transcribe,
+ *     idioma es. Timeout de 15 s vía AbortController.
+ * Devuelve el texto transcrito (trim, no vacío) o null si algo falla / queda vacío.
+ */
+async function transcribirNotaVoz(
+  mediaUrl: string,
+  contentType: string,
+): Promise<string | null> {
+  const apiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!apiKey || !mediaUrl) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    // a) Descargar los bytes del audio.
+    const dlHeaders: Record<string, string> = {};
+    if (/api\.twilio\.com/i.test(mediaUrl)) {
+      const sid = Deno.env.get("TWILIO_ACCOUNT_SID");
+      const token = Deno.env.get("TWILIO_AUTH_TOKEN");
+      if (sid && token) {
+        dlHeaders["Authorization"] = "Basic " + btoa(`${sid}:${token}`);
+      }
+    }
+    const dl = await fetch(mediaUrl, { headers: dlHeaders, signal: ctrl.signal });
+    if (!dl.ok) {
+      console.error("transcribir descarga", dl.status, (await dl.text()).slice(0, 200));
+      return null;
+    }
+    const bytes = await dl.arrayBuffer();
+    if (!bytes || bytes.byteLength === 0) return null;
+
+    // OpenAI usa la EXTENSIÓN del filename y el MIME del blob para decidir el
+    // formato: deben coincidir con los bytes reales. WhatsApp/Twilio mandan
+    // audio/ogg; en pruebas mandamos audio/mpeg. Derivamos ambos del content-type
+    // que reportó Twilio (con fallback al header de la descarga y, por último, ogg).
+    const ct = (contentType || dl.headers.get("content-type") || "audio/ogg")
+      .split(";")[0].trim().toLowerCase();
+    const EXT_POR_MIME: Record<string, string> = {
+      "audio/ogg": "ogg",
+      "audio/opus": "ogg",
+      "audio/mpeg": "mp3",
+      "audio/mp3": "mp3",
+      "audio/mp4": "mp4",
+      "audio/m4a": "m4a",
+      "audio/x-m4a": "m4a",
+      "audio/aac": "m4a",
+      "audio/wav": "wav",
+      "audio/x-wav": "wav",
+      "audio/webm": "webm",
+      "audio/amr": "amr",
+    };
+    const ext = EXT_POR_MIME[ct] ?? "ogg";
+    const blobType = ct.startsWith("audio/") ? ct : "audio/ogg";
+    const blob = new Blob([bytes], { type: blobType });
+
+    // b) Transcribir con OpenAI.
+    const fd = new FormData();
+    fd.append("file", blob, `nota.${ext}`);
+    fd.append("model", "gpt-4o-mini-transcribe");
+    fd.append("language", "es");
+    const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}` },
+      body: fd,
+      signal: ctrl.signal,
+    });
+    if (!res.ok) {
+      console.error("transcribir openai", res.status, (await res.text()).slice(0, 300));
+      return null;
+    }
+    const j = await res.json();
+    const texto = (j?.text ?? "").trim();
+    return texto.length > 0 ? texto : null;
+  } catch (e) {
+    console.error("transcribir err", String(e).slice(0, 200));
     return null;
   } finally {
     clearTimeout(timer);
@@ -1313,7 +1440,9 @@ export default async function (req: Request): Promise<Response> {
     const from = f("From");
     const waId = f("WaId");
     const profileName = f("ProfileName");
-    const body = f("Body");
+    // body es mutable: si llega una nota de voz, lo reemplazamos por el texto
+    // transcrito y el resto del handler lo procesa como si lo hubiera tecleado.
+    let body = f("Body");
     const numMedia = parseInt(f("NumMedia") || "0", 10) || 0;
     const mediaUrl0 = f("MediaUrl0");
     const mediaContentType0 = f("MediaContentType0");
@@ -1426,7 +1555,7 @@ export default async function (req: Request): Promise<Response> {
 
     if (lead.opt_out) return emptyTwiml(); // silencio total permanente
 
-    const norm = normalizar(body);
+    let norm = normalizar(body);
 
     // --- Comandos globales ---
     // STOP/SALIR funciona SIEMPRE, incluso con el bot en pausa por escalado.
@@ -1437,17 +1566,49 @@ export default async function (req: Request): Promise<Response> {
       return emptyTwiml();
     }
 
-    // CAMBIO 4 — nota de voz: NO romper, NO avanzar de etapa, NO clasificar el
-    // audio como respuesta. Una línea cálida pidiendo texto y se registra evento.
-    // (Si el lead está escalado, ya salió antes por el acuse; si llegó imagen en
-    // S08 ese flujo sigue intacto: solo intercepta audio.)
+    // CAMBIO 4 (Fase 4) — nota de voz: ahora se TRANSCRIBE y se procesa como si el
+    // lead hubiera escrito ese texto. Descargamos el audio (MediaUrl0), lo
+    // transcribimos con OpenAI y, si hay texto, lo inyectamos en body/norm para que
+    // siga por la MISMA máquina de estados que un mensaje de texto. Si la
+    // transcripción falla / queda vacía / tarda, caemos al mensaje cálido de
+    // siempre (no rompemos el chat). Las IMÁGENES (S08) NO entran aquí.
+    // (Si el lead está escalado, ya salió antes por el acuse.)
     if (esAudio && !lead.escalado_humano) {
       await registrarEvento(admin, phone, "nota_voz_recibida", {
         media_type: mediaContentType0,
         estado_funnel: lead.estado_funnel,
       });
-      await enviarMensajes(admin, lead, [MSG_NOTA_VOZ]);
-      return emptyTwiml();
+      const transcrito = mediaUrl0
+        ? await transcribirNotaVoz(mediaUrl0, mediaContentType0)
+        : null;
+      if (transcrito) {
+        // Reemplaza el texto efectivo: el resto del handler lo trata como tecleado.
+        body = transcrito;
+        norm = normalizar(body);
+        await registrarEvento(admin, phone, "nota_voz_transcrita", {
+          texto: transcrito,
+          chars: transcrito.length,
+          estado_funnel: lead.estado_funnel,
+        });
+        // Trazabilidad: guardamos el texto transcrito en el body del mensaje
+        // entrante (que se insertó vacío por ser media). media_type/media_url ya
+        // delatan que vino de una nota de voz.
+        if (messageSid) {
+          try {
+            await admin.database
+              .from("musa_messages")
+              .update({ body: transcrito })
+              .eq("twilio_sid", messageSid);
+          } catch (e) {
+            console.error("update body transcrito", String(e).slice(0, 160));
+          }
+        }
+        // NO retornamos: dejamos que el flujo siga con el texto efectivo.
+      } else {
+        // Transcripción fallida/vacía: mensaje cálido pidiendo texto (no rompe).
+        await enviarMensajes(admin, lead, [MSG_NOTA_VOZ]);
+        return emptyTwiml();
+      }
     }
 
     if (lead.escalado_humano) {

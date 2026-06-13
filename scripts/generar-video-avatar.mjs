@@ -37,7 +37,7 @@ const proyecto = JSON.parse(readFileSync(join(RAIZ, ".insforge", "project.json")
 const HOST = proyecto.oss_host;
 const IK = proyecto.api_key;
 const BUCKET = "musa-avatares";
-const VIDEO_BASE_URL = `${HOST}/api/storage/buckets/${BUCKET}/objects/base/video-base.mp4`;
+const VIDEO_BASE_URL = `${HOST}/api/storage/buckets/${BUCKET}/objects/base/video-base-v2.mp4`;
 
 // ---------- slug y texto ----------
 function slugificar(s) {
@@ -94,10 +94,10 @@ const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
   headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, "Content-Type": "application/json" },
   body: JSON.stringify({
     model: "gpt-4o-mini-tts",
-    voice: "coral",
+    voice: "sage",
     input: texto,
     instructions:
-      "Mujer venezolana joven, cálida y entusiasta, acento latino neutro, ritmo natural de nota de voz de WhatsApp",
+      "Voz femenina latina de acento neutro, joven, sensual, cariñosa y delicada, cálida y cercana, ritmo pausado e íntimo de nota de voz, profesional",
     response_format: "mp3",
   }),
 });
