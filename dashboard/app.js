@@ -1,8 +1,10 @@
-// Consola Musa — SPA movil-first (Preact + htm via CDN, sin build).
+// Consola Musa — SPA movil-first v2 (Preact + htm via CDN, sin build).
 // Auth: OAuth InsForge (google/github) con ANON key publica. El access token de la
 // sesion se pasa como Bearer a las funciones admin (musa-admin-*). Si el email no
 // es el del dueno, las funciones responden 403 -> "Acceso restringido".
 // La API key admin NUNCA vive aqui: solo en las funciones server-side.
+//
+// 5 pestanas: Inicio · Pagos · Chats · Analisis · Config.
 
 import { h, render } from "https://esm.sh/preact@10.23.2";
 import { useState, useEffect, useRef, useCallback } from "https://esm.sh/preact@10.23.2/hooks";
@@ -51,6 +53,29 @@ const MOTIVOS_RECHAZO = [
   ["no_validado", "Otro / no validado"],
 ];
 
+// Etiquetas humanas de los eventos del timeline (evento -> texto + icono).
+const EVENTO_LABEL = {
+  cambio_estado: ["Avanzo de etapa", "↪"],
+  objecion: ["Objecion", "❓"],
+  comprobante_vision: ["Leyo un comprobante", "🧾"],
+  nota_voz_transcrita: ["Nota de voz transcrita", "🎙️"],
+  pago_aprobado_auto: ["Pago aprobado (auto)", "✅"],
+  pago_aprobado_manual: ["Pago aprobado (manual)", "✅"],
+  entrega_realizada: ["Curso entregado", "📦"],
+  optout: ["Pidio no recibir mas", "🚫"],
+  escalado: ["Escalado a humano", "🔴"],
+  circuit_breaker: ["Freno antifraude", "🛑"],
+  firma_invalida: ["Firma invalida", "⚠️"],
+  respuesta_manual_operador: ["Respondiste tu", "✍️"],
+  control_humano_tomado: ["Tomaste el control", "🙋"],
+  control_humano_devuelto: ["Devolviste a Musa", "🤖"],
+  comando_operador: ["Comando de operador", "⌨️"],
+  operador_notificado: ["Operador notificado", "📨"],
+};
+function eventoLabel(ev) {
+  return EVENTO_LABEL[ev] || [ev.replace(/_/g, " "), "•"];
+}
+
 // ---- Helpers ----
 function fmtNum(n) {
   if (n == null || isNaN(n)) return "—";
@@ -61,11 +86,24 @@ function fmtMonto(n, moneda) {
   const m = (moneda || "").toUpperCase();
   return fmtNum(n) + (m ? " " + m : "");
 }
+function fmtDinero(map) {
+  // map: { USD: 9, VES: 7400 } -> "9 USD · 7.400 VES" (o "—" si vacio)
+  if (!map || typeof map !== "object") return "—";
+  const partes = Object.entries(map).filter(([, v]) => Number(v) > 0)
+    .map(([m, v]) => fmtNum(v) + " " + m);
+  return partes.length ? partes.join(" · ") : "—";
+}
 function tiempoBadge(min) {
   if (min == null) return null;
   if (min < 60) return { txt: min + " min", cls: min > 20 ? "danger" : "warn" };
   const h = Math.floor(min / 60);
   return { txt: h + " h", cls: "danger" };
+}
+function banderaPais(pais) {
+  const p = String(pais || "").toUpperCase();
+  if (p.includes("VE")) return "🇻🇪";
+  if (p.includes("CO")) return "🇨🇴";
+  return "🌎";
 }
 
 // Llama a una funcion admin via insforge.functions.invoke, que adjunta el Bearer
@@ -86,7 +124,7 @@ async function callFn(slug, { method = "GET", query = "", body = null } = {}) {
   return data;
 }
 
-// ===================== Componentes =====================
+// ===================== Componentes genericos =====================
 
 function Toast({ msg, kind, onDone }) {
   useEffect(() => {
@@ -94,6 +132,15 @@ function Toast({ msg, kind, onDone }) {
     return () => clearTimeout(t);
   }, []);
   return html`<div class="toast ${kind}">${msg}</div>`;
+}
+
+function StateLoading({ txt }) {
+  return html`<div class="loading-state"><div class="inline-spin"></div> ${txt}</div>`;
+}
+function StateError({ txt, onRetry }) {
+  return html`<div class="error-state">${txt}${onRetry
+    ? html`<br/><button class="iconbtn" style="margin-top:12px" onClick=${onRetry}>Reintentar</button>`
+    : null}</div>`;
 }
 
 function Login({ error }) {
@@ -125,9 +172,9 @@ function Login({ error }) {
 }
 
 // -------- INICIO --------
-function PantallaInicio({ data, loading, error, refreshing, onGoPagos }) {
-  if (loading && !data) return html`<div class="loading-state"><div class="inline-spin"></div> Cargando tablero…</div>`;
-  if (error && !data) return html`<div class="error-state">No se pudo cargar el tablero.<br/>${error}</div>`;
+function PantallaInicio({ data, loading, error, refreshing, onGoPagos, onGoChats, onRetry }) {
+  if (loading && !data) return html`<${StateLoading} txt="Cargando tablero…" />`;
+  if (error && !data) return html`<${StateError} txt=${"No se pudo cargar el tablero. " + error} onRetry=${onRetry} />`;
   if (!data) return null;
 
   const pendientes = [];
@@ -144,13 +191,13 @@ function PantallaInicio({ data, loading, error, refreshing, onGoPagos }) {
   if (data.escalados?.n > 0) {
     pendientes.push({
       dot: "var(--accent)", title: data.escalados.n + " escalado" + (data.escalados.n > 1 ? "s" : "") + " a humano",
-      sub: "Chats que pidieron atencion", badge: { txt: "atender", cls: "warn" }, go: null,
+      sub: "Chats que pidieron atencion", badge: { txt: "atender", cls: "warn" }, go: onGoChats,
     });
   }
   if (data.chats_vivos?.n > 0) {
     pendientes.push({
       dot: "var(--green)", title: data.chats_vivos.n + " chat" + (data.chats_vivos.n > 1 ? "s" : "") + " vivo" + (data.chats_vivos.n > 1 ? "s" : "") + " hoy",
-      sub: "Conversaciones activas", badge: { txt: "activo", cls: "ok" }, go: null,
+      sub: "Conversaciones activas", badge: { txt: "ver", cls: "ok" }, go: onGoChats,
     });
   }
 
@@ -189,7 +236,7 @@ function PantallaInicio({ data, loading, error, refreshing, onGoPagos }) {
         ${pendientes.length === 0
           ? html`<div class="empty" style="padding:24px 8px"><div class="big">✅</div>Nada pendiente. Todo en orden.</div>`
           : pendientes.map((p) => html`
-            <a class="pending" href=${p.go ? "#pagos" : "#"} onClick=${(e) => { if (p.go) { e.preventDefault(); p.go(); } else { e.preventDefault(); } }}>
+            <a class="pending" href="#" onClick=${(e) => { e.preventDefault(); if (p.go) p.go(); }}>
               <span class="dot" style=${{ background: p.dot }}></span>
               <span class="pe-main"><span class="pe-title">${p.title}</span><br/><span class="pe-sub">${p.sub}</span></span>
               ${p.badge ? html`<span class="badge ${p.badge.cls}">${p.badge.txt}</span>` : null}
@@ -212,9 +259,9 @@ function PantallaInicio({ data, loading, error, refreshing, onGoPagos }) {
 }
 
 // -------- BANDEJA DE PAGOS --------
-function PantallaPagos({ data, loading, error, onAccion, onVerImagen }) {
-  if (loading && !data) return html`<div class="loading-state"><div class="inline-spin"></div> Cargando bandeja…</div>`;
-  if (error && !data) return html`<div class="error-state">No se pudo cargar la bandeja.<br/>${error}</div>`;
+function PantallaPagos({ data, loading, error, onAccion, onVerImagen, onRetry }) {
+  if (loading && !data) return html`<${StateLoading} txt="Cargando bandeja…" />`;
+  if (error && !data) return html`<${StateError} txt=${"No se pudo cargar la bandeja. " + error} onRetry=${onRetry} />`;
   if (!data) return null;
 
   const pagos = data.pagos || [];
@@ -247,6 +294,8 @@ function PagoCard({ p, onAccion, onVerImagen }) {
   const b = tiempoBadge(p.antiguedad_min);
   const d = p.datos_extraidos || {};
   const montoBad = p.precio_esperado != null && p.monto != null && Number(p.monto) < Number(p.precio_esperado);
+  const numeros = Array.isArray(p.numeros_detectados) ? p.numeros_detectados : [];
+  const coin = p.coincidencia || {};
 
   const aprobar = async () => {
     setBusy(true);
@@ -271,6 +320,26 @@ function PagoCard({ p, onAccion, onVerImagen }) {
           Pago: <span class="pago-val ${montoBad ? "bad" : ""}">${fmtMonto(p.monto, p.moneda)}</span>
           ${p.precio_esperado != null ? html` <span class="esp">/ esperado ${fmtMonto(p.precio_esperado, p.moneda)}</span>` : ""}
         </div>
+
+        ${numeros.length > 0 ? html`
+          <div class="nums-block">
+            <div class="nums-head">Numeros en el comprobante</div>
+            <div class="nums-list">
+              ${numeros.map((n) => {
+                const dig = String(n).replace(/\D+/g, "");
+                const mio = coin.numero || "";
+                const ok = !!(coin.coincide && mio && dig.length >= 4 &&
+                  (dig === mio || dig.includes(mio) || mio.includes(dig)));
+                return html`<span class="numchip ${ok ? "match" : ""}">${ok ? "✓ " : ""}${n}</span>`;
+              })}
+            </div>
+            ${coin.coincide
+              ? html`<div class="coin coin-ok">✓ Un numero coincide con tus cuentas</div>`
+              : html`<div class="coin coin-warn">⚠️ Ningun numero coincide con tus cuentas</div>`}
+          </div>` : (coin && coin.coincide === false
+            ? html`<div class="coin coin-warn" style="margin-top:8px">⚠️ Sin numeros legibles en el comprobante</div>`
+            : null)}
+
         <div class="kv">
           ${p.metodo ? html`<span><b>Metodo:</b> ${p.metodo}</span>` : null}
           ${d.numero_referencia ? html`<span><b>Ref:</b> ${d.numero_referencia}</span>` : null}
@@ -288,25 +357,314 @@ function PagoCard({ p, onAccion, onVerImagen }) {
   `;
 }
 
-// -------- CONFIG --------
-function PantallaConfig({ data, loading, error, onGuardarTasa, onActivarReales }) {
-  const [bs, setBs] = useState("");
-  const [savingTasa, setSavingTasa] = useState(false);
-  const [confirmReal, setConfirmReal] = useState(false);
-  const [activando, setActivando] = useState(false);
+// -------- CONVERSACIONES (lista) --------
+function PantallaChats({ data, loading, error, soloAtencion, onToggleFiltro, onAbrir, onRetry, refreshing }) {
+  if (loading && !data) return html`<${StateLoading} txt="Cargando conversaciones…" />`;
+  if (error && !data) return html`<${StateError} txt=${"No se pudo cargar las conversaciones. " + error} onRetry=${onRetry} />`;
+  if (!data) return null;
+
+  const todas = data.conversaciones || [];
+  // "requieren atencion": escalado, o le toca a Musa (lead escribio ultimo) hace rato.
+  const requiereAtencion = (c) => {
+    if (c.flags?.escalado_humano) return true;
+    // le_toca === "lead" significa que el lead escribio y Musa no ha respondido.
+    if (c.le_toca === "lead" && !c.flags?.opt_out && !c.flags?.pagado) return true;
+    return false;
+  };
+  const lista = soloAtencion ? todas.filter(requiereAtencion) : todas;
+  const nAtencion = todas.filter(requiereAtencion).length;
+
+  return html`
+    <div>
+      ${refreshing ? html`<div style="text-align:right" class="refreshing"><span class="inline-spin"></span> actualizando</div>` : null}
+      <div class="filtros">
+        <button class=${"chip " + (soloAtencion ? "chip-on" : "")} onClick=${() => onToggleFiltro(true)}>
+          Requieren atencion${nAtencion > 0 ? html` <span class="chip-n">${nAtencion}</span>` : null}
+        </button>
+        <button class=${"chip " + (!soloAtencion ? "chip-on" : "")} onClick=${() => onToggleFiltro(false)}>Todas</button>
+      </div>
+
+      ${lista.length === 0
+        ? html`<div class="empty"><div class="big">${soloAtencion ? "👍" : "💬"}</div>${soloAtencion ? "Nada requiere atencion ahora." : "Sin conversaciones recientes."}</div>`
+        : html`<div class="card" style="padding:4px 0">
+            ${lista.map((c) => html`<${ChatRow} key=${c.phone_raw} c=${c} atencion=${requiereAtencion(c)} onAbrir=${onAbrir} />`)}
+          </div>`}
+    </div>
+  `;
+}
+
+function ChatRow({ c, atencion, onAbrir }) {
+  const last = c.ultimo_mensaje;
+  return html`
+    <a class="chat-row" href="#" onClick=${(e) => { e.preventDefault(); onAbrir(c.phone_raw); }}>
+      <div class="chat-ava ${atencion ? "att" : ""}">${banderaPais(c.pais)}</div>
+      <div class="chat-main">
+        <div class="chat-top">
+          <span class="chat-name">${c.nombre || c.phone}</span>
+          <span class="chat-when">${last?.cuando || ""}</span>
+        </div>
+        <div class="chat-prev">
+          ${last
+            ? html`<span class="prev-dir">${last.direction === "out" ? "Musa: " : ""}</span>${last.texto || "—"}`
+            : html`<span class="prev-dim">sin mensajes</span>`}
+        </div>
+        <div class="chat-tags">
+          <span class="tag tag-etapa">${c.etiqueta}</span>
+          ${c.le_toca === "lead"
+            ? html`<span class="tag tag-toca-lead">le toca a Musa</span>`
+            : html`<span class="tag tag-toca-musa">esperando al lead</span>`}
+          ${c.flags?.escalado_humano ? html`<span class="tag tag-esc">🔴 escalado</span>` : null}
+          ${c.flags?.pagado ? html`<span class="tag tag-pago">ya compro</span>` : null}
+          ${c.flags?.opt_out ? html`<span class="tag tag-out">opt-out</span>` : null}
+        </div>
+      </div>
+      <span class="chat-arrow">›</span>
+    </a>
+  `;
+}
+
+// -------- CONVERSACION (hilo) --------
+function PantallaConversacion({ data, loading, error, onVolver, onTomarControl, onDevolverControl, onResponder, onRetry, busyAccion }) {
+  const [texto, setTexto] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const hiloRef = useRef(null);
 
   useEffect(() => {
-    if (data?.precio_bs_hoy?.bs != null) setBs(String(data.precio_bs_hoy.bs));
+    if (hiloRef.current) hiloRef.current.scrollTop = hiloRef.current.scrollHeight;
   }, [data]);
 
-  if (loading && !data) return html`<div class="loading-state"><div class="inline-spin"></div> Cargando configuracion…</div>`;
-  if (error && !data) return html`<div class="error-state">No se pudo cargar la configuracion.<br/>${error}</div>`;
+  if (loading && !data) return html`<${StateLoading} txt="Abriendo conversacion…" />`;
+  if (error && !data) return html`<${StateError} txt=${"No se pudo abrir la conversacion. " + error} onRetry=${onRetry} />`;
+  if (!data) return null;
+
+  const lead = data.lead || {};
+  const mensajes = data.mensajes || [];
+  const timeline = data.timeline || [];
+  const escalado = lead.flags?.escalado_humano === true;
+
+  const enviar = async () => {
+    const t = texto.trim();
+    if (!t) return;
+    setEnviando(true);
+    const ok = await onResponder(lead.phone_raw, t);
+    setEnviando(false);
+    if (ok) setTexto("");
+  };
+
+  return html`
+    <div class="conv">
+      <div class="conv-head">
+        <button class="iconbtn" onClick=${onVolver}>‹ Volver</button>
+        <div class="conv-id">
+          <div class="conv-name">${banderaPais(lead.pais)} ${lead.nombre || lead.phone}</div>
+          <div class="conv-sub">${lead.etiqueta}${lead.mayor_18 ? " · 18+" : ""}</div>
+        </div>
+      </div>
+
+      <div class="conv-tags">
+        ${escalado ? html`<span class="tag tag-esc">🔴 bajo control humano</span>` : html`<span class="tag tag-toca-musa">Musa atiende</span>`}
+        ${lead.flags?.pagado ? html`<span class="tag tag-pago">ya compro</span>` : null}
+        ${lead.flags?.opt_out ? html`<span class="tag tag-out">opt-out</span>` : null}
+      </div>
+
+      <div class="conv-ctrl">
+        ${escalado
+          ? html`<button class="btn-block btn-ghost" disabled=${busyAccion} onClick=${() => onDevolverControl(lead.phone_raw)}>${busyAccion ? "…" : "Devolver a Musa"}</button>`
+          : html`<button class="btn-block btn-warn" disabled=${busyAccion} onClick=${() => onTomarControl(lead.phone_raw)}>${busyAccion ? "…" : "Tomar control"}</button>`}
+      </div>
+
+      <div class="hilo" ref=${hiloRef}>
+        ${mensajes.length === 0
+          ? html`<div class="empty" style="padding:24px">Sin mensajes.</div>`
+          : mensajes.map((m) => html`
+            <div class="msg ${m.direction === "out" ? "out" : "in"}">
+              <div class="bubble">
+                ${m.body ? m.body : html`<span class="media">${m.media_type ? "[" + m.media_type + "]" : "[media]"}</span>`}
+              </div>
+            </div>`)}
+      </div>
+
+      ${timeline.length > 0 ? html`
+        <div class="section-title">Linea de tiempo</div>
+        <div class="card" style="padding:6px 14px">
+          ${timeline.map((e, i) => {
+            const [lbl, ico] = eventoLabel(e.evento);
+            return html`<div class="tl-row" key=${i}>
+              <span class="tl-ico">${ico}</span>
+              <span class="tl-main"><b>${lbl}</b>${e.resumen ? html` <span class="tl-det">${e.resumen}</span>` : ""}</span>
+              <span class="tl-when">${e.cuando || ""}</span>
+            </div>`;
+          })}
+        </div>` : null}
+
+      <div class="responder">
+        <textarea
+          placeholder=${escalado ? "Escribe tu respuesta…" : "Toma el control para evitar choques con Musa"}
+          value=${texto}
+          onInput=${(e) => setTexto(e.target.value)}
+          rows="2"
+        ></textarea>
+        <button class="btn-send" disabled=${enviando || !texto.trim()} onClick=${enviar}>${enviando ? "…" : "Enviar"}</button>
+      </div>
+    </div>
+  `;
+}
+
+// -------- ANALISIS --------
+function PantallaAnalisis({ data, loading, error, onRetry, refreshing }) {
+  if (loading && !data) return html`<${StateLoading} txt="Cargando analisis…" />`;
+  if (error && !data) return html`<${StateError} txt=${"No se pudo cargar el analisis. " + error} onRetry=${onRetry} />`;
+  if (!data) return null;
+
+  const embudo = data.embudo || {};
+  const niveles = embudo.niveles || [];
+  const fuga = embudo.mayor_fuga;
+  const fin = data.finanzas || {};
+  const riesgo = data.riesgo || {};
+  const maxN = Math.max(1, ...niveles.map((n) => n.n || 0));
+  // Marca el nivel destino de la mayor fuga.
+  const nivelFuga = fuga?.a;
+
+  const dup = riesgo.duplicados_phash || [];
+  const recon = riesgo.reconciliacion_aprobado_sin_entregar || 0;
+
+  return html`
+    <div>
+      ${refreshing ? html`<div style="text-align:right" class="refreshing"><span class="inline-spin"></span> actualizando</div>` : null}
+
+      <div class="section-title">Embudo</div>
+      <div class="card">
+        ${fuga && fuga.pierden > 0
+          ? html`<div class="fuga-note">Mayor fuga: <b>${fuga.de} → ${fuga.a}</b> (${fmtNum(fuga.pierden)} leads, ${fmtNum(fuga.pct)}%)</div>`
+          : null}
+        ${niveles.length === 0
+          ? html`<div class="empty" style="padding:20px">Aun sin datos del embudo.</div>`
+          : niveles.map((n) => {
+            const pct = Math.round(((n.n || 0) / maxN) * 100);
+            const esFuga = n.clave === nivelFuga;
+            return html`
+              <div class="fbar-row">
+                <div class="fbar-label">${n.label}<span class="fbar-n">${fmtNum(n.n)}</span></div>
+                <div class="fbar-track"><div class="fbar-fill ${esFuga ? "fbar-leak" : ""}" style=${{ width: Math.max(3, pct) + "%" }}></div></div>
+              </div>`;
+          })}
+      </div>
+
+      <div class="section-title">Finanzas</div>
+      <div class="metric-row">
+        <div class="metric">
+          <div class="label">Ingresos hoy</div>
+          <div class="value sm">${fmtDinero(fin.ingresos_hoy)}</div>
+          <div class="hint">${fmtNum(fin.ventas_n)} ventas (total)</div>
+        </div>
+        <div class="metric">
+          <div class="label">Ingresos 14 dias</div>
+          <div class="value sm">${fmtDinero(fin.ingresos_14d)}</div>
+          <div class="hint">~${fmtNum(fin.ingreso_usd_aprox)} USD aprox.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="fin-row"><span>Costo OpenAI (medido)</span><b>${fmtNum(fin.costo_openai_medido_usd)} USD</b></div>
+        <div class="fin-row"><span>Costo Twilio <i>(estimado)</i></span><b>${fmtNum(fin.costo_twilio_estimado_usd)} USD</b></div>
+        <div class="fin-row total"><span>Margen <i>(estimado)</i></span><b class=${(fin.margen_estimado_usd || 0) >= 0 ? "pos" : "neg"}>${fmtNum(fin.margen_estimado_usd)} USD</b></div>
+        <div class="desc" style="margin-top:6px">Ingreso USD y margen son estimados (ventas × precio). El costo de OpenAI es real por tokens.</div>
+      </div>
+
+      <div class="section-title">Riesgo</div>
+      <div class="card">
+        <div class="fin-row"><span>Comprobantes duplicados (phash)</span><b class=${dup.length > 0 ? "neg" : ""}>${fmtNum(dup.length)}</b></div>
+        <div class="fin-row"><span>Opt-outs</span><b>${fmtNum(riesgo.optouts_total)}</b></div>
+        <div class="fin-row"><span>Freno antifraude (eventos)</span><b>${fmtNum(riesgo.circuit_breaker_eventos)}</b></div>
+        <div class="fin-row"><span>Aprobados sin entregar</span><b class=${recon > 0 ? "neg" : "pos"}>${fmtNum(recon)}</b></div>
+        ${recon > 0
+          ? html`<div class="banner danger" style="margin:10px 0 0"><span class="b-ico">⚠️</span><div>Hay ${recon} pago(s) aprobados sin registro de entrega. Revisa en Pagos / Chats.</div></div>`
+          : null}
+        ${dup.length > 0
+          ? html`<div class="dup-list">${dup.map((d) => html`<div class="dup-item">phash ${d.phash}… · ${d.leads_distintos} leads distintos</div>`)}</div>`
+          : null}
+      </div>
+    </div>
+  `;
+}
+
+// -------- CONFIG --------
+function CamposPagoMovilVe({ pm, set }) {
+  return html`
+    <div class="sub-block">
+      <div class="sub-title">Pago Movil</div>
+      <div class="field"><label>Banco</label><input value=${pm.banco || ""} onInput=${(e) => set("banco", e.target.value)} placeholder="ej. 0102 Banco de Venezuela" /></div>
+      <div class="field"><label>Telefono</label><input inputmode="tel" value=${pm.telefono || ""} onInput=${(e) => set("telefono", e.target.value)} placeholder="ej. 0414-1234567" /></div>
+      <div class="grid2">
+        <div class="field"><label>Cedula</label><input value=${pm.cedula || ""} onInput=${(e) => set("cedula", e.target.value)} placeholder="V-..." /></div>
+        <div class="field"><label>Titular</label><input value=${pm.titular || ""} onInput=${(e) => set("titular", e.target.value)} placeholder="Nombre" /></div>
+      </div>
+    </div>
+  `;
+}
+function CamposCuentaVe({ cu, set }) {
+  return html`
+    <div class="sub-block">
+      <div class="sub-title">Cuenta bancaria</div>
+      <div class="field"><label>Banco</label><input value=${cu.banco || ""} onInput=${(e) => set("banco", e.target.value)} placeholder="ej. Banco de Venezuela" /></div>
+      <div class="grid2">
+        <div class="field"><label>Numero</label><input inputmode="numeric" value=${cu.numero || ""} onInput=${(e) => set("numero", e.target.value)} placeholder="20 digitos" /></div>
+        <div class="field"><label>Tipo</label><input value=${cu.tipo || ""} onInput=${(e) => set("tipo", e.target.value)} placeholder="corriente / ahorros" /></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Cedula</label><input value=${cu.cedula || ""} onInput=${(e) => set("cedula", e.target.value)} placeholder="V-..." /></div>
+        <div class="field"><label>Titular</label><input value=${cu.titular || ""} onInput=${(e) => set("titular", e.target.value)} placeholder="Nombre" /></div>
+      </div>
+    </div>
+  `;
+}
+
+function EstadoCuentas({ provisional, simulacion }) {
+  if (simulacion) {
+    return html`<span class="cuentas-flag flag-prov">⚠️ DATOS DE PRUEBA — reemplazalos por los reales antes de lanzar</span>`;
+  }
+  if (provisional) {
+    return html`<span class="cuentas-flag flag-prov">SIN CONFIGURAR</span>`;
+  }
+  return html`<span class="cuentas-flag flag-real">CUENTAS REALES ACTIVAS</span>`;
+}
+
+function PantallaConfig({ data, loading, error, onGuardarTasa, onGuardarCuentasVe, onGuardarCuentasCo, onRetry }) {
+  const [bs, setBs] = useState("");
+  const [savingTasa, setSavingTasa] = useState(false);
+
+  // Estado editable de cuentas VE/CO (se hidrata desde data).
+  const [vep, setVep] = useState({});   // pago_movil VE
+  const [vec, setVec] = useState({});   // cuenta VE
+  const [coNequi, setCoNequi] = useState({});
+  const [coBanco, setCoBanco] = useState({});
+  const [coBreb, setCoBreb] = useState({});
+  const [savingVe, setSavingVe] = useState(false);
+  const [savingCo, setSavingCo] = useState(false);
+  const [confirmVe, setConfirmVe] = useState(false);
+  const [confirmCo, setConfirmCo] = useState(false);
+
+  useEffect(() => {
+    if (!data) return;
+    if (data.precio_bs_hoy?.bs != null) setBs(String(data.precio_bs_hoy.bs));
+    const ve = data.cuentas_ve || {};
+    setVep({ ...(ve.pago_movil || {}) });
+    setVec({ ...(ve.cuenta || {}) });
+    const co = data.cuentas_co || {};
+    setCoNequi({ ...(co.nequi || {}) });
+    setCoBanco({ ...(co.bancolombia || {}) });
+    setCoBreb({ ...(co.breb || {}) });
+  }, [data]);
+
+  if (loading && !data) return html`<${StateLoading} txt="Cargando configuracion…" />`;
+  if (error && !data) return html`<${StateError} txt=${"No se pudo cargar la configuracion. " + error} onRetry=${onRetry} />`;
   if (!data) return null;
 
   const cuentasVe = data.cuentas_ve || {};
-  const provisional = cuentasVe.provisional === true;
-  const pm = cuentasVe.pago_movil || {};
-  const cu = cuentasVe.cuenta || {};
+  const cuentasCo = data.cuentas_co || {};
+  const veProvisional = cuentasVe.provisional === true;
+  const veSimulacion = cuentasVe.es_simulacion === true;
+  const coProvisional = cuentasCo.provisional === true;
+  const coSimulacion = cuentasCo.es_simulacion === true;
 
   const guardarTasa = async () => {
     const n = Number(bs);
@@ -317,12 +675,41 @@ function PantallaConfig({ data, loading, error, onGuardarTasa, onActivarReales }
     await onGuardarTasa({ ...prev, bs: n, fecha: hoyISO });
     setSavingTasa(false);
   };
-  const activar = async () => {
-    setActivando(true);
-    await onActivarReales(cuentasVe);
-    setActivando(false);
-    setConfirmReal(false);
+
+  const guardarVe = async () => {
+    setSavingVe(true);
+    // Conserva campos previos (nota, etc.) pero marca reales: provisional=false, es_simulacion=false.
+    const value = {
+      ...cuentasVe,
+      pago_movil: { ...vep },
+      cuenta: { ...vec },
+      provisional: false,
+      es_simulacion: false,
+    };
+    delete value.nota;
+    await onGuardarCuentasVe(value);
+    setSavingVe(false);
+    setConfirmVe(false);
   };
+
+  const guardarCo = async () => {
+    setSavingCo(true);
+    const value = {
+      ...cuentasCo,
+      nequi: { ...coNequi },
+      bancolombia: { ...coBanco },
+      breb: { ...coBreb },
+      provisional: false,
+      es_simulacion: false,
+    };
+    delete value.nota;
+    await onGuardarCuentasCo(value);
+    setSavingCo(false);
+    setConfirmCo(false);
+  };
+
+  const setVepK = (k, v) => setVep((s) => ({ ...s, [k]: v }));
+  const setVecK = (k, v) => setVec((s) => ({ ...s, [k]: v }));
 
   return html`
     <div>
@@ -338,24 +725,60 @@ function PantallaConfig({ data, loading, error, onGuardarTasa, onActivarReales }
 
       <div class="card">
         <h2>Cuentas de Venezuela</h2>
-        <span class="cuentas-flag ${provisional ? "flag-prov" : "flag-real"}">${provisional ? "MODO PROVISIONAL (simulacion)" : "CUENTAS REALES ACTIVAS"}</span>
-        <div class="kv" style="display:block">
-          ${pm.banco || pm.telefono
-            ? html`<div><b>Pago movil:</b> ${pm.banco || ""} ${pm.telefono || ""} ${pm.cedula ? "· CI " + pm.cedula : ""}</div>`
-            : html`<div class="desc">Sin pago movil configurado.</div>`}
-          ${cu.numero
-            ? html`<div><b>Cuenta:</b> ${cu.banco || ""} ${cu.numero}</div>`
-            : null}
+        <${EstadoCuentas} provisional=${veProvisional} simulacion=${veSimulacion} />
+        ${veSimulacion
+          ? html`<div class="banner danger" style="margin:6px 0 14px"><span class="b-ico">⚠️</span><div>Estos son datos de ejemplo. El bot los enviaria a los clientes tal cual. <b>Pega tus cuentas reales</b> y guarda para activarlas.</div></div>`
+          : null}
+
+        <${CamposPagoMovilVe} pm=${vep} set=${setVepK} />
+        <${CamposCuentaVe} cu=${vec} set=${setVecK} />
+
+        ${confirmVe
+          ? html`<div style="margin-top:6px">
+              <div class="banner danger" style="margin-bottom:10px"><span class="b-ico">⚠️</span><div>Vas a marcar estas cuentas como <b>reales</b>. El bot empezara a enviarlas a los clientes. ¿Seguro?</div></div>
+              <button class="btn-block btn-primary" disabled=${savingVe} onClick=${guardarVe}>${savingVe ? "Guardando…" : "Si, guardar cuentas reales"}</button>
+              <button class="btn-block btn-ghost" style="margin-top:8px" onClick=${() => setConfirmVe(false)}>Cancelar</button>
+            </div>`
+          : html`<button class="btn-block btn-primary" style="margin-top:6px" onClick=${() => setConfirmVe(true)}>Guardar cuentas reales de Venezuela</button>`}
+      </div>
+
+      <div class="card">
+        <h2>Cuentas de Colombia</h2>
+        <${EstadoCuentas} provisional=${coProvisional} simulacion=${coSimulacion} />
+        ${coSimulacion
+          ? html`<div class="banner danger" style="margin:6px 0 14px"><span class="b-ico">⚠️</span><div>Datos de ejemplo. Pega tus cuentas reales de Colombia y guarda.</div></div>`
+          : null}
+
+        <div class="sub-block">
+          <div class="sub-title">Nequi</div>
+          <div class="grid2">
+            <div class="field"><label>Numero</label><input inputmode="tel" value=${coNequi.numero || ""} onInput=${(e) => setCoNequi((s) => ({ ...s, numero: e.target.value }))} /></div>
+            <div class="field"><label>Titular</label><input value=${coNequi.titular || ""} onInput=${(e) => setCoNequi((s) => ({ ...s, titular: e.target.value }))} /></div>
+          </div>
         </div>
-        ${provisional
-          ? (confirmReal
-            ? html`<div style="margin-top:12px">
-                <div class="banner danger" style="margin-bottom:10px"><span class="b-ico">⚠️</span><div>Vas a activar las cuentas <b>reales</b>. El bot empezara a enviar estos datos a los clientes. ¿Seguro?</div></div>
-                <button class="btn-block btn-primary" disabled=${activando} onClick=${activar}>${activando ? "Activando…" : "Si, activar cuentas reales"}</button>
-                <button class="btn-block btn-ghost" style="margin-top:8px" onClick=${() => setConfirmReal(false)}>Cancelar</button>
-              </div>`
-            : html`<button class="btn-block btn-primary" style="margin-top:12px" onClick=${() => setConfirmReal(true)}>Activar cuentas reales de Venezuela</button>`)
-          : html`<div class="desc" style="margin-top:10px">Las cuentas reales ya estan activas.</div>`}
+        <div class="sub-block">
+          <div class="sub-title">Bancolombia</div>
+          <div class="grid2">
+            <div class="field"><label>Numero</label><input inputmode="numeric" value=${coBanco.numero || ""} onInput=${(e) => setCoBanco((s) => ({ ...s, numero: e.target.value }))} /></div>
+            <div class="field"><label>Tipo</label><input value=${coBanco.tipo || ""} onInput=${(e) => setCoBanco((s) => ({ ...s, tipo: e.target.value }))} placeholder="ahorros" /></div>
+          </div>
+          <div class="field"><label>Titular</label><input value=${coBanco.titular || ""} onInput=${(e) => setCoBanco((s) => ({ ...s, titular: e.target.value }))} /></div>
+        </div>
+        <div class="sub-block">
+          <div class="sub-title">Bre-B</div>
+          <div class="grid2">
+            <div class="field"><label>Llave</label><input value=${coBreb.llave || ""} onInput=${(e) => setCoBreb((s) => ({ ...s, llave: e.target.value }))} /></div>
+            <div class="field"><label>Titular</label><input value=${coBreb.titular || ""} onInput=${(e) => setCoBreb((s) => ({ ...s, titular: e.target.value }))} /></div>
+          </div>
+        </div>
+
+        ${confirmCo
+          ? html`<div style="margin-top:6px">
+              <div class="banner danger" style="margin-bottom:10px"><span class="b-ico">⚠️</span><div>Vas a marcar las cuentas de Colombia como <b>reales</b>. ¿Seguro?</div></div>
+              <button class="btn-block btn-primary" disabled=${savingCo} onClick=${guardarCo}>${savingCo ? "Guardando…" : "Si, guardar cuentas reales"}</button>
+              <button class="btn-block btn-ghost" style="margin-top:8px" onClick=${() => setConfirmCo(false)}>Cancelar</button>
+            </div>`
+          : html`<button class="btn-block btn-primary" style="margin-top:6px" onClick=${() => setConfirmCo(true)}>Guardar cuentas reales de Colombia</button>`}
       </div>
     </div>
   `;
@@ -384,13 +807,29 @@ function ImageModal({ src, onClose }) {
 }
 
 // ===================== App raiz =====================
+const TABS = ["inicio", "pagos", "chats", "analisis", "config"];
+const TITULOS = {
+  inicio: "Inicio", pagos: "Bandeja de pagos", chats: "Conversaciones",
+  analisis: "Analisis", config: "Configuracion",
+};
+
 function App() {
   const [authState, setAuthState] = useState("checking"); // checking | out | in | restricted
-  const [tab, setTab] = useState(() => (location.hash === "#pagos" ? "pagos" : location.hash === "#config" ? "config" : "inicio"));
+  const [tab, setTab] = useState(() => {
+    const h0 = location.hash.replace("#", "");
+    return TABS.includes(h0) ? h0 : "inicio";
+  });
 
   const [inicio, setInicio] = useState({ data: null, loading: true, error: null, refreshing: false });
   const [pagos, setPagos] = useState({ data: null, loading: true, error: null });
   const [config, setConfig] = useState({ data: null, loading: true, error: null });
+  const [chats, setChats] = useState({ data: null, loading: true, error: null, refreshing: false });
+  const [analisis, setAnalisis] = useState({ data: null, loading: true, error: null, refreshing: false });
+
+  const [soloAtencion, setSoloAtencion] = useState(false);
+  const [convPhone, setConvPhone] = useState(null); // phone_raw abierto, o null (lista)
+  const [conv, setConv] = useState({ data: null, loading: false, error: null });
+  const [busyAccion, setBusyAccion] = useState(false);
 
   const [toast, setToast] = useState(null);
   const [reasonFor, setReasonFor] = useState(null);
@@ -403,7 +842,6 @@ function App() {
   useEffect(() => {
     let cancel = false;
     (async () => {
-      // El SDK auto-detecta insforge_code en la URL y canjea la sesion.
       try {
         const { data, error } = await insforge.auth.getCurrentUser();
         if (cancel) return;
@@ -416,15 +854,21 @@ function App() {
     return () => { cancel = true; };
   }, []);
 
+  // Maneja errores de auth de forma uniforme. Devuelve true si fue de auth.
+  const manejarAuthErr = (e) => {
+    if (e.code === 403) { setAuthState("restricted"); return true; }
+    if (e.code === 401) { setAuthState("out"); return true; }
+    return false;
+  };
+
   // --- Cargas de datos ---
   const loadInicio = useCallback(async (silent = false) => {
-    setInicio((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data }));
+    setInicio((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
     try {
       const data = await callFn("musa-admin-data", { query: "view=inicio" });
       setInicio({ data, loading: false, error: null, refreshing: false });
     } catch (e) {
-      if (e.code === 403) { setAuthState("restricted"); return; }
-      if (e.code === 401) { setAuthState("out"); return; }
+      if (manejarAuthErr(e)) return;
       setInicio((s) => ({ ...s, loading: false, error: e.message, refreshing: false }));
     }
   }, []);
@@ -435,8 +879,7 @@ function App() {
       const data = await callFn("musa-admin-data", { query: "view=pagos" });
       setPagos({ data, loading: false, error: null });
     } catch (e) {
-      if (e.code === 403) { setAuthState("restricted"); return; }
-      if (e.code === 401) { setAuthState("out"); return; }
+      if (manejarAuthErr(e)) return;
       setPagos((s) => ({ ...s, loading: false, error: e.message }));
     }
   }, []);
@@ -447,33 +890,80 @@ function App() {
       const data = await callFn("musa-admin-settings", { method: "GET" });
       setConfig({ data, loading: false, error: null });
     } catch (e) {
-      if (e.code === 403) { setAuthState("restricted"); return; }
-      if (e.code === 401) { setAuthState("out"); return; }
+      if (manejarAuthErr(e)) return;
       setConfig((s) => ({ ...s, loading: false, error: e.message }));
     }
   }, []);
 
-  // --- Al entrar, carga la pestana activa + arranca polling de inicio ---
+  const loadChats = useCallback(async (silent = false) => {
+    setChats((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
+    try {
+      const data = await callFn("musa-admin-data", { query: "view=conversaciones" });
+      setChats({ data, loading: false, error: null, refreshing: false });
+    } catch (e) {
+      if (manejarAuthErr(e)) return;
+      setChats((s) => ({ ...s, loading: false, error: e.message, refreshing: false }));
+    }
+  }, []);
+
+  const loadAnalisis = useCallback(async (silent = false) => {
+    setAnalisis((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
+    try {
+      const data = await callFn("musa-admin-data", { query: "view=analitica" });
+      setAnalisis({ data, loading: false, error: null, refreshing: false });
+    } catch (e) {
+      if (manejarAuthErr(e)) return;
+      setAnalisis((s) => ({ ...s, loading: false, error: e.message, refreshing: false }));
+    }
+  }, []);
+
+  const loadConv = useCallback(async (phoneRaw, silent = false) => {
+    setConv((s) => ({ ...s, loading: !silent && !s.data, error: null }));
+    try {
+      const data = await callFn("musa-admin-data", { query: "view=conversacion&phone=" + encodeURIComponent(phoneRaw) });
+      setConv({ data, loading: false, error: null });
+    } catch (e) {
+      if (manejarAuthErr(e)) return;
+      setConv((s) => ({ ...s, loading: false, error: e.message }));
+    }
+  }, []);
+
+  // --- Al entrar, carga la pestana activa + arranca polling ---
   useEffect(() => {
     if (authState !== "in") return;
     loadInicio();
     if (tab === "pagos") loadPagos();
     if (tab === "config") loadConfig();
+    if (tab === "chats") loadChats();
+    if (tab === "analisis") loadAnalisis();
     pollRef.current = setInterval(() => {
       loadInicio(true);
-      if (location.hash === "#pagos") loadPagos();
+      const hsh = location.hash.replace("#", "");
+      if (hsh === "pagos") loadPagos();
+      if (hsh === "chats" && !convPhone) loadChats(true);
     }, 45000);
     return () => clearInterval(pollRef.current);
   }, [authState]);
 
   // --- Cambio de pestana ---
   const goTab = (t) => {
+    setConvPhone(null);
     setTab(t);
     location.hash = t;
     if (t === "inicio") loadInicio(!!inicio.data);
     if (t === "pagos") loadPagos();
     if (t === "config") loadConfig();
+    if (t === "chats") loadChats(!!chats.data);
+    if (t === "analisis") loadAnalisis(!!analisis.data);
   };
+
+  // --- Abrir / cerrar conversacion ---
+  const abrirConv = (phoneRaw) => {
+    setConvPhone(phoneRaw);
+    setConv({ data: null, loading: true, error: null });
+    loadConv(phoneRaw);
+  };
+  const volverLista = () => { setConvPhone(null); setConv({ data: null, loading: false, error: null }); loadChats(true); };
 
   // --- Accion sobre un pago ---
   const onAccion = async ({ accion, short_id, motivo }) => {
@@ -484,7 +974,7 @@ function App() {
       else if (r.ok) showToast(accion === "aprobar" ? "#" + short_id + " aprobado y entregado" : "#" + short_id + " rechazado", "ok");
       else showToast("No se pudo procesar #" + short_id, "err");
     } catch (e) {
-      if (e.code === 403) { setAuthState("restricted"); return; }
+      if (manejarAuthErr(e)) return;
       showToast("Error: " + e.message, "err");
     }
     await loadPagos();
@@ -496,26 +986,71 @@ function App() {
     await onAccion({ accion: "rechazar", short_id: sid, motivo });
   };
 
-  // --- Guardar tasa / activar cuentas reales ---
+  // --- Acciones de conversacion ---
+  const onTomarControl = async (phoneRaw) => {
+    setBusyAccion(true);
+    try {
+      await callFn("musa-admin-accion", { method: "POST", body: { accion: "tomar_control", lead_phone: phoneRaw } });
+      showToast("Tomaste el control", "ok");
+      await loadConv(phoneRaw, true);
+    } catch (e) {
+      if (!manejarAuthErr(e)) showToast("Error: " + e.message, "err");
+    }
+    setBusyAccion(false);
+    loadInicio(true);
+  };
+  const onDevolverControl = async (phoneRaw) => {
+    setBusyAccion(true);
+    try {
+      await callFn("musa-admin-accion", { method: "POST", body: { accion: "devolver_control", lead_phone: phoneRaw } });
+      showToast("Devuelto a Musa", "ok");
+      await loadConv(phoneRaw, true);
+    } catch (e) {
+      if (!manejarAuthErr(e)) showToast("Error: " + e.message, "err");
+    }
+    setBusyAccion(false);
+    loadInicio(true);
+  };
+  const onResponder = async (phoneRaw, texto) => {
+    try {
+      const r = await callFn("musa-admin-responder", { method: "POST", body: { lead_phone: phoneRaw, texto } });
+      if (r.es_prueba) showToast("Guardado (numero de prueba, sin Twilio)", "ok");
+      else if (r.twilio_enviado) showToast("Mensaje enviado", "ok");
+      else showToast("Guardado, pero Twilio fallo", "err");
+      await loadConv(phoneRaw, true);
+      return true;
+    } catch (e) {
+      if (!manejarAuthErr(e)) showToast("Error: " + e.message, "err");
+      return false;
+    }
+  };
+
+  // --- Guardar tasa / cuentas ---
   const onGuardarTasa = async (value) => {
     try {
       await callFn("musa-admin-settings", { method: "POST", body: { key: "precio_bs_hoy", value } });
       showToast("Tasa guardada", "ok");
       await loadConfig(); loadInicio(true);
     } catch (e) {
-      if (e.code === 403) { setAuthState("restricted"); return; }
-      showToast("Error: " + e.message, "err");
+      if (!manejarAuthErr(e)) showToast("Error: " + e.message, "err");
     }
   };
-  const onActivarReales = async (cuentasVe) => {
+  const onGuardarCuentasVe = async (value) => {
     try {
-      const value = { ...cuentasVe, provisional: false, es_simulacion: false };
       await callFn("musa-admin-settings", { method: "POST", body: { key: "cuentas_ve", value } });
-      showToast("Cuentas reales activadas", "ok");
+      showToast("Cuentas de Venezuela guardadas", "ok");
       await loadConfig(); loadInicio(true);
     } catch (e) {
-      if (e.code === 403) { setAuthState("restricted"); return; }
-      showToast("Error: " + e.message, "err");
+      if (!manejarAuthErr(e)) showToast("Error: " + e.message, "err");
+    }
+  };
+  const onGuardarCuentasCo = async (value) => {
+    try {
+      await callFn("musa-admin-settings", { method: "POST", body: { key: "cuentas_co", value } });
+      showToast("Cuentas de Colombia guardadas", "ok");
+      await loadConfig(); loadInicio(true);
+    } catch (e) {
+      if (!manejarAuthErr(e)) showToast("Error: " + e.message, "err");
     }
   };
 
@@ -535,20 +1070,28 @@ function App() {
   }
 
   const pendN = inicio.data ? ((inicio.data.pagos_en_cola?.n || 0) + (inicio.data.escalados?.n || 0)) : 0;
+  const escN = inicio.data ? (inicio.data.escalados?.n || 0) : 0;
+  const subTitulo = (tab === "chats" && convPhone) ? "Conversacion" : TITULOS[tab];
 
   return html`
     <div class="shell">
       <div class="topbar">
         <div>
           <h1>Consola Musa</h1>
-          <div class="sub">${tab === "inicio" ? "Inicio" : tab === "pagos" ? "Bandeja de pagos" : "Configuracion"}</div>
+          <div class="sub">${subTitulo}</div>
         </div>
         <button class="iconbtn" onClick=${signOut}>Salir</button>
       </div>
       <div class="content">
-        ${tab === "inicio" ? html`<${PantallaInicio} ...${inicio} onGoPagos=${() => goTab("pagos")} />` : null}
-        ${tab === "pagos" ? html`<${PantallaPagos} ...${pagos} onAccion=${onAccion} onVerImagen=${setImgSrc} />` : null}
-        ${tab === "config" ? html`<${PantallaConfig} ...${config} onGuardarTasa=${onGuardarTasa} onActivarReales=${onActivarReales} />` : null}
+        ${tab === "inicio" ? html`<${PantallaInicio} ...${inicio} onGoPagos=${() => goTab("pagos")} onGoChats=${() => goTab("chats")} onRetry=${() => loadInicio()} />` : null}
+        ${tab === "pagos" ? html`<${PantallaPagos} ...${pagos} onAccion=${onAccion} onVerImagen=${setImgSrc} onRetry=${loadPagos} />` : null}
+        ${tab === "chats"
+          ? (convPhone
+            ? html`<${PantallaConversacion} ...${conv} onVolver=${volverLista} onTomarControl=${onTomarControl} onDevolverControl=${onDevolverControl} onResponder=${onResponder} onRetry=${() => loadConv(convPhone)} busyAccion=${busyAccion} />`
+            : html`<${PantallaChats} ...${chats} soloAtencion=${soloAtencion} onToggleFiltro=${setSoloAtencion} onAbrir=${abrirConv} onRetry=${() => loadChats()} />`)
+          : null}
+        ${tab === "analisis" ? html`<${PantallaAnalisis} ...${analisis} onRetry=${() => loadAnalisis()} />` : null}
+        ${tab === "config" ? html`<${PantallaConfig} ...${config} onGuardarTasa=${onGuardarTasa} onGuardarCuentasVe=${onGuardarCuentasVe} onGuardarCuentasCo=${onGuardarCuentasCo} onRetry=${loadConfig} />` : null}
       </div>
 
       <nav class="bottomnav">
@@ -557,6 +1100,12 @@ function App() {
         </button>
         <button class=${tab === "pagos" ? "active" : ""} onClick=${() => goTab("pagos")}>
           <span class="ico">🧾</span>Pagos${pendN > 0 ? html`<span class="nbadge">${pendN}</span>` : null}
+        </button>
+        <button class=${tab === "chats" ? "active" : ""} onClick=${() => goTab("chats")}>
+          <span class="ico">💬</span>Chats${escN > 0 ? html`<span class="nbadge">${escN}</span>` : null}
+        </button>
+        <button class=${tab === "analisis" ? "active" : ""} onClick=${() => goTab("analisis")}>
+          <span class="ico">📊</span>Analisis
         </button>
         <button class=${tab === "config" ? "active" : ""} onClick=${() => goTab("config")}>
           <span class="ico">⚙️</span>Config
