@@ -115,9 +115,15 @@ type Cfg = {
   cuentasVe: Record<string, Record<string, string>>;
   cuentasCo: Record<string, Record<string, string>>;
   marca: { asesora?: string; firma?: string };
-  entrega: { link_grupo?: string };
+  entrega: {
+    link_grupo?: string;
+    modulos?: string[];
+    bonos?: Record<string, string>;
+    plan_accion_7dias?: string;
+  };
   horario: { tz?: string; inicio?: number; fin?: number };
-  modelos: { conversacion?: string; clasificador?: string };
+  modelos: { conversacion?: string; clasificador?: string; vision?: string };
+  operador: { whatsapp?: string; horario_inicio?: number; horario_fin?: number };
 };
 
 // deno-lint-ignore no-explicit-any
@@ -138,6 +144,7 @@ async function cargarSettings(admin: Admin): Promise<Cfg> {
     "horario_verificacion",
     "modelos",
     "avatar",
+    "operador",
   ];
   const { data, error } = await admin.database
     .from("musa_settings")
@@ -158,6 +165,7 @@ async function cargarSettings(admin: Admin): Promise<Cfg> {
     horario: (map["horario_verificacion"] ?? { inicio: 8, fin: 22 }) as Cfg["horario"],
     modelos: (map["modelos"] ?? {}) as Cfg["modelos"],
     avatar: (map["avatar"] ?? {}) as Cfg["avatar"],
+    operador: (map["operador"] ?? { whatsapp: "", horario_inicio: 8, horario_fin: 22 }) as Cfg["operador"],
   };
 }
 
@@ -559,6 +567,390 @@ async function transcribirNotaVoz(
   }
 }
 
+// ============================== verificación de pagos ==============================
+
+/**
+ * Descarga los bytes de una media. Si la URL es de api.twilio.com usa Basic auth
+ * con las credenciales de Twilio; si no (p.ej. una URL del bucket en modo prueba)
+ * hace fetch directo. Devuelve {bytes, contentType} o null si falla.
+ */
+async function descargarMedia(
+  mediaUrl: string,
+  timeoutMs = 20000,
+): Promise<{ bytes: ArrayBuffer; contentType: string } | null> {
+  if (!mediaUrl) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const headers: Record<string, string> = {};
+    if (/api\.twilio\.com/i.test(mediaUrl)) {
+      const sid = Deno.env.get("TWILIO_ACCOUNT_SID");
+      const token = Deno.env.get("TWILIO_AUTH_TOKEN");
+      if (sid && token) headers["Authorization"] = "Basic " + btoa(`${sid}:${token}`);
+    }
+    const dl = await fetch(mediaUrl, { headers, signal: ctrl.signal });
+    if (!dl.ok) {
+      console.error("descargarMedia", dl.status, (await dl.text()).slice(0, 160));
+      return null;
+    }
+    const bytes = await dl.arrayBuffer();
+    if (!bytes || bytes.byteLength === 0) return null;
+    const contentType = (dl.headers.get("content-type") || "image/jpeg")
+      .split(";")[0].trim().toLowerCase();
+    return { bytes, contentType };
+  } catch (e) {
+    console.error("descargarMedia err", String(e).slice(0, 160));
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** sha256 hex de unos bytes (huella de la imagen para dedupe). */
+async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** ArrayBuffer -> base64 (para el data: URL que se manda al modelo de visión). */
+function bytesABase64(bytes: ArrayBuffer): string {
+  const u8 = new Uint8Array(bytes);
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < u8.length; i += chunk) {
+    bin += String.fromCharCode(...u8.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+type DatosComprobante = {
+  metodo: string | null;
+  monto: number | null;
+  moneda: string | null;
+  fecha: string | null;
+  hora: string | null;
+  numero_referencia: string | null;
+  destino: string | null;
+  nombre_destinatario: string | null;
+  banco_o_app: string | null;
+  estado_operacion: string | null;
+  es_captura_completa: boolean;
+  senales_manipulacion: string[];
+  confidence: { monto?: number; referencia?: number; destino?: number; fecha?: number };
+};
+
+/**
+ * VISIÓN: extrae los datos del comprobante con el modelo 'modelos'.vision.
+ * La imagen va como data: URL base64. Devuelve el JSON estricto parseado o null.
+ */
+async function extraerComprobanteVision(
+  cfg: Cfg,
+  dataUrl: string,
+): Promise<DatosComprobante | null> {
+  const sistema =
+    "Eres un verificador de comprobantes de pago (capturas de pantalla de apps bancarias / Pago Móvil / Nequi / Bancolombia / Bre-B / transferencias). " +
+    "Analiza la imagen y responde SOLO un JSON valido, sin texto extra ni markdown, con EXACTAMENTE esta forma:\n" +
+    '{"metodo":string|null,"monto":number|null,"moneda":"VES"|"COP"|"USD"|null,"fecha":"YYYY-MM-DD"|null,"hora":string|null,' +
+    '"numero_referencia":string|null,"destino":string|null,"nombre_destinatario":string|null,"banco_o_app":string|null,' +
+    '"estado_operacion":"exitosa"|"en_proceso"|"programada"|"fallida"|"ilegible",' +
+    '"es_captura_completa":boolean,"senales_manipulacion":string[],' +
+    '"confidence":{"monto":number,"referencia":number,"destino":number,"fecha":number}}\n' +
+    "Reglas: 'destino' = el telefono, numero de cuenta o llave que RECIBE el dinero (no el emisor). " +
+    "'monto' es solo el numero (sin simbolos ni separadores de miles). " +
+    "moneda: VES si es bolivares/Bs, COP si es pesos colombianos, USD si dolares. " +
+    "estado_operacion='exitosa' solo si dice claramente exitosa/aprobada/completada/realizada. " +
+    "es_captura_completa=false si esta recortada, borrosa o faltan datos clave. " +
+    "senales_manipulacion: lista cualquier indicio de edicion/photoshop/fuentes desalineadas/montaje (vacio si no hay). " +
+    "confidence: 0..1 que tan seguro estas de cada campo (0 si no lo ves).";
+  const modelo = cfg.modelos?.vision || "gpt-5.4-mini-2026-03-17";
+  const contenido = await openaiChat({
+    model: modelo,
+    messages: [
+      { role: "system", content: sistema },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "Extrae los datos de este comprobante." },
+          { type: "image_url", image_url: { url: dataUrl } },
+        ],
+      },
+    ],
+    response_format: { type: "json_object" },
+    max_completion_tokens: 500,
+  }, 20000);
+  if (!contenido) return null;
+  try {
+    const limpio = contenido.replace(/```json|```/g, "").trim();
+    const m = limpio.match(/\{[\s\S]*\}/);
+    if (!m) return null;
+    const j = JSON.parse(m[0]);
+    return {
+      metodo: j.metodo ?? null,
+      monto: typeof j.monto === "number" ? j.monto : (j.monto ? Number(String(j.monto).replace(/[^\d.]/g, "")) || null : null),
+      moneda: j.moneda ?? null,
+      fecha: j.fecha ?? null,
+      hora: j.hora ?? null,
+      numero_referencia: j.numero_referencia != null ? String(j.numero_referencia) : null,
+      destino: j.destino != null ? String(j.destino) : null,
+      nombre_destinatario: j.nombre_destinatario ?? null,
+      banco_o_app: j.banco_o_app ?? null,
+      estado_operacion: j.estado_operacion ?? null,
+      es_captura_completa: j.es_captura_completa === true,
+      senales_manipulacion: Array.isArray(j.senales_manipulacion) ? j.senales_manipulacion.filter(Boolean) : [],
+      confidence: typeof j.confidence === "object" && j.confidence ? j.confidence : {},
+    };
+  } catch (e) {
+    console.error("vision parse", String(e).slice(0, 160));
+    return null;
+  }
+}
+
+/** solo dígitos (para comparar referencias y destinos sin formato). */
+function soloDigitos(s: string | null): string {
+  return (s || "").replace(/\D/g, "");
+}
+
+/**
+ * Lista de NUESTROS destinos (solo dígitos) según las cuentas de settings:
+ * Pago Móvil + cuenta BDV (VE) y Nequi + Bancolombia + Bre-B (CO).
+ */
+function nuestrosDestinos(cfg: Cfg): string[] {
+  const set = new Set<string>();
+  const add = (v?: string) => { const d = soloDigitos(v ?? null); if (d.length >= 6) set.add(d); };
+  const ve = cfg.cuentasVe ?? {};
+  add(ve.pago_movil?.telefono);
+  add(ve.cuenta?.numero);
+  const co = cfg.cuentasCo ?? {};
+  // deno-lint-ignore no-explicit-any
+  const c = co as any;
+  add(c.nequi?.numero);
+  add(c.bancolombia?.numero);
+  add(c.breb?.llave);
+  return Array.from(set);
+}
+
+/** precio esperado para la moneda del comprobante. */
+function precioEsperado(cfg: Cfg, moneda: string | null): number | null {
+  switch ((moneda || "").toUpperCase()) {
+    case "COP": return Number(cfg.precio?.cop ?? 33000);
+    case "VES": return Number(cfg.precioBsHoy?.bs ?? 7400);
+    case "USD": return Number(cfg.precio?.usd ?? 9);
+    default: return null;
+  }
+}
+
+type Decision = {
+  accion: "AUTO_APROBAR" | "COLA_HUMANA" | "PEDIR_REENVIO";
+  motivo: string | null;
+};
+
+/**
+ * VALIDACIONES EN CÓDIGO (no en el LLM). Recibe los datos extraídos + el estado
+ * del lead (primer pago) y decide la acción. NO toca la BD: solo decide. El dedupe
+ * por referencia/phash y el circuit breaker se evalúan aparte (necesitan la BD).
+ */
+function decidirComprobante(
+  cfg: Cfg,
+  d: DatosComprobante,
+  esPrimerPagoAprobado: boolean,
+): Decision {
+  // 1) captura incompleta / ilegible -> pedir reenvío (suave, no notifica aún)
+  if (!d.es_captura_completa || d.estado_operacion === "ilegible") {
+    return { accion: "PEDIR_REENVIO", motivo: "captura_incompleta" };
+  }
+  // 2) estado no exitoso -> cola humana
+  if (d.estado_operacion && ["programada", "en_proceso", "fallida"].includes(d.estado_operacion)) {
+    return { accion: "COLA_HUMANA", motivo: "estado_" + d.estado_operacion };
+  }
+  // 3) monto / moneda
+  const esperado = precioEsperado(cfg, d.moneda);
+  if (esperado == null || d.monto == null) {
+    return { accion: "COLA_HUMANA", motivo: "monto_o_moneda_ilegible" };
+  }
+  if (d.monto < esperado * 0.98) {
+    return { accion: "COLA_HUMANA", motivo: "pago_incompleto" };
+  }
+  if (d.monto > esperado * 3) {
+    return { accion: "COLA_HUMANA", motivo: "monto_excesivo" };
+  }
+  // 4) destino debe coincidir con uno de los nuestros
+  const destinos = nuestrosDestinos(cfg);
+  const dest = soloDigitos(d.destino);
+  // match flexible: el comprobante puede traer el número con prefijo de país.
+  const coincide = dest.length >= 6 && destinos.some((n) => dest.endsWith(n) || n.endsWith(dest));
+  if (!coincide) {
+    return { accion: "COLA_HUMANA", motivo: "destino_no_coincide" };
+  }
+  // 5) fecha: futura o > 3 días atrás -> cola (null no bloquea)
+  if (d.fecha) {
+    const f = new Date(d.fecha + "T00:00:00Z").getTime();
+    if (!Number.isNaN(f)) {
+      const hoy = Date.now();
+      if (f > hoy + 24 * 60 * 60 * 1000) return { accion: "COLA_HUMANA", motivo: "fecha_futura" };
+      if (hoy - f > 3 * 24 * 60 * 60 * 1000) return { accion: "COLA_HUMANA", motivo: "fecha_vieja" };
+    }
+  }
+  // 6) confidence
+  const c = d.confidence ?? {};
+  if ((c.monto ?? 0) < 0.85 || (c.referencia ?? 0) < 0.85 || (c.destino ?? 0) < 0.85) {
+    return { accion: "COLA_HUMANA", motivo: "baja_confianza" };
+  }
+  // 7) señales de manipulación
+  if (d.senales_manipulacion && d.senales_manipulacion.length > 0) {
+    return { accion: "COLA_HUMANA", motivo: "senales_manipulacion" };
+  }
+  // 8) solo si es el PRIMER pago aprobado de ese lead
+  if (!esPrimerPagoAprobado) {
+    return { accion: "COLA_HUMANA", motivo: "lead_ya_tiene_pago" };
+  }
+  return { accion: "AUTO_APROBAR", motivo: null };
+}
+
+/**
+ * CIRCUIT BREAKER: si en la última hora hubo >=10 auto-aprobaciones, o >=3 del
+ * mismo banco_o_app en 10 min -> forzar cola. Devuelve true si debe forzarse.
+ */
+async function circuitBreakerActivo(admin: Admin, bancoApp: string | null): Promise<boolean> {
+  const haceUnaHora = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { data: aprob } = await admin.database
+    .from("musa_payments")
+    .select("id, datos_extraidos, resolved_at")
+    .eq("status", "aprobado")
+    .gte("resolved_at", haceUnaHora);
+  const lista = aprob ?? [];
+  if (lista.length >= 10) return true;
+  if (bancoApp) {
+    const hace10 = Date.now() - 10 * 60 * 1000;
+    const mismoBanco = lista.filter((p: { datos_extraidos?: { banco_o_app?: string }; resolved_at?: string }) => {
+      const t = p.resolved_at ? new Date(p.resolved_at).getTime() : 0;
+      const b = p.datos_extraidos?.banco_o_app ?? null;
+      return t >= hace10 && b && String(b).toLowerCase() === bancoApp.toLowerCase();
+    });
+    if (mismoBanco.length >= 3) return true;
+  }
+  return false;
+}
+
+/** URL pública de un objeto del bucket (igual patrón que urlPublicaVideo). */
+function urlPublicaBucket(storageKey: string): string | null {
+  const base = (Deno.env.get("INSFORGE_BASE_URL") ?? "").replace(/\/+$/, "");
+  if (!base || !storageKey) return null;
+  // si ya es una URL completa, devolverla tal cual
+  if (/^https?:\/\//i.test(storageKey)) return storageKey;
+  return `${base}/api/storage/buckets/musa-avatares/objects/${storageKey}`;
+}
+
+/**
+ * NOTIFICAR AL DUEÑO. Para +9999 (operador de prueba) NO llama a Twilio: registra
+ * evento 'operador_notificado' con el payload. Para real: Twilio REST (texto +,
+ * si hay imagen, un segundo mensaje con MediaUrl). El número del lead a notificar
+ * NO recibe nada aquí (esto va al operador).
+ */
+async function notificarOperador(
+  admin: Admin,
+  cfg: Cfg,
+  texto: string,
+  imagenUrl: string | null,
+): Promise<void> {
+  const operador = (cfg.operador?.whatsapp || "").trim();
+  if (!operador) {
+    console.error("notificarOperador: sin operador.whatsapp configurado");
+    return;
+  }
+  const esPrueba = operador.startsWith("+9999");
+  if (esPrueba) {
+    await registrarEvento(admin, operador, "operador_notificado", {
+      texto,
+      imagen_url: imagenUrl,
+    });
+    return;
+  }
+  const sid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const token = Deno.env.get("TWILIO_AUTH_TOKEN");
+  const from = Deno.env.get("TWILIO_WHATSAPP_FROM") || "whatsapp:+14155238886";
+  if (!sid || !token) {
+    console.error("notificarOperador: faltan credenciales Twilio");
+    await registrarEvento(admin, operador, "operador_notificado", { texto, imagen_url: imagenUrl, sin_twilio: true });
+    return;
+  }
+  const enviar = async (params: Record<string, string>) => {
+    try {
+      const res = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": "Basic " + btoa(`${sid}:${token}`),
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(params),
+        },
+      );
+      if (!res.ok) console.error("notificarOperador twilio", res.status, (await res.text()).slice(0, 160));
+    } catch (e) {
+      console.error("notificarOperador err", String(e).slice(0, 160));
+    }
+  };
+  await enviar({ From: from, To: `whatsapp:${operador}`, Body: texto });
+  if (imagenUrl) {
+    await enviar({ From: from, To: `whatsapp:${operador}`, MediaUrl: imagenUrl });
+  }
+  await registrarEvento(admin, operador, "operador_notificado", { texto, imagen_url: imagenUrl });
+}
+
+/**
+ * ENTREGA (S10): marca pagado=true, estado_funnel='S10_ENTREGA' y envía en 2-3
+ * mensajes (NO sueltos): BLOQUE 1 (13 módulos), BLOQUE 2 (4 bonos + PDF Plan de
+ * Acción 7 Días), y un mensaje de bienvenida + primer paso. Evento 'entrega_realizada'.
+ */
+async function entregarCurso(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> {
+  const modulos = cfg.entrega?.modulos ?? [];
+  const bonos = cfg.entrega?.bonos ?? {};
+  const plan = cfg.entrega?.plan_accion_7dias ?? "";
+
+  const ETIQUETAS_BONOS: Record<string, string> = {
+    coleccion_modelos: "Colección de Modelos",
+    megapack_master_ia: "Megapack Master IA",
+    youtube_money_machine: "YouTube Money Machine",
+    audios_fempro: "Audios FemPro",
+  };
+
+  const bloque1 = ["📚 *Tu curso (13 módulos):*"];
+  modulos.forEach((url, i) => bloque1.push(`${i + 1}. ${url}`));
+
+  const bloque2 = ["🎁 *Tus 4 bonos + regalo:*"];
+  let n = 1;
+  for (const [k, url] of Object.entries(bonos)) {
+    if (!url) continue;
+    bloque2.push(`${n}. ${ETIQUETAS_BONOS[k] ?? k}: ${url}`);
+    n++;
+  }
+  if (plan) bloque2.push(`🎁 *Regalo — Plan de Acción 7 Días:* ${plan}`);
+
+  const bienvenida = resolverPlaceholders(
+    "¡Bienvenida oficialmente, {{nombre}}! 💜 Ya tienes acceso de por vida a todo. " +
+    "Mi consejo: empieza HOY por el *Módulo 1* (el primer enlace de arriba) y avanza a tu ritmo. " +
+    "Cualquier duda me escribes por aquí 😊",
+    lead,
+    cfg,
+  );
+
+  await actualizarLead(admin, lead, { pagado: true });
+  await transicion(admin, lead, "S10_ENTREGA");
+  await enviarMensajes(admin, lead, [
+    bloque1.join("\n"),
+    bloque2.join("\n"),
+    bienvenida,
+  ]);
+  await registrarEvento(admin, lead.phone, "entrega_realizada", {
+    modulos: modulos.length,
+    bonos: n - 1,
+    tiene_plan: !!plan,
+  });
+}
+
 type Clasificacion = {
   tipo: string;
   objecion_id?: number;
@@ -823,26 +1215,34 @@ async function enviarMensajes(admin: Admin, lead: Lead, textos: MensajeOut[]): P
     .eq("phone", lead.phone);
 }
 
-async function crearPagoRevision(
+/**
+ * Inserta una fila musa_payments con un short_id único (reintenta ante choque del
+ * UNIQUE de short_id). Devuelve {id, shortId} o null si se agotaron los intentos.
+ * `fila` trae el resto de columnas (status, metodo, monto, etc.); short_id y
+ * lead_phone se fijan aquí. Si choca otro UNIQUE (metodo+ref) lo propaga al caller.
+ */
+async function insertarPago(
   admin: Admin,
   phone: string,
-  mediaUrl: string | null,
-): Promise<string | null> {
+  fila: Record<string, unknown>,
+): Promise<{ id: number; shortId: string } | { dupeRef: true } | null> {
   for (let intento = 0; intento < 6; intento++) {
     const shortId = String(Math.floor(1000 + Math.random() * 9000));
-    const { error } = await admin.database.from("musa_payments").insert([{
-      lead_phone: phone,
-      metodo: "por_clasificar",
-      status: "revision",
-      storage_key: mediaUrl,
-      short_id: shortId,
-    }]);
-    if (!error) return shortId;
-    if (!JSON.stringify(error).includes("23505")) {
-      throw new Error("insert musa_payments: " + JSON.stringify(error));
+    const { data, error } = await admin.database.from("musa_payments")
+      .insert([{ lead_phone: phone, short_id: shortId, ...fila }])
+      .select("id")
+      .maybeSingle();
+    if (!error) return { id: data?.id, shortId };
+    const err = JSON.stringify(error);
+    if (err.includes("23505")) {
+      // ¿choque de short_id o de la ref única (metodo+ref)?
+      if (err.includes("ref_unica") || err.includes("ref_normalizada")) return { dupeRef: true };
+      // short_id duplicado: reintentar con otro
+      continue;
     }
+    throw new Error("insert musa_payments: " + err);
   }
-  console.error("crearPagoRevision: short_id agotado tras 6 intentos");
+  console.error("insertarPago: short_id agotado tras 6 intentos");
   return null;
 }
 
@@ -853,6 +1253,7 @@ const PREGUNTA_PENDIENTE: Record<string, string> = {
   S06_CIERRE: "¿Te paso los datos de pago? 😊",
   S08_ESPERA_CAPTURA: "Cuando tengas la captura del comprobante, envíamela por aquí 📸",
   S09_VERIFICACION: "Seguimos verificando tu pago, tu acceso queda asegurado ✅",
+  S10_ENTREGA: "¿En qué te puedo ayudar con tu acceso? 😊",
 };
 
 function preguntaDeEtapa(estado: string): string {
@@ -924,6 +1325,17 @@ const MSG_ESCALADO_ACK2 =
 // CAMBIO 4 — respuesta cálida a una nota de voz (no avanza ni clasifica).
 const MSG_NOTA_VOZ =
   "¡Ay, gracias por tu nota de voz! 🙈 Por ahora solo puedo leer mensajes de texto. ¿Me escribes tu mensajito y seguimos? 💜";
+// FASE 4 (pagos) — acuses al lead tras recibir el comprobante.
+const MSG_PAGO_REENVIO =
+  "¡Gracias! 🙏 La captura me quedó un poquito incompleta o no se ve clara. ¿Me reenvías el comprobante completo (que se vean el monto, la fecha y el número de referencia)? Así te confirmo el acceso enseguida 💜";
+const MSG_PAGO_VERIFICANDO_DENTRO =
+  "¡Recibido! 🙌 Estoy verificando tu pago ahora mismo y te confirmo el acceso por aquí en unos minutos 💜";
+const MSG_PAGO_VERIFICANDO_FUERA =
+  "¡Recibido! 🙌 Estoy verificando tu pago; en cuanto el equipo lo confirme (a primera hora) te llega aquí mismo todo el acceso 💜";
+const MSG_PAGO_EN_PROCESO =
+  "¡Gracias! 🙏 Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque 💜";
+const MSG_PAGO_RECHAZO_SUAVE =
+  "¡Hola! 🙏 Revisamos tu comprobante y no pudimos confirmarlo de momento (puede ser un tema técnico de la imagen o que aún no se refleja). ¿Me reenvías el comprobante completo o me cuentas más para ayudarte? Quiero asegurarme de activarte el acceso 💜";
 
 /**
  * Cuántos acuses de escalado se han enviado DESPUÉS del último evento
@@ -1364,6 +1776,304 @@ async function manejarS06(admin: Admin, lead: Lead, cfg: Cfg, body: string, norm
   await responderFallback(admin, lead, cfg);
 }
 
+/**
+ * FASE 4 — procesa un comprobante (imagen) recibido en S08: descarga + hash +
+ * visión + validaciones + dedupe + circuit breaker, y según la decisión:
+ * AUTO_APROBAR (aprobar + entregar), COLA_HUMANA (revision + notificar al dueño +
+ * acuse de "verificando") o PEDIR_REENVIO (revision sin notificar + pedir captura).
+ * NUNCA rompe el chat: ante cualquier fallo técnico cae a COLA_HUMANA.
+ */
+async function procesarComprobante(
+  admin: Admin,
+  lead: Lead,
+  cfg: Cfg,
+  mediaUrl: string | null,
+): Promise<void> {
+  // Acuse de "verificando" según horario (promesa de tiempo realista).
+  const dentro = dentroDeHorario(cfg);
+  const acuseVerificando = dentro ? MSG_PAGO_VERIFICANDO_DENTRO : MSG_PAGO_VERIFICANDO_FUERA;
+
+  // Helper: cola humana => status revision, notificar al dueño, acuse al lead.
+  const aColaHumana = async (
+    motivo: string,
+    datos: DatosComprobante | null,
+    phash: string | null,
+    acuseLead: string,
+  ) => {
+    const fila: Record<string, unknown> = {
+      metodo: datos?.metodo ? String(datos.metodo).slice(0, 60) : "por_clasificar",
+      status: "revision",
+      storage_key: mediaUrl,
+      image_phash: phash,
+      motivo_flag: motivo,
+      datos_extraidos: datos ?? null,
+      monto: datos?.monto ?? null,
+      moneda: datos?.moneda ?? null,
+      fecha_pago: datos?.fecha ?? null,
+    };
+    const ins = await insertarPago(admin, lead.phone, fila);
+    const shortId = ins && "shortId" in ins ? ins.shortId : null;
+    await registrarEvento(admin, lead.phone, "pago_a_revision", { short_id: shortId, motivo });
+    // Notificar al dueño con los datos + la imagen.
+    const imagenUrl = mediaUrl ? urlPublicaBucket(mediaUrl) : null;
+    const texto =
+      `🔔 Pago para revisar #${shortId ?? "?"}\n` +
+      `Lead: ${lead.phone}\n` +
+      `Método: ${datos?.metodo ?? "?"} | Monto: ${datos?.monto ?? "?"} ${datos?.moneda ?? ""}\n` +
+      `Ref: ${datos?.numero_referencia ?? "?"} | Estado: ${datos?.estado_operacion ?? "?"}\n` +
+      `Motivo: ${motivo}\n` +
+      `Responde: ok ${shortId ?? "<id>"} / no ${shortId ?? "<id>"} <motivo> / ver ${shortId ?? "<id>"}`;
+    await notificarOperador(admin, cfg, texto, imagenUrl);
+    await transicion(admin, lead, "S09_VERIFICACION");
+    await enviarMensajes(admin, lead, [acuseLead]);
+  };
+
+  try {
+    // 1) descargar + hash
+    const media = await descargarMedia(mediaUrl ?? "");
+    if (!media) {
+      // No pudimos bajar la imagen: cola humana sin datos (no rompemos).
+      await aColaHumana("descarga_fallida", null, null, acuseVerificando);
+      return;
+    }
+    const phash = await sha256Hex(media.bytes);
+
+    // 2) dedupe por imagen (phash) ANTES de gastar visión
+    const { data: phashHit } = await admin.database
+      .from("musa_payments")
+      .select("id, lead_phone")
+      .eq("image_phash", phash)
+      .limit(1);
+    const imagenDuplicada = (phashHit ?? []).length > 0;
+
+    // 3) visión
+    const ct = media.contentType.startsWith("image/") ? media.contentType : "image/jpeg";
+    const dataUrl = `data:${ct};base64,${bytesABase64(media.bytes)}`;
+    const datos = await extraerComprobanteVision(cfg, dataUrl);
+    await registrarEvento(admin, lead.phone, "comprobante_vision", {
+      ok: !!datos,
+      datos: datos ?? null,
+      phash,
+    });
+    if (!datos) {
+      await aColaHumana("vision_fallida", null, phash, acuseVerificando);
+      return;
+    }
+
+    if (imagenDuplicada) {
+      await aColaHumana("imagen_duplicada", datos, phash, acuseVerificando);
+      return;
+    }
+
+    // 4) ¿es el primer pago aprobado de este lead?
+    const { data: aprobPrevios } = await admin.database
+      .from("musa_payments")
+      .select("id")
+      .eq("lead_phone", lead.phone)
+      .eq("status", "aprobado")
+      .limit(1);
+    const esPrimerPago = (aprobPrevios ?? []).length === 0 && lead.pagado !== true;
+
+    // 5) decisión por código
+    const decision = decidirComprobante(cfg, datos, esPrimerPago);
+
+    if (decision.accion === "PEDIR_REENVIO") {
+      // status revision pero SIN notificar aún; pedir captura completa.
+      const fila: Record<string, unknown> = {
+        metodo: datos.metodo ? String(datos.metodo).slice(0, 60) : "por_clasificar",
+        status: "revision",
+        storage_key: mediaUrl,
+        image_phash: phash,
+        motivo_flag: decision.motivo,
+        datos_extraidos: datos,
+        monto: datos.monto ?? null,
+        moneda: datos.moneda ?? null,
+        fecha_pago: datos.fecha ?? null,
+      };
+      const ins = await insertarPago(admin, lead.phone, fila);
+      const shortId = ins && "shortId" in ins ? ins.shortId : null;
+      await registrarEvento(admin, lead.phone, "pago_pedir_reenvio", { short_id: shortId, motivo: decision.motivo });
+      // nos quedamos en S08 a la espera de la nueva captura
+      await enviarMensajes(admin, lead, [MSG_PAGO_REENVIO]);
+      return;
+    }
+
+    if (decision.accion === "AUTO_APROBAR") {
+      // Circuit breaker (necesita BD) — última barrera antes de aprobar.
+      if (await circuitBreakerActivo(admin, datos.banco_o_app)) {
+        await registrarEvento(admin, lead.phone, "circuit_breaker", { banco: datos.banco_o_app });
+        await aColaHumana("circuit_breaker", datos, phash, acuseVerificando);
+        return;
+      }
+      // Insertar como aprobado registrando la ref única (dedupe atómico).
+      const refNorm = soloDigitos(datos.numero_referencia);
+      const fila: Record<string, unknown> = {
+        metodo: datos.metodo ? String(datos.metodo).slice(0, 60) : "por_clasificar",
+        ref_normalizada: refNorm || null,
+        monto: datos.monto ?? null,
+        moneda: datos.moneda ?? null,
+        fecha_pago: datos.fecha ?? null,
+        image_phash: phash,
+        storage_key: mediaUrl,
+        status: "aprobado",
+        datos_extraidos: datos,
+        resolved_at: new Date().toISOString(),
+      };
+      const ins = await insertarPago(admin, lead.phone, fila);
+      if (ins && "dupeRef" in ins) {
+        // La referencia ya existía (metodo+ref UNIQUE): no auto-aprobar, a cola.
+        await aColaHumana("referencia_duplicada", datos, phash, acuseVerificando);
+        return;
+      }
+      const shortId = ins && "shortId" in ins ? ins.shortId : null;
+      await registrarEvento(admin, lead.phone, "pago_aprobado_auto", {
+        short_id: shortId,
+        monto: datos.monto,
+        moneda: datos.moneda,
+        ref: refNorm,
+      });
+      await entregarCurso(admin, lead, cfg);
+      return;
+    }
+
+    // COLA_HUMANA: intentar registrar la ref para detectar duplicado; si choca,
+    // el motivo pasa a 'referencia_duplicada'. El acuse depende del motivo.
+    const refNorm = soloDigitos(datos.numero_referencia);
+    const fila: Record<string, unknown> = {
+      metodo: datos.metodo ? String(datos.metodo).slice(0, 60) : "por_clasificar",
+      ref_normalizada: refNorm || null,
+      monto: datos.monto ?? null,
+      moneda: datos.moneda ?? null,
+      fecha_pago: datos.fecha ?? null,
+      image_phash: phash,
+      storage_key: mediaUrl,
+      status: "revision",
+      motivo_flag: decision.motivo,
+      datos_extraidos: datos,
+    };
+    const ins = await insertarPago(admin, lead.phone, fila);
+    let motivo = decision.motivo ?? "revision";
+    let shortId: string | null = null;
+    if (ins && "dupeRef" in ins) {
+      // Reintentar el insert sin ref para conservar la fila + marcar duplicado.
+      motivo = "referencia_duplicada";
+      const ins2 = await insertarPago(admin, lead.phone, { ...fila, ref_normalizada: null, motivo_flag: motivo });
+      shortId = ins2 && "shortId" in ins2 ? ins2.shortId : null;
+    } else {
+      shortId = ins && "shortId" in ins ? ins.shortId : null;
+    }
+    // Acuse según el motivo (estado en proceso => mensaje específico).
+    const acuseLead = ["estado_en_proceso", "estado_programada", "estado_fallida"].includes(motivo)
+      ? MSG_PAGO_EN_PROCESO
+      : acuseVerificando;
+    await registrarEvento(admin, lead.phone, "pago_a_revision", { short_id: shortId, motivo });
+    const imagenUrl = mediaUrl ? urlPublicaBucket(mediaUrl) : null;
+    const texto =
+      `🔔 Pago para revisar #${shortId ?? "?"}\n` +
+      `Lead: ${lead.phone}\n` +
+      `Método: ${datos.metodo ?? "?"} | Monto: ${datos.monto ?? "?"} ${datos.moneda ?? ""}\n` +
+      `Ref: ${datos.numero_referencia ?? "?"} | Estado: ${datos.estado_operacion ?? "?"}\n` +
+      `Motivo: ${motivo}\n` +
+      `Responde: ok ${shortId ?? "<id>"} / no ${shortId ?? "<id>"} <motivo> / ver ${shortId ?? "<id>"}`;
+    await notificarOperador(admin, cfg, texto, imagenUrl);
+    await transicion(admin, lead, "S09_VERIFICACION");
+    await enviarMensajes(admin, lead, [acuseLead]);
+  } catch (e) {
+    console.error("procesarComprobante err", String(e).slice(0, 300));
+    // Fallo técnico: nunca dejar al lead sin respuesta ni perder el comprobante.
+    try {
+      await aColaHumana("error_tecnico", null, null, acuseVerificando);
+    } catch (e2) {
+      console.error("procesarComprobante fallback err", String(e2).slice(0, 200));
+    }
+  }
+}
+
+// ============================== comandos del dueño ==============================
+
+/** normaliza un teléfono a solo dígitos con prefijo "+" para comparar operador vs lead. */
+function normTel(s: string | null): string {
+  const d = soloDigitos(s);
+  return d ? "+" + d : "";
+}
+
+/**
+ * COMANDOS DEL DUEÑO. Si el body matchea "ok|no|ver <short_id> [motivo]", procesa
+ * como ADMIN (NO como lead). Confirma al dueño por su mismo canal (notificarOperador).
+ * - ok <id>  -> si status revision: aprobar + entregar al lead + confirmar.
+ * - no <id> <motivo> -> rechazar + acuse suave al lead + confirmar.
+ * - ver <id> -> reenviar al dueño datos extraídos + imagen.
+ * short_id inexistente -> "No encuentro el pago #<id>".
+ */
+async function procesarComandoOperador(
+  admin: Admin,
+  cfg: Cfg,
+  cmd: "ok" | "no" | "ver",
+  shortId: string,
+  resto: string,
+): Promise<void> {
+  const { data: pago } = await admin.database
+    .from("musa_payments")
+    .select("*")
+    .eq("short_id", shortId)
+    .maybeSingle();
+  if (!pago) {
+    await notificarOperador(admin, cfg, `No encuentro el pago #${shortId}`, null);
+    return;
+  }
+
+  if (cmd === "ver") {
+    const d = pago.datos_extraidos ?? {};
+    const texto =
+      `📄 Pago #${shortId} (status: ${pago.status})\n` +
+      `Lead: ${pago.lead_phone}\n` +
+      `Método: ${pago.metodo ?? d.metodo ?? "?"} | Monto: ${pago.monto ?? d.monto ?? "?"} ${pago.moneda ?? d.moneda ?? ""}\n` +
+      `Ref: ${d.numero_referencia ?? pago.ref_normalizada ?? "?"} | Estado op.: ${d.estado_operacion ?? "?"}\n` +
+      `Destino: ${d.destino ?? "?"} | Banco/app: ${d.banco_o_app ?? "?"}\n` +
+      `Fecha: ${pago.fecha_pago ?? d.fecha ?? "?"} | Motivo flag: ${pago.motivo_flag ?? "-"}\n` +
+      `Señales: ${(d.senales_manipulacion ?? []).join(", ") || "ninguna"}\n` +
+      `Confianza: ${JSON.stringify(d.confidence ?? {})}`;
+    const imagenUrl = pago.storage_key ? urlPublicaBucket(pago.storage_key) : null;
+    await notificarOperador(admin, cfg, texto, imagenUrl);
+    return;
+  }
+
+  if (cmd === "ok") {
+    if (pago.status !== "revision") {
+      await notificarOperador(admin, cfg, `El pago #${shortId} ya está en estado "${pago.status}", no lo vuelvo a procesar.`, null);
+      return;
+    }
+    await admin.database.from("musa_payments")
+      .update({ status: "aprobado", resolved_at: new Date().toISOString() })
+      .eq("short_id", shortId);
+    await registrarEvento(admin, pago.lead_phone, "pago_aprobado_manual", { short_id: shortId });
+    // Cargar el lead para entregar.
+    const { data: leadRow } = await admin.database
+      .from("musa_leads").select("*").eq("phone", pago.lead_phone).maybeSingle();
+    if (!leadRow) {
+      await notificarOperador(admin, cfg, `Aprobé #${shortId} pero no encuentro al lead ${pago.lead_phone} para entregarle.`, null);
+      return;
+    }
+    await entregarCurso(admin, leadRow as Lead, cfg);
+    await notificarOperador(admin, cfg, `✅ Entregado a ${pago.lead_phone}`, null);
+    return;
+  }
+
+  // cmd === "no"
+  const motivo = (resto || "").trim() || "sin_motivo";
+  await admin.database.from("musa_payments")
+    .update({ status: "rechazado", motivo_flag: motivo, resolved_at: new Date().toISOString() })
+    .eq("short_id", shortId);
+  await registrarEvento(admin, pago.lead_phone, "pago_rechazado_manual", { short_id: shortId, motivo });
+  // Acuse suave al lead (sin acusar de fraude).
+  const { data: leadRow } = await admin.database
+    .from("musa_leads").select("*").eq("phone", pago.lead_phone).maybeSingle();
+  if (leadRow) {
+    await enviarMensajes(admin, leadRow as Lead, [MSG_PAGO_RECHAZO_SUAVE]);
+  }
+  await notificarOperador(admin, cfg, `Marcado #${shortId} como no validado. Avisé al lead ${pago.lead_phone}.`, null);
+}
+
 async function manejarS08(
   admin: Admin,
   lead: Lead,
@@ -1374,15 +2084,7 @@ async function manejarS08(
   mediaUrl: string | null,
 ): Promise<void> {
   if (esImagen) {
-    const shortId = await crearPagoRevision(admin, lead.phone, mediaUrl);
-    await registrarEvento(admin, lead.phone, "captura_recibida", {
-      short_id: shortId,
-      media_url: mediaUrl,
-    });
-    const s09 = etapa(cfg, "S09_VERIFICACION");
-    const acuse = dentroDeHorario(cfg) ? s09.mensajes[0] : sinPrefijo(s09.mensajes[1]);
-    await transicion(admin, lead, "S09_VERIFICACION");
-    await enviarMensajes(admin, lead, [resolverPlaceholders(acuse, lead, cfg)]);
+    await procesarComprobante(admin, lead, cfg, mediaUrl);
     return;
   }
   if (esYaPague(norm)) {
@@ -1472,6 +2174,34 @@ export default async function (req: Request): Promise<Response> {
     }
 
     const ahora = new Date().toISOString();
+
+    // --- INTERCEPT ADMIN (E): comandos del dueño ---
+    // Si el mensaje viene del número operador.whatsapp Y el body matchea
+    // "ok|no|ver <short_id> [motivo]", se procesa como ADMIN (NO como lead),
+    // ANTES de tocar el funnel. Se registra el mensaje para auditoría y se sale.
+    {
+      const cfgOp = await cargarSettings(admin);
+      const operador = normTel(cfgOp.operador?.whatsapp ?? "");
+      if (operador && normTel(phone) === operador && body) {
+        const m = body.trim().match(/^(ok|no|ver)\s+(\d{3,6})(?:\s+(.*))?$/i);
+        if (m) {
+          // Persistir el mensaje del operador para trazabilidad (best-effort).
+          try {
+            await admin.database.from("musa_messages").insert([{
+              lead_phone: phone,
+              direction: "in",
+              body: body || null,
+              twilio_sid: messageSid || null,
+              estado_funnel: "ADMIN",
+            }]);
+          } catch (_e) { /* duplicado o carrera: ignorar */ }
+          const cmd = m[1].toLowerCase() as "ok" | "no" | "ver";
+          await registrarEvento(admin, phone, "comando_operador", { cmd, short_id: m[2] });
+          await procesarComandoOperador(admin, cfgOp, cmd, m[2], m[3] ?? "");
+          return emptyTwiml();
+        }
+      }
+    }
 
     // --- UPSERT del lead (con last_in_at) ---
     const { data: existing, error: selErr } = await admin.database
@@ -1716,7 +2446,13 @@ export default async function (req: Request): Promise<Response> {
         await manejarS08(admin, lead, cfg, body, norm, esImagen, mediaUrl0 || null);
         break;
       case "S09_VERIFICACION":
-        await enviarMensajes(admin, lead, [MSG_VERIFICANDO]);
+        // Si reenvía una imagen (p.ej. una captura más clara), la reprocesamos;
+        // si es texto, mantenemos el acuse de "verificando".
+        if (esImagen) {
+          await procesarComprobante(admin, lead, cfg, mediaUrl0 || null);
+        } else {
+          await enviarMensajes(admin, lead, [MSG_VERIFICANDO]);
+        }
         break;
       default:
         // estado desconocido o de fases futuras: fallback conservador

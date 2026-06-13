@@ -25,6 +25,9 @@ avatar/*.mp3
 avatar/*.mp4
 avatar/*.jpg
 
+# Temporales de pruebas (comprobantes sintéticos, etc.)
+tmp/
+
 # Sistema / dependencias
 node_modules/
 *.log
