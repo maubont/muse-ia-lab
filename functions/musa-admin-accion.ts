@@ -87,9 +87,17 @@ async function comandoOperador(
   form.set("MessageSid", messageSid);
   form.set("NumMedia", "0");
 
+  // X-Musa-Internal: clave compartida que el webhook reconoce como BYPASS confiable
+  // de la validación X-Twilio-Signature (este POST interno no lleva firma de Twilio).
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  const internalKey = Deno.env.get("MUSA_INTERNAL_KEY");
+  if (internalKey) headers["X-Musa-Internal"] = internalKey;
+
   const r = await fetch(WEBHOOK_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers,
     body: form.toString(),
   });
   const texto = await r.text();

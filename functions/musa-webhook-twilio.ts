@@ -17,6 +17,67 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+// ============================== seguridad: firma Twilio ==============================
+
+/** comparación en tiempo constante de dos strings ASCII (anti timing-attack) */
+function igualConstante(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/**
+ * Valida el header X-Twilio-Signature de un webhook entrante.
+ * Twilio firma así: base64( HMAC-SHA1( authToken, URL + concat(clave+valor) de
+ * TODOS los params del POST, ORDENADOS alfabéticamente por clave ) ).
+ * - URL: se toma de MUSA_WEBHOOK_URL (la URL EXACTA configurada en Twilio); NO se
+ *   usa req.url porque en el runtime interno puede diferir y rompería la firma.
+ * - params: TODOS los campos del form (ya parseados en el handler).
+ * Devuelve { valida, motivo } para telemetría.
+ */
+async function validarFirmaTwilio(
+  form: FormData,
+  firmaHeader: string | null,
+): Promise<{ valida: boolean; motivo: string }> {
+  if (!firmaHeader) return { valida: false, motivo: "sin_header" };
+  const authToken = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
+  const url = Deno.env.get("MUSA_WEBHOOK_URL") ?? "";
+  if (!authToken || !url) return { valida: false, motivo: "config_faltante" };
+
+  // Concatenar URL + (clave+valor) de cada par, ordenado alfabéticamente por clave.
+  const claves: string[] = [];
+  for (const k of form.keys()) claves.push(k);
+  claves.sort();
+  let data = url;
+  for (const k of claves) {
+    const v = form.get(k);
+    data += k + (typeof v === "string" ? v : "");
+  }
+
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(authToken),
+      { name: "HMAC", hash: "SHA-1" },
+      false,
+      ["sign"],
+    );
+    const sig = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(data),
+    );
+    // base64 estándar del digest.
+    const esperado = btoa(String.fromCharCode(...new Uint8Array(sig)));
+    return igualConstante(esperado, firmaHeader)
+      ? { valida: true, motivo: "ok" }
+      : { valida: false, motivo: "no_coincide" };
+  } catch (e) {
+    return { valida: false, motivo: "error_crypto:" + String(e).slice(0, 80) };
+  }
+}
+
 /**
  * CAMBIO 5 — retardo natural antes de enviar un mensaje (sensación humana):
  * base de 350 ms + ~35 ms por carácter del texto a enviar, con tope de 4500 ms.
@@ -2304,6 +2365,25 @@ export default async function (req: Request): Promise<Response> {
       apiKey: Deno.env.get("API_KEY") ?? Deno.env.get("MUSA_INSFORGE_API_KEY"),
     });
 
+    // ============================== SEGURIDAD (X-Twilio-Signature) ==============================
+    // X-Twilio-Signature: IMPLEMENTADO. Twilio firma cada webhook con el authToken;
+    // validamos esa firma para distinguir POSTs reales de Twilio de POSTs falsificados.
+    //  - BYPASS confiable: si el header X-Musa-Internal == MUSA_INTERNAL_KEY, el POST
+    //    proviene de nuestro propio dashboard (musa-admin-accion) o de una prueba
+    //    nuestra; se confía sin exigir firma.
+    //  - Sin bypass: se calcula la validez de la firma una sola vez y se reusa abajo.
+    //    · Comando de operador (dinero/entrega): se EXIGE firma válida -> 403 si falta/no coincide.
+    //    · Lead normal: por ahora fail-open con telemetría (evento 'firma_invalida'),
+    //      TRANSITORIO hasta confirmar con un mensaje real que la URL firmada coincide;
+    //      luego se endurece a 403 también.
+    const internalKey = Deno.env.get("MUSA_INTERNAL_KEY") ?? "";
+    const headerInternal = req.headers.get("X-Musa-Internal") ?? "";
+    const bypassInterno = !!internalKey && headerInternal === internalKey;
+    let firma: { valida: boolean; motivo: string } = { valida: false, motivo: "no_calculada" };
+    if (!bypassInterno) {
+      firma = await validarFirmaTwilio(form, req.headers.get("X-Twilio-Signature"));
+    }
+
     // Idempotencia: Twilio reintenta webhooks; mismo MessageSid => no reprocesar.
     if (messageSid) {
       const { data: dup } = await admin.database
@@ -2326,6 +2406,16 @@ export default async function (req: Request): Promise<Response> {
       if (operador && normTel(phone) === operador && body) {
         const m = body.trim().match(/^(ok|no|ver)\s+(\d{3,6})(?:\s+(.*))?$/i);
         if (m) {
+          // CAMINO SENSIBLE (dinero/entrega): exigir firma Twilio válida salvo
+          // bypass interno (dashboard/prueba nuestra). Un POST falsificado del
+          // operador sin firma -> 403 y NO se procesa NI se persiste nada.
+          if (!bypassInterno && !firma.valida) {
+            await registrarEvento(admin, phone, "comando_operador_rechazado", {
+              motivo: firma.motivo,
+              short_id: m[2],
+            });
+            return new Response("Forbidden", { status: 403 });
+          }
           // Persistir el mensaje del operador para trazabilidad (best-effort).
           try {
             await admin.database.from("musa_messages").insert([{
@@ -2342,6 +2432,16 @@ export default async function (req: Request): Promise<Response> {
           return emptyTwiml();
         }
       }
+    }
+
+    // MENSAJE DE LEAD NORMAL: si la firma no es válida (y no hubo bypass interno),
+    // registrar telemetría y CONTINUAR procesando (fail-open). TRANSITORIO: una vez
+    // confirmado con un mensaje real que la firma coincide, esto se endurece a 403.
+    if (!bypassInterno && !firma.valida) {
+      await registrarEvento(admin, phone, "firma_invalida", {
+        from,
+        motivo: firma.motivo,
+      });
     }
 
     // --- UPSERT del lead (con last_in_at) ---
