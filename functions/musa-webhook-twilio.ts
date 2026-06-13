@@ -82,8 +82,18 @@ type Lead = {
 
 type Cfg = {
   funnelCopy: Record<string, unknown> & {
-    etapas: Array<{ id: string; mensajes: string[]; ramas?: Record<string, { sin_video?: string }> }>;
+    etapas: Array<{
+      id: string;
+      mensajes: string[];
+      ramas?: Record<string, { mensajes?: string[]; sin_video?: string }>;
+    }>;
     objeciones: Array<{ objecion: string; respuesta: string }>;
+  };
+  avatar: {
+    personalizado_activo?: boolean;
+    video_base_url?: string;
+    video_base_key?: string;
+    [k: string]: unknown;
   };
   gptSystem: { prompt: string };
   precio: { usd: number; cop: number };
@@ -113,6 +123,7 @@ async function cargarSettings(admin: Admin): Promise<Cfg> {
     "entrega",
     "horario_verificacion",
     "modelos",
+    "avatar",
   ];
   const { data, error } = await admin.database
     .from("musa_settings")
@@ -132,6 +143,7 @@ async function cargarSettings(admin: Admin): Promise<Cfg> {
     entrega: (map["entrega"] ?? {}) as Cfg["entrega"],
     horario: (map["horario_verificacion"] ?? { inicio: 8, fin: 22 }) as Cfg["horario"],
     modelos: (map["modelos"] ?? {}) as Cfg["modelos"],
+    avatar: (map["avatar"] ?? {}) as Cfg["avatar"],
   };
 }
 
@@ -477,12 +489,23 @@ async function actualizarLead(
   Object.assign(lead, patch);
 }
 
+/** mensaje saliente: texto plano o texto+media (video del avatar) */
+type MensajeOut = string | { body?: string; mediaUrl?: string; mediaType?: string };
+
 /**
- * Envía mensajes del bot: SIEMPRE persiste en musa_messages y actualiza last_out_at;
- * solo llama a Twilio para números reales (no +9999*) con credenciales presentes.
+ * Envía mensajes del bot: SIEMPRE persiste en musa_messages (incluido media_url/
+ * media_type, también en modo prueba +9999*) y actualiza last_out_at; solo llama
+ * a Twilio para números reales (no +9999*) con credenciales presentes. Cuando el
+ * mensaje lleva media, agrega MediaUrl al POST de Twilio.
  */
-async function enviarMensajes(admin: Admin, lead: Lead, textos: string[]): Promise<void> {
-  const limpios = textos.map((t) => (t ?? "").trim()).filter((t) => t.length > 0);
+async function enviarMensajes(admin: Admin, lead: Lead, textos: MensajeOut[]): Promise<void> {
+  const limpios = textos
+    .map((t) =>
+      typeof t === "string"
+        ? { body: t.trim(), mediaUrl: undefined as string | undefined, mediaType: undefined as string | undefined }
+        : { body: (t.body ?? "").trim(), mediaUrl: t.mediaUrl, mediaType: t.mediaType }
+    )
+    .filter((t) => t.body.length > 0 || !!t.mediaUrl);
   if (limpios.length === 0) return;
   const esPrueba = lead.phone.startsWith("+9999");
   const sid = Deno.env.get("TWILIO_ACCOUNT_SID");
@@ -491,11 +514,13 @@ async function enviarMensajes(admin: Admin, lead: Lead, textos: string[]): Promi
   const enviarReal = !esPrueba && !!sid && !!token;
 
   for (let i = 0; i < limpios.length; i++) {
-    const body = limpios[i];
+    const item = limpios[i];
     const { error } = await admin.database.from("musa_messages").insert([{
       lead_phone: lead.phone,
       direction: "out",
-      body,
+      body: item.body || null,
+      media_url: item.mediaUrl ?? null,
+      media_type: item.mediaUrl ? (item.mediaType ?? "video/mp4") : null,
       estado_funnel: lead.estado_funnel,
     }]);
     if (error) console.error("insert out", JSON.stringify(error));
@@ -503,6 +528,12 @@ async function enviarMensajes(admin: Admin, lead: Lead, textos: string[]): Promi
     if (enviarReal) {
       if (i > 0) await sleep(1500); // límite del sandbox de Twilio
       try {
+        const params: Record<string, string> = {
+          From: from,
+          To: `whatsapp:${lead.phone}`,
+        };
+        if (item.body) params.Body = item.body;
+        if (item.mediaUrl) params.MediaUrl = item.mediaUrl;
         const res = await fetch(
           `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
           {
@@ -511,11 +542,7 @@ async function enviarMensajes(admin: Admin, lead: Lead, textos: string[]): Promi
               "Authorization": "Basic " + btoa(`${sid}:${token}`),
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: new URLSearchParams({
-              From: from,
-              To: `whatsapp:${lead.phone}`,
-              Body: body,
-            }),
+            body: new URLSearchParams(params),
           },
         );
         if (!res.ok) {
@@ -743,7 +770,83 @@ async function responderFallback(
   await responderConGPT(admin, lead, cfg, p);
 }
 
-/** Flujo de lead nuevo: S01 (2 msgs) + puente sin_video + pregunta de país */
+// ============================== momento avatar ==============================
+
+async function buscarVideoCache(admin: Admin, slug: string): Promise<string | null> {
+  const { data, error } = await admin.database
+    .from("musa_videos_cache")
+    .select("storage_key")
+    .eq("nombre_normalizado", slug)
+    .maybeSingle();
+  if (error) {
+    console.error("videos_cache", JSON.stringify(error));
+    return null;
+  }
+  return data?.storage_key ?? null;
+}
+
+async function videoGenericoAzar(admin: Admin): Promise<string | null> {
+  const { data, error } = await admin.database
+    .from("musa_videos_cache")
+    .select("storage_key")
+    .in("nombre_normalizado", ["generico-1", "generico-2", "generico-3"]);
+  if (error || !data?.length) {
+    if (error) console.error("videos_cache genericos", JSON.stringify(error));
+    return null;
+  }
+  return data[Math.floor(Math.random() * data.length)].storage_key;
+}
+
+/** URL pública de un objeto del bucket musa-avatares (bucket público) */
+function urlPublicaVideo(cfg: Cfg, storageKey: string): string | null {
+  const base = (Deno.env.get("INSFORGE_BASE_URL") ?? "").replace(/\/+$/, "");
+  if (base) return `${base}/api/storage/buckets/musa-avatares/objects/${storageKey}`;
+  // fallback: derivar el host de video_base_url quitando video_base_key al final
+  const vb = cfg.avatar?.video_base_url;
+  const vk = cfg.avatar?.video_base_key;
+  if (typeof vb === "string" && typeof vk === "string" && vb.endsWith(vk)) {
+    return vb.slice(0, vb.length - vk.length) + storageKey;
+  }
+  return null;
+}
+
+/**
+ * MOMENTO AVATAR: decide qué video enviar tras S01 (UNA sola vez por lead).
+ * HIT en musa_videos_cache por el slug del nombre usable → rama A (personalizado);
+ * MISS con nombre usable → genérico al azar + evento 'video_pendiente' (cron
+ * nocturno futuro lo generará); sin nombre usable → genérico, rama C.
+ * Devuelve null si el flag está apagado, ya se envió, o no hay video disponible
+ * (en ese caso se usa el puente sin_video de siempre).
+ */
+async function resolverMomentoAvatar(
+  admin: Admin,
+  lead: Lead,
+  cfg: Cfg,
+): Promise<{ rama: "A" | "C"; mediaUrl: string } | null> {
+  if (cfg.avatar?.personalizado_activo !== true) return null;
+  if (lead.avatar_enviado === true) return null; // regla dura: una sola vez por lead
+  const nombre = nombreUsable(lead);
+  const slug = nombre ? normalizar(nombre) : null;
+  let key = slug ? await buscarVideoCache(admin, slug) : null;
+  let rama: "A" | "C" = "A";
+  if (!key) {
+    rama = "C";
+    if (slug) {
+      await registrarEvento(admin, lead.phone, "video_pendiente", { nombre: slug });
+    }
+    key = await videoGenericoAzar(admin);
+  }
+  if (!key) return null;
+  const mediaUrl = urlPublicaVideo(cfg, key);
+  if (!mediaUrl) return null;
+  return { rama, mediaUrl };
+}
+
+/**
+ * Flujo de lead nuevo: S01 (2 msgs) + MOMENTO AVATAR (video como mensaje propio
+ * + copy de la rama) o, si no aplica, el puente sin_video; y SIEMPRE al final la
+ * pregunta de país (S03), que sale igual que antes.
+ */
 async function flujoLeadNuevo(
   admin: Admin,
   lead: Lead,
@@ -753,15 +856,41 @@ async function flujoLeadNuevo(
   const s01 = etapa(cfg, "S01_SALUDO");
   const s02 = etapa(cfg, "S02_AVATAR");
   const s03 = etapa(cfg, "S03_PAIS");
-  // OJO: el puente NUNCA debe prometer un video/"sorpresa" que esta fase no envía
-  // (regla 1: no inventar pruebas). El copy real vive en funnel_copy.
-  const puente = s02.ramas?.A?.sin_video ??
-    "Te cuento todo en un momento 😉 Pero primero lo importante:";
-  const msgs = [
+  const msgs: MensajeOut[] = [
     resolverPlaceholders(s01.mensajes[0], lead, cfg),
     resolverPlaceholders(s01.mensajes[1], lead, cfg),
   ];
   if (pidePrecio) msgs.push(mensajePrecioRapido(lead, cfg));
+
+  const avatar = await resolverMomentoAvatar(admin, lead, cfg);
+  if (avatar) {
+    const rama = s02.ramas?.[avatar.rama];
+    const mr = rama?.mensajes ?? [];
+    // mensaje propio con el video; el caption sale de mensajes[0] de la rama
+    // (rama A: "[VIDEO_AVATAR]" → caption vacío; rama C: "Mira esto 👇 …")
+    msgs.push({
+      body: resolverPlaceholders(sinPrefijo(mr[0] ?? ""), lead, cfg),
+      mediaUrl: avatar.mediaUrl,
+      mediaType: "video/mp4",
+    });
+    msgs.push(resolverPlaceholders(sinPrefijo(mr[1] ?? ""), lead, cfg));
+    // la pregunta de país sigue saliendo igual, DESPUÉS del momento avatar
+    msgs.push(resolverPlaceholders(s03.mensajes[0], lead, cfg));
+    await actualizarLead(admin, lead, { avatar_enviado: true });
+    await registrarEvento(admin, lead.phone, "avatar_enviado", {
+      rama: avatar.rama,
+      media_url: avatar.mediaUrl,
+    });
+    await transicion(admin, lead, "S03_PAIS");
+    await enviarMensajes(admin, lead, msgs);
+    return;
+  }
+
+  // Sin momento avatar (flag apagado, ya enviado o sin video disponible):
+  // comportamiento puente de siempre. OJO: el puente NUNCA debe prometer un
+  // video/"sorpresa" que no se envía (regla 1: no inventar pruebas).
+  const puente = s02.ramas?.A?.sin_video ??
+    "Te cuento todo en un momento 😉 Pero primero lo importante:";
   msgs.push(resolverPlaceholders(`${puente}\n\n${s03.mensajes[0]}`, lead, cfg));
   await actualizarLead(admin, lead, { avatar_enviado: false });
   await transicion(admin, lead, "S03_PAIS");
