@@ -17,6 +17,18 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * CAMBIO 5 — retardo natural antes de enviar un mensaje (sensación humana):
+ * base de 350 ms + ~35 ms por carácter del texto a enviar, con tope de 4500 ms.
+ */
+function calcularRetardoMs(texto: string): number {
+  const base = 350;
+  const porCaracter = 35;
+  const tope = 4500;
+  const largo = (texto || "").length;
+  return Math.min(tope, base + largo * porCaracter);
+}
+
 /** minúsculas, sin acentos, sin espacios extremos */
 function normalizar(s: string): string {
   return (s || "")
@@ -77,6 +89,8 @@ type Lead = {
   last_in_at: string | null;
   ctwa_clid?: string | null;
   source_id?: string | null;
+  /** SID del mensaje ENTRANTE actual (transitorio, para el typing indicator) */
+  _inbound_sid?: string | null;
   [k: string]: unknown;
 };
 
@@ -213,8 +227,17 @@ function filtrarLineasPais(texto: string, pais: string | null): string {
 // ============================== heurísticas ==============================
 
 function esStopTotal(norm: string): boolean {
+  // El opt-out debe dispararse aunque la palabra clave vaya acompañada de otro
+  // texto ("mejor no, SALIR", "ya no, stop"). Detectamos STOP/SALIR/BAJA/
+  // CANCELAR como TOKEN AISLADO (separado por límites no alfabéticos), no como
+  // subcadena (para no confundir "salir" dentro de "salirme"/"asalariado" ni
+  // "stop" dentro de otra palabra). Si el mensaje SOLO contiene esa palabra
+  // (con o sin signos) también cuenta.
   const limpio = norm.replace(/[^a-z]/g, "");
-  return limpio === "stop" || limpio === "salir";
+  if (limpio === "stop" || limpio === "salir" || limpio === "baja" || limpio === "cancelar") {
+    return true;
+  }
+  return /(^|[^a-z])(stop|salir|baja|cancelar)([^a-z]|$)/.test(norm);
 }
 
 function preguntaPorBot(norm: string): boolean {
@@ -245,28 +268,81 @@ function detectarPaisHeuristico(norm: string, original: string): string | null {
   return null;
 }
 
-/** S04: devuelve "mayor" | "menor" | null (ambiguo) */
+/**
+ * CAMBIO 2 — gate de edad inferido. Atajo heurístico para los casos obvios; si
+ * NO decide (null = ambiguo) el llamador cae al clasificador GPT. Devuelve
+ * "mayor" | "menor" | null (ambiguo).
+ */
 function clasificarEdadHeuristico(norm: string): string | null {
-  if (/(soy menor|menor de edad|no tengo 18|no soy mayor|aun no (cumplo|tengo|los)|todavia no (cumplo|tengo|los))/.test(norm)) {
+  // --- SEÑALES DE MENOR (prioridad máxima: van ANTES del extractor de número) ---
+  //
+  // CAUSA RAÍZ RONDA 1 (Carlitos, 17): "nah todavia no, el ano que viene cumplo
+  // los 18" no matcheaba ninguna señal de menor y el extractor de número capturaba
+  // el "18" de "cumplo los 18" devolviendo "mayor". Fix:
+  //   a) Detectar el FUTURO de "cumplir" como menor de forma robusta: cualquier
+  //      forma conjugada de cumplir (cumplo/cumplire/cumpla/voy a cumplir/falta
+  //      para cumplir...) acompañada de un horizonte futuro o de la negación
+  //      "todavia/aun no" es MENOR, sin importar el número que venga después.
+  //   b) Si hay contexto de "cumplir N años" en futuro/negado, NO dejar que el
+  //      extractor numérico lo lea como edad actual.
+  const negacionPrevia = /(todavia|aun|aún|aun no|todavia no)\b/.test(norm) ||
+    /^(no|nah|nop|nel|que va|qué va|aun no|todavia no)\b/.test(norm);
+  const cumplirFuturo =
+    // "cumplo/cumplire/cumpla/cumpliendo (los) 18", "voy a cumplir", "falta para cumplir"
+    /\b(voy a cumplir|falta(n)? .* (para )?cumplir|cuando (los )?cumpla|los cumplo|los cumplire|cumplire|cumplo los|cumplire los|cumpla los)\b/.test(norm) ||
+    // horizontes futuros explícitos
+    /\b(el (otro|proximo|que viene) (ano|anio|año)|el ano que viene|el año que viene|proximo ano|el ano entrante|en (un|dos|tres) (ano|anos|año|años)|el mes que viene|en \w+ cumplo)\b/.test(norm);
+  if (
+    /(soy menor|menor de edad|no tengo 18|no soy mayor|no soy mayor de edad|aun soy menor|todavia soy menor)/.test(norm)
+  ) {
     return "menor";
   }
-  const num = norm.match(/\b(\d{1,2})\b/);
-  if (num) {
-    const n = parseInt(num[1], 10);
-    if (n >= 10 && n <= 17) return "menor";
-    if (n >= 18 && n <= 99) return "mayor";
-  }
-  if (/^(no|nop|nel)\b/.test(norm)) return "menor";
   if (
-    /^(si+|sip|claro|por supuesto|obvio|asi es|correcto|confirmo|afirmativo|yes|dale)\b/.test(norm) ||
-    /(soy mayor|mayor de edad|tengo mas de 18|ya los (tengo|cumpli)|si tengo|si los tengo|si soy mayor)/.test(norm)
+    /(aun no (cumplo|tengo|los|soy|llego)|todavia no (cumplo|tengo|los|soy|llego))/.test(norm)
+  ) {
+    return "menor";
+  }
+  // negación + intención de cumplir años (futuro) => MENOR. Cubre el caso de
+  // Carlitos aunque el "18" venga inmediatamente después de "cumplo los".
+  if (cumplirFuturo && (negacionPrevia || /\bcumpl/.test(norm))) {
+    // Sólo lo consideramos MENOR cuando el verbo cumplir está en CONTEXTO futuro
+    // (no cuando ya cumplió: "ya cumpli 18" lo maneja la rama de mayor abajo).
+    if (!/\bya (cumpli|los cumpli|tengo)\b/.test(norm)) return "menor";
+  }
+  // "+18", "mas de 18", "ya soy mayor" → mayor inequívoco.
+  if (/(\+\s*18|mas de 18|ya soy mayor|soy mayor de edad|ya cumpli (los )?18|ya los cumpli)/.test(norm)) {
+    return "mayor";
+  }
+  // Extractor de número: SOLO si NO hay contexto de "cumplir en el futuro" (para
+  // no leer el "18" de "el año que viene cumplo los 18" como edad actual).
+  if (!cumplirFuturo) {
+    const num = norm.match(/\b(\d{1,2})\b/);
+    if (num) {
+      const n = parseInt(num[1], 10);
+      if (n >= 10 && n <= 17) return "menor";
+      if (n >= 18 && n <= 99) return "mayor";
+    }
+  } else {
+    // Hay "cumplir futuro" + un número en rango de edad menor (p.ej. "cumplo 17"):
+    // tratarlo como menor; si el número fuese >=18 con negación previa ya salió
+    // arriba como menor, así que aquí cualquier número adolescente confirma menor.
+    const num = norm.match(/\b(\d{1,2})\b/);
+    if (num) {
+      const n = parseInt(num[1], 10);
+      if (n >= 10 && n <= 17) return "menor";
+    }
+  }
+  if (/^(no|nop|nel|nah|que va)\b/.test(norm)) return "menor";
+  if (
+    /^(si+|sip|claro|por supuesto|obvio|asi es|correcto|confirmo|afirmativo|yes|dale|aja|ajadale|de una)\b/.test(norm) ||
+    /(soy mayor|mayor de edad|tengo mas de 18|ya los (tengo|cumpli)|si tengo|si los tengo|si soy mayor|claro que si|por su puesto)/.test(norm)
   ) return "mayor";
   return null;
 }
 
 function esAfirmativoCierre(norm: string): boolean {
   return /^(si+|sip|dale|de una|ok|okey|okay|va|vale|listo|claro|perfecto|por supuesto|obvio|bueno|hagamoslo|quiero|me animo|empecemos|comencemos|arranquemos)\b/.test(norm) ||
-    /(como pago|donde pago|los datos|datos de pago|pasame|quiero pagar|quiero empezar|quiero comprar|si quiero|paso los datos)/.test(norm);
+    /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero empezar|quiero comprar|si quiero|paso los datos)/.test(norm);
 }
 
 function esNegativoCierre(norm: string): boolean {
@@ -290,7 +366,7 @@ function contienePregunta(body: string, norm: string): boolean {
 
 /** el mensaje ya es en sí una petición de los datos de pago */
 function pideDatosDirecto(norm: string): boolean {
-  return /(como pago|donde pago|los datos|datos de pago|pasame|quiero pagar|quiero comprar|paso los datos)/.test(norm);
+  return /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero comprar|paso los datos)/.test(norm);
 }
 
 // ============================== OpenAI ==============================
@@ -427,16 +503,30 @@ async function fallbackGPT(
     // mayor de 18, el GPT libre JAMÁS puede dar el gate por pasado ni acercar el
     // cierre ("jaja ok" NO es una confirmación de edad).
     const preGate = lead.mayor_18 !== true &&
-      ["S00_LLEGADA", "S03_PAIS", "S04_GATE18"].includes(lead.estado_funnel);
+      ["S00_LLEGADA", "S04_GATE18"].includes(lead.estado_funnel);
     const guardiaGate = preGate
       ? "\nREGLA DURA EN ESTE MENSAJE: este lead AÚN NO ha confirmado ser mayor de 18. " +
         'Un "ok", "dale", "jaja" o cualquier respuesta ambigua NO cuenta como confirmación. ' +
         "PROHIBIDO darle la edad por confirmada, decir que \"seguimos\" con la venta, ofrecer métodos o datos de pago, o avanzar al cierre. " +
         "Responde su duda solo con los HECHOS CERRADOS y cierra SIEMPRE volviendo a preguntar si ya tiene 18 años o más."
       : "";
+    // Guardia de DISPONIBILIDAD de pago: los HECHOS CERRADOS listan métodos VE y CO,
+    // pero alguno puede no estar operativo hoy (cuentas provisional/placeholder). El
+    // GPT JAMÁS debe prometer "te paso los datos" de un método que el sistema no
+    // puede entregar. Si el lead pide un método no disponible => decir que lo
+    // confirmas con el equipo (eso dispara escalado real en responderConGPT).
+    const disp = metodosPagoDisponibles(cfg);
+    const noDisp: string[] = [];
+    if (!disp.ve) noDisp.push("Venezuela (Pago Móvil / transferencia Banco de Venezuela)");
+    if (!disp.co) noDisp.push("Colombia (Nequi / Bancolombia / Bre-B)");
+    const guardiaPago = noDisp.length
+      ? `\nREGLA DURA DE PAGO EN ESTE MENSAJE: hoy NO hay datos de pago operativos para: ${noDisp.join("; ")}. ` +
+        "Para esos métodos está TERMINANTEMENTE PROHIBIDO decir \"te paso los datos\", \"están disponibles\", dar números/cédula/titular o pedir el comprobante. " +
+        "Si el lead pide uno de esos métodos, NO improvises: dile con calidez que confirmas con el equipo los datos actualizados de esa vía y que le escribes enseguida por aquí (no menciones la palabra placeholder ni nada interno)."
+      : "";
     const system = resolverPlaceholders(cfg.gptSystem?.prompt ?? "", lead, cfg) +
       `\n\nETAPA ACTUAL: ${lead.estado_funnel} | PREGUNTA PENDIENTE QUE DEBES RETOMAR AL FINAL: ${preguntaPendiente}` +
-      guardiaGate;
+      guardiaGate + guardiaPago;
     const contenido = await openaiChat({
       model: cfg.modelos?.conversacion || MODELO_CONVERSACION_DEFAULT,
       messages: [{ role: "system", content: system }, ...mensajes],
@@ -493,10 +583,40 @@ async function actualizarLead(
 type MensajeOut = string | { body?: string; mediaUrl?: string; mediaType?: string };
 
 /**
+ * CAMBIO 5 — typing indicator de WhatsApp (beta). Marca "escribiendo…" para el
+ * lead antes de cada mensaje saliente. Usa el SID del mensaje ENTRANTE actual.
+ * Devuelve {success:true}; cualquier error se ignora (es beta).
+ */
+async function enviarTyping(
+  sid: string,
+  token: string,
+  inboundSid: string,
+): Promise<void> {
+  if (!inboundSid) return;
+  try {
+    await fetch("https://messaging.twilio.com/v2/Indicators/Typing.json", {
+      method: "POST",
+      headers: {
+        "Authorization": "Basic " + btoa(`${sid}:${token}`),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ messageId: inboundSid, channel: "whatsapp" }),
+    });
+  } catch (e) {
+    console.error("typing err", String(e).slice(0, 120));
+  }
+}
+
+/**
  * Envía mensajes del bot: SIEMPRE persiste en musa_messages (incluido media_url/
  * media_type, también en modo prueba +9999*) y actualiza last_out_at; solo llama
  * a Twilio para números reales (no +9999*) con credenciales presentes. Cuando el
  * mensaje lleva media, agrega MediaUrl al POST de Twilio.
+ *
+ * CAMBIO 5 — sensación humana: antes de CADA mensaje saliente dispara el typing
+ * indicator (solo números reales) y espera calcularRetardoMs(texto). Para +9999
+ * NO llama a Twilio ni duerme, pero registra el retardo_ms que se HABRÍA aplicado
+ * en el evento 'mensaje_enviado' para poder verificar la lógica.
  */
 async function enviarMensajes(admin: Admin, lead: Lead, textos: MensajeOut[]): Promise<void> {
   const limpios = textos
@@ -512,9 +632,27 @@ async function enviarMensajes(admin: Admin, lead: Lead, textos: MensajeOut[]): P
   const token = Deno.env.get("TWILIO_AUTH_TOKEN");
   const from = Deno.env.get("TWILIO_WHATSAPP_FROM") || "whatsapp:+14155238886";
   const enviarReal = !esPrueba && !!sid && !!token;
+  const inboundSid = (lead._inbound_sid as string | null) ?? "";
 
   for (let i = 0; i < limpios.length; i++) {
     const item = limpios[i];
+    // CAMBIO 5 — retardo natural proporcional al texto (typing antes de CADA msg).
+    const retardoMs = calcularRetardoMs(item.body || "");
+
+    if (enviarReal) {
+      await enviarTyping(sid!, token!, inboundSid);
+      await sleep(retardoMs);
+    } else {
+      // modo prueba: sleep simbólico para no alargar las pruebas
+      await sleep(0);
+      await registrarEvento(admin, lead.phone, "mensaje_enviado", {
+        retardo_ms: retardoMs,
+        len: (item.body || "").length,
+        tiene_media: !!item.mediaUrl,
+        estado_funnel: lead.estado_funnel,
+      });
+    }
+
     const { error } = await admin.database.from("musa_messages").insert([{
       lead_phone: lead.phone,
       direction: "out",
@@ -526,7 +664,6 @@ async function enviarMensajes(admin: Admin, lead: Lead, textos: MensajeOut[]): P
     if (error) console.error("insert out", JSON.stringify(error));
 
     if (enviarReal) {
-      if (i > 0) await sleep(1500); // límite del sandbox de Twilio
       try {
         const params: Record<string, string> = {
           From: from,
@@ -585,7 +722,6 @@ async function crearPagoRevision(
 // ============================== piezas de copy ==============================
 
 const PREGUNTA_PENDIENTE: Record<string, string> = {
-  S03_PAIS: "¿Me escribes desde *Venezuela* 🇻🇪 o desde *Colombia* 🇨🇴?",
   S04_GATE18: "¿Me confirmas que ya tienes 18 años o más?",
   S06_CIERRE: "¿Te paso los datos de pago? 😊",
   S08_ESPERA_CAPTURA: "Cuando tengas la captura del comprobante, envíamela por aquí 📸",
@@ -596,26 +732,19 @@ function preguntaDeEtapa(estado: string): string {
   return PREGUNTA_PENDIENTE[estado] ?? "¿En qué te puedo ayudar? 😊";
 }
 
+/** CAMBIO 1 — sin país: el precio rápido SIEMPRE muestra ambas referencias. */
 function mensajePrecioRapido(lead: Lead, cfg: Cfg): string {
   const bs = formatMiles(Number(cfg.precioBsHoy?.bs ?? 7400));
   const cop = formatMiles(Number(cfg.precio?.cop ?? 33000));
-  if (lead.pais === "VE") {
-    return `El curso completo cuesta *9 USD*, pago único: en bolívares son *${bs} Bs* a la tasa de hoy 🇻🇪 Incluye los 13 módulos, los 4 bonos y el grupo de alumnos, con acceso de por vida.`;
-  }
-  if (lead.pais === "CO") {
-    return `El curso completo cuesta *9 USD*, pago único: en pesos son *${cop} COP* 🇨🇴 Incluye los 13 módulos, los 4 bonos y el grupo de alumnos, con acceso de por vida.`;
-  }
-  return `El curso completo cuesta *9 USD*, pago único: en Venezuela son *${bs} Bs* a la tasa de hoy 🇻🇪 y en Colombia *${cop} COP* 🇨🇴 Incluye 13 módulos + 4 bonos + grupo de alumnos, acceso de por vida.`;
+  return `El curso completo cuesta *9 USD* (equivalente a *${bs} Bs* o *${cop} COP* a la tasa de hoy), pago único 💥 Incluye 13 módulos + 4 bonos + el bono Plan de Acción 7 Días, con acceso de por vida.`;
 }
 
-/** S05 (línea de moneda del país) + S06 cierre, listos para enviar */
+/** CAMBIO 1 — S05 (precio con AMBAS monedas) + S06 cierre, listos para enviar */
 function mensajesPrecioYCierre(lead: Lead, cfg: Cfg): string[] {
   const s05 = etapa(cfg, "S05_PRECIO");
   const s06 = etapa(cfg, "S06_CIERRE");
-  let precio = filtrarLineasPais(s05.mensajes[0], lead.pais);
-  if (lead.pais !== "VE" && lead.pais !== "CO") {
-    precio += "\n\nTu pago sería de *9 USD*; el método de pago disponible para tu zona te lo confirmo en un momento 🌎";
-  }
+  // El copy de S05 ya trae las dos monedas juntas; no se filtra por país.
+  const precio = s05.mensajes[0];
   const cierre = `${s05.mensajes[1]}\n\n${s06.mensajes[0]}`;
   return [
     resolverPlaceholders(precio, lead, cfg),
@@ -665,6 +794,9 @@ const MSG_ESCALADO_ACK =
   "El equipo ya está revisando tu consulta 🙏 Te escribo por aquí apenas tengan la respuesta";
 const MSG_ESCALADO_ACK2 =
   "Sigo pendiente de tu caso con el equipo 💜 Apenas tenga novedad te aviso";
+// CAMBIO 4 — respuesta cálida a una nota de voz (no avanza ni clasifica).
+const MSG_NOTA_VOZ =
+  "¡Ay, gracias por tu nota de voz! 🙈 Por ahora solo puedo leer mensajes de texto. ¿Me escribes tu mensajito y seguimos? 💜";
 
 /**
  * Cuántos acuses de escalado se han enviado DESPUÉS del último evento
@@ -843,9 +975,10 @@ async function resolverMomentoAvatar(
 }
 
 /**
- * Flujo de lead nuevo: S01 (2 msgs) + MOMENTO AVATAR (video como mensaje propio
- * + copy de la rama) o, si no aplica, el puente sin_video; y SIEMPRE al final la
- * pregunta de país (S03), que sale igual que antes.
+ * CAMBIO 1 — sin filtro de país: el flujo de lead nuevo ya no pregunta país.
+ * Flujo: S01 (2 msgs) + MOMENTO AVATAR (video como mensaje propio + copy de la
+ * rama) o, si no aplica, el puente sin_video; y SIEMPRE al final el stack + gate
+ * 18+ (antes salía la pregunta de país). Transición directa a S04_GATE18.
  */
 async function flujoLeadNuevo(
   admin: Admin,
@@ -855,12 +988,14 @@ async function flujoLeadNuevo(
 ): Promise<void> {
   const s01 = etapa(cfg, "S01_SALUDO");
   const s02 = etapa(cfg, "S02_AVATAR");
-  const s03 = etapa(cfg, "S03_PAIS");
   const msgs: MensajeOut[] = [
     resolverPlaceholders(s01.mensajes[0], lead, cfg),
     resolverPlaceholders(s01.mensajes[1], lead, cfg),
   ];
   if (pidePrecio) msgs.push(mensajePrecioRapido(lead, cfg));
+
+  // stack + gate 18+ que reemplaza la antigua pregunta de país al final
+  const stackGate = mensajesStackYGate(lead, cfg);
 
   const avatar = await resolverMomentoAvatar(admin, lead, cfg);
   if (avatar) {
@@ -874,14 +1009,14 @@ async function flujoLeadNuevo(
       mediaType: "video/mp4",
     });
     msgs.push(resolverPlaceholders(sinPrefijo(mr[1] ?? ""), lead, cfg));
-    // la pregunta de país sigue saliendo igual, DESPUÉS del momento avatar
-    msgs.push(resolverPlaceholders(s03.mensajes[0], lead, cfg));
+    // CAMBIO 1: tras el momento avatar va DIRECTO el stack + gate 18+ (sin país)
+    msgs.push(...stackGate);
     await actualizarLead(admin, lead, { avatar_enviado: true });
     await registrarEvento(admin, lead.phone, "avatar_enviado", {
       rama: avatar.rama,
       media_url: avatar.mediaUrl,
     });
-    await transicion(admin, lead, "S03_PAIS");
+    await transicion(admin, lead, "S04_GATE18");
     await enviarMensajes(admin, lead, msgs);
     return;
   }
@@ -891,43 +1026,12 @@ async function flujoLeadNuevo(
   // video/"sorpresa" que no se envía (regla 1: no inventar pruebas).
   const puente = s02.ramas?.A?.sin_video ??
     "Te cuento todo en un momento 😉 Pero primero lo importante:";
-  msgs.push(resolverPlaceholders(`${puente}\n\n${s03.mensajes[0]}`, lead, cfg));
+  msgs.push(resolverPlaceholders(puente, lead, cfg));
+  // CAMBIO 1: directo al stack + gate 18+, sin pregunta de país
+  msgs.push(...stackGate);
   await actualizarLead(admin, lead, { avatar_enviado: false });
-  await transicion(admin, lead, "S03_PAIS");
+  await transicion(admin, lead, "S04_GATE18");
   await enviarMensajes(admin, lead, msgs);
-}
-
-async function manejarS03(admin: Admin, lead: Lead, cfg: Cfg, body: string, norm: string): Promise<void> {
-  let pais = detectarPaisHeuristico(norm, body);
-  let cls: Clasificacion | null = null;
-  if (!pais) {
-    cls = await clasificarGPT(body, lead.estado_funnel, cfg);
-    if (cls?.tipo === "pais" && cls.pais && ["VE", "CO", "OTRO"].includes(cls.pais)) {
-      pais = cls.pais;
-    }
-  }
-  if (pais === "VE" || pais === "CO") {
-    await actualizarLead(admin, lead, { pais });
-    await transicion(admin, lead, "S04_GATE18");
-    await enviarMensajes(admin, lead, mensajesStackYGate(lead, cfg));
-    return;
-  }
-  if (pais === "OTRO") {
-    const s03 = etapa(cfg, "S03_PAIS");
-    await actualizarLead(admin, lead, { pais: "OTRO" });
-    await transicion(admin, lead, "S04_GATE18");
-    await enviarMensajes(admin, lead, [
-      resolverPlaceholders(sinPrefijo(s03.mensajes[1]), lead, cfg),
-      ...mensajesStackYGate(lead, cfg),
-    ]);
-    return;
-  }
-  if (cls?.tipo === "objecion" && cls.objecion_id) {
-    await responderObjecion(admin, lead, cfg, cls.objecion_id, false);
-    await enviarMensajes(admin, lead, [preguntaDeEtapa("S03_PAIS")]);
-    return;
-  }
-  await responderFallback(admin, lead, cfg);
 }
 
 async function manejarS04(admin: Admin, lead: Lead, cfg: Cfg, body: string, norm: string): Promise<void> {
@@ -1001,44 +1105,83 @@ function textoCuentasValido(texto: string): boolean {
   return true;
 }
 
+/**
+ * Qué bloques de pago están REALMENTE disponibles hoy (cuentas no provisional y
+ * sin placeholders). Lo usan el GPT libre (para no prometer un método inexistente)
+ * y el guard de S08 (para escalar cuando piden un método no disponible).
+ */
+function metodosPagoDisponibles(cfg: Cfg): { ve: boolean; co: boolean } {
+  // deno-lint-ignore no-explicit-any
+  const veProvisional = (cfg.cuentasVe as any)?.provisional === true;
+  // deno-lint-ignore no-explicit-any
+  const coProvisional = (cfg.cuentasCo as any)?.provisional === true;
+  return {
+    ve: !veProvisional && textoCuentasValido(bloqueCuentasVE(cfg)),
+    co: !coProvisional && textoCuentasValido(bloqueCuentasCO(cfg)),
+  };
+}
+
+/**
+ * El lead pide explícitamente un método/zona de pago VENEZUELA (Pago Móvil,
+ * transferencia BDV, "datos de Venezuela", "en bolívares cómo pago", etc.).
+ */
+function pideMetodoVE(norm: string): boolean {
+  return /\b(pago movil|pagomovil|movil|banco de venezuela|bdv|en bolivares|datos de venezuela|venezuela|metodo de venezuela)\b/.test(norm) &&
+    /(pago|paga|pagar|transfer|datos|cuenta|movil|bolivares|metodo|deposito)/.test(norm);
+}
+
+/**
+ * El lead pide explícitamente un método/zona de pago COLOMBIA (Nequi,
+ * Bancolombia, Bre-B, "datos de Colombia", "en pesos cómo pago", etc.).
+ */
+function pideMetodoCO(norm: string): boolean {
+  return /\b(nequi|bancolombia|bre-?b|breb|en pesos|datos de colombia|colombia|metodo de colombia)\b/.test(norm) &&
+    /(pago|paga|pagar|transfer|datos|cuenta|pesos|metodo|deposito|nequi|bancolombia|breb|bre-b)/.test(norm);
+}
+
+/**
+ * CAMBIO 1 — sin país: los datos de pago muestran TODOS los métodos juntos
+ * (bloque Venezuela + bloque Colombia) bajo un encabezado tipo "paga por el medio
+ * que más te sirva". Solo se incluyen los bloques cuyas cuentas sean VÁLIDAS
+ * (no provisional, sin PENDIENTE/placeholders): la lista negra prohíbe entregar
+ * cuentas placeholder. Si NINGÚN bloque es enviable, se escala a humano.
+ */
 async function enviarDatosPago(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> {
   const s07 = etapa(cfg, "S07_DATOS_PAGO");
-  if (lead.pais === "VE" || lead.pais === "CO") {
-    const raw = lead.pais === "VE" ? cfg.cuentasVe : cfg.cuentasCo;
-    const bloque = lead.pais === "VE" ? bloqueCuentasVE(cfg) : bloqueCuentasCO(cfg);
-    // deno-lint-ignore no-explicit-any
-    const provisional = (raw as any)?.provisional === true;
-    if (provisional || !textoCuentasValido(bloque)) {
-      // cuentas incompletas o placeholder: JAMÁS enviarlas; escalar a humano
-      await actualizarLead(admin, lead, { escalado_humano: true });
-      await registrarEvento(admin, lead.phone, "escalado", {
-        motivo: "datos_pago_incompletos",
-        pais: lead.pais,
-      });
-      await enviarMensajes(admin, lead, [
-        resolverPlaceholders(
-          "¡Excelente decisión, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos de pago actualizados para tu zona y te escribo en un ratico por aquí mismo 💜",
-          lead,
-          cfg,
-        ),
-      ]);
-      return;
-    }
-    const msg = lead.pais === "VE" ? s07.mensajes[0] : s07.mensajes[1];
-    await transicion(admin, lead, "S08_ESPERA_CAPTURA");
-    await enviarMensajes(admin, lead, [resolverPlaceholders(sinPrefijo(msg), lead, cfg)]);
+  // deno-lint-ignore no-explicit-any
+  const veProvisional = (cfg.cuentasVe as any)?.provisional === true;
+  // deno-lint-ignore no-explicit-any
+  const coProvisional = (cfg.cuentasCo as any)?.provisional === true;
+  const bloqueVe = bloqueCuentasVE(cfg);
+  const bloqueCo = bloqueCuentasCO(cfg);
+  const veOk = !veProvisional && textoCuentasValido(bloqueVe);
+  const coOk = !coProvisional && textoCuentasValido(bloqueCo);
+
+  if (!veOk && !coOk) {
+    // ningún bloque enviable: JAMÁS enviar placeholders; escalar a humano
+    await actualizarLead(admin, lead, { escalado_humano: true });
+    await registrarEvento(admin, lead.phone, "escalado", { motivo: "datos_pago_incompletos" });
+    await enviarMensajes(admin, lead, [
+      resolverPlaceholders(
+        "¡Excelente decisión, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos de pago actualizados y te escribo en un ratico por aquí mismo 💜",
+        lead,
+        cfg,
+      ),
+    ]);
     return;
   }
-  // país OTRO: el método de pago lo define un humano (tag #otro_pais)
-  await actualizarLead(admin, lead, { escalado_humano: true });
-  await registrarEvento(admin, lead.phone, "escalado", { motivo: "otro_pais_metodo_pago" });
-  await enviarMensajes(admin, lead, [
-    resolverPlaceholders(
-      "¡Excelente! 🙌 Tu acceso queda en *9 USD*. Déjame confirmar con el equipo el método de pago disponible para tu zona y te escribo en un ratico por aquí mismo 💜",
-      lead,
-      cfg,
-    ),
-  ]);
+
+  // Encabezado + bloques válidos (VE primero, luego CO) en UN solo mensaje.
+  const partes: string[] = [resolverPlaceholders(sinPrefijo(s07.mensajes[0]), lead, cfg)];
+  if (veOk) {
+    partes.push("\n🇻🇪 *Venezuela*\n" + resolverPlaceholders("{{cuentas_venezuela}}", lead, cfg));
+  }
+  if (coOk) {
+    partes.push("\n🇨🇴 *Colombia*\n" + resolverPlaceholders("{{cuentas_colombia}}", lead, cfg));
+  }
+  partes.push(resolverPlaceholders(sinPrefijo(s07.mensajes[1]), lead, cfg));
+  await transicion(admin, lead, "S08_ESPERA_CAPTURA");
+  await enviarMensajes(admin, lead, [partes.join("\n").trim()]);
 }
 
 /**
@@ -1121,6 +1264,34 @@ async function manejarS08(
       resolverPlaceholders(sinPrefijo(s08.mensajes[1]), lead, cfg),
     ]);
     return;
+  }
+  // GUARD de DISPONIBILIDAD (caso Yorgelis): si el lead pide explícitamente un
+  // método/zona de pago que HOY no está operativo (cuentas provisional/placeholder),
+  // NUNCA se delega al GPT libre (que improvisaría "te paso los datos de Venezuela"
+  // sin tener cómo entregarlos): se escala a humano de verdad, con acuse cálido.
+  if (norm) {
+    const disp = metodosPagoDisponibles(cfg);
+    const pideVE = pideMetodoVE(norm);
+    const pideCO = pideMetodoCO(norm);
+    if ((pideVE && !disp.ve) || (pideCO && !disp.co)) {
+      await actualizarLead(admin, lead, { escalado_humano: true });
+      await registrarEvento(admin, lead.phone, "escalado", {
+        motivo: "metodo_pago_no_disponible",
+        pide_ve: pideVE,
+        pide_co: pideCO,
+        disp_ve: disp.ve,
+        disp_co: disp.co,
+        estado_funnel: lead.estado_funnel,
+      });
+      await enviarMensajes(admin, lead, [
+        resolverPlaceholders(
+          "¡Claro, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos actualizados de ese método y te los paso enseguida por aquí mismo 💜",
+          lead,
+          cfg,
+        ),
+      ]);
+      return;
+    }
   }
   await responderFallback(admin, lead, cfg, PREGUNTA_PENDIENTE.S08_ESPERA_CAPTURA);
 }
@@ -1222,10 +1393,16 @@ export default async function (req: Request): Promise<Response> {
       Object.assign(lead, patch);
     }
 
+    // SID del mensaje entrante para el typing indicator (CAMBIO 5).
+    lead._inbound_sid = messageSid || null;
+
     // --- Check temprano de silencio: opt-out y escalado a humano ---
     // (antes de persistir el mensaje igual lo registramos para auditoría)
     const esImagen = numMedia > 0 && !!mediaContentType0 &&
       mediaContentType0.toLowerCase().startsWith("image");
+    // CAMBIO 4 — nota de voz: audio entrante (NumMedia>0 y content-type audio/*)
+    const esAudio = numMedia > 0 && !!mediaContentType0 &&
+      mediaContentType0.toLowerCase().startsWith("audio");
 
     const { error: msgErr } = await admin.database.from("musa_messages").insert([{
       lead_phone: phone,
@@ -1260,6 +1437,19 @@ export default async function (req: Request): Promise<Response> {
       return emptyTwiml();
     }
 
+    // CAMBIO 4 — nota de voz: NO romper, NO avanzar de etapa, NO clasificar el
+    // audio como respuesta. Una línea cálida pidiendo texto y se registra evento.
+    // (Si el lead está escalado, ya salió antes por el acuse; si llegó imagen en
+    // S08 ese flujo sigue intacto: solo intercepta audio.)
+    if (esAudio && !lead.escalado_humano) {
+      await registrarEvento(admin, phone, "nota_voz_recibida", {
+        media_type: mediaContentType0,
+        estado_funnel: lead.estado_funnel,
+      });
+      await enviarMensajes(admin, lead, [MSG_NOTA_VOZ]);
+      return emptyTwiml();
+    }
+
     if (lead.escalado_humano) {
       // Bot en pausa: lo atiende un humano, pero no silencio inmediato — el lead
       // debe saber que su mensaje no se perdió. UN acuse por mensaje entrante,
@@ -1279,6 +1469,18 @@ export default async function (req: Request): Promise<Response> {
     if (lead.estado_funnel === "S92_MENOR") {
       // terminal: una sola línea amable, sin venta, sin reintentos
       await enviarMensajes(admin, lead, [MSG_MENOR_REITERACION]);
+      return emptyTwiml();
+    }
+
+    // CAMBIO 6 — entrada desde anuncio: para un lead NUEVO (sin estado o S00), el
+    // CONTENIDO del primer mensaje se ignora para clasificar (el anuncio precarga
+    // un texto que NO es "hola", ej. "Me interesa, quiero más información"). Solo
+    // se guarda (ya persistido arriba) y dispara el flujo de bienvenida. Así un
+    // "Hola, vi su anuncio y quiero información" arranca el saludo y NO se intenta
+    // interpretar como pregunta/objeción/petición de humano.
+    if (lead.estado_funnel === "S00_LLEGADA") {
+      const pidePrecioNuevo = !!norm && preguntaPrecio(norm);
+      await flujoLeadNuevo(admin, lead, cfg, pidePrecioNuevo);
       return emptyTwiml();
     }
 
@@ -1308,7 +1510,7 @@ export default async function (req: Request): Promise<Response> {
     // Pregunta de precio antes de S05: responder de inmediato y retomar la etapa.
     if (
       pidePrecio && !esNuevo &&
-      (lead.estado_funnel === "S03_PAIS" || lead.estado_funnel === "S04_GATE18")
+      lead.estado_funnel === "S04_GATE18"
     ) {
       await enviarMensajes(admin, lead, [
         mensajePrecioRapido(lead, cfg),
@@ -1321,7 +1523,7 @@ export default async function (req: Request): Promise<Response> {
     if (
       !esNuevo && lastInPrevio &&
       (Date.now() - new Date(lastInPrevio).getTime()) > 24 * 60 * 60 * 1000 &&
-      ["S03_PAIS", "S04_GATE18", "S06_CIERRE"].includes(lead.estado_funnel)
+      ["S04_GATE18", "S06_CIERRE"].includes(lead.estado_funnel)
     ) {
       await enviarMensajes(admin, lead, [
         resolverPlaceholders(
@@ -1338,7 +1540,10 @@ export default async function (req: Request): Promise<Response> {
         await flujoLeadNuevo(admin, lead, cfg, pidePrecio);
         break;
       case "S03_PAIS":
-        await manejarS03(admin, lead, cfg, body, norm);
+        // CAMBIO 1: etapa de país eliminada. Leads legados aún en S03 saltan al
+        // gate 18+: se les reenvía stack + gate y a partir de ahí siguen normal.
+        await transicion(admin, lead, "S04_GATE18");
+        await enviarMensajes(admin, lead, mensajesStackYGate(lead, cfg));
         break;
       case "S04_GATE18":
         await manejarS04(admin, lead, cfg, body, norm);

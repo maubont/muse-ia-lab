@@ -15,11 +15,15 @@
 .trae
 .windsurf
 
-# Media pesada del avatar (vive en el bucket musa-avatares; local solo para escuchar)
+# Media del avatar (vive en el bucket musa-avatares; local solo para revisar)
 avatar/generados/
 avatar/logs/
+avatar/candidatas/
+avatar/candidatas-v2/
+avatar/voces/
 avatar/*.mp3
 avatar/*.mp4
+avatar/*.jpg
 
 # Sistema / dependencias
 node_modules/
