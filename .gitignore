@@ -25,8 +25,9 @@ avatar/*.mp3
 avatar/*.mp4
 avatar/*.jpg
 
-# Temporales de pruebas (comprobantes sintéticos, etc.)
+# Temporales y artefactos de pruebas (comprobantes sintéticos, etc.)
 tmp/
+comprobantes-prueba/
 
 # Sistema / dependencias
 node_modules/

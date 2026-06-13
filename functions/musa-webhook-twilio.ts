@@ -633,6 +633,10 @@ type DatosComprobante = {
   hora: string | null;
   numero_referencia: string | null;
   destino: string | null;
+  // TODOS los números/cuentas/teléfonos/llaves visibles en el comprobante, en
+  // crudo (incluye enmascarados y completos). Sirve para reconocer NUESTRO número
+  // aunque la visión elija otro como 'destino' principal.
+  numeros_detectados: string[];
   nombre_destinatario: string | null;
   banco_o_app: string | null;
   estado_operacion: string | null;
@@ -653,11 +657,12 @@ async function extraerComprobanteVision(
     "Eres un verificador de comprobantes de pago (capturas de pantalla de apps bancarias / Pago Móvil / Nequi / Bancolombia / Bre-B / transferencias). " +
     "Analiza la imagen y responde SOLO un JSON valido, sin texto extra ni markdown, con EXACTAMENTE esta forma:\n" +
     '{"metodo":string|null,"monto":number|null,"moneda":"VES"|"COP"|"USD"|null,"fecha":"YYYY-MM-DD"|null,"hora":string|null,' +
-    '"numero_referencia":string|null,"destino":string|null,"nombre_destinatario":string|null,"banco_o_app":string|null,' +
+    '"numero_referencia":string|null,"destino":string|null,"numeros_detectados":string[],"nombre_destinatario":string|null,"banco_o_app":string|null,' +
     '"estado_operacion":"exitosa"|"en_proceso"|"programada"|"fallida"|"ilegible",' +
     '"es_captura_completa":boolean,"senales_manipulacion":string[],' +
     '"confidence":{"monto":number,"referencia":number,"destino":number,"fecha":number}}\n' +
     "Reglas: 'destino' = el telefono, numero de cuenta o llave que RECIBE el dinero (no el emisor). " +
+    "'numeros_detectados' = TODOS los numeros, cuentas bancarias, telefonos y llaves visibles en el comprobante, copiados TAL CUAL aparecen (en crudo), incluyendo tanto los enmascarados (ej: '313 *** 5761') como los completos (ej: 'Numero Nequi 3223565761'). Incluye emisor, receptor, numero de cuenta, telefono, cedula, llaves. No omitas ninguno y no inventes; si no hay numeros, devuelve []. " +
     "'monto' es solo el numero (sin simbolos ni separadores de miles). " +
     "moneda: VES si es bolivares/Bs, COP si es pesos colombianos, USD si dolares. " +
     "estado_operacion='exitosa' solo si dice claramente exitosa/aprobada/completada/realizada. " +
@@ -694,6 +699,9 @@ async function extraerComprobanteVision(
       hora: j.hora ?? null,
       numero_referencia: j.numero_referencia != null ? String(j.numero_referencia) : null,
       destino: j.destino != null ? String(j.destino) : null,
+      numeros_detectados: Array.isArray(j.numeros_detectados)
+        ? j.numeros_detectados.map((x: unknown) => String(x)).filter((s: string) => s.trim().length > 0)
+        : [],
       nombre_destinatario: j.nombre_destinatario ?? null,
       banco_o_app: j.banco_o_app ?? null,
       estado_operacion: j.estado_operacion ?? null,
@@ -775,11 +783,20 @@ function decidirComprobante(
   if (d.monto > esperado * 3) {
     return { accion: "COLA_HUMANA", motivo: "monto_excesivo" };
   }
-  // 4) destino debe coincidir con uno de los nuestros
+  // 4) destino debe coincidir con uno de los nuestros.
+  // Candidatos = el campo 'destino' principal + TODOS los numeros_detectados,
+  // cada uno normalizado a solo dígitos. Coincide si NUESTRO número completo
+  // (su longitud real: 10 Nequi/Bre-B, 11 Pago Móvil/Bancolombia, 20 BDV)
+  // aparece como coincidencia EXACTA o como substring completo dentro de algún
+  // candidato. NO se usa coincidencia por sufijo corto laxo: exigimos que el
+  // número entero aparezca literalmente. Si ninguno de nuestros números
+  // completos está presente -> destino_no_coincide -> cola.
   const destinos = nuestrosDestinos(cfg);
-  const dest = soloDigitos(d.destino);
-  // match flexible: el comprobante puede traer el número con prefijo de país.
-  const coincide = dest.length >= 6 && destinos.some((n) => dest.endsWith(n) || n.endsWith(dest));
+  const candidatos = [d.destino, ...(d.numeros_detectados ?? [])]
+    .map((s) => soloDigitos(s))
+    .filter((s) => s.length >= 6);
+  const coincide = destinos.length > 0 &&
+    candidatos.some((cand) => destinos.some((n) => cand === n || cand.includes(n)));
   if (!coincide) {
     return { accion: "COLA_HUMANA", motivo: "destino_no_coincide" };
   }
@@ -1336,6 +1353,9 @@ const MSG_PAGO_EN_PROCESO =
   "¡Gracias! 🙏 Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque 💜";
 const MSG_PAGO_RECHAZO_SUAVE =
   "¡Hola! 🙏 Revisamos tu comprobante y no pudimos confirmarlo de momento (puede ser un tema técnico de la imagen o que aún no se refleja). ¿Me reenvías el comprobante completo o me cuentas más para ayudarte? Quiero asegurarme de activarte el acceso 💜";
+// Lead que YA pagó (pagado=true) y reenvía otro comprobante: no re-entregamos.
+const MSG_PAGO_YA_TIENE_ACCESO =
+  "¡Ya tienes tu acceso activo, no te preocupes! 💜 Tu pago ya quedó confirmado y tienes acceso de por vida a todo. Si no encuentras los enlaces o necesitas algo, me escribes con confianza 😊";
 
 /**
  * Cuántos acuses de escalado se han enviado DESPUÉS del último evento
@@ -1789,6 +1809,14 @@ async function procesarComprobante(
   cfg: Cfg,
   mediaUrl: string | null,
 ): Promise<void> {
+  // GUARD anti-doble-entrega: si el lead YA pagó (pagado=true), no reprocesamos
+  // ni re-entregamos. Solo le recordamos que su acceso está activo.
+  if (lead.pagado === true) {
+    await registrarEvento(admin, lead.phone, "comprobante_ignorado_ya_pagado", { phone: lead.phone });
+    await enviarMensajes(admin, lead, [MSG_PAGO_YA_TIENE_ACCESO]);
+    return;
+  }
+
   // Acuse de "verificando" según horario (promesa de tiempo realista).
   const dentro = dentroDeHorario(cfg);
   const acuseVerificando = dentro ? MSG_PAGO_VERIFICANDO_DENTRO : MSG_PAGO_VERIFICANDO_FUERA;
@@ -1865,7 +1893,9 @@ async function procesarComprobante(
       return;
     }
 
-    // 4) ¿es el primer pago aprobado de este lead?
+    // 4) ¿puede auto-aprobarse? Solo bloquea un pago ya APROBADO o lead.pagado=true.
+    // Una fila previa en 'revision'/'rechazado' NO bloquea: una nueva captura
+    // legítima sí puede auto-aprobarse mientras el lead aún no tenga acceso.
     const { data: aprobPrevios } = await admin.database
       .from("musa_payments")
       .select("id")
