@@ -143,7 +143,7 @@ function StateError({ txt, onRetry }) {
     : null}</div>`;
 }
 
-function Login({ error }) {
+function Login() {
   const oauth = (provider) =>
     insforge.auth.signInWithOAuth(provider, {
       redirectTo: REDIRECT_TO,
@@ -153,9 +153,6 @@ function Login({ error }) {
     <div class="login">
       <div class="logo">Consola Musa</div>
       <div class="tag">Panel del operador</div>
-      ${error === "restricted"
-        ? html`<div class="restricted">Acceso restringido. Esta cuenta no es la del dueno.</div>`
-        : null}
       <div class="oauth">
         <button class="oauthbtn" onClick=${() => oauth("google")}>
           <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.8 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.8-9.9 6.8-17.4z"/><path fill="#FBBC05" d="M10.3 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.8-6.1C.9 16.3 0 20 0 24s.9 7.7 2.5 10.7l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.9 2.3-6.4 0-11.8-3.7-13.7-9.1l-7.8 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
@@ -225,14 +222,14 @@ function PantallaInicio({ data, loading, error, refreshing, onGoPagos, onGoChats
           <div class="hint">~${fmtNum(data.ventas_hoy?.usd_aprox || 0)} USD</div>
         </div>
         <div class="metric">
-          <div class="label">Metrica reina</div>
+          <div class="label">Llegan a pagar</div>
           <div class="value">${fmtNum(data.metrica_reina_pct || 0)}<small>%</small></div>
-          <div class="hint">llegan a pagar (S08/S06)</div>
+          <div class="hint">de cada 100 que escriben</div>
         </div>
       </div>
 
       <div class="section-title">Pendientes</div>
-      <div class="card" style="padding:6px 16px">
+      <div class="card card-list">
         ${pendientes.length === 0
           ? html`<div class="empty" style="padding:24px 8px"><div class="big">✅</div>Nada pendiente. Todo en orden.</div>`
           : pendientes.map((p) => html`
@@ -259,7 +256,7 @@ function PantallaInicio({ data, loading, error, refreshing, onGoPagos, onGoChats
 }
 
 // -------- BANDEJA DE PAGOS --------
-function PantallaPagos({ data, loading, error, onAccion, onVerImagen, onRetry }) {
+function PantallaPagos({ data, loading, error, refreshing, onAccion, onVerImagen, onRetry }) {
   if (loading && !data) return html`<${StateLoading} txt="Cargando bandeja…" />`;
   if (error && !data) return html`<${StateError} txt=${"No se pudo cargar la bandeja. " + error} onRetry=${onRetry} />`;
   if (!data) return null;
@@ -269,16 +266,17 @@ function PantallaPagos({ data, loading, error, onAccion, onVerImagen, onRetry })
 
   return html`
     <div>
+      ${refreshing ? html`<div style="text-align:right" class="refreshing"><span class="inline-spin"></span> actualizando</div>` : null}
       ${pagos.length === 0
-        ? html`<div class="empty"><div class="big">🎉</div>No hay pagos por revisar.</div>`
+        ? html`<div class="empty"><div class="big">✅</div>No hay pagos por revisar.</div>`
         : pagos.map((p) => html`<${PagoCard} key=${p.short_id} p=${p} onAccion=${onAccion} onVerImagen=${onVerImagen} />`)}
 
       ${resueltos.length > 0 ? html`
         <div class="section-title">Resueltos hoy</div>
-        <div class="card" style="padding:6px 16px">
+        <div class="card card-list">
           ${resueltos.map((r) => html`
             <div class="resuelto">
-              <span class="badge ${r.status === "aprobado" ? "ok" : "danger"}">${r.status === "aprobado" ? "OK" : "NO"}</span>
+              <span class="badge ${r.status === "aprobado" ? "ok" : "danger"}">${r.status === "aprobado" ? "Aprobado" : "Rechazado"}</span>
               <span class="r-sid">#${r.short_id}</span>
               <span class="r-meta">${fmtMonto(r.monto, r.moneda)}${r.motivo_flag ? " · " + traducirMotivo(r.motivo_flag) : ""}</span>
             </div>`)}
@@ -289,6 +287,7 @@ function PantallaPagos({ data, loading, error, onAccion, onVerImagen, onRetry })
 
 function PagoCard({ p, onAccion, onVerImagen }) {
   const [busy, setBusy] = useState(false);
+  const [confirmAprobar, setConfirmAprobar] = useState(false);
   const motivo = traducirMotivo(p.motivo_flag);
   const fraude = p.motivo_flag && MOTIVOS_FRAUDE.test(p.motivo_flag);
   const b = tiempoBadge(p.antiguedad_min);
@@ -297,17 +296,29 @@ function PagoCard({ p, onAccion, onVerImagen }) {
   const numeros = Array.isArray(p.numeros_detectados) ? p.numeros_detectados : [];
   const coin = p.coincidencia || {};
 
-  const aprobar = async () => {
+  // P0: si el comprobante tiene una senal de alerta, exigir confirmacion antes de entregar
+  // (la entrega es irreversible). Los pagos limpios mantienen el tap unico.
+  const hayAlerta = !!p.motivo_flag || coin.coincide === false || montoBad;
+  const textoAlerta = motivo
+    ? motivo
+    : (montoBad ? "pago de menos" : "ningun numero coincide con tus cuentas");
+
+  const hacerAprobar = async () => {
     setBusy(true);
+    setConfirmAprobar(false);
     await onAccion({ accion: "aprobar", short_id: p.short_id });
     setBusy(false);
+  };
+  const aprobar = () => {
+    if (hayAlerta) { setConfirmAprobar(true); return; }
+    hacerAprobar();
   };
   const rechazar = () => onAccion({ accion: "_pedir_motivo", short_id: p.short_id });
 
   return html`
     <div class="pago-card">
       ${p.imagen
-        ? html`<img class="pago-img" src=${p.imagen} alt="comprobante" onClick=${() => onVerImagen(p.imagen)} />`
+        ? html`<img class="pago-img" src=${p.imagen} alt="comprobante" role="button" aria-label=${"Ampliar comprobante de #" + p.short_id} onClick=${() => onVerImagen(p.imagen)} />`
         : html`<div class="pago-img-empty">Sin imagen del comprobante</div>`}
       <div class="pago-body">
         <div class="pago-head">
@@ -347,11 +358,18 @@ function PagoCard({ p, onAccion, onVerImagen }) {
           ${d.fecha ? html`<span><b>Fecha:</b> ${d.fecha}</span>` : null}
           ${d.destino ? html`<span><b>Destino:</b> ${d.destino}</span>` : null}
         </div>
-        <div class="actions">
-          <button class="btn btn-ok" disabled=${busy} onClick=${aprobar}>${busy ? "…" : "Aprobar"}</button>
-          <button class="btn btn-no" disabled=${busy} onClick=${rechazar}>Rechazar</button>
-          ${p.imagen ? html`<button class="btn btn-ver" onClick=${() => onVerImagen(p.imagen)}>Ver</button>` : null}
-        </div>
+        ${confirmAprobar
+          ? html`<div style="margin-top:12px">
+              <div class="banner danger" style="margin-bottom:10px"><span class="b-ico">⚠️</span><div>
+                Este comprobante tiene una señal: <b>${textoAlerta}</b>. Si apruebas, el curso se entrega y <b>no se puede deshacer</b>.</div></div>
+              <button class="btn-block btn-primary" disabled=${busy} onClick=${hacerAprobar}><b>${busy ? "…" : "Sí, aprobar y entregar"}</b></button>
+              <button class="btn-block btn-ghost" style="margin-top:8px" disabled=${busy} onClick=${() => setConfirmAprobar(false)}>Cancelar</button>
+            </div>`
+          : html`<div class="actions">
+              <button class="btn btn-ok" disabled=${busy} onClick=${aprobar}>${busy ? "…" : "Aprobar"}</button>
+              <button class="btn btn-no" disabled=${busy} onClick=${rechazar}>Rechazar</button>
+              ${p.imagen ? html`<button class="btn btn-ver" onClick=${() => onVerImagen(p.imagen)}>Ver</button>` : null}
+            </div>`}
       </div>
     </div>
   `;
@@ -386,7 +404,7 @@ function PantallaChats({ data, loading, error, soloAtencion, onToggleFiltro, onA
 
       ${lista.length === 0
         ? html`<div class="empty"><div class="big">${soloAtencion ? "👍" : "💬"}</div>${soloAtencion ? "Nada requiere atencion ahora." : "Sin conversaciones recientes."}</div>`
-        : html`<div class="card" style="padding:4px 0">
+        : html`<div class="card" style="padding:4px 0;overflow:hidden">
             ${lista.map((c) => html`<${ChatRow} key=${c.phone_raw} c=${c} atencion=${requiereAtencion(c)} onAbrir=${onAbrir} />`)}
           </div>`}
     </div>
@@ -412,10 +430,10 @@ function ChatRow({ c, atencion, onAbrir }) {
           <span class="tag tag-etapa">${c.etiqueta}</span>
           ${c.le_toca === "lead"
             ? html`<span class="tag tag-toca-lead">le toca a Musa</span>`
-            : html`<span class="tag tag-toca-musa">esperando al lead</span>`}
+            : html`<span class="tag tag-toca-musa">esperando respuesta</span>`}
           ${c.flags?.escalado_humano ? html`<span class="tag tag-esc">🔴 escalado</span>` : null}
           ${c.flags?.pagado ? html`<span class="tag tag-pago">ya compro</span>` : null}
-          ${c.flags?.opt_out ? html`<span class="tag tag-out">opt-out</span>` : null}
+          ${c.flags?.opt_out ? html`<span class="tag tag-out">no contactar</span>` : null}
         </div>
       </div>
       <span class="chat-arrow">›</span>
@@ -433,7 +451,7 @@ function PantallaConversacion({ data, loading, error, onVolver, onTomarControl, 
     if (hiloRef.current) hiloRef.current.scrollTop = hiloRef.current.scrollHeight;
   }, [data]);
 
-  if (loading && !data) return html`<${StateLoading} txt="Abriendo conversacion…" />`;
+  if (loading && !data) return html`<${StateLoading} txt="Cargando conversación…" />`;
   if (error && !data) return html`<${StateError} txt=${"No se pudo abrir la conversacion. " + error} onRetry=${onRetry} />`;
   if (!data) return null;
 
@@ -464,7 +482,7 @@ function PantallaConversacion({ data, loading, error, onVolver, onTomarControl, 
       <div class="conv-tags">
         ${escalado ? html`<span class="tag tag-esc">🔴 bajo control humano</span>` : html`<span class="tag tag-toca-musa">Musa atiende</span>`}
         ${lead.flags?.pagado ? html`<span class="tag tag-pago">ya compro</span>` : null}
-        ${lead.flags?.opt_out ? html`<span class="tag tag-out">opt-out</span>` : null}
+        ${lead.flags?.opt_out ? html`<span class="tag tag-out">no contactar</span>` : null}
       </div>
 
       <div class="conv-ctrl">
@@ -499,13 +517,15 @@ function PantallaConversacion({ data, loading, error, onVolver, onTomarControl, 
 
       <div class="responder">
         <textarea
-          placeholder=${escalado ? "Escribe tu respuesta…" : "Toma el control para evitar choques con Musa"}
+          placeholder=${escalado ? "Escribe tu respuesta…" : "Musa está atendiendo este chat"}
           value=${texto}
           onInput=${(e) => setTexto(e.target.value)}
           rows="2"
+          disabled=${!escalado}
         ></textarea>
-        <button class="btn-send" disabled=${enviando || !texto.trim()} onClick=${enviar}>${enviando ? "…" : "Enviar"}</button>
+        <button class="btn-send" disabled=${!escalado || enviando || !texto.trim()} onClick=${enviar}>${enviando ? "…" : "Enviar"}</button>
       </div>
+      ${!escalado ? html`<div class="responder-hint">Para responder tú, primero toca <b>"Tomar control"</b>.</div>` : null}
     </div>
   `;
 }
@@ -564,23 +584,23 @@ function PantallaAnalisis({ data, loading, error, onRetry, refreshing }) {
         </div>
       </div>
       <div class="card">
-        <div class="fin-row"><span>Costo OpenAI (medido)</span><b>${fmtNum(fin.costo_openai_medido_usd)} USD</b></div>
-        <div class="fin-row"><span>Costo Twilio <i>(estimado)</i></span><b>${fmtNum(fin.costo_twilio_estimado_usd)} USD</b></div>
+        <div class="fin-row"><span>Costo del cerebro de Musa <i>(real)</i></span><b>${fmtNum(fin.costo_openai_medido_usd)} USD</b></div>
+        <div class="fin-row"><span>Costo de mensajes WhatsApp <i>(estimado)</i></span><b>${fmtNum(fin.costo_twilio_estimado_usd)} USD</b></div>
         <div class="fin-row total"><span>Margen <i>(estimado)</i></span><b class=${(fin.margen_estimado_usd || 0) >= 0 ? "pos" : "neg"}>${fmtNum(fin.margen_estimado_usd)} USD</b></div>
-        <div class="desc" style="margin-top:6px">Ingreso USD y margen son estimados (ventas × precio). El costo de OpenAI es real por tokens.</div>
+        <div class="desc" style="margin-top:6px">Ingreso USD y margen son estimados (ventas × precio). El costo del cerebro de Musa es real por uso.</div>
       </div>
 
       <div class="section-title">Riesgo</div>
       <div class="card">
-        <div class="fin-row"><span>Comprobantes duplicados (phash)</span><b class=${dup.length > 0 ? "neg" : ""}>${fmtNum(dup.length)}</b></div>
-        <div class="fin-row"><span>Opt-outs</span><b>${fmtNum(riesgo.optouts_total)}</b></div>
+        <div class="fin-row"><span>Comprobantes repetidos</span><b class=${dup.length > 0 ? "neg" : ""}>${fmtNum(dup.length)}</b></div>
+        <div class="fin-row"><span>Pidieron no contactar</span><b>${fmtNum(riesgo.optouts_total)}</b></div>
         <div class="fin-row"><span>Freno antifraude (eventos)</span><b>${fmtNum(riesgo.circuit_breaker_eventos)}</b></div>
         <div class="fin-row"><span>Aprobados sin entregar</span><b class=${recon > 0 ? "neg" : "pos"}>${fmtNum(recon)}</b></div>
         ${recon > 0
           ? html`<div class="banner danger" style="margin:10px 0 0"><span class="b-ico">⚠️</span><div>Hay ${recon} pago(s) aprobados sin registro de entrega. Revisa en Pagos / Chats.</div></div>`
           : null}
         ${dup.length > 0
-          ? html`<div class="dup-list">${dup.map((d) => html`<div class="dup-item">phash ${d.phash}… · ${d.leads_distintos} leads distintos</div>`)}</div>`
+          ? html`<div class="dup-list">${dup.map((d) => html`<div class="dup-item">Mismo comprobante usado por ${d.leads_distintos} personas</div>`)}</div>`
           : null}
       </div>
     </div>
@@ -659,6 +679,8 @@ function PantallaConfig({ data, loading, error, onGuardarTasa, onGuardarCuentasV
   if (error && !data) return html`<${StateError} txt=${"No se pudo cargar la configuracion. " + error} onRetry=${onRetry} />`;
   if (!data) return null;
 
+  // Invalida solo si hay texto y no es un numero > 0 (no marcar el campo vacio inicial).
+  const tasaInvalida = bs.trim() !== "" && !(Number(bs) > 0);
   const cuentasVe = data.cuentas_ve || {};
   const cuentasCo = data.cuentas_co || {};
   const veProvisional = cuentasVe.provisional === true;
@@ -717,10 +739,12 @@ function PantallaConfig({ data, loading, error, onGuardarTasa, onGuardarCuentasV
         <h2>Tasa del dia (Bs)</h2>
         <div class="field">
           <label>Bolivares por curso</label>
-          <input type="number" inputmode="decimal" value=${bs} onInput=${(e) => setBs(e.target.value)} placeholder="ej. 360" />
-          <div class="desc">Fecha guardada hoy (America/Caracas). Precio base: ${fmtNum(data.precio?.usd) || "—"} USD.</div>
+          <input type="number" inputmode="decimal" class=${tasaInvalida ? "invalid" : ""} value=${bs} onInput=${(e) => setBs(e.target.value)} placeholder="ej. 360" />
+          ${tasaInvalida
+            ? html`<div class="desc err">Escribe un número mayor que 0.</div>`
+            : html`<div class="desc">Fecha guardada hoy (America/Caracas). Precio base: ${fmtNum(data.precio?.usd) || "—"} USD.</div>`}
         </div>
-        <button class="btn-block btn-primary" disabled=${savingTasa} onClick=${guardarTasa}>${savingTasa ? "Guardando…" : "Guardar tasa"}</button>
+        <button class="btn-block btn-primary" disabled=${savingTasa || tasaInvalida} onClick=${guardarTasa}>${savingTasa ? "Guardando…" : "Guardar tasa"}</button>
       </div>
 
       <div class="card">
@@ -801,6 +825,7 @@ function ReasonModal({ onPick, onClose }) {
 function ImageModal({ src, onClose }) {
   return html`
     <div class="modal-bg" style="align-items:center;padding:16px" onClick=${onClose}>
+      <button class="iconbtn" aria-label="Cerrar" style="position:absolute;top:calc(16px + var(--safe-top));right:16px;z-index:2" onClick=${onClose}>✕</button>
       <img class="modal-img" src=${src} onClick=${(e) => e.stopPropagation()} />
     </div>
   `;
@@ -812,6 +837,14 @@ const TITULOS = {
   inicio: "Inicio", pagos: "Bandeja de pagos", chats: "Conversaciones",
   analisis: "Analisis", config: "Configuracion",
 };
+// P2: subtitulos de orientacion en una linea (mostrados bajo el titulo de seccion).
+const SUBTITULOS = {
+  inicio: "Lo que necesita tu atención hoy",
+  pagos: "Aprueba o rechaza comprobantes",
+  chats: "Conversaciones de WhatsApp",
+  analisis: "Cómo va el negocio",
+  config: "Tasa del día y cuentas de pago",
+};
 
 function App() {
   const [authState, setAuthState] = useState("checking"); // checking | out | in | restricted
@@ -821,7 +854,7 @@ function App() {
   });
 
   const [inicio, setInicio] = useState({ data: null, loading: true, error: null, refreshing: false });
-  const [pagos, setPagos] = useState({ data: null, loading: true, error: null });
+  const [pagos, setPagos] = useState({ data: null, loading: true, error: null, refreshing: false });
   const [config, setConfig] = useState({ data: null, loading: true, error: null });
   const [chats, setChats] = useState({ data: null, loading: true, error: null, refreshing: false });
   const [analisis, setAnalisis] = useState({ data: null, loading: true, error: null, refreshing: false });
@@ -866,21 +899,22 @@ function App() {
     setInicio((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
     try {
       const data = await callFn("musa-admin-data", { query: "view=inicio" });
-      setInicio({ data, loading: false, error: null, refreshing: false });
+      setInicio({ data, loading: false, error: null, refreshing: false, lastOk: new Date() });
     } catch (e) {
       if (manejarAuthErr(e)) return;
-      setInicio((s) => ({ ...s, loading: false, error: e.message, refreshing: false }));
+      setInicio((s) => ({ ...s, loading: false, error: e.message, refreshing: false, offline: silent && !!s.data }));
     }
   }, []);
 
-  const loadPagos = useCallback(async () => {
-    setPagos((s) => ({ ...s, loading: !s.data, error: null }));
+  const loadPagos = useCallback(async (silent = false) => {
+    setPagos((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
     try {
       const data = await callFn("musa-admin-data", { query: "view=pagos" });
-      setPagos({ data, loading: false, error: null });
+      setPagos({ data, loading: false, error: null, refreshing: false, lastOk: new Date() });
     } catch (e) {
       if (manejarAuthErr(e)) return;
-      setPagos((s) => ({ ...s, loading: false, error: e.message }));
+      // P1: en poll silencioso, no tragarse el error; marcar offline sin borrar data.
+      setPagos((s) => ({ ...s, loading: false, refreshing: false, error: e.message, offline: silent && !!s.data }));
     }
   }, []);
 
@@ -899,10 +933,10 @@ function App() {
     setChats((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
     try {
       const data = await callFn("musa-admin-data", { query: "view=conversaciones" });
-      setChats({ data, loading: false, error: null, refreshing: false });
+      setChats({ data, loading: false, error: null, refreshing: false, lastOk: new Date() });
     } catch (e) {
       if (manejarAuthErr(e)) return;
-      setChats((s) => ({ ...s, loading: false, error: e.message, refreshing: false }));
+      setChats((s) => ({ ...s, loading: false, error: e.message, refreshing: false, offline: silent && !!s.data }));
     }
   }, []);
 
@@ -910,10 +944,10 @@ function App() {
     setAnalisis((s) => ({ ...s, loading: !silent && !s.data, refreshing: silent && !!s.data, error: silent ? s.error : null }));
     try {
       const data = await callFn("musa-admin-data", { query: "view=analitica" });
-      setAnalisis({ data, loading: false, error: null, refreshing: false });
+      setAnalisis({ data, loading: false, error: null, refreshing: false, lastOk: new Date() });
     } catch (e) {
       if (manejarAuthErr(e)) return;
-      setAnalisis((s) => ({ ...s, loading: false, error: e.message, refreshing: false }));
+      setAnalisis((s) => ({ ...s, loading: false, error: e.message, refreshing: false, offline: silent && !!s.data }));
     }
   }, []);
 
@@ -939,8 +973,9 @@ function App() {
     pollRef.current = setInterval(() => {
       loadInicio(true);
       const hsh = location.hash.replace("#", "");
-      if (hsh === "pagos") loadPagos();
+      if (hsh === "pagos") loadPagos(true);
       if (hsh === "chats" && !convPhone) loadChats(true);
+      if (hsh === "analisis") loadAnalisis(true);
     }, 45000);
     return () => clearInterval(pollRef.current);
   }, [authState]);
@@ -958,9 +993,19 @@ function App() {
   };
 
   // --- Abrir / cerrar conversacion ---
+  // P2: empotrar el hilo en el historial para que el boton 'atras' nativo vuelva a la lista.
+  const convPhoneRef = useRef(null);
+  useEffect(() => { convPhoneRef.current = convPhone; }, [convPhone]);
+  useEffect(() => {
+    const onPop = () => { if (convPhoneRef.current) volverLista(); };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   const abrirConv = (phoneRaw) => {
     setConvPhone(phoneRaw);
     setConv({ data: null, loading: true, error: null });
+    try { history.pushState({ conv: phoneRaw }, "", "#chats"); } catch (_e) {}
     loadConv(phoneRaw);
   };
   const volverLista = () => { setConvPhone(null); setConv({ data: null, loading: false, error: null }); loadChats(true); };
@@ -968,11 +1013,17 @@ function App() {
   // --- Accion sobre un pago ---
   const onAccion = async ({ accion, short_id, motivo }) => {
     if (accion === "_pedir_motivo") { setReasonFor(short_id); return; }
+    // P0: UI optimista — saca la tarjeta de la cola al instante; el loadPagos posterior reconcilia.
+    setPagos((s) => s.data
+      ? ({ ...s, data: { ...s.data, pagos: (s.data.pagos || []).filter((x) => x.short_id !== short_id) } })
+      : s);
     try {
       const r = await callFn("musa-admin-accion", { method: "POST", body: { accion, short_id, motivo } });
       if (r.ya_estaba_resuelto) showToast("#" + short_id + " ya estaba resuelto", "ok");
-      else if (r.ok) showToast(accion === "aprobar" ? "#" + short_id + " aprobado y entregado" : "#" + short_id + " rechazado", "ok");
-      else showToast("No se pudo procesar #" + short_id, "err");
+      else if (r.ok) {
+        if (accion === "aprobar") showToast("#" + short_id + " aprobado y entregado", "ok");
+        else showToast("#" + short_id + " rechazado" + (motivo ? " — " + traducirMotivo(motivo) : ""), "ok"); // P2: motivo en el toast
+      } else showToast("No se pudo procesar #" + short_id, "err");
     } catch (e) {
       if (manejarAuthErr(e)) return;
       showToast("Error: " + e.message, "err");
@@ -1014,9 +1065,9 @@ function App() {
   const onResponder = async (phoneRaw, texto) => {
     try {
       const r = await callFn("musa-admin-responder", { method: "POST", body: { lead_phone: phoneRaw, texto } });
-      if (r.es_prueba) showToast("Guardado (numero de prueba, sin Twilio)", "ok");
+      if (r.es_prueba) showToast("Guardado (número de prueba, no se envía de verdad).", "warn");
       else if (r.twilio_enviado) showToast("Mensaje enviado", "ok");
-      else showToast("Guardado, pero Twilio fallo", "err");
+      else showToast("Se guardó, pero no se pudo enviar por WhatsApp. Intenta de nuevo.", "err");
       await loadConv(phoneRaw, true);
       return true;
     } catch (e) {
@@ -1069,9 +1120,15 @@ function App() {
     </div>`;
   }
 
-  const pendN = inicio.data ? ((inicio.data.pagos_en_cola?.n || 0) + (inicio.data.escalados?.n || 0)) : 0;
+  // P0: el badge de Pagos cuenta SOLO comprobantes en cola (los escalados ya los cuenta Chats).
+  const pendN = inicio.data ? (inicio.data.pagos_en_cola?.n || 0) : 0;
   const escN = inicio.data ? (inicio.data.escalados?.n || 0) : 0;
-  const subTitulo = (tab === "chats" && convPhone) ? "Conversacion" : TITULOS[tab];
+  const enConv = tab === "chats" && convPhone;
+  const subTitulo = enConv ? "Chat con el cliente" : TITULOS[tab];
+  const subHint = enConv ? null : SUBTITULOS[tab];
+  // P1: si el poll silencioso de la pestana activa fallo, mostrar 'Sin conexion' discreto en el header.
+  const sinConexion = (tab === "inicio" && inicio.offline) || (tab === "pagos" && pagos.offline)
+    || (tab === "chats" && chats.offline) || (tab === "analisis" && analisis.offline);
 
   return html`
     <div class="shell">
@@ -1079,12 +1136,15 @@ function App() {
         <div>
           <h1>Consola Musa</h1>
           <div class="sub">${subTitulo}</div>
+          ${sinConexion
+            ? html`<div class="conn-warn">Sin conexión — reintentando</div>`
+            : (subHint ? html`<div class="updated-at">${subHint}</div>` : null)}
         </div>
-        <button class="iconbtn" onClick=${signOut}>Salir</button>
+        <button class="iconbtn iconbtn-ghost" aria-label="Salir" onClick=${signOut}>Salir</button>
       </div>
       <div class="content">
         ${tab === "inicio" ? html`<${PantallaInicio} ...${inicio} onGoPagos=${() => goTab("pagos")} onGoChats=${() => goTab("chats")} onRetry=${() => loadInicio()} />` : null}
-        ${tab === "pagos" ? html`<${PantallaPagos} ...${pagos} onAccion=${onAccion} onVerImagen=${setImgSrc} onRetry=${loadPagos} />` : null}
+        ${tab === "pagos" ? html`<${PantallaPagos} ...${pagos} onAccion=${onAccion} onVerImagen=${setImgSrc} onRetry=${() => loadPagos()} />` : null}
         ${tab === "chats"
           ? (convPhone
             ? html`<${PantallaConversacion} ...${conv} onVolver=${volverLista} onTomarControl=${onTomarControl} onDevolverControl=${onDevolverControl} onResponder=${onResponder} onRetry=${() => loadConv(convPhone)} busyAccion=${busyAccion} />`
@@ -1095,19 +1155,19 @@ function App() {
       </div>
 
       <nav class="bottomnav">
-        <button class=${tab === "inicio" ? "active" : ""} onClick=${() => goTab("inicio")}>
+        <button class=${tab === "inicio" ? "active" : ""} aria-label="Inicio" onClick=${() => goTab("inicio")}>
           <span class="ico">🏠</span>Inicio
         </button>
-        <button class=${tab === "pagos" ? "active" : ""} onClick=${() => goTab("pagos")}>
+        <button class=${tab === "pagos" ? "active" : ""} aria-label=${"Pagos" + (pendN > 0 ? ", " + pendN + " pendientes" : "")} onClick=${() => goTab("pagos")}>
           <span class="ico">🧾</span>Pagos${pendN > 0 ? html`<span class="nbadge">${pendN}</span>` : null}
         </button>
-        <button class=${tab === "chats" ? "active" : ""} onClick=${() => goTab("chats")}>
+        <button class=${tab === "chats" ? "active" : ""} aria-label=${"Chats" + (escN > 0 ? ", " + escN + " escalados" : "")} onClick=${() => goTab("chats")}>
           <span class="ico">💬</span>Chats${escN > 0 ? html`<span class="nbadge">${escN}</span>` : null}
         </button>
-        <button class=${tab === "analisis" ? "active" : ""} onClick=${() => goTab("analisis")}>
+        <button class=${tab === "analisis" ? "active" : ""} aria-label="Análisis" onClick=${() => goTab("analisis")}>
           <span class="ico">📊</span>Analisis
         </button>
-        <button class=${tab === "config" ? "active" : ""} onClick=${() => goTab("config")}>
+        <button class=${tab === "config" ? "active" : ""} aria-label="Configuración" onClick=${() => goTab("config")}>
           <span class="ico">⚙️</span>Config
         </button>
       </nav>
