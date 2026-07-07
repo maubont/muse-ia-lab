@@ -1,0 +1,42 @@
+[
+  {
+    "label": "fb-cine-wan-1",
+    "model": "wan",
+    "image_key": "base/musa-master.png",
+    "seed": 778420,
+    "prompt": "Cinematic photorealistic shot. The exact same woman from the reference image, exact same face and identity preserved every frame: light green eyes keeping the same light green iris in every frame, long dark wavy hair, fitted emerald-green V-neck dress with the same neckline throughout. Hyperreal skin with visible pores, freckles and real texture, matte finish, no shiny nose highlight. She stands on a city street at night with warm bokeh streetlights behind. Very subtle motion only: slow gentle camera push-in, almost imperceptible natural sway, calm breathing, hair barely stirred by a light breeze, steady calm gaze into the camera with a soft neutral-to-warm expression. No head turn, no pose change, no expression change, fixed framing.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline change, cleavage exposure, undressing, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, expression change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "fb-cine-wan-2",
+    "model": "wan",
+    "image_key": "base/musa-master.png",
+    "seed": 778421,
+    "prompt": "Cinematic photorealistic shot. The exact same woman from the reference image, exact same face and identity preserved every frame: light green eyes keeping the same light green iris in every frame, long dark wavy hair, fitted emerald-green V-neck dress with the same neckline throughout. Hyperreal skin with visible pores, freckles and real texture, matte finish, no shiny nose highlight. She stands on a city street at night with warm bokeh streetlights behind. Very subtle motion only: slow gentle camera push-in, almost imperceptible natural sway, calm breathing, hair barely stirred by a light breeze, steady calm gaze into the camera with a soft neutral-to-warm expression. No head turn, no pose change, no expression change, fixed framing.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline change, cleavage exposure, undressing, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, expression change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "fb-cine-wan-3",
+    "model": "wan",
+    "image_key": "base/musa-master.png",
+    "seed": 778422,
+    "prompt": "Cinematic photorealistic shot. The exact same woman from the reference image, exact same face and identity preserved every frame: light green eyes keeping the same light green iris in every frame, long dark wavy hair, fitted emerald-green V-neck dress with the same neckline throughout. Hyperreal skin with visible pores, freckles and real texture, matte finish, no shiny nose highlight. She stands on a city street at night with warm bokeh streetlights behind. Very subtle motion only: slow gentle camera push-in, almost imperceptible natural sway, calm breathing, hair barely stirred by a light breeze, steady calm gaze into the camera with a soft neutral-to-warm expression. No head turn, no pose change, no expression change, fixed framing.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline change, cleavage exposure, undressing, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, expression change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "ig-cine-wan-2",
+    "model": "wan",
+    "image_key": "test/stills/still-ig.png",
+    "seed": 778433,
+    "prompt": "The exact same woman from the reference image, identical face and identity, same facial geometry and proportions. Light green eyes keeping the same light green iris in every frame, long dark wavy hair, fitted emerald-green V-neck dress, photorealistic skin with visible pores and freckles, matte finish, no glossy nose highlight. Night city street, warm streetlamp bokeh, shallow depth of field, cinematic. Minimal motion only: she stays in the exact same place, same pose, same head angle and framing as the first frame; a faint breeze barely moves a few strands of hair while her face stays still and forward-facing; calm breathing; subtle confident expression; very slow micro camera push-in. Fully clothed and elegant. The eyes, iris color, features, dress and neckline stay constant and are never resynthesized.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline change, cleavage exposure, undressing, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, expression change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "ig-cine-wan-3",
+    "model": "wan",
+    "image_key": "test/stills/still-ig.png",
+    "seed": 778434,
+    "prompt": "The exact same woman from the reference image, identical face and identity, same facial geometry and proportions. Light green eyes keeping the same light green iris in every frame, long dark wavy hair, fitted emerald-green V-neck dress, photorealistic skin with visible pores and freckles, matte finish, no glossy nose highlight. Night city street, warm streetlamp bokeh, shallow depth of field, cinematic. Minimal motion only: she stays in the exact same place, same pose, same head angle and framing as the first frame; a faint breeze barely moves a few strands of hair while her face stays still and forward-facing; calm breathing; subtle confident expression; very slow micro camera push-in. Fully clothed and elegant. The eyes, iris color, features, dress and neckline stay constant and are never resynthesized.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline change, cleavage exposure, undressing, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, expression change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  }
+]

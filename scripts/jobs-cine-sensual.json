@@ -1,0 +1,34 @@
+[
+  {
+    "label": "cineA-sensual1-wan-1",
+    "model": "wan",
+    "image_key": "test/stills/sensual-1.png",
+    "seed": 778420,
+    "prompt": "The exact same woman from the reference image, identical face and identity preserved every frame. Light green eyes keeping the same light green iris in every frame, long dark wavy hair, voluptuous hourglass figure with curvy hips, fitted emerald-green V-neck dress with the same neckline. Photorealistic skin with visible pores and freckles, matte finish, no glossy nose highlight. Night city street with warm neon bokeh, cinematic. Minimal sensual motion only: she holds her pose, a slow confident sensual gaze into the camera, the faintest body sway and calm breathing, a few strands of hair stirred by a light breeze, very slow micro camera push-in. Her face stays still and forward-facing. No head turn, no walking, no pose change. The eyes, iris color, features, dress and neckline stay constant and are never resynthesized.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline opening wider, cleavage exposure, undressing, nudity, lingerie, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "cineA-sensual1-wan-2",
+    "model": "wan",
+    "image_key": "test/stills/sensual-1.png",
+    "seed": 778421,
+    "prompt": "The exact same woman from the reference image, identical face and identity preserved every frame. Light green eyes keeping the same light green iris in every frame, long dark wavy hair, voluptuous hourglass figure with curvy hips, fitted emerald-green V-neck dress with the same neckline. Photorealistic skin with visible pores and freckles, matte finish, no glossy nose highlight. Night city street with warm neon bokeh, cinematic. Minimal sensual motion only: she holds her pose, a slow confident sensual gaze into the camera, the faintest body sway and calm breathing, a few strands of hair stirred by a light breeze, very slow micro camera push-in. Her face stays still and forward-facing. No head turn, no walking, no pose change. The eyes, iris color, features, dress and neckline stay constant and are never resynthesized.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline opening wider, cleavage exposure, undressing, nudity, lingerie, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, head turn, walking, pose change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "cineB-sensual2-wan-1",
+    "model": "wan",
+    "image_key": "test/stills/sensual-2.png",
+    "seed": 778430,
+    "prompt": "The exact same woman from the reference image, identical face and identity preserved every frame. Light green eyes keeping the same light green iris in every frame, long dark wavy hair, voluptuous hourglass figure with curvy hips, fitted emerald-green V-neck dress. Photorealistic skin with visible pores and freckles, matte finish, no glossy nose highlight. Night city street with warm neon bokeh, cinematic. Minimal sensual motion only: she holds her three-quarter pose, a slow confident sensual gaze toward the camera, the faintest body sway and calm breathing, a few strands of hair stirred by a light breeze, very slow micro camera push-in. Her face stays still. No head turn beyond the existing angle, no walking, no pose change. The eyes, iris color, features, dress and neckline stay constant and are never resynthesized.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline opening wider, cleavage exposure, undressing, nudity, lingerie, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, full head turn, walking, pose change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  },
+  {
+    "label": "cineB-sensual2-wan-2",
+    "model": "wan",
+    "image_key": "test/stills/sensual-2.png",
+    "seed": 778431,
+    "prompt": "The exact same woman from the reference image, identical face and identity preserved every frame. Light green eyes keeping the same light green iris in every frame, long dark wavy hair, voluptuous hourglass figure with curvy hips, fitted emerald-green V-neck dress. Photorealistic skin with visible pores and freckles, matte finish, no glossy nose highlight. Night city street with warm neon bokeh, cinematic. Minimal sensual motion only: she holds her three-quarter pose, a slow confident sensual gaze toward the camera, the faintest body sway and calm breathing, a few strands of hair stirred by a light breeze, very slow micro camera push-in. Her face stays still. No head turn beyond the existing angle, no walking, no pose change. The eyes, iris color, features, dress and neckline stay constant and are never resynthesized.",
+    "negative_prompt": "face morph, identity change, different face, different woman, deformed face, deformed eyes, eye color change, eyes turning brown, iris recolor, eye area resynthesis, blinking artifacts, color shift, color grading change, dress color change, neckline opening wider, cleavage exposure, undressing, nudity, lingerie, plastic skin, glossy oily nose highlight, oversmooth, beauty filter, waxy, doll-like, CGI, full head turn, walking, pose change, fast camera move, warping, flicker, extra fingers, distorted hands"
+  }
+]

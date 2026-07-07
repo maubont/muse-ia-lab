@@ -121,6 +121,67 @@ function limpiarTokens(t: string): string {
     .trim();
 }
 
+// ============================== Wompi (link de checkout) ==============================
+// Helpers PUROS para el Web Checkout alojado de Wompi. Copia canónica y PROBADA en
+// functions/lib/wompi.ts (scripts/test-wompi.mjs, 18/18). Se INLINEAN aquí porque cada
+// edge function se despliega como UN solo archivo (no se empaqueta ./lib). El nombre
+// sha256HexStr evita chocar con el sha256Hex(ArrayBuffer) que se usa para imágenes.
+
+async function sha256HexStr(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function wompiFirmaIntegridad(p: {
+  reference: string;
+  amountInCents: number;
+  currency: string;
+  integritySecret: string;
+  expirationTime?: string;
+}): Promise<string> {
+  const cadena = p.expirationTime
+    ? `${p.reference}${p.amountInCents}${p.currency}${p.expirationTime}${p.integritySecret}`
+    : `${p.reference}${p.amountInCents}${p.currency}${p.integritySecret}`;
+  return await sha256HexStr(cadena);
+}
+
+async function wompiGenerarLink(p: {
+  publicKey: string;
+  integritySecret: string;
+  reference: string;
+  amountInCents: number;
+  currency?: string;
+  redirectUrl?: string;
+  expirationTime?: string;
+}): Promise<string> {
+  const currency = p.currency ?? "COP";
+  if (!p.publicKey || !p.integritySecret) throw new Error("WOMPI: faltan publicKey/integritySecret");
+  if (!Number.isInteger(p.amountInCents) || p.amountInCents <= 0) {
+    throw new Error(`WOMPI: amountInCents inválido (${p.amountInCents})`);
+  }
+  if (!p.reference) throw new Error("WOMPI: reference vacía");
+  const integrity = await wompiFirmaIntegridad({
+    reference: p.reference,
+    amountInCents: p.amountInCents,
+    currency,
+    integritySecret: p.integritySecret,
+    expirationTime: p.expirationTime,
+  });
+  const partes = [
+    `public-key=${encodeURIComponent(p.publicKey)}`,
+    `currency=${encodeURIComponent(currency)}`,
+    `amount-in-cents=${p.amountInCents}`,
+    `reference=${encodeURIComponent(p.reference)}`,
+    `signature:integrity=${integrity}`, // integrity es hex => seguro sin encode
+  ];
+  if (p.redirectUrl) partes.push(`redirect-url=${encodeURIComponent(p.redirectUrl)}`);
+  if (p.expirationTime) partes.push(`expiration-time=${encodeURIComponent(p.expirationTime)}`);
+  return `https://checkout.wompi.co/p/?${partes.join("&")}`;
+}
+
 const PALABRAS_NEGOCIO =
   /(venta|shop|store|tienda|negocio|inversion|oficial|marketing|online|grupo|empresa|publicidad|agencia|import|export|cursos|modelos|servicio|disponible|whatsapp)/i;
 
@@ -185,6 +246,14 @@ type Cfg = {
   horario: { tz?: string; inicio?: number; fin?: number };
   modelos: { conversacion?: string; clasificador?: string; vision?: string };
   operador: { whatsapp?: string; horario_inicio?: number; horario_fin?: number };
+  pago: {
+    proveedor?: "wompi" | "manual";
+    monto_cents?: number;
+    moneda?: string;
+    redirect_url?: string;
+    fallback_manual?: boolean;
+    wompi?: Record<string, unknown>;
+  };
 };
 
 // deno-lint-ignore no-explicit-any
@@ -206,6 +275,7 @@ async function cargarSettings(admin: Admin): Promise<Cfg> {
     "modelos",
     "avatar",
     "operador",
+    "pago",
   ];
   const { data, error } = await admin.database
     .from("musa_settings")
@@ -227,6 +297,7 @@ async function cargarSettings(admin: Admin): Promise<Cfg> {
     modelos: (map["modelos"] ?? {}) as Cfg["modelos"],
     avatar: (map["avatar"] ?? {}) as Cfg["avatar"],
     operador: (map["operador"] ?? { whatsapp: "", horario_inicio: 8, horario_fin: 22 }) as Cfg["operador"],
+    pago: (map["pago"] ?? { proveedor: "manual" }) as Cfg["pago"],
   };
 }
 
@@ -1102,7 +1173,21 @@ async function entregarCurso(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> 
     cfg,
   );
 
-  await actualizarLead(admin, lead, { pagado: true });
+  // Claim atómico anti-doble-entrega (captura/operador + evento Wompi concurrentes):
+  // solo entrega quien gana el paso pagado=false→true. Si pierde, no re-entrega.
+  // OJO: existe una copia gemela de entregarCurso en functions/musa-wompi-events.ts;
+  // si cambias la entrega, cámbiala en AMBAS.
+  const { data: _claim } = await admin.database
+    .from("musa_leads")
+    .update({ pagado: true })
+    .eq("phone", lead.phone)
+    .eq("pagado", false)
+    .select("phone");
+  if (!(Array.isArray(_claim) && _claim.length > 0)) {
+    await registrarEvento(admin, lead.phone, "entrega_omitida_ya_pagado", {});
+    return;
+  }
+  lead.pagado = true;
   await transicion(admin, lead, "S10_ENTREGA");
   await enviarMensajes(admin, lead, [
     bloque1.join("\n"),
@@ -1425,11 +1510,11 @@ function preguntaDeEtapa(estado: string): string {
   return PREGUNTA_PENDIENTE[estado] ?? "¿En qué te puedo ayudar? 😊";
 }
 
-/** CAMBIO 1 — sin país: el precio rápido SIEMPRE muestra ambas referencias. */
-function mensajePrecioRapido(lead: Lead, cfg: Cfg): string {
-  const bs = formatMiles(Number(cfg.precioBsHoy?.bs ?? 7400));
+/** Solo Colombia: precio fijo en COP con el USD como ancla. */
+function mensajePrecioRapido(_lead: Lead, cfg: Cfg): string {
   const cop = formatMiles(Number(cfg.precio?.cop ?? 33000));
-  return `El curso completo cuesta *9 USD* (equivalente a *${bs} Bs* o *${cop} COP* a la tasa de hoy), pago único 💥 Incluye 13 módulos + 4 bonos + el bono Plan de Acción 7 Días, con acceso de por vida.`;
+  const usd = Number(cfg.precio?.usd ?? 9);
+  return `El curso completo cuesta *${cop} COP* (≈ *${usd} USD*), pago único 💥 Incluye 13 módulos + 4 bonos + el bono Plan de Acción 7 Días, con acceso de por vida.`;
 }
 
 /** CAMBIO 1 — S05 (precio con AMBAS monedas) + S06 cierre, listos para enviar */
@@ -1854,6 +1939,73 @@ function pideMetodoCO(norm: string): boolean {
  * cuentas placeholder. Si NINGÚN bloque es enviable, se escala a humano.
  */
 async function enviarDatosPago(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> {
+  // === WOMPI (Colombia) — link de checkout firmado; reemplaza cuentas+captura ===
+  // Se activa solo si el toggle de settings lo pide Y existen las llaves (fail-safe:
+  // si faltan o algo falla, cae al flujo manual de abajo en vez de romper el cierre).
+  const wPub = Deno.env.get("WOMPI_PUBLIC_KEY") ?? "";
+  const wInteg = Deno.env.get("WOMPI_INTEGRITY_SECRET") ?? "";
+  if (cfg.pago?.proveedor === "wompi" && wPub && wInteg) {
+    try {
+      const tel = (lead.phone || "").replace(/\D/g, "");
+      const amountInCents = Number(cfg.pago?.monto_cents) > 0
+        ? Math.round(Number(cfg.pago.monto_cents))
+        : Math.round(Number(cfg.precio?.cop ?? 33000) * 100);
+      const moneda = cfg.pago?.moneda ?? "COP";
+      // 1) fila pendiente con short_id único; ref_normalizada se setea luego para no
+      //    chocar el UNIQUE(metodo,ref_normalizada) antes de conocer la reference.
+      const ins = await insertarPago(admin, lead.phone, {
+        metodo: "wompi",
+        status: "pendiente",
+        monto: Math.round(amountInCents / 100),
+        moneda,
+        datos_extraidos: { canal: "wompi_checkout" },
+      });
+      if (ins && "shortId" in ins) {
+        // Reference única e impredecible (short_id + sufijo aleatorio) para evitar
+        // colisiones/adivinación; es la clave de conciliación con el evento.
+        const reference = `MUSA-${tel}-${ins.shortId}-${crypto.randomUUID().slice(0, 8)}`;
+        const { error: refErr } = await admin.database.from("musa_payments")
+          .update({
+            ref_normalizada: reference,
+            datos_extraidos: { canal: "wompi_checkout", amount_in_cents: amountInCents, reference },
+          })
+          .eq("id", ins.id);
+        if (refErr) throw new Error("wompi: fallo al fijar ref_normalizada: " + JSON.stringify(refErr));
+        const link = await wompiGenerarLink({
+          publicKey: wPub,
+          integritySecret: wInteg,
+          reference,
+          amountInCents,
+          currency: moneda,
+          redirectUrl: (cfg.pago?.redirect_url || Deno.env.get("MUSA_WOMPI_REDIRECT_URL")) || undefined,
+        });
+        await registrarEvento(admin, lead.phone, "link_pago_enviado", {
+          reference,
+          short_id: ins.shortId,
+          amount_in_cents: amountInCents,
+          proveedor: "wompi",
+        });
+        await transicion(admin, lead, "S08_ESPERA_CAPTURA");
+        const cop = formatMiles(Math.round(amountInCents / 100));
+        const usd = Number(cfg.precio?.usd ?? 9);
+        await enviarMensajes(admin, lead, [
+          resolverPlaceholders(
+            `¡De una, {{nombre}}! 🙌 Tu acceso es de *${cop} COP* (≈ *${usd} USD*), pago único. ` +
+              "Págalo de forma segura aquí 👇 (tarjeta, Nequi, PSE o Bancolombia):",
+            lead,
+            cfg,
+          ),
+          link,
+          "Apenas se confirme el pago, te entrego TODO automáticamente por aquí 💜 (la validación es automática, no necesitas enviarme captura).",
+        ]);
+        return;
+      }
+      console.error("wompi: insertarPago no devolvió shortId, fallback manual");
+    } catch (e) {
+      console.error("wompi: error generando link, fallback manual:", String(e).slice(0, 200));
+    }
+  }
+
   const s07 = etapa(cfg, "S07_DATOS_PAGO");
   // deno-lint-ignore no-explicit-any
   const veProvisional = (cfg.cuentasVe as any)?.provisional === true;
@@ -2290,6 +2442,17 @@ async function manejarS08(
     return;
   }
   if (esYaPague(norm)) {
+    if (cfg.pago?.proveedor === "wompi") {
+      // Con Wompi la confirmación es automática (webhook de eventos): no pedir captura.
+      await enviarMensajes(admin, lead, [
+        resolverPlaceholders(
+          "¡Perfecto, {{nombre}}! 🙌 La validación es automática: apenas el banco confirme tu pago te llega TODO el acceso aquí mismo, sin que tengas que enviarme nada 💜",
+          lead,
+          cfg,
+        ),
+      ]);
+      return;
+    }
     const s08 = etapa(cfg, "S08_ESPERA_CAPTURA");
     await enviarMensajes(admin, lead, [
       resolverPlaceholders(sinPrefijo(s08.mensajes[1]), lead, cfg),
