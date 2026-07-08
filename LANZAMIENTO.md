@@ -15,10 +15,10 @@ Responsable: **TÚ** = solo Mauricio puede hacerlo · **CLAUDE** = pídemelo y l
 ## FASE A — Cimientos técnicos (hoy, ~1 día)
 
 - [x] **A1.** Decisión de línea base: lanzar sin Wompi, solo Colombia, flujo manual. (peso 2) — AMBOS
-- [ ] **A2.** Commit + push de TODO el trabajo pendiente (webhook editado, función Wompi dormida, scripts, este plan). CI verde. El branch Wompi es inerte sin secrets: deploy seguro. (peso 5) — CLAUDE
-- [ ] **A3.** Aplicar copy Colombia-only en BD (`node scripts/build-copy-colombia.mjs --apply`) + apagar Venezuela y fijar proveedor manual (`node scripts/setup-pago-colombia.mjs --apply`). (peso 5) — CLAUDE
+- [x] **A2.** Commit + push de TODO el trabajo pendiente (webhook editado, función Wompi dormida, scripts, este plan). CI verde. ✅ 26-jun (commit 1dbad96, push autorizado por el dueño). (peso 5) — CLAUDE
+- [x] **A3.** Aplicar copy Colombia-only en BD (`node scripts/build-copy-colombia.mjs --apply`) + apagar Venezuela y fijar proveedor manual (`node scripts/setup-pago-colombia.mjs --apply`). ✅ 26-jun. (peso 5) — CLAUDE
 - [ ] **A4.** Rotar el Auth Token de Twilio (consola Twilio) y actualizar el secret `TWILIO_AUTH_TOKEN` en InsForge. Quedó expuesto en un chat; obligatorio antes de dinero real. (peso 3) — TÚ (te guío)
-- [ ] **A5.** Verificación e2e en sandbox tras A2+A3: conversación completa (saludo→precio COP→cierre→datos CO→captura) confirmando que NO aparece Venezuela/Bs por ningún lado. (peso 5) — CLAUDE
+- [x] **A5.** Verificación e2e en sandbox tras A2+A3: conversación completa (saludo→precio COP→cierre→datos CO→captura) confirmando que NO aparece Venezuela/Bs por ningún lado. ✅ 26-jun 8/8 checks (`node scripts/verificar-funnel-colombia.mjs`, re-usable tras cada deploy). (peso 5) — CLAUDE
 
 **Subtotal: 20**
 
