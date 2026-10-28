@@ -140,6 +140,13 @@ export interface Canal {
 
   /** "escribiendo…" best-effort. Un fallo aquí NUNCA debe romper el flujo. */
   marcarEscribiendo(telefono: string): Promise<void>;
+
+  /**
+   * Estado real de la conexión con el proveedor, si el canal puede saberlo.
+   * Opcional: un canal que no lo expone no rompe nada — pero entonces no hay
+   * monitor de sesión, y sin monitor una caída es invisible.
+   */
+  estadoSesion?(): Promise<{ estado: string; detalle?: string }>;
 }
 
 // ============================== helpers puros ==============================

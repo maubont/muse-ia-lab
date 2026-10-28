@@ -18,6 +18,7 @@ import { leerConfigCanal, describirConfig } from "./config.ts";
 import { motorEco } from "./motor/contrato.ts";
 import type { Motor } from "./motor/contrato.ts";
 import type { Entorno } from "./config.ts";
+import { crearVigilante, alertarPorWebhook } from "./monitor/vigilante.ts";
 
 export interface OpcionesArranque {
   /** inyectable en pruebas */
@@ -33,6 +34,8 @@ export interface OpcionesArranque {
   despacharRecordatorios?: () => Promise<unknown>;
   /** inyectable en pruebas */
   claveCron?: string;
+  /** apagar el vigilante de sesión en pruebas (por defecto se enciende) */
+  vigilar?: boolean;
 }
 
 /**
@@ -106,16 +109,32 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     host: opciones.host ?? "0.0.0.0",
     despacharRecordatorios,
     claveCron,
+    estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined,
   });
 
   const puerto = await servidor.escuchar(opciones.puerto ?? Number(env.PORT ?? 8080));
   console.log(`[musa] ${describirConfig(config)} · escuchando en :${puerto}`);
-  console.log("[musa] webhook: POST /webhook/evolution · salud: GET /salud");
+  console.log("[musa] webhook: POST /webhook/evolution · salud: GET /salud · sesión: GET /salud/sesion");
+
+  // Monitor de sesión. Avisa por FUERA de WhatsApp: si WhatsApp está caído, avisar
+  // por WhatsApp no sirve de nada.
+  const vigilante = crearVigilante({
+    leerEstado: async () => {
+      if (!canal.estadoSesion) return { estado: "desconocido", detalle: "canal_sin_estado" };
+      return await canal.estadoSesion();
+    },
+    alertar: (texto) => alertarPorWebhook((env.MUSA_ALERTA_WEBHOOK ?? "").trim() || undefined, texto),
+  });
+  if (opciones.vigilar !== false) vigilante.arrancar(Number(env.MUSA_MONITOR_MS ?? 5 * 60_000));
 
   return {
     puerto,
-    cerrar: () => servidor.cerrar(),
-    rutas: { salud: "/salud", webhook: "/webhook/evolution" },
+    vigilante,
+    cerrar: async () => {
+      vigilante.detener();
+      await servidor.cerrar();
+    },
+    rutas: { salud: "/salud", sesion: "/salud/sesion", webhook: "/webhook/evolution" },
   };
 }
 

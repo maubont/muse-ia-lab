@@ -43,6 +43,8 @@ export interface OpcionesServidor {
   despacharRecordatorios?: () => Promise<unknown>;
   /** Clave del cron (`x-cron-key`). Sin ella, la ruta del cron no se expone. */
   claveCron?: string;
+  /** Lectura del estado de la sesión, para `/salud/sesion`. */
+  estadoSesion?: () => Promise<{ estado: string; detalle?: string }>;
 }
 
 export interface Servidor {
@@ -53,6 +55,7 @@ export interface Servidor {
 }
 
 const RUTA_SALUD = "/salud";
+const RUTA_SALUD_SESION = "/salud/sesion";
 const RUTA_CRON = "/cron/recordatorios";
 
 function json(res: ServerResponse, codigo: number, cuerpo: unknown): void {
@@ -109,7 +112,22 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       return json(res, 200, { ok: true, canal: opts.canal.id, uptime_s: Math.round(process.uptime()) });
     }
 
-    // ---- cron de recordatorios: protegido por clave, nunca abierto ----
+    // ---- estado REAL de la sesión de WhatsApp ----
+    // `/salud` dice que el proceso vive; esto dice si los mensajes pueden salir.
+    // Un monitor externo (UptimeRobot, BetterStack…) puede vigilar esta ruta.
+    if (url === RUTA_SALUD_SESION) {
+      if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
+      if (!opts.estadoSesion) return json(res, 501, { error: "canal_sin_estado" });
+      try {
+        const s = await opts.estadoSesion();
+        const sano = s.estado === "open";
+        // 200 si está abierta; 503 si no: así el monitor externo lo detecta solo.
+        return json(res, sano ? 200 : 503, { ok: sano, estado: s.estado, detalle: s.detalle ?? null });
+      } catch (e) {
+        return json(res, 503, { ok: false, estado: "desconocido", detalle: String(e).slice(0, 120) });
+      }
+    }
+
     if (url === RUTA_CRON) {
       if (!opts.despacharRecordatorios || !opts.claveCron) return json(res, 404, { error: "no_encontrado" });
       if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });

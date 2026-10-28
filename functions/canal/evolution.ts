@@ -369,6 +369,33 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
     id: "evolution",
 
     /**
+     * Estado real de la conexión de la instancia con WhatsApp.
+     * Es la diferencia entre «el servidor responde» y «los mensajes salen».
+     * Fail-open hacia "desconocido": si no se puede saber, se dice, no se finge.
+     */
+    async estadoSesion(): Promise<{ estado: string; detalle?: string }> {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), limiteEnvio);
+      try {
+        const res = await f(`${base}/instance/connectionState/${encodeURIComponent(cfg.instancia)}`, {
+          method: "GET",
+          headers: { apikey: cfg.apiKey },
+          signal: ctrl.signal,
+        });
+        if (!res.ok) return { estado: "desconocido", detalle: `http_${res.status}` };
+        const j = (await res.json()) as unknown;
+        const inst = esRecord(j) && esRecord(j.instance) ? j.instance : null;
+        const estado = inst && typeof inst.state === "string" ? inst.state : "desconocido";
+        return { estado, detalle: estado === "open" ? undefined : "instance.connectionState" };
+      } catch (e) {
+        const nombre = esRecord(e) ? String(e.name ?? "") : "";
+        return { estado: "desconocido", detalle: nombre === "AbortError" ? "timeout" : String(e).slice(0, 80) };
+      } finally {
+        clearTimeout(timer);
+      }
+    },
+
+    /**
      * FAIL-CLOSED. Sin credencial válida no hay mensaje, ni siquiera para un lead.
      * Acepta DOS mecanismos, porque no todas las versiones de Evolution firman:
      *   1. JWT HS256 en `Authorization: Bearer` (si hay `jwtKey`).

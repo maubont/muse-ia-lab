@@ -108,7 +108,7 @@ t("arranca en un puerto real", srv.puerto > 0, true);
   const llamadas = [];
   const srv2 = await arrancar({
     env: ENV,
-    puerto: 0,
+    puerto: 0, vigilar: false,
     despacharRecordatorios: async () => { llamadas.push(1); return { enviados: 2 }; },
     claveCron: "clave-del-cron",
   });

@@ -160,6 +160,40 @@ const base = `http://127.0.0.1:${puerto}`;
   t("GET al webhook: 405", (await fetch(`${base}/webhook/evolution`)).status, 405);
 }
 
+{
+  // ---- /salud/sesion: la diferencia entre «vivo» y «puede enviar» ----
+  const abierto = crearServidor({ canal, motor, estadoSesion: async () => ({ estado: "open" }) });
+  const pa = await abierto.escuchar(0);
+  const ra = await fetch(`http://127.0.0.1:${pa}/salud/sesion`);
+  const ja = await ra.json();
+  t("sesión abierta: 200", ra.status, 200);
+  t("sesión abierta: ok", ja.ok, true);
+  t("sesión abierta: estado", ja.estado, "open");
+  await abierto.cerrar();
+
+  const caido = crearServidor({ canal, motor, estadoSesion: async () => ({ estado: "close", detalle: "conflict" }) });
+  const pc = await caido.escuchar(0);
+  const rc = await fetch(`http://127.0.0.1:${pc}/salud/sesion`);
+  const jc = await rc.json();
+  t("sesión caída: 503 (lo detecta un monitor externo)", rc.status, 503);
+  t("sesión caída: ok=false", jc.ok, false);
+  t("sesión caída: detalle", jc.detalle, "conflict");
+  await caido.cerrar();
+
+  const sinEstado = crearServidor({ canal, motor });
+  const ps = await sinEstado.escuchar(0);
+  const rs = await fetch(`http://127.0.0.1:${ps}/salud/sesion`);
+  t("canal sin estado: 501", rs.status, 501);
+  await sinEstado.cerrar();
+
+  const explota = crearServidor({ canal, motor, estadoSesion: async () => { throw new Error("fetch failed"); } });
+  const pe = await explota.escuchar(0);
+  const re = await fetch(`http://127.0.0.1:${pe}/salud/sesion`);
+  t("lectura que falla: 503", re.status, 503);
+  t("lectura que falla: desconocido", (await re.json()).estado, "desconocido");
+  await explota.cerrar();
+}
+
 await srv.cerrar();
 
 // ---------- límite de cuerpo ----------
