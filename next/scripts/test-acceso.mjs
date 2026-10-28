@@ -9,6 +9,8 @@ import { readFileSync } from "node:fs";
 import { generarToken, crearAcceso, validarToken, revocarAcceso, enlaceDeAcceso } from "../src/acceso/accesos.ts";
 import { paginaCurso, paginaSinAcceso, nombreDeBono, TITULOS_MODULOS } from "../src/acceso/pagina.ts";
 
+const escaparDePrueba = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 let ok = 0;
 let fallas = 0;
 function t(etiqueta, real, esperado) {
@@ -142,11 +144,13 @@ function db() {
 
 // ============================== la página ==============================
 {
-  const html = paginaCurso(ENTREGA, "Carlos");
+  const html = paginaCurso(ENTREGA, "Carlos", { token: "TOK" });
   t("página: saluda por su nombre", html.includes("Hola, Carlos"), true);
-  t("página: los 13 módulos", (html.match(/Abrir módulo/g) ?? []).length, 13);
+  // Cada módulo puede tener varios archivos: se comprueban los títulos, no el marcado.
+  t("página: los 13 módulos", TITULOS_MODULOS.filter((x) => html.includes(escaparDePrueba(x))).length, 13);
   t("página: los 4 bonos", (html.match(/Bono incluido/g) ?? []).length, 4);
   t("página: el plan de 7 días", html.includes("Plan de Acción 7 Días"), true);
+  t("página: el plan se sirve con el token", html.includes("/media/TOK/bonos/plan-accion-7-dias.pdf"), true);
   t("página: marco de titulares", TITULOS_MODULOS.length, 13);
   t("página: no se indexa", html.includes("noindex"), true);
 }
@@ -160,7 +164,7 @@ function db() {
   // Los enlaces del curso vienen de la configuración, no hardcodeados.
   const html = paginaCurso({ modulos: ["https://ejemplo.test/modulo-uno"] }, "Ana");
   t("config distinta: renderiza la nueva", html.includes("https://ejemplo.test/modulo-uno"), true);
-  t("config distinta: solo un módulo", (html.match(/Abrir módulo/g) ?? []).length, 1);
+  t("config distinta: solo un módulo", (html.match(/class="tarjeta"/g) ?? []).length, 1);
 }
 
 {

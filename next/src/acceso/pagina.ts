@@ -5,9 +5,24 @@
 //
 // Se renderiza en el servidor, sin JavaScript: carga en cualquier teléfono y no
 // filtra la estructura del producto a nadie que no tenga acceso.
+//
+// ── CAMBIO DE FORMA (migración al almacén propio) ────────────────────────────
+// Antes: un enlace por módulo (13 carpetas de Drive).
+// Ahora: cada módulo tiene VARIOS archivos (clases en video + PDF de enlaces).
+// `modulos` acepta las tres formas para no romper la configuración existente:
+//   · "https://…"                       (legado: un enlace)
+//   · ["media:curso/01/1.1-….mp4", …]   (nuevo: varios archivos)
+//   · { titulo: "…", archivos: [ … ] }  (nuevo: con nombre propio)
+
+export interface ModuloConfig {
+  titulo?: string;
+  archivos: string[];
+}
+
+export type EntradaModulo = string | string[] | ModuloConfig;
 
 export interface EntregaConfig {
-  modulos?: string[];
+  modulos?: EntradaModulo[];
   bonos?: Record<string, string>;
   plan_accion_7dias?: string;
   link_grupo?: string;
@@ -37,6 +52,19 @@ export function resolverEnlace(valor: unknown, token?: string): string | null {
   }
   if (/^https?:\/\//i.test(valor)) return valor;
   return null;
+}
+
+/** Normaliza cualquier forma de entrada a `{ titulo?, archivos }`. */
+export function normalizarModulo(entrada: EntradaModulo): ModuloConfig {
+  if (typeof entrada === "string") return { archivos: [entrada] };
+  if (Array.isArray(entrada)) return { archivos: entrada.filter((x) => typeof x === "string") };
+  if (entrada && typeof entrada === "object") {
+    return {
+      titulo: typeof entrada.titulo === "string" ? entrada.titulo : undefined,
+      archivos: Array.isArray(entrada.archivos) ? entrada.archivos.filter((x) => typeof x === "string") : [],
+    };
+  }
+  return { archivos: [] };
 }
 
 /** Títulos de los 13 módulos. Hoy la configuración solo trae URLs. */
@@ -77,6 +105,26 @@ function escapar(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Nombre de archivo legible a partir de la clave del almacén. */
+export function nombreVisible(clave: string): string {
+  const base = clave.split("/").pop() ?? clave;
+  return base
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Tipo de archivo por extensión, para etiquetar cada enlace. */
+export function tipoDeArchivo(clave: string): { etiqueta: string; icono: string } {
+  const ext = (clave.split(".").pop() ?? "").toLowerCase();
+  if (ext === "mp4" || ext === "mov" || ext === "mkv") return { etiqueta: "Video", icono: "▶" };
+  if (ext === "pdf") return { etiqueta: "PDF", icono: "▤" };
+  if (ext === "mp3" || ext === "m4a") return { etiqueta: "Audio", icono: "♪" };
+  if (ext === "zip" || ext === "rar" || ext === "7z") return { etiqueta: "Paquete", icono: "▣" };
+  return { etiqueta: "Archivo", icono: "•" };
+}
+
 /** Cabecera de la página (compartida por las pantallas de acceso). */
 function cabecera(titulo: string): string {
   return `<!doctype html><html lang="es-CO"><head>
@@ -89,16 +137,17 @@ function cabecera(titulo: string): string {
 body{background:var(--fondo);color:var(--texto);font:400 16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 main{max-width:680px;margin:0 auto;padding:36px 20px 72px}
 h1{font-size:26px;letter-spacing:-.02em;line-height:1.25;margin-bottom:6px}
-h2{font-size:17px;margin:32px 0 12px;color:var(--texto)}
+h2{font-size:17px;margin:34px 0 6px;color:var(--texto)}
+h2 small{display:block;font-weight:400;font-size:13px;color:var(--tenue);margin-top:2px}
 p{color:var(--tenue);font-size:15px}
 a.tarjeta{display:flex;gap:12px;align-items:flex-start;text-decoration:none;color:inherit;
-  background:var(--panel);border:1px solid var(--borde);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+  background:var(--panel);border:1px solid var(--borde);border-radius:12px;padding:12px 14px;margin-bottom:8px}
 a.tarjeta:hover{border-color:#3b3b4d}
 .num{flex:0 0 26px;height:26px;border-radius:50%;background:rgba(139,92,246,.16);
   border:1px solid rgba(139,92,246,.4);color:var(--acento);font-weight:700;font-size:13px;
-  display:grid;place-items:center;margin-top:2px}
-.tarjeta strong{display:block;font-size:15px;color:var(--texto);font-weight:600}
-.tarjeta span{font-size:13px;color:var(--tenue)}
+  display:grid;place-items:center;margin-top:1px}
+.tarjeta strong{display:block;font-size:14.5px;color:var(--texto);font-weight:600;line-height:1.35}
+.tarjeta span{font-size:12.5px;color:var(--tenue)}
 .aviso{margin-top:36px;padding:14px 16px;border-radius:12px;background:var(--panel);
   border:1px solid var(--borde);font-size:13px;color:var(--tenue)}
 .error{max-width:420px;margin:80px auto;text-align:center}
@@ -109,6 +158,34 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--borde);font-s
 
 const pie = `</main></body></html>`;
 
+function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string {
+  const titulo = m.titulo ?? TITULOS_MODULOS[indice] ?? `Módulo ${indice + 1}`;
+  const filas = m.archivos
+    .map((archivo) => ({ archivo, url: resolverEnlace(archivo, token) }))
+    .filter((x): x is { archivo: string; url: string } => !!x.url);
+  if (filas.length === 0) return "";
+
+  if (filas.length === 1) {
+    const { etiqueta, icono } = tipoDeArchivo(filas[0].archivo);
+    return `<a class="tarjeta" href="${escapar(filas[0].url)}" target="_blank" rel="noopener noreferrer">
+      <span class="num">${indice + 1}</span>
+      <span><strong>${escapar(titulo)}</strong><span>${icono} ${etiqueta}</span></span>
+    </a>`;
+  }
+
+  // Varios archivos: se muestra el módulo y una fila por archivo.
+  const subfilas = filas
+    .map(({ archivo, url }) => {
+      const { etiqueta, icono } = tipoDeArchivo(archivo);
+      return `<a class="tarjeta" href="${escapar(url)}" target="_blank" rel="noopener noreferrer" style="margin-left:26px">
+        <span><strong>${escapar(nombreVisible(archivo))}</strong><span>${icono} ${etiqueta}</span></span>
+      </a>`;
+    })
+    .join("");
+
+  return `<h2>${indice + 1}. ${escapar(titulo)}<small>${filas.length} archivos</small></h2>${subfilas}`;
+}
+
 /**
  * Página principal del curso.
  * `entregados` es el subconjunto de enlaces que ya se mandaron por chat; aquí se
@@ -116,25 +193,16 @@ const pie = `</main></body></html>`;
  */
 export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opciones: OpcionesPagina = {}): string {
   const token = opciones.token;
-  const modulos = Array.isArray(entrega.modulos) ? entrega.modulos : [];
+  const modulos = (Array.isArray(entrega.modulos) ? entrega.modulos : []).map(normalizarModulo);
   const bonos = entrega.bonos && typeof entrega.bonos === "object" ? entrega.bonos : {};
 
   const saludo = nombre ? `Hola, ${escapar(nombre)}` : "Hola";
-
-  const listaModulos = modulos
-    .map((url, i) => {
-      const titulo = TITULOS_MODULOS[i] ?? `Módulo ${i + 1}`;
-      const enlace = resolverEnlace(url, token) ?? "#";
-      return `<a class="tarjeta" href="${escapar(enlace)}" target="_blank" rel="noopener noreferrer">
-        <span class="num">${i + 1}</span>
-        <span><strong>${escapar(titulo)}</strong><span>Abrir módulo</span></span>
-      </a>`;
-    })
-    .join("");
+  const listaModulos = modulos.map((m, i) => tarjetaModulo(i, m, token)).join("");
 
   const listaBonos = Object.entries(bonos)
-    .map(([clave, url]) => {
-      const enlace = resolverEnlace(url, token) ?? "#";
+    .map(([clave, valor]) => {
+      const enlace = resolverEnlace(valor, token);
+      if (!enlace) return "";
       return `<a class="tarjeta" href="${escapar(enlace)}" target="_blank" rel="noopener noreferrer">
         <span class="num">★</span>
         <span><strong>${escapar(nombreDeBono(clave))}</strong><span>Bono incluido</span></span>
