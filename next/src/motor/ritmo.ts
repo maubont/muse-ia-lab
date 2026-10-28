@@ -26,6 +26,16 @@ export const UMBRAL_SECCION = 180;
 export const MAX_MENSAJES_POR_TURNO = 4;
 
 /**
+ * Retardo del PRIMER mensaje de un turno.
+ *
+ * La velocidad de la primera respuesta es lo que más pesa en la conversión: un
+ * lead contestado en menos de un minuto convierte hasta 8 veces más que uno
+ * contestado a los 5 minutos. Así que el primer mensaje sale casi de inmediato:
+ * solo lo justo para que el «escribiendo…» se registre.
+ */
+export const RETARDO_PRIMERO_MS = 150;
+
+/**
  * Retardo proporcional al texto, acotado.
  * 0,25 s de base + ~18 ms por carácter, con techo en 2,5 s.
  */
@@ -33,6 +43,11 @@ export function retardoMs(texto: string, tope = RETARDO_MAX_MS): number {
   const largo = (texto ?? "").length;
   const calculado = 250 + largo * 18;
   return Math.min(tope, Math.max(RETARDO_MIN_MS, calculado));
+}
+
+/** Retardo según la posición en el turno: el primero casi instantáneo. */
+export function retardoDeTurno(indice: number, texto: string): number {
+  return indice === 0 ? RETARDO_PRIMERO_MS : retardoMs(texto);
 }
 
 /**

@@ -4,6 +4,8 @@
 
 import {
   retardoMs,
+  retardoDeTurno,
+  RETARDO_PRIMERO_MS,
   partirMensaje,
   limitarTurno,
   RETARDO_MAX_MS,
@@ -28,6 +30,15 @@ function t(etiqueta, real, esperado) {
   t("más texto, más retardo", retardoMs("x".repeat(200)) > retardoMs("hola"), true);
   t("nunca supera el techo", retardoMs("x".repeat(50000)) <= RETARDO_MAX_MS, true);
   t("respuesta rápida: un mensaje normal espera menos de 2 s", retardoMs("x".repeat(60)) < 2000, true);
+}
+
+// ============================== el primero sale casi ya ==============================
+{
+  // La velocidad de la PRIMERA respuesta es la que más pesa en la conversión.
+  t("primer mensaje del turno: casi inmediato", retardoDeTurno(0, "x".repeat(400)), RETARDO_PRIMERO_MS);
+  t("primer mensaje: menos de un cuarto de segundo", RETARDO_PRIMERO_MS < 250, true);
+  t("segundo mensaje: ritmo humano", retardoDeTurno(1, "hola") >= RETARDO_MIN_MS, true);
+  t("el primero es siempre más rápido que el resto", retardoDeTurno(0, "x".repeat(400)) < retardoDeTurno(1, "x".repeat(400)), true);
 }
 
 // ============================== partir ==============================

@@ -21,7 +21,7 @@
 import type { Repositorio } from "../motor/ejecutar.ts";
 import type { DatosComprobante } from "../../../functions/motor/comprobante.ts";
 import type { Canal } from "../../../functions/canal/tipos.ts";
-import { partirMensaje, limitarTurno, retardoMs } from "../motor/ritmo.ts";
+import { partirMensaje, limitarTurno, retardoDeTurno } from "../motor/ritmo.ts";
 
 /** Lo mínimo que hace falta de un cliente SQL. `pg.Pool.query` encaja. */
 export interface Consultar {
@@ -165,11 +165,13 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       // antes de cada mensaje, y el retardo es proporcional pero acotado: la
       // sensación es humana, la espera no.
       const bloques = limitarTurno(textos.flatMap((t) => partirMensaje(t)));
+      let indice = 0;
       for (const texto of bloques) {
         await canal.marcarEscribiendo(phone);
-        await esperar(retardoMs(texto));
+        await esperar(retardoDeTurno(indice, texto));
         const r = await canal.enviar(phone, { texto });
         if (!r.ok) await registrarEnvioFallido(phone, r.status, r.motivo);
+        indice++;
       }
     },
 
