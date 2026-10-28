@@ -28,6 +28,8 @@ export interface DepsMotorReal {
   /** Clasificador GPT. Sin él, las heurísticas deciden y el resto se re-pregunta. */
   clasificar?: (mensaje: MensajeEntrante, estado: string) => Promise<ClasificacionGPT>;
   ahora?: () => Date;
+  /** Espera entre mensajes; inyectable para que las pruebas no duerman. */
+  esperar?: (ms: number) => Promise<void>;
 }
 
 interface LeadFila {
@@ -127,6 +129,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         consultar,
         canal,
         telefonoOperador: cfg.operador?.whatsapp ?? "",
+        esperar: deps.esperar,
       });
       await ejecutar(efectos, { repo, phone: mensaje.telefono });
 

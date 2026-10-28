@@ -72,7 +72,7 @@ const mensaje = (texto) => ({
 {
   const { consultar, log } = sql();
   const c = canal();
-  const motor = crearMotorReal({ consultar, canal: c });
+  const motor = crearMotorReal({ consultar, canal: c, esperar: async () => {} });
   const salida = await motor.procesar(mensaje("si tengo 25"));
 
   t("motor devuelve [] (el envío va por efectos)", salida, []);
@@ -82,15 +82,17 @@ const mensaje = (texto) => ({
   t("registra el mensaje entrante", log.some((l) => l.q.startsWith("insert into public.musa_messages")), true);
   t("actualiza el lead (mayor_18)", log.some((l) => l.q.includes("mayor_18")), true);
   t("cambia el estado a S06", log.some((l) => l.q.includes("estado_funnel") && l.params?.[1] === "S06_CIERRE"), true);
-  t("envía precio y cierre", c.enviados.length, 2);
+  // El turno se parte en bloques legibles (nunca un «testamento»), con un tope.
+  t("envía el turno partido en bloques", c.enviados.length >= 2 && c.enviados.length <= 4, true);
   t("el primero trae el precio", c.enviados[0].texto.includes("33.000"), true);
+  t("ningún mensaje es un testamento", c.enviados.every((m) => m.texto.length <= 420), true);
 }
 
 // ============================== STOP ==============================
 {
   const { consultar, log } = sql();
   const c = canal();
-  const motor = crearMotorReal({ consultar, canal: c });
+  const motor = crearMotorReal({ consultar, canal: c, esperar: async () => {} });
   await motor.procesar(mensaje("stop"));
 
   t("STOP: marca opt_out", log.some((l) => l.q.includes("opt_out") && l.params?.includes(true)), true);
@@ -103,7 +105,7 @@ const mensaje = (texto) => ({
 {
   const { consultar } = sql({ lead: { opt_out: true } });
   const c = canal();
-  const motor = crearMotorReal({ consultar, canal: c });
+  const motor = crearMotorReal({ consultar, canal: c, esperar: async () => {} });
   await motor.procesar(mensaje("hola?"));
   t("opt_out: no se envía NADA", c.enviados.length, 0);
 }
@@ -111,12 +113,12 @@ const mensaje = (texto) => ({
 // ============================== caché de configuración ==============================
 {
   const { consultar, log } = sql();
-  const motor = crearMotorReal({ consultar, canal: canal(), ttlConfigMs: 60_000 });
+  const motor = crearMotorReal({ consultar, canal: canal(), ttlConfigMs: 60_000, esperar: async () => {} });
   await motor.procesar(mensaje("si tengo 25"));
   const tras = log.filter((l) => l.q.startsWith("select key, value from public.musa_settings")).length;
 
   const { consultar: c2 } = sql();
-  const motor2 = crearMotorReal({ consultar: c2, canal: canal(), ttlConfigMs: 0 });
+  const motor2 = crearMotorReal({ consultar: c2, canal: canal(), ttlConfigMs: 0, esperar: async () => {} });
   await motor2.procesar(mensaje("si tengo 25"));
 
   t("config: se lee una sola vez dentro del TTL", tras, 1);
@@ -126,7 +128,7 @@ const mensaje = (texto) => ({
 {
   // Sin clasificador y con un mensaje ambiguo: re-pregunta, no avanza.
   const { consultar, log } = sql();
-  const motor = crearMotorReal({ consultar, canal: canal() });
+  const motor = crearMotorReal({ consultar, canal: canal(), esperar: async () => {} });
   await motor.procesar(mensaje("jaja ok"));
   t("ambiguo sin GPT: no cambia de estado", log.some((l) => l.q.includes("estado_funnel") && l.params?.[1] === "S06_CIERRE"), false);
   t("ambiguo sin GPT: deja rastro", log.some((l) => l.params?.[1] === "gpt_no_implementado"), true);

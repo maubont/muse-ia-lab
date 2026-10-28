@@ -21,6 +21,7 @@
 import type { Repositorio } from "../motor/ejecutar.ts";
 import type { DatosComprobante } from "../../../functions/motor/comprobante.ts";
 import type { Canal } from "../../../functions/canal/tipos.ts";
+import { partirMensaje, limitarTurno, retardoMs } from "../motor/ritmo.ts";
 
 /** Lo mínimo que hace falta de un cliente SQL. `pg.Pool.query` encaja. */
 export interface Consultar {
@@ -32,6 +33,11 @@ export interface DepsRepositorio {
   canal: Canal;
   /** WhatsApp del dueño, para las notificaciones de la cola humana. */
   telefonoOperador: string;
+  /**
+   * Espera entre mensajes. Inyectable para que las pruebas no duerman de verdad;
+   * en producción es la real y da la sensación de que alguien escribe.
+   */
+  esperar?: (ms: number) => Promise<void>;
 }
 
 /** Columnas que el motor puede tocar en `musa_leads`. */
@@ -64,6 +70,7 @@ export function nuevoShortId(): string {
 
 export function crearRepositorio(deps: DepsRepositorio): Repositorio {
   const { consultar, canal, telefonoOperador } = deps;
+  const esperar = deps.esperar ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
   /** Deja rastro de un envío fallido. Nunca lanza: es telemetría, no el flujo. */
   const registrarEnvioFallido = async (phone: string, status?: number, motivo?: string) => {
@@ -154,15 +161,21 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
     },
 
     async enviar(phone, textos) {
-      for (const texto of textos) {
+      // El cliente tiene que VER que alguien escribe. El «escribiendo…» se manda
+      // antes de cada mensaje, y el retardo es proporcional pero acotado: la
+      // sensación es humana, la espera no.
+      const bloques = limitarTurno(textos.flatMap((t) => partirMensaje(t)));
+      for (const texto of bloques) {
+        await canal.marcarEscribiendo(phone);
+        await esperar(retardoMs(texto));
         const r = await canal.enviar(phone, { texto });
-        // Un fallo de envío NO se puede tragar: el motor ya decidió y el cliente
-        // no recibió nada. Se registra para que la Consola lo muestre.
         if (!r.ok) await registrarEnvioFallido(phone, r.status, r.motivo);
       }
     },
 
     async enviarMedia(phone, media) {
+      await canal.marcarEscribiendo(phone);
+      await esperar(retardoMs(media.texto));
       const r = await canal.enviar(phone, {
         texto: media.texto,
         media: { url: media.url, tipo: media.tipo },
