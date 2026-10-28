@@ -102,8 +102,23 @@ Evolution cierra la conexión. **Falla limpio, no rompe el webhook.**
 | S11, S90, S91 | ⬜ |
 
 Con S08 portado, **el camino del dinero está completo en forma de decisiones**:
-gate 18+ → cierre → datos de pago → comprobante → entrega. Lo que falta es el
-enrutador que las conecta y la ejecución real de los efectos contra Postgres.
+gate 18+ → cierre → datos de pago → comprobante → entrega.
+
+### Piezas de unión
+
+| Pieza | Estado | Qué hace |
+|---|---|---|
+| `motor/efectos.ts` | ✅ | El contrato: el motor devuelve efectos, no los ejecuta |
+| `motor/ejecutar.ts` | ✅ · 26 aserciones | Ejecuta los efectos contra un `Repositorio` inyectable |
+| `motor/router.ts` | ⬜ | Conecta cada estado según `lead.estado_funnel` |
+| `db/repositorio.ts` | ⬜ | El `Repositorio` real contra Postgres |
+
+Dos reglas duras viven en el ejecutor y están probadas:
+
+1. **La entrega es una barrera.** Si el claim atómico no se gana, se descarta todo
+   lo que venga después y se registra `entrega_omitida_ya_pagado`.
+2. **La referencia duplicada detiene el flujo** y devuelve `dupeRef` para que el
+   llamador vuelva a decidir con `refDuplicada: true`.
 
 ---
 
