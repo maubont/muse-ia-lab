@@ -16,6 +16,7 @@
 // este archivo a propósito. Cierra el fail-open que hoy tiene el webhook de Twilio.
 
 import { createServer } from "node:http";
+import { createReadStream } from "node:fs";
 import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import type { Canal, MensajeEntrante } from "../../../functions/canal/tipos.ts";
 import type { Motor } from "../motor/contrato.ts";
@@ -51,8 +52,15 @@ export interface OpcionesServidor {
    */
   acceso?: {
     validar: (token: string) => Promise<{ ok: boolean; phone?: string; motivo?: string }>;
-    pagina: (phone: string) => Promise<string>;
+    pagina: (phone: string, token?: string) => Promise<string>;
     sinAcceso: (motivo?: string) => string;
+  };
+  /**
+   * Almacén de contenido del curso. Si no se pasa, `/media/*` no existe.
+   * El archivo se sirve SOLO con un token de acceso válido.
+   */
+  medios?: {
+    resolver: (clave: string) => Promise<{ ruta: string; tamano: number; tipo: string; nombre: string } | null>;
   };
 }
 
@@ -179,6 +187,64 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       } catch (e) {
         return json(res, 503, { ok: false, estado: "desconocido", detalle: String(e).slice(0, 120) });
       }
+    }
+
+    // ---- contenido del curso: /media/<token>/<clave> ----
+    // El token viaja en la ruta porque un <video> no puede mandar cabeceras.
+    // Sin token válido, el archivo no existe para quien pregunta.
+    if (url.startsWith("/media/")) {
+      if (!opts.medios || !opts.acceso) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "GET" && req.method !== "HEAD") return json(res, 405, { error: "metodo_no_permitido" });
+
+      const resto = url.slice("/media/".length);
+      const corte = resto.indexOf("/");
+      if (corte <= 0) return json(res, 400, { error: "ruta_incompleta" });
+
+      const token = decodeURIComponent(resto.slice(0, corte));
+      const clave = resto.slice(corte + 1).split("?")[0];
+
+      const v = await opts.acceso.validar(token);
+      if (!v.ok) return json(res, 403, { error: "sin_acceso" });
+
+      const medio = await opts.medios.resolver(decodeURIComponent(clave));
+      if (!medio) return json(res, 404, { error: "no_existe" });
+
+      // Rangos: sin esto no se puede adelantar un video en el móvil.
+      const rango = String(req.headers.range ?? "");
+      const cabecerasBase: Record<string, string | number> = {
+        "Content-Type": medio.tipo,
+        "Accept-Ranges": "bytes",
+        // `private`: los proxies no lo guardan. 5 min: el navegador no lo vuelve a
+        // bajar en cada clic, pero un enlace filtrado caduca pronto.
+        "Cache-Control": "private, max-age=300",
+        "Content-Disposition": `inline; filename="${encodeURIComponent(medio.nombre)}"`,
+        "X-Robots-Tag": "noindex, nofollow",
+      };
+
+      const m = /^bytes=(\d*)-(\d*)$/.exec(rango);
+      if (m) {
+        const inicio = m[1] ? parseInt(m[1], 10) : 0;
+        const fin = m[2] ? Math.min(parseInt(m[2], 10), medio.tamano - 1) : medio.tamano - 1;
+        if (inicio >= medio.tamano || inicio > fin) {
+          res.writeHead(416, { "Content-Range": `bytes */${medio.tamano}` });
+          return res.end();
+        }
+        res.writeHead(206, {
+          ...cabecerasBase,
+          "Content-Range": `bytes ${inicio}-${fin}/${medio.tamano}`,
+          "Content-Length": fin - inicio + 1,
+        });
+        if (req.method === "HEAD") return res.end();
+        const trozo = createReadStream(medio.ruta, { start: inicio, end: fin });
+        trozo.on("error", () => res.destroy());
+        return trozo.pipe(res);
+      }
+
+      res.writeHead(200, { ...cabecerasBase, "Content-Length": medio.tamano });
+      if (req.method === "HEAD") return res.end();
+      const flujo = createReadStream(medio.ruta);
+      flujo.on("error", () => res.destroy());
+      return flujo.pipe(res);
     }
 
     if (url === RUTA_CRON) {

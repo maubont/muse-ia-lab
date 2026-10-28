@@ -13,6 +13,32 @@ export interface EntregaConfig {
   link_grupo?: string;
 }
 
+export interface OpcionesPagina {
+  /**
+   * Token del alumno. Con él se construyen los enlaces internos (`media:…`),
+   * que de otro modo no se pueden servir: el contenido va detrás del acceso.
+   */
+  token?: string;
+}
+
+/**
+ * Convierte el valor de la configuración en un enlace utilizable.
+ *  · `media:bonos/plan.pdf` → `/media/<token>/bonos/plan.pdf`
+ *  · `https://…`            → tal cual
+ *  · cualquier otra cosa    → null (no se enlaza a la nada)
+ */
+export function resolverEnlace(valor: unknown, token?: string): string | null {
+  if (typeof valor !== "string" || !valor) return null;
+  if (valor.startsWith("media:")) {
+    if (!token) return null; // sin token no hay forma de servirlo
+    const clave = valor.slice("media:".length).replace(/^\/+/, "");
+    const partes = clave.split("/").map(encodeURIComponent).join("/");
+    return `/media/${encodeURIComponent(token)}/${partes}`;
+  }
+  if (/^https?:\/\//i.test(valor)) return valor;
+  return null;
+}
+
 /** Títulos de los 13 módulos. Hoy la configuración solo trae URLs. */
 export const TITULOS_MODULOS = [
   "Bienvenida y cómo aprovechar el curso",
@@ -88,7 +114,8 @@ const pie = `</main></body></html>`;
  * `entregados` es el subconjunto de enlaces que ya se mandaron por chat; aquí se
  * muestran todos, porque el acceso ya prueba que pagó.
  */
-export function paginaCurso(entrega: EntregaConfig, nombre?: string | null): string {
+export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opciones: OpcionesPagina = {}): string {
+  const token = opciones.token;
   const modulos = Array.isArray(entrega.modulos) ? entrega.modulos : [];
   const bonos = entrega.bonos && typeof entrega.bonos === "object" ? entrega.bonos : {};
 
@@ -97,7 +124,7 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null): str
   const listaModulos = modulos
     .map((url, i) => {
       const titulo = TITULOS_MODULOS[i] ?? `Módulo ${i + 1}`;
-      const enlace = typeof url === "string" && /^https?:\/\//i.test(url) ? url : "#";
+      const enlace = resolverEnlace(url, token) ?? "#";
       return `<a class="tarjeta" href="${escapar(enlace)}" target="_blank" rel="noopener noreferrer">
         <span class="num">${i + 1}</span>
         <span><strong>${escapar(titulo)}</strong><span>Abrir módulo</span></span>
@@ -107,7 +134,7 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null): str
 
   const listaBonos = Object.entries(bonos)
     .map(([clave, url]) => {
-      const enlace = typeof url === "string" && /^https?:\/\//i.test(url) ? url : "#";
+      const enlace = resolverEnlace(url, token) ?? "#";
       return `<a class="tarjeta" href="${escapar(enlace)}" target="_blank" rel="noopener noreferrer">
         <span class="num">★</span>
         <span><strong>${escapar(nombreDeBono(clave))}</strong><span>Bono incluido</span></span>
@@ -115,15 +142,17 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null): str
     })
     .join("");
 
-  const plan = typeof entrega.plan_accion_7dias === "string" && /^https?:\/\//i.test(entrega.plan_accion_7dias)
-    ? `<a class="tarjeta" href="${escapar(entrega.plan_accion_7dias)}" target="_blank" rel="noopener noreferrer">
+  const enlacePlan = resolverEnlace(entrega.plan_accion_7dias, token);
+  const plan = enlacePlan
+    ? `<a class="tarjeta" href="${escapar(enlacePlan)}" target="_blank" rel="noopener noreferrer">
         <span class="num">7</span>
         <span><strong>Plan de Acción 7 Días</strong><span>Qué hacer cada día</span></span>
       </a>`
     : "";
 
-  const grupo = typeof entrega.link_grupo === "string" && /^https?:\/\//i.test(entrega.link_grupo)
-    ? `<a class="tarjeta" href="${escapar(entrega.link_grupo)}" target="_blank" rel="noopener noreferrer">
+  const enlaceGrupo = resolverEnlace(entrega.link_grupo, token);
+  const grupo = enlaceGrupo
+    ? `<a class="tarjeta" href="${escapar(enlaceGrupo)}" target="_blank" rel="noopener noreferrer">
         <span class="num">◎</span>
         <span><strong>Grupo de la comunidad</strong><span>Preguntas y avances</span></span>
       </a>`

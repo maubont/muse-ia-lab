@@ -125,16 +125,29 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     const consultarAcceso = consultar;
     acceso = {
       validar: (token: string) => validarToken(consultarAcceso, token, true),
-      pagina: async (phone: string) => {
+      pagina: async (phone: string, token?: string) => {
         const cfg = await leerConfigFunnel(consultarAcceso);
         const { rows } = await consultarAcceso("select nombre, profile_name from public.musa_leads where phone = $1", [phone]);
         const fila = rows[0] as { nombre?: string | null; profile_name?: string | null } | undefined;
         const nombre = fila?.nombre ?? fila?.profile_name ?? null;
-        return paginaCurso(cfg.entrega as never, nombre);
+        return paginaCurso(cfg.entrega as never, nombre, { token });
       },
       sinAcceso: paginaSinAcceso,
     };
     console.log("[musa] acceso al curso: GET /a/<token> → /curso");
+  }
+
+  // Almacén de contenido: los archivos del curso detrás del mismo token.
+  // Local por ahora; cuando el curso pese se cambia por R2 sin tocar nada más.
+  let medios: OpcionesServidor["medios"];
+  const dirMedios = (env.MUSA_MEDIOS_DIR ?? "").trim();
+  if (dirMedios) {
+    const { crearAlmacenLocal } = await import("./acceso/medios.ts");
+    const almacen = crearAlmacenLocal(dirMedios);
+    medios = { resolver: (clave: string) => almacen.resolver(clave) };
+    console.log(`[musa] medios: GET /media/<token>/<clave> · ${dirMedios}`);
+  } else {
+    console.log("[musa] medios: sin MUSA_MEDIOS_DIR, /media no existe");
   }
 
   const servidor = crearServidor({
@@ -145,6 +158,7 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     claveCron,
     estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined,
     acceso,
+    medios,
   });
 
   const puerto = await servidor.escuchar(opciones.puerto ?? Number(env.PORT ?? 8080));
