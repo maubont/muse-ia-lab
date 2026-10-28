@@ -11,5 +11,8 @@
     "guion": "node --experimental-strip-types scripts/generar-guion.mjs",
     "test": "node scripts/test-servidor.mjs && node scripts/test-evo.mjs && node --experimental-strip-types scripts/test-s04.mjs && node --experimental-strip-types scripts/test-s06.mjs && node --experimental-strip-types scripts/test-s10.mjs",
     "verificar": "node scripts/verificar-esquema.mjs && node scripts/verificar-seed.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
   }
 }

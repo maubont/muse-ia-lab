@@ -18,6 +18,19 @@
 
 // ============================== heurísticas ==============================
 
+/**
+ * minúsculas, sin acentos, sin espacios extremos.
+ * Todas las heurísticas de abajo asumen este formato; se exporta para que quien
+ * llame no invente su propia normalización. Copiado literal del original (L94-100).
+ */
+export function normalizar(s: string): string {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
 export function esStopTotal(norm: string): boolean {
   // El opt-out debe dispararse aunque la palabra clave vaya acompañada de otro
   // texto ("mejor no, SALIR", "ya no, stop"). Detectamos STOP/SALIR/BAJA/

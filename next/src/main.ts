@@ -16,6 +16,7 @@ import { crearServidor } from "./api/servidor.ts";
 import { crearCanalEvolution } from "../../functions/canal/evolution.ts";
 import { leerConfigCanal, describirConfig } from "./config.ts";
 import { motorEco } from "./motor/contrato.ts";
+import type { Motor } from "./motor/contrato.ts";
 import type { Entorno } from "./config.ts";
 
 export interface OpcionesArranque {
@@ -24,6 +25,36 @@ export interface OpcionesArranque {
   /** 0 = puerto efímero; en contenedor se usa PORT */
   puerto?: number;
   host?: string;
+  /** inyectable en pruebas: evita tocar la base de datos */
+  motor?: Motor;
+}
+
+/**
+ * Construye el motor:
+ *  · con `DATABASE_URL` -> motor real contra Postgres (carga `pg` dinámicamente)
+ *  · sin ella           -> motorEco, que solo hace eco (ensayo de conectividad)
+ */
+async function construirMotor(env: Entorno): Promise<Motor> {
+  const urlBaseDatos = (env.DATABASE_URL ?? "").trim();
+  if (!urlBaseDatos) return motorEco();
+
+  const { crearConexion } = await import("./db/pool.ts");
+  const { crearMotorReal } = await import("./motor/motor-real.ts");
+  const conexion = crearConexion(urlBaseDatos);
+  console.log("[musa] motor real contra Postgres");
+  return crearMotorReal({ consultar: conexion.consultar, canal: crearCanalEvolutionConfig(env) });
+}
+
+/** Canal construido solo con el entorno (para el motor real). */
+function crearCanalEvolutionConfig(env: Entorno) {
+  return crearCanalEvolution({
+    baseUrl: (env.EVOLUTION_URL ?? "").replace(/\/+$/, ""),
+    instancia: env.EVOLUTION_INSTANCE ?? "musa",
+    apiKey: env.EVOLUTION_APIKEY ?? "",
+    jwtKey: env.EVOLUTION_JWT_KEY ?? "",
+    secretoWebhook: env.EVOLUTION_WEBHOOK_SECRET || undefined,
+    nombreCabeceraSecreto: env.EVOLUTION_WEBHOOK_HEADER || undefined,
+  });
 }
 
 export interface ServidorArrancado {
@@ -48,7 +79,7 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
   const canal = crearCanalEvolution(config.config);
   const servidor = crearServidor({
     canal,
-    motor: motorEco(),
+    motor: opciones.motor ?? await construirMotor(env),
     host: opciones.host ?? "0.0.0.0",
   });
 
