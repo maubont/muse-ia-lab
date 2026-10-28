@@ -11,7 +11,7 @@ Ordenados por lo que cuesta ignorarlos.
 
 | # | Detalle | Por qué importa |
 |---|---|---|
-| R1 | **El número cae y nadie se entera** | No hay monitor de sesión ni alerta. Si WhatsApp se desconecta a las 3 p.m., las ventas mueren en silencio hasta que alguien mira |
+| R1 | ✅ **Hecho** — monitor de sesión | `GET /salud/sesion` devuelve 503 si la sesión no está abierta (hoy lo dice: `connecting`). El vigilante avisa por webhook **externo**, porque si WhatsApp cae no sirve avisar por WhatsApp. Falta: configurar `MUSA_ALERTA_WEBHOOK` y un monitor externo que vigile la ruta |
 | R2 | **Cobro manual no escala** | Visión + cola humana funciona con 5 ventas/día. Con 30, las entregas tardan y la entrega lenta es la causa nº1 de reportes |
 | R3 | **Entrega en carpetas de Drive públicas** | 17 enlaces sin control de acceso ni revocación. A $9 se comparten y el producto se devalúa |
 | R4 | **Sin tope de calentamiento** | Un número nuevo que recibe 100 conversaciones el primer día es un patrón que Meta detecta |
