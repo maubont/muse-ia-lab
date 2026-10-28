@@ -76,16 +76,17 @@ reintento del mismo id     → 200  {"procesados":0}
 evento que no es mensaje   → 200  {"procesados":0}
 ```
 
-En los logs del servidor real:
+**Con el motor real conectado a Postgres**, el ensayo escribe de verdad:
 
 ```
-[musa] canal evolution listo · instancia=musa · escuchando en :8080
-[motor-eco] {"telefono":"+573001112233","texto":"hola desde el ensayo…","id_externo":"ENSAYO-…"}
-[servidor] envío falló: 500 {"message":"Connection Closed"}
+musa_leads         1 fila   (+573001112233 · "Ensayo")
+musa_messages      1 fila   ("hola desde el ensayo, sin número real")
+musa_funnel_events 1 fila   (gpt_no_implementado)
 ```
 
-El último renglón es el esperado: la instancia aún no está vinculada, así que
-Evolution cierra la conexión. **Falla limpio, no rompe el webhook.**
+El último evento es el comportamiento correcto y **esperado hoy**: un lead nuevo
+entra en `S00_LLEGADA`, que aún no está portado, así que cae al fallback. La cadena
+funciona; lo que falta es el saludo.
 
 ---
 
