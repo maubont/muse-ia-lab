@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modelos IA — crea modelos virtuales hiperrealistas con IA</title>
+<meta name="description" content="Aprende a crear modelos virtuales hiperrealistas con inteligencia artificial: 13 módulos, 4 bonos y plan de acción de 7 días. Acceso de por vida.">
+<meta property="og:title" content="Modelos IA — crea modelos virtuales hiperrealistas con IA">
+<meta property="og:description" content="13 módulos, 4 bonos y un plan de acción de 7 días. Acceso de por vida.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b0b10">
+<style>
+/* Minimalista y rápido: CSS embebido, sin frameworks, sin fuentes externas.
+   Todo lo que se carga de más cuesta conversión en móvil. */
+:root{
+  --fondo:#0b0b10; --panel:#14141c; --texto:#f4f4f7; --tenue:#a5a5b8;
+  --acento:#8b5cf6; --acento2:#c4b5fd; --borde:#262632; --ok:#34d399;
+  --r:16px; --max:720px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--fondo);color:var(--texto);
+  font:400 17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.contenedor{width:100%;max-width:var(--max);margin:0 auto;padding:0 20px}
+section{padding:56px 0}
+h1,h2,h3{line-height:1.2;letter-spacing:-.02em;font-weight:700}
+h1{font-size:clamp(30px,7vw,46px)}
+h2{font-size:clamp(24px,5vw,32px);margin-bottom:14px}
+h3{font-size:18px;margin-bottom:8px}
+p{color:var(--tenue)}
+p.fuerte{color:var(--texto)}
+.fino{font-size:14px;color:var(--tenue)}
+.acento{color:var(--acento2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---- botón único: todo el diseño empuja a él ---- */
+.cta{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;min-height:58px;padding:16px 22px;margin-top:22px;
+  background:linear-gradient(180deg,var(--acento),#7c3aed);
+  color:#fff;font:700 17px/1.2 inherit;text-decoration:none;
+  border:0;border-radius:var(--r);cursor:pointer;
+  box-shadow:0 10px 30px -12px rgba(139,92,246,.8);
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.cta:hover{transform:translateY(-1px);box-shadow:0 16px 40px -14px rgba(139,92,246,.9)}
+.cta:active{transform:translateY(0)}
+.cta:focus-visible{outline:3px solid var(--acento2);outline-offset:3px}
+
+/* ---- hero ---- */
+.hero{padding-top:44px;text-align:center}
+.hero .etiqueta{
+  display:inline-block;margin-bottom:18px;padding:6px 12px;border-radius:999px;
+  background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.35);
+  color:var(--acento2);font-size:13px;font-weight:600;letter-spacing:.02em
+}
+.hero p{margin-top:16px;font-size:18px}
+.precio-linea{margin-top:26px;display:flex;align-items:baseline;justify-content:center;gap:10px}
+.precio-linea strong{font-size:30px;letter-spacing:-.02em}
+.precio-linea span{color:var(--tenue);text-decoration:line-through;font-size:16px}
+.hero .fino{margin-top:12px}
+
+/* ---- demo ---- */
+.demo{
+  margin-top:8px;border-radius:var(--r);overflow:hidden;background:var(--panel);
+  border:1px solid var(--borde);aspect-ratio:9/16;max-height:520px;
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+}
+.demo .nota{font-size:14px;color:var(--tenue);max-width:38ch}
+.demo video,.demo img{width:100%;height:100%;object-fit:cover}
+
+/* ---- listas ---- */
+.grid{display:grid;gap:12px;margin-top:22px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+.tarjeta{
+  background:var(--panel);border:1px solid var(--borde);border-radius:var(--r);
+  padding:18px
+}
+.tarjeta h3{font-size:15px}
+.tarjeta p{font-size:14.5px;margin-top:4px}
+.pasos{counter-reset:paso;display:grid;gap:14px;margin-top:22px}
+.paso{display:flex;gap:14px;align-items:flex-start}
+.paso::before{
+  counter-increment:paso;content:counter(paso);
+  flex:0 0 30px;height:30px;border-radius:50%;
+  background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.4);
+  color:var(--acento2);font-weight:700;font-size:14px;
+  display:grid;place-items:center;margin-top:2px
+}
+.paso p{color:var(--texto)}
+
+/* ---- objeciones ---- */
+.obj{display:grid;gap:10px;margin-top:20px}
+.obj div{
+  background:var(--panel);border:1px solid var(--borde);
+  border-radius:12px;padding:16px
+}
+.obj strong{display:block;color:var(--texto);margin-bottom:4px;font-size:15px}
+
+/* ---- precio ---- */
+.caja-precio{
+  margin-top:22px;padding:26px 22px;text-align:center;
+  background:linear-gradient(180deg,rgba(139,92,246,.10),rgba(139,92,246,.03));
+  border:1px solid rgba(139,92,246,.35);border-radius:calc(var(--r) + 4px)
+}
+.caja-precio .grande{font-size:36px;font-weight:800;letter-spacing:-.02em}
+.caja-precio .antes{color:var(--tenue);text-decoration:line-through;margin-left:8px;font-size:18px}
+.caja-precio ul{list-style:none;text-align:left;margin:18px auto 0;max-width:340px;display:grid;gap:8px}
+.caja-precio li{position:relative;padding-left:24px;font-size:15px;color:var(--texto)}
+.caja-precio li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+
+/* ---- faq ---- */
+details{border-bottom:1px solid var(--borde);padding:16px 0}
+summary{cursor:pointer;font-weight:600;color:var(--texto);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:var(--acento2);font-weight:700}
+details[open] summary::after{content:"–"}
+details p{margin-top:10px;font-size:15px}
+
+/* ---- pie ---- */
+footer{padding:36px 0 60px;text-align:center;border-top:1px solid var(--borde);margin-top:20px}
+footer p{font-size:13px}
+footer a{color:var(--tenue);text-decoration:none;border-bottom:1px solid var(--borde)}
+.aviso-ia{
+  margin-top:18px;padding:12px 14px;border-radius:12px;font-size:13px;color:var(--tenue);
+  background:var(--panel);border:1px solid var(--borde);text-align:left
+}
+
+/* ---- modal 18+ ---- */
+dialog{
+  border:1px solid var(--borde);border-radius:18px;background:var(--panel);color:var(--texto);
+  max-width:420px;width:calc(100% - 32px);padding:26px 22px;
+}
+dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
+dialog h3{font-size:19px;margin-bottom:10px}
+dialog p{font-size:14.5px}
+dialog label{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14px;color:var(--texto);cursor:pointer}
+dialog input{margin-top:3px;width:18px;height:18px;accent-color:var(--acento)}
+dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero contenedor">
+  <span class="etiqueta">13 módulos · 4 bonos · acceso de por vida</span>
+  <h1>Crea modelos virtuales <span class="acento">hiperrealistas</span> con inteligencia artificial</h1>
+  <p class="fuerte">Sin saber diseño, sin cámara y sin modelos reales. Aprende el proceso completo, paso a paso.</p>
+
+  <div class="precio-linea">
+    <strong>$9 USD</strong><span>$29</span>
+  </div>
+  <p class="fino">Pago único · 33.000 COP · Acceso inmediato</p>
+
+  <!-- ÚNICO CTA de la página. Sin menú, sin enlaces que fuguen al visitante. -->
+  <button class="cta" data-abrir-modal>
+    Quiero ver el contenido
+    <span aria-hidden="true">→</span>
+  </button>
+  <p class="fino" style="margin-top:10px">Te llega al instante por WhatsApp</p>
+</header>
+
+<!-- ============================ DEMO ============================ -->
+<section class="contenedor" aria-labelledby="demo-t">
+  <h2 id="demo-t">Esto lo vas a crear tú</h2>
+  <p class="fuerte">Esa persona no existe. Su cara, su voz y sus gestos son generados. En el curso aprendes a producir piezas así, desde cero.</p>
+
+  <div class="demo">
+    <!-- REEMPLAZAR: video o imagen de la modelo (vertical 9:16, ≤3 MB).
+         Sin media real, esta sección no vende. -->
+    <p class="nota">[ Aquí va el video de la modelo generada — vertical, sin audio, en bucle, ≤3 MB ]</p>
+  </div>
+</section>
+
+<!-- ============================ CONTENIDO ============================ -->
+<section class="contenedor" aria-labelledby="incluye-t">
+  <h2 id="incluye-t">Qué incluye</h2>
+  <p class="fuerte">No es teoría sobre IA. Es el proceso completo para producir y publicar.</p>
+
+  <div class="grid">
+    <div class="tarjeta"><h3>13 módulos</h3><p>Desde la primera imagen hasta la publicación y monetización.</p></div>
+    <div class="tarjeta"><h3>4 bonos</h3><p>Colección de modelos, Megapack Master IA, YouTube Money Machine y audios.</p></div>
+    <div class="tarjeta"><h3>Plan de acción de 7 días</h3><p>Qué hacer cada día para tener tu primer modelo publicado en una semana.</p></div>
+    <div class="tarjeta"><h3>Acceso de por vida</h3><p>Sin mensualidades. Se actualiza y sigues teniendo acceso.</p></div>
+  </div>
+</section>
+
+<!-- ============================ PARA QUIÉN ============================ -->
+<section class="contenedor" aria-labelledby="quien-t">
+  <h2 id="quien-t">Para quién es</h2>
+  <div class="pasos">
+    <div class="paso"><p><strong>Si quieres aprender</strong> una habilidad que se está usando para crear contenido todos los días.</p></div>
+    <div class="paso"><p><strong>Si ya haces contenido</strong> y quieres producir sin depender de una persona real, un estudio o una sesión de fotos.</p></div>
+    <div class="paso"><p><strong>Si empiezas de cero:</strong> el curso asume que no sabes nada de IA ni de diseño.</p></div>
+  </div>
+  <p class="fino" style="margin-top:18px">No es para quien busque resultados automáticos sin dedicarle tiempo. Es un oficio, y se aprende practicando.</p>
+</section>
+
+<!-- ============================ OBJECIONES ============================ -->
+<section class="contenedor" aria-labelledby="obj-t">
+  <h2 id="obj-t">Lo que probablemente estás pensando</h2>
+  <div class="obj">
+    <div><strong>«No sé nada de IA.»</strong><p>El curso empieza desde la primera pantalla. Si sabes usar WhatsApp, puedes seguirlo.</p></div>
+    <div><strong>«¿Y si no me sirve?»</strong><p>Por $9 tienes los 13 módulos completos y acceso de por vida. Decides después de verlos, no antes.</p></div>
+    <div><strong>«¿Necesito programas caros?»</strong><p>No. Trabajarás con herramientas que tienen plan gratuito o de bajo costo, y te explico cuáles.</p></div>
+  </div>
+</section>
+
+<!-- ============================ PRECIO ============================ -->
+<section class="contenedor" aria-labelledby="precio-t">
+  <h2 id="precio-t">El precio</h2>
+  <div class="caja-precio">
+    <div class="grande">$9 USD <span class="antes">$29</span></div>
+    <p class="fino" style="margin-top:6px">33.000 COP · pago único</p>
+    <ul>
+      <li>13 módulos completos</li>
+      <li>4 bonos incluidos</li>
+      <li>Plan de acción de 7 días</li>
+      <li>Acceso de por vida, sin mensualidades</li>
+    </ul>
+    <button class="cta" data-abrir-modal>Empezar ahora <span aria-hidden="true">→</span></button>
+    <p class="fino" style="margin-top:10px">Pago por Nequi, Bancolombia o Bre-B. Te guío por WhatsApp.</p>
+  </div>
+</section>
+
+<!-- ============================ FAQ ============================ -->
+<section class="contenedor" aria-labelledby="faq-t">
+  <h2 id="faq-t">Preguntas frecuentes</h2>
+  <details><summary>¿Cómo recibo el curso?</summary><p>Después de confirmar el pago te llegan los 17 enlaces por el mismo chat de WhatsApp. Acceso inmediato.</p></details>
+  <details><summary>¿Cuánto tiempo necesito?</summary><p>El plan de 7 días está pensado para 30–45 minutos al día. Si tienes más tiempo, avanzas más rápido.</p></details>
+  <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
+  <details><summary>¿Sirve desde el celular?</summary><p>Sí. Todo el curso se puede hacer desde el teléfono.</p></details>
+  <details><summary>¿Quién me responde?</summary><p>Musa, una asistente virtual del equipo, y una persona cuando hace falta. Te lo digo claro: si preguntas si soy un bot, te lo confirmo.</p></details>
+</section>
+
+<!-- ============================ CIERRE ============================ -->
+<section class="contenedor">
+  <h2>Si llegaste hasta acá, es por algo</h2>
+  <p class="fuerte">Los 13 módulos, los 4 bonos y el plan de 7 días. $9 USD, una sola vez.</p>
+  <button class="cta" data-abrir-modal>Ver el contenido completo <span aria-hidden="true">→</span></button>
+</section>
+
+<footer class="contenedor">
+  <p>© 2026 Modelos IA · <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a> · <a href="/reembolsos">Reembolsos</a></p>
+  <div class="aviso-ia">
+    <strong>Aviso:</strong> Musa es una asistente virtual con inteligencia artificial. Al continuar aceptas que la conversación inicial la lleva un sistema automatizado. Contenido para mayores de 18 años.
+  </div>
+  <p style="margin-top:16px">Este sitio no garantiza ingresos. Los resultados dependen del trabajo de cada persona.</p>
+</footer>
+
+<!-- ============================ MODAL 18+ ============================ -->
+<dialog id="puerta" aria-labelledby="puerta-t">
+  <h3 id="puerta-t">Antes de continuar</h3>
+  <p>El contenido del curso es para <strong>mayores de 18 años</strong>. Al continuar aceptas los términos y el aviso de que Musa es una asistente virtual con IA.</p>
+  <label>
+    <input type="checkbox" id="acepto">
+    <span>Tengo 18 años o más y acepto los términos y la política de privacidad.</span>
+  </label>
+  <a id="ir-wa" class="cta" aria-disabled="true" rel="noopener" href="#">Continuar por WhatsApp <span aria-hidden="true">→</span></a>
+  <button class="cta" style="background:transparent;box-shadow:none;color:var(--tenue);font-weight:500" data-cerrar-modal>Volver</button>
+</dialog>
+
+<script>
+/* ------------------------------------------------------------------
+   Handoff a WhatsApp con atribución.
+
+   Meta borra los UTM al pasar a WhatsApp, así que la referencia viaja
+   DENTRO del texto prellenado: el bot la lee en el primer mensaje.
+
+   Configuración: cambia NUMERO y los parámetros por defecto.
+------------------------------------------------------------------- */
+var NUMERO = "57XXXXXXXXXX"; // ← REEMPLAZAR por el número de Musa, sin "+"
+var REF_POR_DEFECTO = "landing";
+
+var params = new URLSearchParams(location.search);
+var ref = (params.get("ref") || params.get("utm_campaign") || REF_POR_DEFECTO)
+  .toString().slice(0, 20).replace(/[^A-Za-z0-9_-]/g, "");
+
+var texto = "Hola, vengo de la página. Ref: " + ref + ". Quiero ver el contenido del curso.";
+var enlace = "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent(texto);
+
+var puerta = document.getElementById("puerta");
+var irWa = document.getElementById("ir-wa");
+var acepto = document.getElementById("acepto");
+
+document.querySelectorAll("[data-abrir-modal]").forEach(function (b) {
+  b.addEventListener("click", function () { puerta.showModal(); });
+});
+document.querySelectorAll("[data-cerrar-modal]").forEach(function (b) {
+  b.addEventListener("click", function () { puerta.close(); });
+});
+
+acepto.addEventListener("change", function () {
+  irWa.setAttribute("aria-disabled", acepto.checked ? "false" : "true");
+  irWa.href = acepto.checked ? enlace : "#";
+});
+
+irWa.addEventListener("click", function (e) {
+  if (!acepto.checked) { e.preventDefault(); return; }
+  /* Evento para el píxel, cuando exista. No se envía nada si no está. */
+  if (typeof fbq === "function") fbq("track", "Contact");
+});
+</script>
+</body>
+</html>
