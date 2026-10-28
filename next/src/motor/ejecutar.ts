@@ -30,6 +30,8 @@ export interface Repositorio {
   reclamarEntrega(phone: string): Promise<boolean>;
   notificarOperador(texto: string): Promise<void>;
   enviar(phone: string, textos: string[]): Promise<void>;
+  /** Adjunto con pie de texto (video del avatar). */
+  enviarMedia(phone: string, media: { url: string; tipo: "video" | "imagen"; texto: string }): Promise<void>;
   gptResponder(args: { instruccion: string; abortarSiEscala: boolean }): Promise<{ escalo: boolean }>;
   gptFallback(phone: string): Promise<void>;
   responderObjecion(phone: string, args: { id: number; conRecierre: boolean }): Promise<void>;
@@ -103,6 +105,14 @@ export async function ejecutar(
 
       case "reask_gate":
         await repo.reaskGate(phone, efecto.motivo);
+        break;
+
+      case "enviar_media":
+        await repo.enviarMedia(phone, {
+          url: efecto.url,
+          tipo: efecto.mediaTipo,
+          texto: efecto.texto,
+        });
         break;
 
       case "reclamar_entrega": {

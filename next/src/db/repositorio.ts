@@ -147,6 +147,13 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       }
     },
 
+    async enviarMedia(phone, media) {
+      await canal.enviar(phone, {
+        texto: media.texto,
+        media: { url: media.url, tipo: media.tipo },
+      });
+    },
+
     // ── GPT no implementado: se escala y se registra, nunca se improvisa ────
     async gptResponder() {
       return { escalo: true };

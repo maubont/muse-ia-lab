@@ -53,7 +53,9 @@ export type Efecto =
    */
   | { tipo: "registrar_pago"; estado: "aprobado" | "revision"; motivo: string | null; datos: DatosComprobante | null }
   /** Avisa al operador (dueño). El texto puede llevar `{{short_id}}`. */
-  | { tipo: "notificar_operador"; texto: string };
+  | { tipo: "notificar_operador"; texto: string }
+  /** Envía un adjunto (video del avatar) con su pie de texto. */
+  | { tipo: "enviar_media"; url: string; mediaTipo: "video" | "imagen"; texto: string };
 
 /** Saca los efectos de un tipo (ayuda en pruebas y en el runtime). */
 export function deTipo<T extends Efecto["tipo"]>(efectos: Efecto[], tipo: T): Extract<Efecto, { tipo: T }>[] {

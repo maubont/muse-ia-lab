@@ -16,6 +16,7 @@ import {
   esStopTotal,
   preguntaPorBot,
   pideHumano,
+  preguntaPrecio,
 } from "../../../functions/motor/guardarrailes.ts";
 import { etapa, resolverPlaceholders } from "../../../functions/motor/copy.ts";
 import type { CfgCopy, LeadNombre } from "../../../functions/motor/copy.ts";
@@ -25,6 +26,8 @@ import { decidirS04 } from "./s04.ts";
 import { decidirS06 } from "./s06.ts";
 import { decidirS08 } from "./s08.ts";
 import type { EntradaS08 } from "./s08.ts";
+import { decidirLeadNuevo } from "./s01.ts";
+import type { AvatarListo } from "./s01.ts";
 
 /** «Listo, quedas fuera»: el único mensaje que se manda tras un STOP. */
 export const MSG_OPTOUT =
@@ -56,6 +59,8 @@ export interface EntradaRuta {
   clasificacion?: ClasificacionGPT;
   /** Solo se usa si el estado es S08 y llega un comprobante. */
   comprobante?: Omit<EntradaS08, "lead" | "cfg">;
+  /** Video del avatar listo para enviar, si el pipeline lo tiene. */
+  avatar?: AvatarListo | null;
 }
 
 export function preguntaDeEtapa(estado: string): string {
@@ -114,6 +119,17 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
 
   // 5. Despacho por estado.
   switch (lead.estado_funnel) {
+    case "S00_LLEGADA":
+    case "S01_SALUDO":
+    case "S02_AVATAR":
+      return decidirLeadNuevo({
+        lead,
+        cfg,
+        pidePrecio: !!norm && preguntaPrecio(norm),
+        // Sin avatar disponible se usa el puente del copy, que no promete video.
+        avatar: e.avatar ?? null,
+      });
+
     case "S04_GATE18":
       return decidirS04({ lead, cfg, body, norm, clasificacion: e.clasificacion });
 
