@@ -1,15 +1,29 @@
 # Landing de Modelos IA
 
-Un solo archivo, **15 KB**, cero peticiones externas. Se abre desde disco y
-funciona; se puede subir a cualquier hosting estático.
+Un solo archivo principal, **15 KB**, cero peticiones externas, **0,46 MB** en total
+con el video. Se abre desde disco y funciona; se puede subir a cualquier hosting
+estático.
 
-## Qué hay que reemplazar antes de publicar
+## Qué ya está puesto
 
-| Buscar | Poner | Por qué |
-|---|---|---|
-| `57XXXXXXXXXX` | El número de WhatsApp de Musa, sin `+` ni espacios | Es el destino del CTA |
-| `[ Aquí va el video de la modelo… ]` | `<video src="..." autoplay muted loop playsinline>` vertical 9:16, ≤3 MB | **Sin media real la página no vende**: la promesa es visual |
-| `<a href="/terminos">` y los otros dos | URLs reales de términos, privacidad y reembolsos | Meta exige que existan para aprobar el anuncio |
+| Pieza | Estado |
+|---|---|
+| Video de la modelo | ✅ `assets/demo.mp4` — 9 s, 720 px, sin audio, **408 KB** (recompilado desde `avatar/generados/kling-maria-comprimido.mp4`) |
+| Poster | ✅ `assets/demo.jpg` — 38 KB, para que la sección no bloquee la carga |
+| Términos | ✅ `terminos.html` — con datos del titular por rellenar |
+| Privacidad | ✅ `privacidad.html` — incluye la divulgación de IA y la Ley 1581 |
+| Reembolsos | ✅ `reembolsos.html` — **propuesta**, marcada como pendiente de aprobación |
+| Atribución | ✅ `?ref=` viaja en el texto del mensaje |
+| Puerta 18+ | ✅ antes de salir a WhatsApp |
+
+## Qué falta antes de publicar
+
+| Buscar | Poner |
+|---|---|
+| `57XXXXXXXXXX` | El número de WhatsApp de Musa, sin `+` ni espacios. **Sin esto el CTA no lleva a ninguna parte** |
+| `[NOMBRE O RAZÓN SOCIAL PENDIENTE]`, `[CORREO PENDIENTE]` | Los datos reales del titular, en las tres páginas legales |
+| `[PLAZO A DEFINIR]` | Cuánto tiempo se guardan los datos y en qué plazo se responde un reembolso |
+| Píxel de Meta | El ID, cuando exista. El evento `Contact` ya está preparado y solo se dispara si `fbq` existe |
 
 ## Decisiones de diseño (y por qué)
 
@@ -42,9 +56,20 @@ falso, Meta lo prohíbe y es motivo de rechazo del anuncio.
 
 ## Lo que falta y no puedo poner yo
 
-1. **El video o la imagen de la modelo.** Es la prueba del producto. Sin eso, la
-   página es texto bonito.
+1. **El número**: sin él, el CTA no lleva a ninguna parte.
 2. **Testimonios reales.** No inventé ninguno: la sección de prueba social está
    deliberadamente ausente hasta que existan clientes.
 3. **El ID del píxel de Meta** y la verificación del dominio.
-4. **El número**: sin él, el CTA no lleva a ninguna parte.
+4. **Los datos del titular** en las páginas legales.
+
+## Cómo se probó
+
+Se sirvió en local y se comprobó que las tres rutas responden:
+
+```
+/                 HTTP 200 · 15 KB · text/html
+/assets/demo.mp4  HTTP 200 · 408 KB · video/mp4
+/terminos.html    HTTP 200 ·  3 KB · text/html
+```
+
+Los cuatro enlaces internos resuelven a archivos existentes; no hay rutas muertas.
