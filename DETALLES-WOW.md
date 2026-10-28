@@ -13,7 +13,7 @@ Ordenados por lo que cuesta ignorarlos.
 |---|---|---|
 | R1 | ✅ **Hecho** — monitor de sesión | `GET /salud/sesion` devuelve 503 si la sesión no está abierta (hoy lo dice: `connecting`). El vigilante avisa por webhook **externo**, porque si WhatsApp cae no sirve avisar por WhatsApp. Falta: configurar `MUSA_ALERTA_WEBHOOK` y un monitor externo que vigile la ruta |
 | R2 | **Cobro manual no escala** | Visión + cola humana funciona con 5 ventas/día. Con 30, las entregas tardan y la entrega lenta es la causa nº1 de reportes |
-| R3 | 🟡 **A medias** — acceso personal al curso | Hecho: token por comprador, `/a/<token>` → cookie → `/curso`, reemitir revoca el anterior, tabla con RLS en producción. **Falta lo importante**: que S10 mande ese enlace en vez de los 17 de Drive, y mudar los archivos a almacenamiento propio. Mientras el contenido viva en Drive público, esto es una puerta más bonita, **no una cerradura** |
+| R3 | ✅ **Hecho** — acceso personal + contenido propio | Token por comprador, `/a/<token>` → cookie → `/curso`, S10 manda **un** enlace. El contenido salió de Drive: **37 archivos, 12,3 GB** en almacén de objetos, servido con URL firmada de 5 min que no pasa por el servidor. 0,18 USD/mes. **Falta**: `megapack_master_ia`, que es un curso anidado a tres niveles |
 | R4 | **Sin tope de calentamiento** | Un número nuevo que recibe 100 conversaciones el primer día es un patrón que Meta detecta |
 | R5 | **Sin plan de migración de número** | Si cae, ¿cuánto tardas en tener otro funcionando? Debería ser 1 hora, no 1 semana |
 

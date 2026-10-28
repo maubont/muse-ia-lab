@@ -99,3 +99,28 @@ ve.cuenta.numero         = 01020123456789012345
 | P3 | ¿Sirvo los medios **desde el servidor** (hoy, sin nada) o esperas a tener **credenciales de Cloudflare R2**? Mi recomendación: servidor ahora, R2 cuando el curso pese. |
 | P3 | ¿Autorizas descargar las 13 carpetas de Drive para mudarlas? Es contenido tuyo y puede ser pesado |
 | P2 | ¿Confirmas que Venezuela **no** debe aceptarse en este lanzamiento? |
+
+---
+
+## Cierre (28-oct-2026, tarde)
+
+**P3 ejecutado.** El curso y tres de los cuatro bonos salieron de Drive:
+
+```
+29 archivos del curso    7.816 MB
+8 archivos de bonos      4.483 MB
+                        ─────────
+37 archivos             12.299 MB
+```
+
+Verificado archivo por archivo contra el bucket: **0 faltantes, 0 tamaños distintos**.
+
+| Decisión | Resultado |
+|---|---|
+| ¿Dónde? | Almacén de objetos de **Railway**, no Cloudflare: misma cuenta, mismos precios, cero trámites |
+| ¿Cómo se sirve? | **URL firmada de 5 minutos** con redirección: el video no pasa por el servidor |
+| ¿Cuánto cuesta? | **0,18 USD/mes**, salida gratis |
+
+Pendiente: `megapack_master_ia` es un curso dentro de otro con **tres niveles** de carpetas. Necesita un rastreo recursivo con inventario previo; descargarlo a ciegas sería el error que ya se evitó dos veces.
+
+**P2 ejecutado** con las decisiones confirmadas: Venezuela fuera, ventana de 24 h, monto distinto a cola humana. Sin tocar el módulo verificado: capa encima.
