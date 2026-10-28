@@ -106,14 +106,32 @@ function escapar(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Nombre de archivo legible a partir de la clave del almacén. */
-export function nombreVisible(clave: string): string {
-  const base = clave.split("/").pop() ?? clave;
-  return base
+/** Texto legible a partir de un segmento de la clave. */
+function legible(segmento: string): string {
+  return segmento
     .replace(/\.[a-z0-9]+$/i, "")
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/**
+ * Nombre de archivo legible a partir de la clave del almacén.
+ *
+ * `prefijo` es la parte de la clave que identifica al grupo (por ejemplo
+ * `bonos/megapack_master_ia`). Si después de quitarlo queda una carpeta, se
+ * antepone: dentro del megapack hay un `1.1 Introducción` en cada módulo, y sin
+ * la carpeta el alumno vería tres enlaces con el mismo nombre.
+ */
+export function nombreVisible(clave: string, prefijo?: string): string {
+  let resto = clave;
+  if (prefijo && resto.startsWith(prefijo + "/")) resto = resto.slice(prefijo.length + 1);
+
+  const partes = resto.split("/").filter(Boolean);
+  const archivo = legible(partes.pop() ?? clave);
+  if (partes.length === 0) return archivo;
+
+  return `${legible(partes[partes.length - 1])} · ${archivo}`;
 }
 
 /** Tipo de archivo por extensión, para etiquetar cada enlace. */
@@ -179,7 +197,7 @@ function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string 
     .map(({ archivo, url }) => {
       const { etiqueta, icono } = tipoDeArchivo(archivo);
       return `<a class="tarjeta" href="${escapar(url)}" target="_blank" rel="noopener noreferrer" style="margin-left:26px">
-        <span><strong>${escapar(nombreVisible(archivo))}</strong><span>${icono} ${etiqueta}</span></span>
+        <span><strong>${escapar(nombreVisible(archivo, "curso"))}</strong><span>${icono} ${etiqueta}</span></span>
       </a>`;
     })
     .join("");
@@ -216,10 +234,11 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opci
       }
 
       // Bono con varios archivos: título y una fila por archivo.
+      const prefijo = `bonos/${clave}`;
       const filas = enlaces.map(({ v, url }) => {
         const { etiqueta, icono } = tipoDeArchivo(v);
         return `<a class="tarjeta" href="${escapar(url)}" target="_blank" rel="noopener noreferrer" style="margin-left:26px">
-          <span><strong>${escapar(nombreVisible(v))}</strong><span>${icono} ${etiqueta}</span></span>
+          <span><strong>${escapar(nombreVisible(v, prefijo))}</strong><span>${icono} ${etiqueta}</span></span>
         </a>`;
       }).join("");
       return [`<h2>★ ${escapar(nombreDeBono(clave))}<small>${enlaces.length} archivos</small></h2>${filas}`];
