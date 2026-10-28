@@ -1,0 +1,182 @@
+// next/src/db/repositorio.ts — el `Repositorio` REAL, contra Postgres.
+//
+// Es la otra mitad del ejecutor: convierte efectos en SQL. La conexión se inyecta
+// (`consultar`), así que la lógica se prueba sin base de datos y en producción usa
+// el pool de `pg`.
+//
+// Decisiones que importan:
+//
+//  · `reclamarEntrega` es UN SOLO UPDATE con RETURNING. Es la única forma de que
+//    la carrera entre una captura y el operador se resuelva sin doble entrega.
+//  · `registrarPago` distingue QUÉ restricción se violó: si es la de referencia
+//    (`musa_payments_ref_unica`) devuelve `dupeRef`; si es la de `short_id`,
+//    reintenta con otro id. Confundirlas rompería el dedupe de comprobantes.
+//  · `actualizarLead` solo acepta columnas de una lista blanca. Nada de construir
+//    SQL con las claves que vengan del motor.
+//
+// GPT NO está implementado aquí: no hay presupuesto para llamadas. Las cuatro
+// operaciones que lo necesitan escalan a humano (la opción segura) y registran un
+// evento, en vez de inventar una respuesta.
+
+import type { Repositorio } from "../motor/ejecutar.ts";
+import type { DatosComprobante } from "../../../functions/motor/comprobante.ts";
+import type { Canal } from "../../../functions/canal/tipos.ts";
+
+/** Lo mínimo que hace falta de un cliente SQL. `pg.Pool.query` encaja. */
+export interface Consultar {
+  (sql: string, params?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
+}
+
+export interface DepsRepositorio {
+  consultar: Consultar;
+  canal: Canal;
+  /** WhatsApp del dueño, para las notificaciones de la cola humana. */
+  telefonoOperador: string;
+}
+
+/** Columnas que el motor puede tocar en `musa_leads`. */
+export const COLUMNAS_LEAD = new Set([
+  "nombre",
+  "pais",
+  "estado_funnel",
+  "mayor_18",
+  "avatar_enviado",
+  "opt_out",
+  "opt_in_vip",
+  "pagado",
+  "escalado_humano",
+  "bono_rapido_hasta",
+  "last_in_at",
+  "last_out_at",
+  "seguimientos_enviados",
+  "ctwa_clid",
+  "source_id",
+  "ref_code",
+]);
+
+const REF_UNICA = "musa_payments_ref_unica";
+const SHORT_ID_UNICO = "musa_payments_short_id_key";
+
+/** Genera un id corto de 4 dígitos para la cola humana (`ok 4821`). */
+export function nuevoShortId(): string {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+export function crearRepositorio(deps: DepsRepositorio): Repositorio {
+  const { consultar, canal, telefonoOperador } = deps;
+
+  return {
+    async actualizarLead(phone, patch) {
+      const claves = Object.keys(patch).filter((k) => COLUMNAS_LEAD.has(k));
+      if (claves.length === 0) return;
+      const sets = claves.map((k, i) => `"${k}" = $${i + 2}`);
+      const valores = claves.map((k) => patch[k]);
+      await consultar(
+        `update public.musa_leads set ${sets.join(", ")}, updated_at = now() where phone = $1`,
+        [phone, ...valores],
+      );
+    },
+
+    async cambiarEstado(phone, estado) {
+      await consultar(
+        "update public.musa_leads set estado_funnel = $2, updated_at = now() where phone = $1",
+        [phone, estado],
+      );
+    },
+
+    async registrarEvento(phone, nombre, detalle) {
+      await consultar(
+        "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, $2, $3::jsonb)",
+        [phone, nombre, JSON.stringify(detalle ?? {})],
+      );
+    },
+
+    async registrarPago(phone, pago) {
+      const fila = montarFilaPago(phone, pago);
+
+      for (let intento = 0; intento < 6; intento++) {
+        const shortId = nuevoShortId();
+        try {
+          const { rows } = await consultar(
+            `insert into public.musa_payments
+               (lead_phone, metodo, ref_normalizada, monto, moneda, fecha_pago, status,
+                datos_extraidos, motivo_flag, short_id, resolved_at)
+             values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11)
+             returning id, short_id`,
+            [
+              phone,
+              fila.metodo,
+              fila.ref_normalizada,
+              fila.monto,
+              fila.moneda,
+              fila.fecha_pago,
+              pago.estado === "aprobado" ? "aprobado" : "revision",
+              JSON.stringify(pago.datos ?? null),
+              pago.motivo,
+              shortId,
+              pago.estado === "aprobado" ? new Date().toISOString() : null,
+            ],
+          );
+          return { shortId: String(rows[0]?.short_id ?? shortId) };
+        } catch (e) {
+          const err = e as { code?: string; constraint?: string };
+          if (err.code === "23505" && err.constraint === REF_UNICA) return { dupeRef: true };
+          if (err.code === "23505" && err.constraint === SHORT_ID_UNICO) continue; // otro id
+          throw e;
+        }
+      }
+      throw new Error("no se pudo generar un short_id único tras 6 intentos");
+    },
+
+    async reclamarEntrega(phone) {
+      const { rows } = await consultar(
+        "update public.musa_leads set pagado = true, updated_at = now() where phone = $1 and pagado = false returning phone",
+        [phone],
+      );
+      return rows.length > 0;
+    },
+
+    async notificarOperador(texto) {
+      if (!telefonoOperador) return; // sin operador configurado no se inventa un destino
+      await canal.enviar(telefonoOperador, { texto });
+    },
+
+    async enviar(phone, textos) {
+      for (const texto of textos) {
+        await canal.enviar(phone, { texto });
+      }
+    },
+
+    // ── GPT no implementado: se escala y se registra, nunca se improvisa ────
+    async gptResponder() {
+      return { escalo: true };
+    },
+    async gptFallback(phone) {
+      await this.registrarEvento(phone, "gpt_no_implementado", { motivo: "fallback" });
+    },
+    async responderObjecion(phone, args) {
+      await this.registrarEvento(phone, "gpt_no_implementado", { motivo: "objecion", id: args.id });
+    },
+    async reaskGate(phone, motivo) {
+      await this.registrarEvento(phone, "gpt_no_implementado", { motivo: `reask:${motivo}` });
+    },
+  };
+}
+
+/** Normaliza la fila del pago. La referencia va en solo dígitos, como el original. */
+export function montarFilaPago(
+  phone: string,
+  pago: { estado: "aprobado" | "revision"; motivo: string | null; datos: DatosComprobante | null },
+) {
+  const d = pago.datos;
+  const ref = (d?.numero_referencia ?? "").replace(/\D/g, "");
+  return {
+    lead_phone: phone,
+    metodo: d?.metodo ? String(d.metodo).slice(0, 60) : "por_clasificar",
+    ref_normalizada: ref || null,
+    monto: d?.monto ?? null,
+    moneda: d?.moneda ?? null,
+    fecha_pago: d?.fecha ?? null,
+    motivo_flag: pago.motivo,
+  };
+}
