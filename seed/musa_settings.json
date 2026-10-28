@@ -91,10 +91,21 @@
             "key": "entrega",
             "value": {
               "bonos": {
-                "audios_fempro": "https://drive.google.com/drive/folders/1prpULrTfut-46O_BXEakZv8CIOt1HQrg?usp=sharing",
-                "coleccion_modelos": "https://drive.google.com/drive/folders/1rkrx4eTHdAF90YOYjoUva328Ci_M6nMZ?usp=sharing",
-                "megapack_master_ia": "https://drive.google.com/drive/folders/1ujtfclhZHI0oVGM9aZ0cpGU43ZHAPsFe?usp=sharing",
-                "youtube_money_machine": "https://drive.google.com/drive/folders/1UMwTq1GoSopEoTc_wtRP8_V7n-dnbB3M?usp=sharing"
+                "audios_fempro": [
+                  "media:bonos/audios_fempro/MODELOS-IA-LISTAS-PRO.zip"
+                ],
+                "coleccion_modelos": [
+                  "media:bonos/coleccion_modelos/AUDIOS-FEMENINOS-HOT-PRO.zip"
+                ],
+                "youtube_money_machine": [
+                  "media:bonos/youtube_money_machine/Copia-de-01.-YT-MACHINE.mp4",
+                  "media:bonos/youtube_money_machine/Copia-de-02.-YT-MACHINE.mp4",
+                  "media:bonos/youtube_money_machine/Copia-de-03.-YT-MACHINE.mp4",
+                  "media:bonos/youtube_money_machine/Copia-de-14.1-Guia-de-Estudio-YouTube-Machine-Aula-1-completo.pdf",
+                  "media:bonos/youtube_money_machine/Copia-de-14.2-Guia-de-Estudio-YouTube-Machine-Aula-2.pdf",
+                  "media:bonos/youtube_money_machine/Copia-de-14.3-Guia-de-Estudio-YouTube-Machine-Aula-3.pdf"
+                ],
+                "megapack_master_ia": "https://drive.google.com/drive/folders/1ujtfclhZHI0oVGM9aZ0cpGU43ZHAPsFe?usp=sharing"
               },
               "modulos": [
                 {

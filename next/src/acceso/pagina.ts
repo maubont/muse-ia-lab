@@ -23,7 +23,8 @@ export type EntradaModulo = string | string[] | ModuloConfig;
 
 export interface EntregaConfig {
   modulos?: EntradaModulo[];
-  bonos?: Record<string, string>;
+  /** Cada bono puede ser un enlace o varios archivos migrados. */
+  bonos?: Record<string, string | string[]>;
   plan_accion_7dias?: string;
   link_grupo?: string;
 }
@@ -200,13 +201,28 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opci
   const listaModulos = modulos.map((m, i) => tarjetaModulo(i, m, token)).join("");
 
   const listaBonos = Object.entries(bonos)
-    .map(([clave, valor]) => {
-      const enlace = resolverEnlace(valor, token);
-      if (!enlace) return "";
-      return `<a class="tarjeta" href="${escapar(enlace)}" target="_blank" rel="noopener noreferrer">
-        <span class="num">★</span>
-        <span><strong>${escapar(nombreDeBono(clave))}</strong><span>Bono incluido</span></span>
-      </a>`;
+    .flatMap(([clave, valor]) => {
+      const valores = Array.isArray(valor) ? valor : [valor];
+      const enlaces = valores
+        .map((v) => ({ v, url: resolverEnlace(v, token) }))
+        .filter((x): x is { v: string; url: string } => !!x.url);
+      if (enlaces.length === 0) return [];
+
+      if (enlaces.length === 1) {
+        return [`<a class="tarjeta" href="${escapar(enlaces[0].url)}" target="_blank" rel="noopener noreferrer">
+          <span class="num">★</span>
+          <span><strong>${escapar(nombreDeBono(clave))}</strong><span>Bono incluido</span></span>
+        </a>`];
+      }
+
+      // Bono con varios archivos: título y una fila por archivo.
+      const filas = enlaces.map(({ v, url }) => {
+        const { etiqueta, icono } = tipoDeArchivo(v);
+        return `<a class="tarjeta" href="${escapar(url)}" target="_blank" rel="noopener noreferrer" style="margin-left:26px">
+          <span><strong>${escapar(nombreVisible(v))}</strong><span>${icono} ${etiqueta}</span></span>
+        </a>`;
+      }).join("");
+      return [`<h2>★ ${escapar(nombreDeBono(clave))}<small>${enlaces.length} archivos</small></h2>${filas}`];
     })
     .join("");
 
