@@ -1,146 +1,115 @@
 # Estado y traspaso — Musa v2 (Evolution API · Railway)
 
-**Última actualización:** 27-oct-2026, ronda 16 de la sesión autónoma.
+**Última actualización:** 28-oct-2026, cierre de la sesión autónoma (28 rondas).
 **Para qué sirve:** que quien retome no reconstruya contexto. Se lee en cinco minutos.
 
 ---
 
 ## 1. Dónde estamos, en una frase
 
-El canal está escrito y probado, el repo nuevo reproduce el esquema y la
-configuración reales, y **cuatro estados del funnel están portados** — pero
-**nada se ha desplegado**: falta conectar la instancia de Evolution y decidir
-cuatro cosas.
-
-**Nada de esto costó dinero, tocó producción ni movió datos de clientes.**
+**Musa corre en Railway de punta a punta con canal simulado**: webhook firmado →
+verificación → parseo → lead en Postgres → enrutador → motor del funnel → envío.
+Lo que falta es el **número de WhatsApp** para que ese envío llegue a una persona.
 
 ---
 
-## 2. Verificación: 1.117 aserciones, todas verdes
+## 2. Verificación: 1.306 aserciones locales + 9 remotas
+
+Todo se ejecuta **sin red, sin base de datos y sin gastar tokens** (salvo el ensayo
+remoto, que habla con el servidor desplegado):
 
 ```bash
-# repo viejo (functions/)
+# repo viejo
 node --experimental-strip-types scripts/test-comprobante.mjs      #  33
 node --experimental-strip-types scripts/test-guardarrailes.mjs    #  68
 node --experimental-strip-types scripts/test-canal-evolution.mjs  #  73
 node --experimental-strip-types scripts/test-copy.mjs             # 460
 
-# repo nuevo (next/)
+# repo nuevo
 node next/scripts/verificar-esquema.mjs                           # 262
 node next/scripts/verificar-seed.mjs                              #  36
 node next/scripts/test-servidor.mjs                               #  22
 node next/scripts/test-evo.mjs                                    #  40
-node --experimental-strip-types next/scripts/test-config.mjs      #  18
+node next/scripts/test-config.mjs                                 #  18
+node --experimental-strip-types next/scripts/test-s01.mjs         #  28
 node --experimental-strip-types next/scripts/test-s04.mjs         #  38
 node --experimental-strip-types next/scripts/test-s06.mjs         #  35
+node --experimental-strip-types next/scripts/test-s08.mjs         #  33
 node --experimental-strip-types next/scripts/test-s10.mjs         #  32
+node --experimental-strip-types next/scripts/test-main.mjs        #  13
+node --experimental-strip-types next/scripts/test-ejecutar.mjs    #  26
+node --experimental-strip-types next/scripts/test-repositorio.mjs #  27
+node --experimental-strip-types next/scripts/test-router.mjs      #  42
+node --experimental-strip-types next/scripts/test-motor-real.mjs  #  20
+
+# ensayo contra el servidor real (requiere MUSA_URL + secreto)
+node next/scripts/ensayo-e2e.mjs                                  #   9
 ```
 
-Todo corre sin red, sin base de datos y sin gastar tokens.
+**Tres niveles de garantía, que no se deben confundir:**
 
-**Tres niveles de garantía, y conviene no confundirlos:**
+| Nivel | Módulos |
+|---|---|
+| Equivalencia **demostrada** contra producción | comprobante, guardarraíles, copy |
+| Fidelidad **demostrada** por round-trip | esquema, seed |
+| Revisión **por lectura** (no demostrada) | s01, s04, s06, s08, s10, router, ejecutor, repositorio |
 
-| Nivel | Módulos | Qué significa |
+---
+
+## 3. Lo desplegado
+
+| Recurso | URL / valor |
+|---|---|
+| Gateway | `https://evolution-production-1418.up.railway.app` |
+| Servidor de Musa | `https://server-production-3709.up.railway.app` |
+| Base de datos | `Postgres-STdR` · 8 tablas · 13 claves · RLS en 8 |
+| Volumen | `evolution-volume` en `/evolution/instances` |
+| Instancia WhatsApp | `musa` — **`connecting`**, falta escanear el QR |
+| Webhook | configurado con JWT **y** cabecera estática |
+
+Proyecto **`musa`** (`3cb907d7…`), separado de SportBot. Rama de despliegue:
+`deploy/evolution`. `main` del repo **no** se ha pusheado.
+
+---
+
+## 4. Qué está portado del funnel
+
+| Estado | | Notas |
 |---|---|---|
-| **Equivalencia demostrada** | `comprobante`, `guardarraíles`, `copy` | Comparados diferencialmente contra el código en producción: 5.032 + 48.108 comparaciones y 0 diferencias |
-| **Fidelidad demostrada** | esquema y seed | El DDL y el SQL se comparan por round-trip contra la base real |
-| **Revisión por lectura** | `s04`, `s06`, `s10` | Portados a mano desde el original. **La equivalencia no está demostrada**; la puerta de paridad es obligatoria antes del cutover |
+| S00 → S01 → S02 | ✅ | Saludo, precio inmediato, avatar o puente |
+| S04_GATE18 | ✅ | 7 ramas; incluye el bug «Carlitos» |
+| S06_CIERRE / S07_DATOS_PAGO | ✅ | Nunca envía cuentas incompletas |
+| S08_ESPERA_CAPTURA | ✅ | 7 guardas en orden; nunca entrega sin pasarlas |
+| S09_VERIFICACION | ✅ | Acusa siempre: quien pagó no se queda en silencio |
+| S10_ENTREGA | ✅ | 13 módulos + 4 bonos en 3 mensajes, con barrera anti-doble-entrega |
+| S11_POSTVENTA · S90 · S91 | ⬜ | S91 se usa si el copy lo trae |
+
+Piezas de unión: `efectos.ts` (contrato), `ejecutar.ts` (ejecutor con barrera),
+`router.ts` (guardas globales + despacho), `db/repositorio.ts` (Postgres).
 
 ---
 
-## 3. Qué existe
+## 5. Lo que NO existe todavía
 
-### Repo viejo — sigue siendo el que corre
-
-| Archivo | Qué es |
+| Falta | Por qué |
 |---|---|
-| `functions/canal/tipos.ts` | Contrato de canal (`MensajeEntrante`/`MensajeSaliente`/`MediaRef`) |
-| `functions/canal/evolution.ts` | Adaptador Evolution: firma JWT fail-closed, parseo, envío, typing |
-| `functions/motor/comprobante.ts` | Núcleo antifraude |
-| `functions/motor/guardarrailes.ts` | Gate 18+, opt-out, honestidad, país |
-| `functions/motor/copy.ts` | Renderizado del copy |
-| `seed/` | Configuración, esquema y restricciones exportados de producción |
-
-### Repo nuevo — `next/`
-
-| Archivo | Qué es |
-|---|---|
-| `src/api/servidor.ts` | Webhook HTTP, cero dependencias, firma obligatoria antes de procesar |
-| `src/config.ts` | Contrato de configuración por NOMBRES de variable (nunca imprime valores) |
-| `deploy/` | Dockerfile de Evolution con el parche de Baileys, compose local, `.env.example` y guía de despliegue/recuperación |
-| `src/motor/efectos.ts` | El motor devuelve efectos, no los ejecuta |
-| `src/motor/s04.ts` | Gate 18+ |
-| `src/motor/s06.ts` | Cierre + datos de pago |
-| `src/motor/s10.ts` | Entrega |
-| `migrations/0001_esquema_inicial.sql` | DDL generado desde producción |
-| `migrations/0002_seed_configuracion.sql` | Las 13 claves, idempotentes |
-| `scripts/evo.mjs` | CLI para operar Evolution sin depender del agente |
-
-Generados y regenerables: `GUION-COLOMBIA.md` (el guion completo que recibe un
-lead colombiano) y los dos `.sql`.
+| **Visión real del comprobante** | Cuesta tokens de OpenAI; no hay presupuesto acordado. S08 decide sobre datos simulados |
+| **Avatar por nombre** | Depende de P3 (storage R2) y del pipeline fal.ai |
+| **GPT de conversación** | Igual que la visión. Sin él, `gptResponder` escala a humano y `gptFallback` registra `gpt_no_implementado` |
+| **S11 y S90** | Postventa y fallback libre |
+| **Puerta de paridad** | Necesita el número y el sistema viejo corriendo en paralelo |
+| **Observabilidad** | Hay eventos de `envio_fallido`, pero no alertas ni *dead-man's switch* |
 
 ---
 
-## 4. El funnel: qué falta
+## 6. Decisiones abiertas (solo dependen del dueño)
 
-| Estado | Situación |
-|---|---|
-| S00/S01/S02 (lead nuevo + avatar) | ⬜ sin portar — dependen del pipeline de video |
-| S04_GATE18 | ✅ portado |
-| S06_CIERRE / S07_DATOS_PAGO | ✅ portado |
-| **S08_ESPERA_CAPTURA** | ⬜ **el hueco crítico**: descarga, pHash, visión, circuit breaker, cola humana |
-| S09_VERIFICACION | ⬜ |
-| S10_ENTREGA | ✅ portado |
-| S11_POSTVENTA, S90/S91 | ⬜ |
-
-Sin S08 no hay cobro automático. Es el siguiente bloque de trabajo, y es el más
-grande: toca base de datos, visión y decisiones de dinero.
-
----
-
-## 5. Lo que NO se hizo, y por qué
-
-| No hecho | Motivo |
-|---|---|
-| Desplegar el backend | Regla de la sesión: sin autorización explícita |
-| Llamar a OpenAI / Twilio / fal.ai | Sin presupuesto acordado |
-| Instalar dependencias npm | El sandbox no permite escribir en `node_modules` ni lanzar hijos con tuberías. **Hay que hacerlo fuera del sandbox** |
-| Portar Wompi | Está dormido en producción (`pago.proveedor = "manual"`); portar código muerto es cómo se pierden las cosas |
-
-### Estado real de Railway (27-oct, tras la autorización)
-
-Proyecto **`musa`** (`3cb907d7-22bb-4fb5-9e51-1ba4af634ad3`), entorno `production`, **separado de SportBot**:
-
-| Recurso | Estado |
-|---|---|
-| `evolution` | ✅ desplegado y **corriendo** (Evolution v2.3.7 + parche de Baileys aplicado y verificado en el build) |
-| `Postgres-STdR` | ✅ desplegado; el gateway ya escribe ahí |
-| Volumen `evolution-volume` | ✅ montado en `/evolution/instances` |
-| Dominio público | ✅ `https://evolution-production-1418.up.railway.app` (responde **HTTP 200**) |
-| Instancia `musa` | ✅ creada, en `connecting`: **falta escanear el QR** |
-
-Despliegue: rama `deploy/evolution` del repo + `rootDirectory: next/deploy/evolution` + `railway.json` con `builder: DOCKERFILE` (Railpack no detecta el Dockerfile solo).
-
-**Hallazgo operativo:** la pila TLS de PowerShell y `curl` está bloqueada en este
-sandbox, pero **Node sí sale a internet**. Por eso todas las comprobaciones HTTP se
-hacen con Node, no con `Invoke-WebRequest`.
-
-### Pendiente
-
-1. **Escanear el QR** con el número dedicado de Musa (`/manager` del gateway o `evo.mjs qr`).
-2. **Configurar el webhook** cuando exista la URL del servidor de Musa (aún no desplegado).
-3. **Desplegar el servidor** de Musa (`next/`) y apuntar el webhook a él.
-
----
-
-## 6. Decisiones abiertas
-
-| # | Tema | Recomendación |
+| # | Tema | Efecto |
 |---|---|---|
-| **P1** | Gate 18+: `"no sé"` se clasifica como **menor** y bloquea al lead sin seguimientos | Que devuelva ambiguo y decida GPT (3 líneas) |
-| **P2** | Comprobantes: un destino que **contenga** el número de Musa se auto-aprueba | Decidir si se endurece a igualdad exacta |
-| **P3** | Storage de medios: R2 vs volumen local | R2 |
-| **P4** | `cuentas_ve` son datos de simulación que **parecen reales** («Carmen Rodriguez», 0414-1234567). `textoCuentasValido` los aprueba; solo `provisional` los frena. El campo `es_simulacion: true` **el código no lo lee** | Que el motor respete `es_simulacion`, o borrar el bloque VE |
+| **P1** | Gate 18+: `"no sé"` se clasifica como **menor** | Un adulto confundido queda bloqueado sin seguimientos |
+| **P2** | Comprobantes: un destino que **contenga** el número se auto-aprueba | Falso positivo posible |
+| **P3** | Storage de medios: R2 vs volumen local | Sin decidirlo no hay videos del avatar |
+| **P4** | `cuentas_ve` de simulación que parecen reales; `es_simulacion` no se lee | Si se quita `provisional`, se envían cuentas falsas |
 
 ---
 
@@ -150,26 +119,42 @@ hacen con Node, no con `Invoke-WebRequest`.
 # 1) comprobar que todo sigue verde
 node next/scripts/verificar-esquema.mjs && node next/scripts/verificar-seed.mjs
 
-# 2) ver el estado de Evolution (necesita URL + API key)
-$env:EVOLUTION_URL="https://<servicio>.up.railway.app"
-$env:EVOLUTION_APIKEY="<key>"
+# 2) ensayo contra el servidor desplegado
+$env:MUSA_URL="https://server-production-3709.up.railway.app"
+$env:EVOLUTION_WEBHOOK_SECRET="<de next/deploy/.env>"
+node next/scripts/ensayo-e2e.mjs
+
+# 3) estado del gateway y de la instancia
 node next/scripts/evo.mjs instancias
 node next/scripts/evo.mjs estado
-
-# 3) si hay que reconfigurar el webhook
-node next/scripts/evo.mjs webhook-set --url https://<tu-dominio>/webhook/evolution --jwt <secreto>
+node next/scripts/evo.mjs webhook-ver
 ```
 
-**Antes de tocar WhatsApp, verifica dos cosas en Railway:** que exista **Redis** y
-que haya **volumen en `/evolution/instances`**. Sin el volumen, cada redeploy borra
-la sesión de Baileys y hay que reescanear el QR.
+Los secretos están en `next/deploy/.env` (ignorado por git). Los nombres de las
+variables, en `next/deploy/.env.example`.
+
+**Para conectar el número:** `https://evolution-production-1418.up.railway.app/manager`
+→ escanear QR con el número dedicado. Requisito: número propio, que no haya estado
+registrado en otra cuenta de WhatsApp.
 
 ---
 
-## 8. Reglas que siguen vigentes
+## 8. Deudas conocidas
 
-- **No tocar** `valentina-chat` ni `contact_messages` (backend compartido con el CV).
-- **No push a `main`** sin autorización: dispara despliegue automático.
-- **Presupuesto acordado** antes de cualquier llamada pagada a OpenAI, Twilio o fal.ai.
-- El repo viejo queda congelado como oráculo hasta que el nuevo pase
-  `scripts/verificar-funnel-colombia.mjs` (8/8).
+1. `next/` construye desde la raíz del repo, así que `pg` vive en el `package.json`
+   raíz. Se resuelve cuando `next/` sea su propio repositorio.
+2. Seis URLs de InsForge dentro de la configuración (avatar y 2 enlaces) — se
+   rompen al mudar a R2.
+3. El puente sin avatar promete «una sorpresa» que nunca llega (contradice el
+   comentario del código original).
+4. `evo.mjs crear` no tiene prueba automatizada.
+
+---
+
+## 9. Reglas vigentes
+
+- **No push a `main`**: dispara el despliegue automático de InsForge.
+- No tocar `valentina-chat` ni `contact_messages`.
+- Sin gasto en OpenAI / Twilio / fal.ai sin presupuesto acordado.
+- Ningún secreto en el repo, en issues ni en el chat.
+- El repo viejo queda congelado como oráculo hasta pasar la puerta de paridad.
