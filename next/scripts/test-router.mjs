@@ -102,6 +102,21 @@ for (const palabra of ["stop", "salir", "cancelar", "baja", "mejor no, salir"]) 
   t("estado no portado: fallback", tipos(e), ["gpt_fallback"]);
 }
 
+{
+  // Quien ya pagó y escribe mientras se verifica NO puede quedarse en silencio.
+  const e = ruta("ya me lo activas?", "ya me lo activas?", { lead: { estado_funnel: "S09_VERIFICACION" } });
+  t("S09: siempre acusa", tipos(e), ["enviar"]);
+  t("S09: el mensaje tranquiliza", de(e, "enviar")[0].textos[0].includes("acceso queda asegurado"), true);
+  t("S09: NO delega al GPT", tipos(e).includes("gpt_fallback"), false);
+}
+
+{
+  // Pero un STOP en S09 sigue mandando a callar: la baja manda sobre todo.
+  const e = ruta("stop", "stop", { lead: { estado_funnel: "S09_VERIFICACION" } });
+  t("S09 + STOP: da de baja", de(e, "lead")[0].patch.opt_out, true);
+  t("S09 + STOP: no acusa", de(e, "enviar")[0].textos[0].includes("verificando"), false);
+}
+
 // ============================== preguntas de etapa ==============================
 {
   t("pregunta de etapa conocida", preguntaDeEtapa("S04_GATE18").includes("18"), true);

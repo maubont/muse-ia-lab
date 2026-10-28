@@ -31,10 +31,17 @@ Cuenta: `inge.bonillajm@gmail.com` · proyecto `3cb907d7-22bb-4fb5-9e51-1ba4af63
 | Recurso | Estado |
 |---|---|
 | Servicio `evolution` | ✅ corriendo — Evolution **v2.3.7 + parche de Baileys** aplicado y verificado en el build |
-| Servicio `Postgres-STdR` | ✅ corriendo; el gateway escribe ahí |
+| Servicio `Postgres-STdR` | ✅ corriendo; **8 tablas `musa_*` y 13 claves cargadas**, RLS activo en las 8 |
 | Volumen `evolution-volume` | ✅ montado en `/evolution/instances` |
-| Dominio público | ✅ `https://evolution-production-1418.up.railway.app` — responde **HTTP 200** |
-| Instancia `musa` | 🟡 creada, en **`connecting`**: falta escanear el QR |
+| Dominio del gateway | ✅ `https://evolution-production-1418.up.railway.app` — **HTTP 200** |
+| Servicio `server` | ✅ corriendo — `https://server-production-3709.up.railway.app` — `/salud` **200** |
+| Webhook | ✅ configurado con **JWT + cabecera estática**, evento `MESSAGES_UPSERT` |
+| Instancia `musa` | 🟡 creada, en **`connecting`**: falta escanear el QR (requiere número) |
+
+**Ensayo de punta a punta verificado sin número:** `next/scripts/ensayo-e2e.mjs` → **9/9**
+contra el servidor real. Un webhook firmado recorre firma → parseo → dedupe →
+motor → envío; el envío falla limpio (`Connection Closed`) porque la instancia no
+está vinculada, y eso es lo esperado.
 
 Despliegue configurado como: rama `deploy/evolution` → `rootDirectory:
 next/deploy/evolution` → `railway.json` con `builder: DOCKERFILE`.
@@ -85,13 +92,19 @@ Ejecutables **sin red, sin base de datos y sin gastar tokens**:
 
 | Área | Avance | Qué falta |
 |---|---|---|
-| Gateway de WhatsApp (Railway) | **90 %** | Escanear el QR |
+| Gateway de WhatsApp (Railway) | **95 %** | Escanear el QR (necesita número) |
 | Adaptador de canal | **95 %** | Confirmar en producción cuál mecanismo de firma llega |
-| Servidor / backend | **60 %** | Desplegar `next/` en Railway; conectar repo de datos |
-| Motor del funnel | **50 %** | S08 (comprobante) y S01/S02/S11 |
-| Cobro y entrega | **65 %** | S08 es el hueco: sin él no hay cobro automático |
-| Observabilidad | **10 %** | Sin alertas, sin *dead-man's switch* |
+| Servidor / backend | **95 %** | Desplegado con motor real contra Postgres |
+| Base de datos | **100 %** | 8 tablas + 13 claves cargadas |
+| Motor del funnel | **80 %** | Falta S11 y S90; S01/S02/S04/S06/S07/S08/S09/S10 hechos |
+| Cobro y entrega | **90 %** | Decisiones completas; falta visión real y entrega por canal |
+| Observabilidad | **35 %** | Hay eventos de envío fallido; faltan alertas y *dead-man's switch* |
 | Comercial (número, Meta, anuncios) | **0 %** | Número dedicado, Business Manager, creativos, campaña |
+
+**El camino completo de un cliente existe y corre**: saludo → gate 18+ → cierre →
+datos de pago → comprobante → verificación → entrega, con la telemetría de envíos
+fallidos. Lo que no existe todavía es la visión real del comprobante (necesita
+OpenAI) y el avatar por nombre.
 
 ---
 

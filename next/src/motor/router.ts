@@ -33,6 +33,14 @@ import type { AvatarListo } from "./s01.ts";
 export const MSG_OPTOUT =
   "Listo 👍 Quedas fuera de la lista y no te volveré a escribir. ¡Gracias por tu tiempo y que te vaya bonito! 💜";
 
+/**
+ * En S09 el lead YA PAGÓ y espera verificación humana. Escribir y no recibir
+ * nada es lo que más desespera a alguien que acaba de pagar: siempre se acusa.
+ * Copiado literal del original (L1563-1564).
+ */
+export const MSG_VERIFICANDO =
+  "Seguimos verificando tu pago ✅ Tu acceso queda asegurado; te confirmo por aquí mismo apenas esté listo 💜";
+
 /** Pregunta de retorno por etapa. El original tiene un mapa; aquí lo esencial. */
 export const PREGUNTA_PENDIENTE: Record<string, string> = {
   S04_GATE18: "¿Me confirmas que ya tienes 18 años o más?",
@@ -142,6 +150,10 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
         return [{ tipo: "gpt_fallback" }];
       }
       return decidirS08({ lead, cfg, ...e.comprobante });
+
+    case "S09_VERIFICACION":
+      // Ya pagó y espera revisión humana: nunca dejarlo en silencio.
+      return [{ tipo: "enviar", textos: [MSG_VERIFICANDO] }];
 
     default:
       // Estados aún no portados (S00, S01, S02, S09, S11, S90…).
