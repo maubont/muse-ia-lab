@@ -1,0 +1,15 @@
+{
+  "name": "muse-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Musa v2 — núcleo del funnel de ventas sobre Evolution API (Baileys)",
+  "scripts": {
+    "esquema": "node scripts/generar-esquema.mjs",
+    "seed": "node scripts/generar-seed.mjs",
+    "evo": "node scripts/evo.mjs",
+    "guion": "node --experimental-strip-types scripts/generar-guion.mjs",
+    "test": "node scripts/test-servidor.mjs && node scripts/test-evo.mjs && node --experimental-strip-types scripts/test-s04.mjs && node --experimental-strip-types scripts/test-s06.mjs && node --experimental-strip-types scripts/test-s10.mjs",
+    "verificar": "node scripts/verificar-esquema.mjs && node scripts/verificar-seed.mjs"
+  }
+}

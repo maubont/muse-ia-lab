@@ -1,0 +1,38 @@
+{
+  "_procedencia": {
+    "que_es": "Restricciones (PK/UNIQUE/FK/CHECK) y columnas de identidad de producción, transcritas de consultas verificadas al catálogo de Postgres.",
+    "proyecto": "cv-mauricio",
+    "fecha": "2026-10-27",
+    "por_que_existe": "El export JSON de esquema no incluye CHECK constraints ni marca las columnas identity. Sin este archivo, un DDL generado perdería reglas de validación del negocio.",
+    "consultas": [
+      "select conrelid::regclass::text as tabla, contype, conname, pg_get_constraintdef(oid) as def from pg_constraint where connamespace='public'::regnamespace and conrelid::regclass::text like 'musa_%' and contype in ('p','u','f')",
+      "select conrelid::regclass::text as tabla, conname, pg_get_constraintdef(oid) as def from pg_constraint where contype='c' and connamespace='public'::regnamespace and conrelid::regclass::text like 'musa_%'",
+      "select table_name, column_name, identity_generation from information_schema.columns where table_schema='public' and table_name like 'musa_%' and is_identity='YES'"
+    ]
+  },
+  "identity": {
+    "musa_exchange_rates": ["id"],
+    "musa_funnel_events": ["id"],
+    "musa_messages": ["id"],
+    "musa_payments": ["id"],
+    "musa_testimonios": ["id"]
+  },
+  "constraints": [
+    { "tabla": "musa_exchange_rates", "tipo": "p", "nombre": "musa_exchange_rates_pkey", "definicion": "PRIMARY KEY (id)" },
+    { "tabla": "musa_funnel_events", "tipo": "p", "nombre": "musa_funnel_events_pkey", "definicion": "PRIMARY KEY (id)" },
+    { "tabla": "musa_leads", "tipo": "p", "nombre": "musa_leads_pkey", "definicion": "PRIMARY KEY (phone)" },
+    { "tabla": "musa_messages", "tipo": "p", "nombre": "musa_messages_pkey", "definicion": "PRIMARY KEY (id)" },
+    { "tabla": "musa_payments", "tipo": "p", "nombre": "musa_payments_pkey", "definicion": "PRIMARY KEY (id)" },
+    { "tabla": "musa_settings", "tipo": "p", "nombre": "musa_settings_pkey", "definicion": "PRIMARY KEY (key)" },
+    { "tabla": "musa_testimonios", "tipo": "p", "nombre": "musa_testimonios_pkey", "definicion": "PRIMARY KEY (id)" },
+    { "tabla": "musa_videos_cache", "tipo": "p", "nombre": "musa_videos_cache_pkey", "definicion": "PRIMARY KEY (nombre_normalizado)" },
+    { "tabla": "musa_payments", "tipo": "u", "nombre": "musa_payments_ref_unica", "definicion": "UNIQUE (metodo, ref_normalizada)" },
+    { "tabla": "musa_payments", "tipo": "u", "nombre": "musa_payments_short_id_key", "definicion": "UNIQUE (short_id)" },
+    { "tabla": "musa_messages", "tipo": "f", "nombre": "musa_messages_lead_phone_fkey", "definicion": "FOREIGN KEY (lead_phone) REFERENCES musa_leads(phone) ON DELETE CASCADE" },
+    { "tabla": "musa_payments", "tipo": "f", "nombre": "musa_payments_lead_phone_fkey", "definicion": "FOREIGN KEY (lead_phone) REFERENCES musa_leads(phone)" },
+    { "tabla": "musa_testimonios", "tipo": "f", "nombre": "musa_testimonios_lead_phone_fkey", "definicion": "FOREIGN KEY (lead_phone) REFERENCES musa_leads(phone)" },
+    { "tabla": "musa_leads", "tipo": "c", "nombre": "musa_leads_pais_check", "definicion": "CHECK ((pais = ANY (ARRAY['VE'::text, 'CO'::text, 'OTRO'::text])))" },
+    { "tabla": "musa_messages", "tipo": "c", "nombre": "musa_messages_direction_check", "definicion": "CHECK ((direction = ANY (ARRAY['in'::text, 'out'::text])))" },
+    { "tabla": "musa_payments", "tipo": "c", "nombre": "musa_payments_status_check", "definicion": "CHECK ((status = ANY (ARRAY['pendiente'::text, 'aprobado'::text, 'rechazado'::text, 'revision'::text])))" }
+  ]
+}

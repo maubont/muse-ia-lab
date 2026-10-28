@@ -38,6 +38,15 @@ node_modules/
 Thumbs.db
 desktop.ini
 
+# Secretos locales — NUNCA se commitean. Las plantillas sí (.env.example)
+.env
+.env.*
+!.env.example
+
 # Imagenes candidatas para revisar (viven en el bucket)
 creativos-revisar/
 avatar/creativos-candidatos/
+
+# Artefactos locales de la herramienta de agentes (no son del proyecto)
+.dsh-acl-recovery/
+.npm-cache/

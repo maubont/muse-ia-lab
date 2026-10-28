@@ -1,0 +1,76 @@
+name: musa-gateway
+
+# Entorno LOCAL de Musa para validar el canal sin tocar producción ni enviar
+# mensajes a clientes. El despliegue real (Railway) usa la misma imagen y las
+# mismas variables.
+#
+#   copy .env.example .env    # y rellenar AUTHENTICATION_API_KEY / EVOLUTION_JWT_KEY
+#   docker compose up -d --build
+#
+# Sin `build` se usaría la imagen oficial, que NO puede vincular (ver Dockerfile).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evolution}
+      POSTGRES_DB: evolution
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution -d evolution"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  evolution:
+    build: ./evolution
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_URL: http://localhost:8080
+      AUTHENTICATION_API_KEY: ${AUTHENTICATION_API_KEY:?falta AUTHENTICATION_API_KEY}
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://evolution:${POSTGRES_PASSWORD:-evolution}@postgres:5432/evolution?schema=public
+      DATABASE_SAVE_DATA_INSTANCE: "true"
+      DATABASE_SAVE_DATA_NEW_MESSAGE: "true"
+      DATABASE_SAVE_MESSAGE_UPDATE: "true"
+      # No se guardan contactos, chats ni histórico: Musa ya tiene su propio
+      # registro en musa_messages y esto solo engorda el Postgres del gateway.
+      DATABASE_SAVE_DATA_CONTACTS: "false"
+      DATABASE_SAVE_DATA_CHATS: "false"
+      DATABASE_SAVE_DATA_LABELS: "false"
+      DATABASE_SAVE_DATA_HISTORIC: "false"
+      # Redis desactivado a propósito: caché local es suficiente para una instancia.
+      CACHE_REDIS_ENABLED: "false"
+      CACHE_LOCAL_ENABLED: "true"
+      TELEMETRY_ENABLED: "false"
+      LOG_LEVEL: ERROR,WARN,INFO,WEBHOOKS
+      LOG_COLOR: "false"
+      LOG_BAILEYS: error
+      CONFIG_SESSION_PHONE_CLIENT: Muse IA Lab
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      QRCODE_LIMIT: "30"
+      LANGUAGE: es
+      # Webhook GLOBAL apagado: con global + instancia cada evento llega DOS veces.
+      WEBHOOK_GLOBAL_ENABLED: "false"
+      WEBHOOK_EVENTS_MESSAGES_UPSERT: "true"
+      WEBHOOK_EVENTS_MESSAGES_UPDATE: "true"
+      WEBHOOK_EVENTS_CONNECTION_UPDATE: "true"
+      WEBHOOK_EVENTS_QRCODE_UPDATED: "true"
+      WEBHOOK_REQUEST_TIMEOUT_MS: "20000"
+      WEBHOOK_RETRY_MAX_ATTEMPTS: "5"
+    volumes:
+      # AQUÍ VIVE el authState de Baileys. Es el activo más frágil del sistema:
+      # sin este volumen, cada redeploy invalida la sesión y hay que reescanear el QR.
+      - evolution_instances:/evolution/instances
+
+volumes:
+  pgdata:
+  evolution_instances:
