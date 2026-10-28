@@ -4,7 +4,16 @@
   "private": true,
   "type": "module",
   "description": "Scripts de generación de avatar y edge functions de Muse IA Lab",
+  "scripts": {
+    "test": "node --experimental-strip-types scripts/test-comprobante.mjs && node --experimental-strip-types scripts/test-guardarrailes.mjs && node --experimental-strip-types scripts/test-canal-evolution.mjs && node --experimental-strip-types scripts/test-copy.mjs",
+    "test:comprobante": "node --experimental-strip-types scripts/test-comprobante.mjs",
+    "test:guardarrailes": "node --experimental-strip-types scripts/test-guardarrailes.mjs",
+    "test:canal": "node --experimental-strip-types scripts/test-canal-evolution.mjs",
+    "test:copy": "node --experimental-strip-types scripts/test-copy.mjs"
+  },
   "dependencies": {
-    "ffmpeg-static": "^5.2.0"
-  }
+    "ffmpeg-static": "^5.2.0",
+    "pg": "^8.13.1"
+  },
+  "//": "pg es para el servidor de next/ (su build usa la raíz del repo hasta que next/ sea su propio repo)"
 }
