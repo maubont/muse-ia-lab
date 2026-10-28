@@ -19,6 +19,7 @@ import { motorEco } from "./motor/contrato.ts";
 import type { Motor } from "./motor/contrato.ts";
 import type { Entorno } from "./config.ts";
 import { crearVigilante, alertarPorWebhook } from "./monitor/vigilante.ts";
+import { revisarConfigAlerta } from "./monitor/alertas.ts";
 
 export interface OpcionesArranque {
   /** inyectable en pruebas */
@@ -118,12 +119,24 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
 
   // Monitor de sesión. Avisa por FUERA de WhatsApp: si WhatsApp está caído, avisar
   // por WhatsApp no sirve de nada.
+  // La configuración se revisa AL ARRANCAR: mejor saber hoy que la alerta no va a
+  // llegar, que descubrirlo el día de la caída.
+  const webhookAlerta = (env.MUSA_ALERTA_WEBHOOK ?? "").trim();
+  const chatAlerta = (env.MUSA_ALERTA_CHAT_ID ?? "").trim();
+  const revision = revisarConfigAlerta(webhookAlerta || undefined, chatAlerta || undefined);
+  console.log(revision.ok ? "[musa] alertas: configuradas" : `[musa] alertas: ${revision.motivo}`);
+
   const vigilante = crearVigilante({
     leerEstado: async () => {
       if (!canal.estadoSesion) return { estado: "desconocido", detalle: "canal_sin_estado" };
       return await canal.estadoSesion();
     },
-    alertar: (texto) => alertarPorWebhook((env.MUSA_ALERTA_WEBHOOK ?? "").trim() || undefined, texto),
+    alertar: (texto) =>
+      alertarPorWebhook(
+        (env.MUSA_ALERTA_WEBHOOK ?? "").trim() || undefined,
+        texto,
+        (env.MUSA_ALERTA_CHAT_ID ?? "").trim() || undefined,
+      ),
   });
   if (opciones.vigilar !== false) vigilante.arrancar(Number(env.MUSA_MONITOR_MS ?? 5 * 60_000));
 

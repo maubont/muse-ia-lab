@@ -4,6 +4,7 @@
 // decisión se prueba sin red y el cableado se prueba sin relojes.
 
 import { decidirVigilancia, lineaDeLog } from "./sesion.ts";
+import { prepararAlerta } from "./alertas.ts";
 import type { LecturaSesion, EstadoSesion } from "./sesion.ts";
 
 export interface DepsVigilante {
@@ -85,13 +86,26 @@ export function crearVigilante(deps: DepsVigilante): Vigilante {
 /**
  * Alerta por webhook externo. Sin URL configurada, solo deja constancia en el log:
  * es honesto — no prometemos un aviso que no va a llegar.
+ *
+ * El formato se elige por la forma de la URL (Telegram, Discord, Slack o genérico):
+ * cada servicio espera un cuerpo distinto y mandar el equivocado falla en silencio.
  */
-export async function alertarPorWebhook(url: string | undefined, texto: string): Promise<void> {
+export async function alertarPorWebhook(
+  url: string | undefined,
+  texto: string,
+  chatId?: string,
+): Promise<void> {
   if (!url) return;
-  await fetch(url, {
+  const { cuerpo } = prepararAlerta(url, texto, chatId);
+  const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: texto, fuente: "musa-monitor", cuando: new Date().toISOString() }),
+    body: JSON.stringify(cuerpo),
     signal: AbortSignal.timeout(10_000),
   });
+  // Un 4xx de Telegram (chat_id malo, token inválido) no lanza: se avisa en el log.
+  if (!res.ok) {
+    const detalle = await res.text().catch(() => "");
+    throw new Error(`alerta rechazada: HTTP ${res.status} ${detalle.slice(0, 120)}`);
+  }
 }
