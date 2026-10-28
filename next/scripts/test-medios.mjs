@@ -166,5 +166,47 @@ try {
   }
 }
 
+// ============================== almacén remoto: redirige, no sirve ==============================
+{
+  const canal = {
+    id: "evolution",
+    async verificar() { return { valido: true, motivo: "ok" }; },
+    async parsear() { return []; },
+    async enviar() { return { ok: true }; },
+    async marcarEscribiendo() {},
+  };
+  const acceso = {
+    validar: async (tk) => (tk === "TOK" ? { ok: true, phone: "+5730" } : { ok: false, motivo: "no_existe" }),
+    pagina: async () => "<h1>curso</h1>",
+    sinAcceso: () => "<h1>no</h1>",
+  };
+  const firmadas = [];
+  const medios = {
+    desplazar: async (clave) => {
+      firmadas.push(clave);
+      return clave === "curso/01/clase.mp4" ? "https://bucket.test/firmada?X-Amz-Signature=abc" : null;
+    },
+  };
+
+  const srv = crearServidor({ canal, motor: { async procesar() { return []; } }, acceso, medios });
+  const puerto = await srv.escuchar(0);
+  const base = `http://127.0.0.1:${puerto}`;
+
+  const r = await fetch(`${base}/media/TOK/curso/01/clase.mp4`, { redirect: "manual" });
+  t("remoto: 302 en vez de servir", r.status, 302);
+  t("remoto: redirige a la URL firmada", r.headers.get("location"), "https://bucket.test/firmada?X-Amz-Signature=abc");
+  t("remoto: no cachear el redirect", r.headers.get("cache-control"), "no-store");
+  t("remoto: no devuelve el archivo", (await r.text()), "");
+
+  const malo = await fetch(`${base}/media/OTRO/curso/01/clase.mp4`, { redirect: "manual" });
+  t("remoto sin token: 403 y NO se firma", malo.status, 403);
+  t("remoto sin token: sin firma", firmadas.length, 1);
+
+  const inexistente = await fetch(`${base}/media/TOK/curso/01/nada.mp4`, { redirect: "manual" });
+  t("remoto inexistente: 404", inexistente.status, 404);
+
+  await srv.cerrar();
+}
+
 console.log(`medios: ${ok} ok, ${fallas} fallas`);
 process.exit(fallas === 0 ? 0 : 1);

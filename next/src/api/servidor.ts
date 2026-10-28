@@ -60,7 +60,12 @@ export interface OpcionesServidor {
    * El archivo se sirve SOLO con un token de acceso válido.
    */
   medios?: {
-    resolver: (clave: string) => Promise<{ ruta: string; tamano: number; tipo: string; nombre: string } | null>;
+    resolver?: (clave: string) => Promise<{ ruta: string; tamano: number; tipo: string; nombre: string } | null>;
+    /**
+     * Almacén remoto: devuelve una URL firmada. Si está, se REDIRIGE en vez de
+     * servir el archivo: el contenido no pasa por este servidor.
+     */
+    desplazar?: (clave: string) => Promise<string | null>;
   };
 }
 
@@ -206,7 +211,24 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const v = await opts.acceso.validar(token);
       if (!v.ok) return json(res, 403, { error: "sin_acceso" });
 
-      const medio = await opts.medios.resolver(decodeURIComponent(clave));
+      const claveLimpia = decodeURIComponent(clave);
+
+      // Almacén remoto: se comprueba el token aquí y se REDIRIGE con una firma
+      // que caduca. El archivo va del almacén al alumno sin pasar por aquí.
+      if (opts.medios.desplazar) {
+        const firmada = await opts.medios.desplazar(claveLimpia);
+        if (!firmada) return json(res, 404, { error: "no_existe" });
+        res.writeHead(302, {
+          Location: firmada,
+          // La URL firmada caduca; este redirect no debe quedar cacheado.
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, nofollow",
+        });
+        return res.end();
+      }
+
+      if (!opts.medios.resolver) return json(res, 404, { error: "no_encontrado" });
+      const medio = await opts.medios.resolver(claveLimpia);
       if (!medio) return json(res, 404, { error: "no_existe" });
 
       // Rangos: sin esto no se puede adelantar un video en el móvil.

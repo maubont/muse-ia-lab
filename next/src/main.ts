@@ -140,14 +140,25 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
   // Almacén de contenido: los archivos del curso detrás del mismo token.
   // Local por ahora; cuando el curso pese se cambia por R2 sin tocar nada más.
   let medios: OpcionesServidor["medios"];
-  const dirMedios = (env.MUSA_MEDIOS_DIR ?? "").trim();
-  if (dirMedios) {
-    const { crearAlmacenLocal } = await import("./acceso/medios.ts");
-    const almacen = crearAlmacenLocal(dirMedios);
-    medios = { resolver: (clave: string) => almacen.resolver(clave) };
-    console.log(`[musa] medios: GET /media/<token>/<clave> · ${dirMedios}`);
+  const { configDesdeEntorno } = await import("./acceso/almacen-s3.ts");
+  const cfgS3 = configDesdeEntorno(env as Record<string, string | undefined>);
+
+  if (cfgS3) {
+    // Almacén de objetos: el archivo NO pasa por este servidor.
+    const { crearAlmacenS3 } = await import("./acceso/almacen-s3.ts");
+    const remoto = crearAlmacenS3(cfgS3);
+    medios = { desplazar: (clave: string) => remoto.desplazar(clave) };
+    console.log(`[musa] medios: objetos · bucket ${cfgS3.bucket} · URL firmada ${cfgS3.segundos}s`);
   } else {
-    console.log("[musa] medios: sin MUSA_MEDIOS_DIR, /media no existe");
+    const dirMedios = (env.MUSA_MEDIOS_DIR ?? "").trim();
+    if (dirMedios) {
+      const { crearAlmacenLocal } = await import("./acceso/medios.ts");
+      const almacen = crearAlmacenLocal(dirMedios);
+      medios = { resolver: (clave: string) => almacen.resolver(clave) };
+      console.log(`[musa] medios: GET /media/<token>/<clave> · ${dirMedios}`);
+    } else {
+      console.log("[musa] medios: sin almacén configurado, /media no existe");
+    }
   }
 
   const servidor = crearServidor({

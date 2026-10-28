@@ -12,6 +12,8 @@
     "test:copy": "node --experimental-strip-types scripts/test-copy.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1159.0",
+    "@aws-sdk/s3-request-presigner": "^3.1159.0",
     "ffmpeg-static": "^5.2.0",
     "pg": "^8.13.1"
   },
