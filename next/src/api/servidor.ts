@@ -175,7 +175,8 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const token = m ? decodeURIComponent(m[1]) : "";
       const v = token ? await opts.acceso.validar(token) : { ok: false, motivo: "sin_cookie" };
       if (!v.ok || !v.phone) return html(res, 403, opts.acceso.sinAcceso(v.motivo));
-      return html(res, 200, await opts.acceso.pagina(v.phone));
+      // El token va a la página: sin él los enlaces `media:` no se pueden construir.
+      return html(res, 200, await opts.acceso.pagina(v.phone, token));
     }
 
     // ---- estado REAL de la sesión de WhatsApp ----
