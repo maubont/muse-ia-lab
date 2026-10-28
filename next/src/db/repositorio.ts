@@ -63,6 +63,19 @@ export const COLUMNAS_LEAD = new Set([
 const REF_UNICA = "musa_payments_ref_unica";
 const SHORT_ID_UNICO = "musa_payments_short_id_key";
 
+/**
+ * ¿El canal está caído (no «este mensaje falló»)?
+ * Con la sesión de WhatsApp cerrada, Evolution responde 500 con «Connection
+ * Closed» o el envío vence por timeout. En ambos casos no tiene sentido seguir.
+ */
+export function esCanalCaido(status?: number, motivo?: string): boolean {
+  const m = (motivo ?? "").toLowerCase();
+  if (m.includes("timeout")) return true;
+  if (m.includes("connection closed")) return true;
+  if (m.includes("connection failure")) return true;
+  return status === 500 || status === 502 || status === 503;
+}
+
 /** Genera un id corto de 4 dígitos para la cola humana (`ok 4821`). */
 export function nuevoShortId(): string {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -72,8 +85,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
   const { consultar, canal, telefonoOperador } = deps;
   const esperar = deps.esperar ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
-  /** Deja rastro de un envío fallido. Nunca lanza: es telemetría, no el flujo. */
-  const registrarEnvioFallido = async (phone: string, status?: number, motivo?: string) => {
+  /** Deja rastro de un envío fallido. Nunca lanza: es telemetría, no el flujo. */  const registrarEnvioFallido = async (phone: string, status?: number, motivo?: string) => {
     try {
       await consultar(
         "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, $2, $3::jsonb)",
@@ -167,10 +179,23 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       const bloques = limitarTurno(textos.flatMap((t) => partirMensaje(t)));
       let indice = 0;
       for (const texto of bloques) {
-        await canal.marcarEscribiendo(phone);
+        // El «escribiendo…» NO se espera: si el canal está lento sería otro
+        // timeout por mensaje. Se dispara y se sigue.
+        void canal.marcarEscribiendo(phone).catch?.(() => {});
         await esperar(retardoDeTurno(indice, texto));
         const r = await canal.enviar(phone, { texto });
-        if (!r.ok) await registrarEnvioFallido(phone, r.status, r.motivo);
+        if (!r.ok) {
+          await registrarEnvioFallido(phone, r.status, r.motivo);
+          // Canal caído: insistir con el resto solo acumula timeouts y el
+          // cliente no va a recibir ninguno. Se corta el turno.
+          if (esCanalCaido(r.status, r.motivo)) {
+            const restantes = bloques.length - indice - 1;
+            if (restantes > 0) {
+              await registrarEnvioFallido(phone, undefined, `turno_abortado:${restantes}_sin_intentar`);
+            }
+            return;
+          }
+        }
         indice++;
       }
     },
