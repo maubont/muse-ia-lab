@@ -54,17 +54,38 @@ Estado: ⬜ pendiente · 🟡 en curso · ✅ hecho · 🔴 bloqueado · ⏸️ 
 
 ---
 
-## FASE 2 — Servidor de Musa en Railway · 🟡 en curso
+## FASE 2 — Servidor de Musa en Railway · ✅ hecha
 
 | # | Paso | Quién | Estado | Criterio de terminado |
 |---|---|---|---|---|
-| 2.0 | **Punto de entrada del servidor** (`next/src/main.ts`) | 🤖 | ✅ | arranca, lee entorno y responde; 13 aserciones |
-| 2.1 | Servicio del backend desplegado | 🤖 | ⬜ | URL propia responde `/salud` |
-| 2.2 | Cargar `0001_esquema_inicial.sql` y `0002_seed_configuracion.sql` | 🤖 | ⬜ | 8 tablas y 13 filas en el Postgres |
-| 2.3 | Variables del servidor (`EVOLUTION_*`) | 🤖 | ⬜ | `test-config` en verde contra el entorno real |
-| 2.4 | Webhook apuntando al servidor | 🤖 | ⬜ | `webhook-ver` muestra la URL y la firma |
-| 2.5 | Ensayo de punta a punta **con canal simulado** | 🤖 | ⬜ | un POST firmado recorre config → canal → motor → envío |
+| 2.0 | **Punto de entrada del servidor** (`next/src/main.ts`) | 🤖 | ✅ | arranca, lee entorno y responde · 13 aserciones |
+| 2.1 | Servicio del backend desplegado | 🤖 | ✅ | `server-production-3709.up.railway.app/salud` → 200 |
+| 2.2 | Cargar `0001_esquema_inicial.sql` y `0002_seed_configuracion.sql` | 🤖 | ✅ | **8 tablas · 13 claves · RLS en 8** |
+| 2.3 | Variables del servidor (`EVOLUTION_*`) | 🤖 | ✅ | 7 variables cargadas, sin imprimir valores |
+| 2.4 | Webhook apuntando al servidor | 🤖 | ✅ | URL + JWT + cabecera estática configurados |
+| 2.5 | Ensayo de punta a punta **con canal simulado** | 🤖 | ✅ | `ensayo-e2e.mjs` → **9/9** contra el servidor real |
 | 2.6 | Sustituir las 6 URLs de InsForge por R2 | 🤖 | ⏸️ | depende de P3 |
+
+### Evidencia del ensayo (sin número de WhatsApp)
+
+```
+/salud                     → 200  {"ok":true,"canal":"evolution"}
+webhook sin firma          → 403  {"motivo":"sin_bearer"}
+webhook firmado            → 200  {"procesados":1}
+reintento del mismo id     → 200  {"procesados":0}
+evento que no es mensaje   → 200  {"procesados":0}
+```
+
+En los logs del servidor real:
+
+```
+[musa] canal evolution listo · instancia=musa · escuchando en :8080
+[motor-eco] {"telefono":"+573001112233","texto":"hola desde el ensayo…","id_externo":"ENSAYO-…"}
+[servidor] envío falló: 500 {"message":"Connection Closed"}
+```
+
+El último renglón es el esperado: la instancia aún no está vinculada, así que
+Evolution cierra la conexión. **Falla limpio, no rompe el webhook.**
 
 ---
 
@@ -75,13 +96,14 @@ Estado: ⬜ pendiente · 🟡 en curso · ✅ hecho · 🔴 bloqueado · ⏸️ 
 | S01/S02 (saludo + avatar) | ⬜ sin portar — dependen del pipeline de video |
 | **S04_GATE18** | ✅ portado · 38 aserciones |
 | **S06_CIERRE / S07_DATOS_PAGO** | ✅ portado · 35 aserciones |
-| **S08_ESPERA_CAPTURA** | ⬜ **el hueco crítico**: comprobante, visión, pHash, circuit breaker, cola humana |
+| **S08_ESPERA_CAPTURA** | ✅ portado · 33 aserciones — siete guardas en orden, ninguna ruta entrega sin pasarlas |
 | S09_VERIFICACION | ⬜ |
 | **S10_ENTREGA** | ✅ portado · 32 aserciones |
 | S11, S90, S91 | ⬜ |
 
-Sin S08 **no hay cobro automático**. Es el siguiente bloque grande y el más atado
-a base de datos.
+Con S08 portado, **el camino del dinero está completo en forma de decisiones**:
+gate 18+ → cierre → datos de pago → comprobante → entrega. Lo que falta es el
+enrutador que las conecta y la ejecución real de los efectos contra Postgres.
 
 ---
 

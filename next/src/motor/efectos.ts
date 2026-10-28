@@ -8,6 +8,7 @@
 // «enviar el mensaje suave» no es lo mismo que al revés.
 
 import type { LeadNombre } from "../../../functions/motor/copy.ts";
+import type { DatosComprobante } from "../../../functions/motor/comprobante.ts";
 
 export type LeadMotor = LeadNombre & {
   phone: string;
@@ -44,7 +45,15 @@ export type Efecto =
    * descartan todos los efectos posteriores y se registra
    * `entrega_omitida_ya_pagado`. El motor no puede decidirlo: depende de la BD.
    */
-  | { tipo: "reclamar_entrega" };
+  | { tipo: "reclamar_entrega" }
+  /**
+   * Persiste el comprobante en `musa_payments`. El runtime decide el `short_id`,
+   * aplica el dedupe por `UNIQUE (metodo, ref_normalizada)` y, si choca, vuelve a
+   * llamar al estado con `refDuplicada: true`.
+   */
+  | { tipo: "registrar_pago"; estado: "aprobado" | "revision"; motivo: string | null; datos: DatosComprobante | null }
+  /** Avisa al operador (dueño). El texto puede llevar `{{short_id}}`. */
+  | { tipo: "notificar_operador"; texto: string };
 
 /** Saca los efectos de un tipo (ayuda en pruebas y en el runtime). */
 export function deTipo<T extends Efecto["tipo"]>(efectos: Efecto[], tipo: T): Extract<Efecto, { tipo: T }>[] {
