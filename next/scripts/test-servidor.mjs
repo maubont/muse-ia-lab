@@ -194,6 +194,52 @@ const base = `http://127.0.0.1:${puerto}`;
   await explota.cerrar();
 }
 
+{
+  // ---- acceso al curso: el enlace se canjea por una cookie ----
+  const validos = new Set(["tok_valido_123456789012345"]);
+  const acceso = {
+    validar: async (token) =>
+      validos.has(token) ? { ok: true, phone: "+573001112233" } : { ok: false, motivo: "no_existe" },
+    pagina: async (phone) => `<h1>Curso de ${phone}</h1>`,
+    sinAcceso: (motivo) => `<h1>sin acceso: ${motivo ?? ""}</h1>`,
+  };
+  const srvAcceso = crearServidor({ canal, motor, acceso });
+  const pAcceso = await srvAcceso.escuchar(0);
+  const base3 = `http://127.0.0.1:${pAcceso}`;
+
+  const canje = await fetch(`${base3}/a/tok_valido_123456789012345`, { redirect: "manual" });
+  t("canje válido: 302", canje.status, 302);
+  t("canje válido: va a /curso", canje.headers.get("location"), "/curso");
+  const cookie = canje.headers.get("set-cookie") ?? "";
+  t("canje válido: pone cookie", cookie.includes("musa_acceso=tok_valido"), true);
+  t("canje válido: cookie HttpOnly", /HttpOnly/i.test(cookie), true);
+  t("canje válido: cookie SameSite", /SameSite=Lax/i.test(cookie), true);
+
+  const invalido = await fetch(`${base3}/a/tok_inventado_000000000000000`, { redirect: "manual" });
+  t("canje inválido: 403", invalido.status, 403);
+  t("canje inválido: sin cookie", invalido.headers.get("set-cookie"), null);
+
+  const conCookie = await fetch(`${base3}/curso`, { headers: { cookie: "musa_acceso=tok_valido_123456789012345" } });
+  t("curso con cookie: 200", conCookie.status, 200);
+  t("curso con cookie: es HTML", conCookie.headers.get("content-type").includes("text/html"), true);
+  t("curso con cookie: trae el curso", (await conCookie.text()).includes("Curso de"), true);
+  t("curso: no se cachea", conCookie.headers.get("cache-control"), "no-store");
+
+  const sinCookie = await fetch(`${base3}/curso`);
+  t("curso sin cookie: 403", sinCookie.status, 403);
+
+  const cookieMala = await fetch(`${base3}/curso`, { headers: { cookie: "musa_acceso=inventado" } });
+  t("curso con cookie inválida: 403", cookieMala.status, 403);
+
+  const sinAcceso = crearServidor({ canal, motor });
+  const pSin = await sinAcceso.escuchar(0);
+  const rSin = await fetch(`http://127.0.0.1:${pSin}/a/loquesea`, { redirect: "manual" });
+  t("sin módulo de acceso: 404", rSin.status, 404);
+  await sinAcceso.cerrar();
+
+  await srvAcceso.cerrar();
+}
+
 await srv.cerrar();
 
 // ---------- límite de cuerpo ----------

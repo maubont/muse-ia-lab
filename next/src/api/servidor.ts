@@ -45,6 +45,15 @@ export interface OpcionesServidor {
   claveCron?: string;
   /** Lectura del estado de la sesión, para `/salud/sesion`. */
   estadoSesion?: () => Promise<{ estado: string; detalle?: string }>;
+  /**
+   * Acceso al curso. Si no se pasa, las rutas `/a/*` y `/curso` no existen.
+   * `abrirlo` valida el token y devuelve la página, o el motivo del rechazo.
+   */
+  acceso?: {
+    validar: (token: string) => Promise<{ ok: boolean; phone?: string; motivo?: string }>;
+    pagina: (phone: string) => Promise<string>;
+    sinAcceso: (motivo?: string) => string;
+  };
 }
 
 export interface Servidor {
@@ -62,6 +71,17 @@ function json(res: ServerResponse, codigo: number, cuerpo: unknown): void {
   const texto = JSON.stringify(cuerpo);
   res.writeHead(codigo, { "Content-Type": "application/json; charset=utf-8", "Content-Length": Buffer.byteLength(texto) });
   res.end(texto);
+}
+
+/** HTML con cabeceras que evitan que el curso se indexe o se cachee en proxies. */
+function html(res: ServerResponse, codigo: number, cuerpo: string): void {
+  res.writeHead(codigo, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Content-Length": Buffer.byteLength(cuerpo),
+    "Cache-Control": "no-store",
+    "X-Robots-Tag": "noindex, nofollow",
+  });
+  res.end(cuerpo);
 }
 
 function leerCuerpo(req: IncomingMessage, limite: number): Promise<string | null> {
@@ -110,6 +130,39 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     if (url === RUTA_SALUD) {
       if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
       return json(res, 200, { ok: true, canal: opts.canal.id, uptime_s: Math.round(process.uptime()) });
+    }
+
+    // ---- acceso al curso: /a/<token> canjea el enlace por una cookie ----
+    if (url.startsWith("/a/")) {
+      if (!opts.acceso) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
+
+      const token = url.slice(3).split("?")[0];
+      const v = await opts.acceso.validar(token);
+      if (!v.ok) return html(res, 403, opts.acceso.sinAcceso(v.motivo));
+
+      // Cookie HttpOnly (no la lee JavaScript), SameSite=Lax (no viaja desde otros
+      // sitios) y Secure cuando la petición llegó por HTTPS.
+      const seguro = String(req.headers["x-forwarded-proto"] ?? "").includes("https") ? " Secure;" : "";
+      res.setHeader(
+        "Set-Cookie",
+        `musa_acceso=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 3600};${seguro}`,
+      );
+      res.statusCode = 302;
+      res.setHeader("Location", "/curso");
+      res.end();
+      return;
+    }
+
+    // ---- la página del curso, solo con cookie válida ----
+    if (url === "/curso") {
+      if (!opts.acceso) return json(res, 404, { error: "no_encontrado" });
+      const cookies = String(req.headers.cookie ?? "");
+      const m = cookies.match(/(?:^|;\s*)musa_acceso=([^;]+)/);
+      const token = m ? decodeURIComponent(m[1]) : "";
+      const v = token ? await opts.acceso.validar(token) : { ok: false, motivo: "sin_cookie" };
+      if (!v.ok || !v.phone) return html(res, 403, opts.acceso.sinAcceso(v.motivo));
+      return html(res, 200, await opts.acceso.pagina(v.phone));
     }
 
     // ---- estado REAL de la sesión de WhatsApp ----

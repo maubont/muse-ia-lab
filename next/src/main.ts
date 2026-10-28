@@ -18,6 +18,8 @@ import { leerConfigCanal, describirConfig } from "./config.ts";
 import { motorEco } from "./motor/contrato.ts";
 import type { Motor } from "./motor/contrato.ts";
 import type { Entorno } from "./config.ts";
+import type { Consultar } from "./db/repositorio.ts";
+import type { OpcionesServidor } from "./api/servidor.ts";
 import { crearVigilante, alertarPorWebhook } from "./monitor/vigilante.ts";
 import { revisarConfigAlerta } from "./monitor/alertas.ts";
 
@@ -94,14 +96,41 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
   const claveCron = (opciones.claveCron ?? env.MUSA_CRON_KEY ?? "").trim();
   let despacharRecordatorios = opciones.despacharRecordatorios;
 
-  if (urlBaseDatos && claveCron && !despacharRecordatorios) {
+  // Una sola conexión para todo lo que use la base.
+  let consultar: Consultar | undefined;
+  if (urlBaseDatos) {
     const { crearConexion } = await import("./db/pool.ts");
+    consultar = crearConexion(urlBaseDatos).consultar;
+  }
+
+  if (consultar && claveCron && !despacharRecordatorios) {
     const { despacharRecordatorios: despachar } = await import("./motor/despachar.ts");
-    const conexion = crearConexion(urlBaseDatos);
     const canalCron = crearCanalEvolutionConfig(env);
+    const consultarCron = consultar;
     despacharRecordatorios = () =>
-      despachar({ consultar: conexion.consultar, canal: canalCron, esperar: opciones.esperar });
+      despachar({ consultar: consultarCron, canal: canalCron, esperar: opciones.esperar });
     console.log("[musa] cron de recordatorios: POST /cron/recordatorios");
+  }
+
+  // Acceso al curso: /a/<token> canjea el enlace por una cookie.
+  let acceso: OpcionesServidor["acceso"];
+  if (consultar) {
+    const { validarToken } = await import("./acceso/accesos.ts");
+    const { paginaCurso, paginaSinAcceso } = await import("./acceso/pagina.ts");
+    const { leerConfigFunnel } = await import("./db/config-funnel.ts");
+    const consultarAcceso = consultar;
+    acceso = {
+      validar: (token: string) => validarToken(consultarAcceso, token, true),
+      pagina: async (phone: string) => {
+        const cfg = await leerConfigFunnel(consultarAcceso);
+        const { rows } = await consultarAcceso("select nombre, profile_name from public.musa_leads where phone = $1", [phone]);
+        const fila = rows[0] as { nombre?: string | null; profile_name?: string | null } | undefined;
+        const nombre = fila?.nombre ?? fila?.profile_name ?? null;
+        return paginaCurso(cfg.entrega as never, nombre);
+      },
+      sinAcceso: paginaSinAcceso,
+    };
+    console.log("[musa] acceso al curso: GET /a/<token> → /curso");
   }
 
   const servidor = crearServidor({
@@ -111,6 +140,7 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     despacharRecordatorios,
     claveCron,
     estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined,
+    acceso,
   });
 
   const puerto = await servidor.escuchar(opciones.puerto ?? Number(env.PORT ?? 8080));
