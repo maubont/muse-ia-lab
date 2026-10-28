@@ -112,8 +112,8 @@ que no tener alertas, porque crees que estás cubierto.
 Variables de entorno necesarias:
 
 ```
-MUSA_ALERTA_WEBHOOK=      # URL completa del webhook
-MUSA_ALERTA_CHAT_ID=      # solo Telegram
+ALERTA_WEBHOOK=      # URL completa del webhook
+ALERTA_CHAT_ID=      # solo Telegram
 ```
 
 **Valida esa configuración al arrancar** y escribe una línea clara:
