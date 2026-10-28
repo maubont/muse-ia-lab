@@ -27,6 +27,12 @@ export interface OpcionesArranque {
   host?: string;
   /** inyectable en pruebas: evita tocar la base de datos */
   motor?: Motor;
+  /** inyectable en pruebas */
+  esperar?: (ms: number) => Promise<void>;
+  /** inyectable en pruebas */
+  despacharRecordatorios?: () => Promise<unknown>;
+  /** inyectable en pruebas */
+  claveCron?: string;
 }
 
 /**
@@ -77,10 +83,29 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
   }
 
   const canal = crearCanalEvolution(config.config);
+  const motor = opciones.motor ?? await construirMotor(env);
+
+  // El cron solo existe si hay base de datos y clave configurada.
+  const urlBaseDatos = (env.DATABASE_URL ?? "").trim();
+  const claveCron = (opciones.claveCron ?? env.MUSA_CRON_KEY ?? "").trim();
+  let despacharRecordatorios = opciones.despacharRecordatorios;
+
+  if (urlBaseDatos && claveCron && !despacharRecordatorios) {
+    const { crearConexion } = await import("./db/pool.ts");
+    const { despacharRecordatorios: despachar } = await import("./motor/despachar.ts");
+    const conexion = crearConexion(urlBaseDatos);
+    const canalCron = crearCanalEvolutionConfig(env);
+    despacharRecordatorios = () =>
+      despachar({ consultar: conexion.consultar, canal: canalCron, esperar: opciones.esperar });
+    console.log("[musa] cron de recordatorios: POST /cron/recordatorios");
+  }
+
   const servidor = crearServidor({
     canal,
-    motor: opciones.motor ?? await construirMotor(env),
+    motor,
     host: opciones.host ?? "0.0.0.0",
+    despacharRecordatorios,
+    claveCron,
   });
 
   const puerto = await servidor.escuchar(opciones.puerto ?? Number(env.PORT ?? 8080));

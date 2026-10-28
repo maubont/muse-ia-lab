@@ -39,6 +39,10 @@ export interface OpcionesServidor {
    * En un contenedor hay que pasar `0.0.0.0`, o el proxy de la plataforma no llega.
    */
   host?: string;
+  /** Tarea del cron de recordatorios. Si no está, la ruta no existe. */
+  despacharRecordatorios?: () => Promise<unknown>;
+  /** Clave del cron (`x-cron-key`). Sin ella, la ruta del cron no se expone. */
+  claveCron?: string;
 }
 
 export interface Servidor {
@@ -49,6 +53,7 @@ export interface Servidor {
 }
 
 const RUTA_SALUD = "/salud";
+const RUTA_CRON = "/cron/recordatorios";
 
 function json(res: ServerResponse, codigo: number, cuerpo: unknown): void {
   const texto = JSON.stringify(cuerpo);
@@ -102,6 +107,28 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     if (url === RUTA_SALUD) {
       if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
       return json(res, 200, { ok: true, canal: opts.canal.id, uptime_s: Math.round(process.uptime()) });
+    }
+
+    // ---- cron de recordatorios: protegido por clave, nunca abierto ----
+    if (url === RUTA_CRON) {
+      if (!opts.despacharRecordatorios || !opts.claveCron) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+
+      const recibida = req.headers["x-cron-key"];
+      const clave = Array.isArray(recibida) ? recibida[0] : recibida;
+      // Comparación en tiempo constante: no filtrar el prefijo correcto.
+      if (!clave || clave.length !== opts.claveCron.length) return json(res, 403, { error: "no_autorizado" });
+      let diff = 0;
+      for (let i = 0; i < clave.length; i++) diff |= clave.charCodeAt(i) ^ opts.claveCron.charCodeAt(i);
+      if (diff !== 0) return json(res, 403, { error: "no_autorizado" });
+
+      try {
+        const r = await opts.despacharRecordatorios();
+        return json(res, 200, { ok: true, resultado: r });
+      } catch (e) {
+        console.error("[servidor] cron falló:", String(e).slice(0, 200));
+        return json(res, 500, { ok: false, error: "cron_fallido" });
+      }
     }
 
     if (url !== rutaWebhook) return json(res, 404, { error: "no_encontrado" });

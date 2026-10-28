@@ -103,6 +103,35 @@ t("arranca en un puerto real", srv.puerto > 0, true);
   t("reintento: no se reprocesa", j.procesados, 0);
 }
 
+// ---------- cron de recordatorios ----------
+{
+  const llamadas = [];
+  const srv2 = await arrancar({
+    env: ENV,
+    puerto: 0,
+    despacharRecordatorios: async () => { llamadas.push(1); return { enviados: 2 }; },
+    claveCron: "clave-del-cron",
+  });
+  const base2 = `http://127.0.0.1:${srv2.puerto}`;
+
+  const sinClave = await fetch(`${base2}/cron/recordatorios`, { method: "POST" });
+  t("cron sin clave: 403", sinClave.status, 403);
+
+  const malClave = await fetch(`${base2}/cron/recordatorios`, { method: "POST", headers: { "x-cron-key": "otra" } });
+  t("cron con clave errónea: 403", malClave.status, 403);
+
+  const ok = await fetch(`${base2}/cron/recordatorios`, { method: "POST", headers: { "x-cron-key": "clave-del-cron" } });
+  const j = await ok.json();
+  t("cron con clave: 200", ok.status, 200);
+  t("cron: ejecutó la tarea", llamadas.length, 1);
+  t("cron: devuelve el resultado", j.resultado.enviados, 2);
+
+  const get = await fetch(`${base2}/cron/recordatorios`, { headers: { "x-cron-key": "clave-del-cron" } });
+  t("cron con GET: 405", get.status, 405);
+
+  await srv2.cerrar();
+}
+
 await srv.cerrar();
 
 // ---------- configuración incompleta: no arranca ----------
