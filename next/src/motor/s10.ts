@@ -76,15 +76,23 @@ export function componerEntrega(lead: LeadNombre, cfg: CfgCopy): Entrega {
  * Efectos de la entrega, EN ESTE ORDEN:
  *   1. reclamar_entrega   (barrera: si no se gana, nada de lo demás ocurre)
  *   2. estado -> S10_ENTREGA
- *   3. enviar los 2 bloques + bienvenida (3 mensajes, nunca 17 sueltos)
+ *   3. entregar_curso (un enlace personal; o los bloques sueltos si no hay dominio)
  *   4. evento entrega_realizada con las cifras
+ *
+ * POR QUÉ UN EFECTO Y NO UN `enviar`: el enlace personal lleva un token que hay
+ * que crear en la base en ese instante. La decisión no puede hacerlo, pero sí
+ * puede exigir que sea después de la barrera y antes del evento.
  */
 export function efectosEntrega(lead: LeadNombre, cfg: CfgCopy): Efecto[] {
   const e = componerEntrega(lead, cfg);
   return [
     { tipo: "reclamar_entrega" },
     { tipo: "estado", nuevo: "S10_ENTREGA" },
-    { tipo: "enviar", textos: [e.bloqueModulos, e.bloqueBonos, e.bienvenida] },
+    {
+      tipo: "entregar_curso",
+      bienvenida: e.bienvenida,
+      respaldo: [e.bloqueModulos, e.bloqueBonos],
+    },
     {
       tipo: "evento",
       nombre: "entrega_realizada",

@@ -22,6 +22,7 @@ import type { Repositorio } from "../motor/ejecutar.ts";
 import type { DatosComprobante } from "../../../functions/motor/comprobante.ts";
 import type { Canal } from "../../../functions/canal/tipos.ts";
 import { partirMensaje, limitarTurno, retardoDeTurno } from "../motor/ritmo.ts";
+import { crearAcceso, enlaceDeAcceso } from "../acceso/accesos.ts";
 
 /** Lo mínimo que hace falta de un cliente SQL. `pg.Pool.query` encaja. */
 export interface Consultar {
@@ -38,6 +39,8 @@ export interface DepsRepositorio {
    * en producción es la real y da la sensación de que alguien escribe.
    */
   esperar?: (ms: number) => Promise<void>;
+  /** Dominio público del servidor. Sin él, la entrega cae a los enlaces sueltos. */
+  urlPublica?: string;
 }
 
 /** Columnas que el motor puede tocar en `musa_leads`. */
@@ -83,6 +86,7 @@ export function nuevoShortId(): string {
 
 export function crearRepositorio(deps: DepsRepositorio): Repositorio {
   const { consultar, canal, telefonoOperador } = deps;
+  const urlPublica = (deps.urlPublica ?? "").trim();
   const esperar = deps.esperar ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
   /** Deja rastro de un envío fallido. Nunca lanza: es telemetría, no el flujo. */  const registrarEnvioFallido = async (phone: string, status?: number, motivo?: string) => {
@@ -157,6 +161,24 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         }
       }
       throw new Error("no se pudo generar un short_id único tras 6 intentos");
+    },
+
+    async entregarCurso(phone, entrega) {
+      // Sin dominio público no hay enlace personal: se entrega lo que hay.
+      if (!urlPublica) {
+        await this.enviar(phone, [...entrega.respaldo, entrega.bienvenida]);
+        await this.registrarEvento(phone, "entrega_sin_acceso", { motivo: "MUSA_URL_PUBLICA sin configurar" });
+        return;
+      }
+
+      const { token } = await crearAcceso(consultar, phone);
+      const enlace = enlaceDeAcceso(urlPublica, token);
+
+      await this.enviar(phone, [
+        `🎓 *Tu acceso personal:*\n${enlace}\n\nGuárdalo: es tuyo y no caduca.`,
+        entrega.bienvenida,
+      ]);
+      await this.registrarEvento(phone, "acceso_creado", {});
     },
 
     async reclamarEntrega(phone) {

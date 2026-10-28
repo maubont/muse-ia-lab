@@ -54,7 +54,11 @@ async function construirMotor(env: Entorno): Promise<Motor> {
   const { crearMotorReal } = await import("./motor/motor-real.ts");
   const conexion = crearConexion(urlBaseDatos);
   console.log("[musa] motor real contra Postgres");
-  return crearMotorReal({ consultar: conexion.consultar, canal: crearCanalEvolutionConfig(env) });
+  return crearMotorReal({
+    consultar: conexion.consultar,
+    canal: crearCanalEvolutionConfig(env),
+    urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined,
+  });
 }
 
 /** Canal construido solo con el entorno (para el motor real). */

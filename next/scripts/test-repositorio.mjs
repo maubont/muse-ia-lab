@@ -154,6 +154,56 @@ const DATOS = {
   t("GPT ausente: queda registrado", consultas.at(-1).params[1], "gpt_no_implementado");
 }
 
+// ============================== entrega del curso ==============================
+{
+  // Con dominio público: se crea el acceso y se manda UN enlace, no 17.
+  const consultas = [];
+  const envios = [];
+  const consultar = async (sql, params) => {
+    consultas.push({ sql: sql.replace(/\s+/g, " ").trim(), params });
+    if (sql.includes("insert into public.musa_accesos")) return { rows: [{ token: "TOKEN123", expira_en: "2027-01-01" }] };
+    return { rows: [] };
+  };
+  const canal = {
+    id: "evolution",
+    async enviar(tel, m) { envios.push(m.texto); return { ok: true, id_externo: "x" }; },
+    async verificar() { return { valido: true, motivo: "ok" }; },
+    async parsear() { return []; },
+    async marcarEscribiendo() {},
+  };
+  const repo = crearRepositorio({
+    consultar, canal, telefonoOperador: "+573000000000",
+    urlPublica: "https://musa.test/", esperar: async () => {},
+  });
+
+  await repo.entregarCurso("+5730", { bienvenida: "Bienvenido", respaldo: ["MODULOS", "BONOS"] });
+
+  t("entrega: crea el acceso", consultas.some((c) => c.sql.startsWith("insert into public.musa_accesos")), true);
+  t("entrega: revoca el anterior antes de emitir", consultas.some((c) => c.sql.includes("set revocado_en = now()")), true);
+  t("entrega: manda dos mensajes", envios.length, 2);
+  t("entrega: el primero trae el enlace", envios[0].includes("https://musa.test/a/TOKEN123"), true);
+  t("entrega: NO manda los 17 enlaces", envios.join(" ").includes("drive.google.com"), false);
+  t("entrega: conserva la bienvenida", envios[1], "Bienvenido");
+}
+
+{
+  // Sin dominio público: cae al respaldo, no deja al cliente sin nada.
+  const envios = [];
+  const consultar = async () => ({ rows: [] });
+  const canal = {
+    id: "evolution",
+    async enviar(tel, m) { envios.push(m.texto); return { ok: true, id_externo: "x" }; },
+    async verificar() { return { valido: true, motivo: "ok" }; },
+    async parsear() { return []; },
+    async marcarEscribiendo() {},
+  };
+  const repo = crearRepositorio({ consultar, canal, telefonoOperador: "", esperar: async () => {} });
+  await repo.entregarCurso("+5730", { bienvenida: "Bienvenido", respaldo: ["MODULOS", "BONOS"] });
+
+  t("sin dominio: entrega el respaldo", envios.includes("MODULOS"), true);
+  t("sin dominio: no inventa un enlace", envios.join(" ").includes("/a/"), false);
+}
+
 // ============================== eventos ==============================
 {
   const { repo, consultas } = entorno();

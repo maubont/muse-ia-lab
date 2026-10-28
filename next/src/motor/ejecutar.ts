@@ -32,6 +32,12 @@ export interface Repositorio {
   enviar(phone: string, textos: string[]): Promise<void>;
   /** Adjunto con pie de texto (video del avatar). */
   enviarMedia(phone: string, media: { url: string; tipo: "video" | "imagen"; texto: string }): Promise<void>;
+  /**
+   * Entrega del curso: crea el acceso personal y manda el enlace.
+   * Si no hay dominio público configurado, cae al respaldo con los enlaces sueltos
+   * — nunca deja al cliente sin nada.
+   */
+  entregarCurso(phone: string, entrega: { bienvenida: string; respaldo: string[] }): Promise<void>;
   gptResponder(args: { instruccion: string; abortarSiEscala: boolean }): Promise<{ escalo: boolean }>;
   gptFallback(phone: string): Promise<void>;
   responderObjecion(phone: string, args: { id: number; conRecierre: boolean }): Promise<void>;
@@ -105,6 +111,10 @@ export async function ejecutar(
 
       case "reask_gate":
         await repo.reaskGate(phone, efecto.motivo);
+        break;
+
+      case "entregar_curso":
+        await repo.entregarCurso(phone, { bienvenida: efecto.bienvenida, respaldo: efecto.respaldo });
         break;
 
       case "enviar_media":

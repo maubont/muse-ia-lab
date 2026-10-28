@@ -67,9 +67,11 @@ t("los 17 enlaces son distintos", new Set(todos).size, 17);
 {
   const ef = efectosEntrega(LEAD, CFG);
   t("la barrera va PRIMERO", tipos(ef)[0], "reclamar_entrega");
-  t("orden completo", tipos(ef), ["reclamar_entrega", "estado", "enviar", "evento"]);
+  t("orden completo", tipos(ef), ["reclamar_entrega", "estado", "entregar_curso", "evento"]);
   t("estado final", de(ef, "estado")[0].nuevo, "S10_ENTREGA");
-  t("tres mensajes, no diecisiete", de(ef, "enviar")[0].textos.length, 3);
+  t("la entrega lleva la bienvenida", de(ef, "entregar_curso")[0].bienvenida.includes("Bienvenida"), true);
+  // El respaldo son 2 bloques (módulos y bonos), nunca 17 mensajes sueltos.
+  t("respaldo de dos bloques, no diecisiete", de(ef, "entregar_curso")[0].respaldo.length, 2);
   t("evento con cifras", de(ef, "evento")[0].detalle, { modulos: 13, bonos: 4, tiene_plan: true });
   t("evento correcto", de(ef, "evento")[0].nombre, "entrega_realizada");
 }

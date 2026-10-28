@@ -31,6 +31,8 @@ export interface DepsMotorReal {
   ahora?: () => Date;
   /** Espera entre mensajes; inyectable para que las pruebas no duerman. */
   esperar?: (ms: number) => Promise<void>;
+  /** Dominio público; sin él la entrega manda los enlaces sueltos. */
+  urlPublica?: string;
 }
 
 interface LeadFila {
@@ -147,6 +149,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         canal,
         telefonoOperador: cfg.operador?.whatsapp ?? "",
         esperar: deps.esperar,
+        urlPublica: deps.urlPublica,
       });
       await ejecutar(efectos, { repo, phone: mensaje.telefono });
 

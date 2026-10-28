@@ -55,7 +55,13 @@ export type Efecto =
   /** Avisa al operador (dueño). El texto puede llevar `{{short_id}}`. */
   | { tipo: "notificar_operador"; texto: string }
   /** Envía un adjunto (video del avatar) con su pie de texto. */
-  | { tipo: "enviar_media"; url: string; mediaTipo: "video" | "imagen"; texto: string };
+  | { tipo: "enviar_media"; url: string; mediaTipo: "video" | "imagen"; texto: string }
+  /**
+   * Entrega el curso. El token de acceso se crea en el momento, así que esto NO
+   * puede decidirse aquí: necesita la base. `respaldo` son los bloques con los
+   * enlaces sueltos, para cuando no hay dominio público configurado.
+   */
+  | { tipo: "entregar_curso"; bienvenida: string; respaldo: string[] };
 
 /** Saca los efectos de un tipo (ayuda en pruebas y en el runtime). */
 export function deTipo<T extends Efecto["tipo"]>(efectos: Efecto[], tipo: T): Extract<Efecto, { tipo: T }>[] {
