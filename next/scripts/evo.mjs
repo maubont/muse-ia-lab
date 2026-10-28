@@ -26,7 +26,7 @@ Comandos:
   estado                          estado de conexión de la instancia
   qr                              pide el QR / código de vinculación
   webhook-ver                     muestra el webhook configurado
-  webhook-set --url <URL> [--jwt <secreto>]
+  webhook-set --url <URL> [--jwt <secreto>] [--secreto <valor>] [--cabecera <nombre>]
                                   configura el webhook (evento MESSAGES_UPSERT)
   crear [nombre]                  crea la instancia (Baileys, con QR)
   enviar <numero> <texto>         envía un mensaje de prueba
@@ -55,6 +55,8 @@ function parsear(argv) {
     else if (a === "--key") opciones.key = argv[++i];
     else if (a === "--instancia") opciones.instancia = argv[++i];
     else if (a === "--jwt") opciones.jwt = argv[++i];
+    else if (a === "--secreto") opciones.secreto = argv[++i];
+    else if (a === "--cabecera") opciones.cabecera = argv[++i];
     else opciones.posicional.push(a);
   }
   return opciones;
@@ -159,9 +161,16 @@ export async function ejecutar(argv, deps = {}) {
 
     case "webhook-set": {
       if (!opciones.webhookUrl) return { codigo: 2, salida: ["Falta --url <URL del webhook>"] };
-      if (!opciones.jwt) {
-        salida.push("⚠ sin --jwt: el webhook llegará SIN firma y el servidor lo rechazará con 403.");
+      if (!opciones.jwt && !opciones.secreto) {
+        salida.push("⚠ sin --jwt ni --secreto: el webhook llegará SIN firma y el servidor lo rechazará con 403.");
       }
+      // Evolution borra `jwt_key` de los headers y añade Authorization: Bearer.
+      // Los demás headers se conservan, así que se pueden configurar los dos
+      // mecanismos a la vez (v2.3.7 no firma, pero sí manda el header estático).
+      const cabeceras = {};
+      if (opciones.secreto) cabeceras[opciones.cabecera ?? "x-evolution-secret"] = opciones.secreto;
+      if (opciones.jwt) cabeceras.jwt_key = opciones.jwt;
+
       const cuerpo = {
         webhook: {
           enabled: true,
@@ -169,13 +178,14 @@ export async function ejecutar(argv, deps = {}) {
           byEvents: false,
           base64: false,
           events: EVENTOS,
-          ...(opciones.jwt ? { headers: { jwt_key: opciones.jwt } } : {}),
+          ...(Object.keys(cabeceras).length ? { headers: cabeceras } : {}),
         },
       };
       const r = await llamar("POST", `/webhook/set/${instancia}`, cuerpo);
       if (!r.ok) return { codigo: r.codigo, salida: [r.texto] };
       salida.push(`webhook configurado en ${instancia} -> ${opciones.webhookUrl}`);
-      salida.push(`eventos: ${EVENTOS.join(", ")} · firma: ${opciones.jwt ? "sí (jwt_key)" : "NO"}`);
+      salida.push(`eventos: ${EVENTOS.join(", ")}`);
+      salida.push(`firma: ${opciones.jwt ? "JWT" : "no"} · cabecera estática: ${opciones.secreto ? "sí" : "no"}`);
       return { codigo: 0, salida };
     }
 
