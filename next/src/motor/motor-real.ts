@@ -19,6 +19,7 @@ import { decidirRuta } from "./router.ts";
 import { ejecutar } from "./ejecutar.ts";
 import type { ClasificacionGPT } from "./efectos.ts";
 import { normalizar } from "../../../functions/motor/guardarrailes.ts";
+import { recordatoriosParaEstado, cuandoEnviar, ajustarAHorario } from "./recordatorios.ts";
 
 export interface DepsMotorReal {
   consultar: Consultar;
@@ -60,6 +61,18 @@ const SQL_MENSAJE = `
   values ($1, 'in', $2, $3, $4, $5)
 `;
 
+/** Al recibir un mensaje, se cancelan los recordatorios pendientes: el lead volvió. */
+const SQL_CANCELAR_RECORDATORIOS = `
+  update public.musa_recordatorios
+     set cancelado_en = now(), motivo = 'lead_respondio'
+   where lead_phone = $1 and enviado_en is null and cancelado_en is null
+`;
+
+const SQL_PROGRAMAR_RECORDATORIO = `
+  insert into public.musa_recordatorios (lead_phone, tipo, programado_para, motivo)
+  values ($1, $2, $3, $4)
+`;
+
 /** Lee el país del lead (columnas reales de la fila). */
 function aLead(fila: LeadFila) {
   return {
@@ -93,7 +106,11 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
 
   return {
     async procesar(mensaje: MensajeEntrante): Promise<MensajeSaliente[]> {
+      const t0 = Date.now();
       const cfg = await configuracion();
+
+      // 0. el lead volvió: no hay nada que recordarle
+      await consultar(SQL_CANCELAR_RECORDATORIOS, [mensaje.telefono]).catch(() => ({ rows: [] }));
 
       // 1. lead: crear o tocar (la base decide: `on conflict`)
       const { rows } = await consultar(SQL_UPSERT, [mensaje.telefono, mensaje.nombre_perfil]);
@@ -132,6 +149,23 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         esperar: deps.esperar,
       });
       await ejecutar(efectos, { repo, phone: mensaje.telefono });
+
+      // 6. recordatorios: si el estado cambió, se programan los del nuevo estado.
+      //    `ajustarAHorario` evita que caigan de madrugada.
+      const nuevoEstado = efectos.filter((e) => e.tipo === "estado").at(-1);
+      if (nuevoEstado && nuevoEstado.tipo === "estado" && nuevoEstado.nuevo !== lead.estado_funnel) {
+        for (const r of recordatoriosParaEstado(nuevoEstado.nuevo)) {
+          const cuando = ajustarAHorario(cuandoEnviar(ahora(), r.enMinutos));
+          await consultar(SQL_PROGRAMAR_RECORDATORIO, [mensaje.telefono, r.tipo, cuando.toISOString(), r.texto])
+            .catch(() => ({ rows: [] }));
+        }
+      }
+
+      // 7. métrica que decide: cuánto tardó la primera respuesta
+      await consultar(
+        "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1,$2,$3::jsonb)",
+        [mensaje.telefono, "respuesta_enviada", JSON.stringify({ ms: Date.now() - t0, estado: lead.estado_funnel })],
+      ).catch(() => ({ rows: [] }));
 
       // El motor envía por los efectos; devolver algo aquí duplicaría el envío.
       return [];
