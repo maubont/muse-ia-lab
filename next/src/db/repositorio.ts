@@ -65,6 +65,18 @@ export function nuevoShortId(): string {
 export function crearRepositorio(deps: DepsRepositorio): Repositorio {
   const { consultar, canal, telefonoOperador } = deps;
 
+  /** Deja rastro de un envío fallido. Nunca lanza: es telemetría, no el flujo. */
+  const registrarEnvioFallido = async (phone: string, status?: number, motivo?: string) => {
+    try {
+      await consultar(
+        "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, $2, $3::jsonb)",
+        [phone, "envio_fallido", JSON.stringify({ status: status ?? null, motivo: (motivo ?? "").slice(0, 200) })],
+      );
+    } catch {
+      /* si ni esto se puede, no se rompe el flujo por telemetría */
+    }
+  };
+
   return {
     async actualizarLead(phone, patch) {
       const claves = Object.keys(patch).filter((k) => COLUMNAS_LEAD.has(k));
@@ -143,15 +155,19 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     async enviar(phone, textos) {
       for (const texto of textos) {
-        await canal.enviar(phone, { texto });
+        const r = await canal.enviar(phone, { texto });
+        // Un fallo de envío NO se puede tragar: el motor ya decidió y el cliente
+        // no recibió nada. Se registra para que la Consola lo muestre.
+        if (!r.ok) await registrarEnvioFallido(phone, r.status, r.motivo);
       }
     },
 
     async enviarMedia(phone, media) {
-      await canal.enviar(phone, {
+      const r = await canal.enviar(phone, {
         texto: media.texto,
         media: { url: media.url, tipo: media.tipo },
       });
+      if (!r.ok) await registrarEnvioFallido(phone, r.status, r.motivo);
     },
 
     // ── GPT no implementado: se escala y se registra, nunca se improvisa ────

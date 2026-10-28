@@ -110,6 +110,30 @@ const DATOS = {
   await repo.enviar("+5730", ["uno", "dos"]);
   t("envía en orden", envios, [["+5730", "uno"], ["+5730", "dos"]]);
 }
+
+{
+  // Si el canal rechaza el envío, tiene que quedar registrado: el motor ya
+  // decidió y el cliente no recibió nada.
+  const consultas = [];
+  const consultar = async (sql, params) => {
+    consultas.push({ sql: sql.replace(/\s+/g, " ").trim(), params });
+    return { rows: [] };
+  };
+  const canalRoto = {
+    id: "evolution",
+    async enviar() { return { ok: false, id_externo: null, status: 500, motivo: "Connection Closed" }; },
+    async verificar() { return { valido: true, motivo: "ok" }; },
+    async parsear() { return []; },
+    async marcarEscribiendo() {},
+  };
+  const repoRoto = crearRepositorio({ consultar, canal: canalRoto, telefonoOperador: "+573000000000" });
+  await repoRoto.enviar("+5730", ["hola"]);
+
+  const fallo = consultas.find((c) => c.params?.[1] === "envio_fallido");
+  t("envío fallido queda registrado", !!fallo, true);
+  t("envío fallido: guarda el status", fallo?.params?.[2]?.includes("500"), true);
+  t("envío fallido: guarda el motivo", fallo?.params?.[2]?.includes("Connection Closed"), true);
+}
 {
   const { repo, envios } = entorno();
   await repo.notificarOperador("revisar #4821");
