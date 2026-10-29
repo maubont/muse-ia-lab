@@ -215,6 +215,13 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined,
     acceso,
     medios,
+    // Prueba mínima del proveedor: «configurado» y «funciona» no son lo mismo.
+    diagnosticoIa: cfgIa
+      ? async () => {
+          const { probarProveedor } = await import("./vision/proveedor.ts");
+          return probarProveedor(cfgIa);
+        }
+      : undefined,
   });
 
   const puerto = await servidor.escuchar(opciones.puerto ?? Number(env.PORT ?? 8080));

@@ -44,6 +44,12 @@ export interface OpcionesServidor {
   despacharRecordatorios?: () => Promise<unknown>;
   /** Clave del cron (`x-cron-key`). Sin ella, la ruta del cron no se expone. */
   claveCron?: string;
+  /**
+   * Prueba mínima del proveedor de IA (una llamada de 5 tokens).
+   * Existe porque «la configuración está puesta» y «la clave funciona» no son lo
+   * mismo: sin esto, una clave inválida solo se descubre con un comprobante real.
+   */
+  diagnosticoIa?: () => Promise<{ ok: boolean; motivo?: string; ms: number; muestra?: string }>;
   /** Lectura del estado de la sesión, para `/salud/sesion`. */
   estadoSesion?: () => Promise<{ estado: string; detalle?: string }>;
   /**
@@ -79,6 +85,7 @@ export interface Servidor {
 const RUTA_SALUD = "/salud";
 const RUTA_SALUD_SESION = "/salud/sesion";
 const RUTA_CRON = "/cron/recordatorios";
+const RUTA_DIAG_IA = "/diagnostico/ia";
 
 function json(res: ServerResponse, codigo: number, cuerpo: unknown): void {
   const texto = JSON.stringify(cuerpo);
@@ -268,6 +275,24 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const flujo = createReadStream(medio.ruta);
       flujo.on("error", () => res.destroy());
       return flujo.pipe(res);
+    }
+
+    // ---- diagnóstico del proveedor de IA: gated por la clave del cron ----
+    if (url === RUTA_DIAG_IA) {
+      if (!opts.diagnosticoIa || !opts.claveCron) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      const recibida = req.headers["x-cron-key"];
+      const clave = Array.isArray(recibida) ? recibida[0] : recibida;
+      if (!clave || clave.length !== opts.claveCron.length) return json(res, 403, { error: "no_autorizado" });
+      let diff = 0;
+      for (let i = 0; i < clave.length; i++) diff |= clave.charCodeAt(i) ^ opts.claveCron.charCodeAt(i);
+      if (diff !== 0) return json(res, 403, { error: "no_autorizado" });
+      try {
+        const r = await opts.diagnosticoIa();
+        return json(res, r.ok ? 200 : 502, r);
+      } catch (e) {
+        return json(res, 500, { ok: false, motivo: String(e).slice(0, 120), ms: 0 });
+      }
     }
 
     if (url === RUTA_CRON) {

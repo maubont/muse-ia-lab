@@ -197,3 +197,45 @@ export function configDesdeEntorno(env: Record<string, string | undefined>): Con
     salidaEstructurada: (env.MUSA_IA_JSON ?? "si") !== "no",
   };
 }
+/**
+ * PRUEBA MÍNIMA DEL PROVEEDOR: una llamada de texto, 5 tokens de salida.
+ * Sirve para distinguir «la configuración está puesta» de «la clave funciona».
+ * Cuesta del orden de una cienmilésima de dólar.
+ */
+export async function probarProveedor(
+  cfg: ConfigProveedor,
+  fetchImpl: typeof fetch = fetch,
+): Promise<{ ok: boolean; motivo?: string; ms: number; muestra?: string }> {
+  const t0 = Date.now();
+  const ctrl = new AbortController();
+  const reloj = setTimeout(() => ctrl.abort(), cfg.timeoutMs ?? 30000);
+  try {
+    const res = await fetchImpl(`${cfg.baseUrl.replace(/\/+$/, "")}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.apiKey}` },
+      body: JSON.stringify({
+        model: cfg.modelo,
+        max_tokens: 5,
+        temperature: 0,
+        ...(cfg.razonamiento ? { reasoning_effort: cfg.razonamiento } : {}),
+        messages: [{ role: "user", content: "Responde solo: ok" }],
+      }),
+      signal: ctrl.signal,
+    });
+    const ms = Date.now() - t0;
+    if (!res.ok) {
+      const cuerpo = await res.text().catch(() => "");
+      return { ok: false, motivo: `http_${res.status}:${cuerpo.slice(0, 120)}`, ms };
+    }
+    const j = (await res.json()) as Record<string, unknown>;
+    const elecciones = Array.isArray(j.choices) ? j.choices : [];
+    const msg = ((elecciones[0] as Record<string, unknown> | undefined)?.message ?? {}) as Record<string, unknown>;
+    const muestra = typeof msg.content === "string" ? msg.content.slice(0, 40) : "";
+    return { ok: true, ms, muestra };
+  } catch (e) {
+    const nombre = (e as { name?: string })?.name ?? "";
+    return { ok: false, motivo: nombre === "AbortError" ? "timeout" : String(e).slice(0, 100), ms: Date.now() - t0 };
+  } finally {
+    clearTimeout(reloj);
+  }
+}
