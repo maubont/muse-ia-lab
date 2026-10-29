@@ -50,6 +50,8 @@ export interface OpcionesServidor {
    * mismo: sin esto, una clave inválida solo se descubre con un comprobante real.
    */
   diagnosticoIa?: () => Promise<{ ok: boolean; motivo?: string; ms: number; muestra?: string }>;
+  /** Prueba con los comprobantes reales del repo. Cuesta ~0,001 USD por pasada. */
+  diagnosticoImagenes?: () => Promise<unknown>;
   /** Lectura del estado de la sesión, para `/salud/sesion`. */
   estadoSesion?: () => Promise<{ estado: string; detalle?: string }>;
   /**
@@ -287,6 +289,14 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       let diff = 0;
       for (let i = 0; i < clave.length; i++) diff |= clave.charCodeAt(i) ^ opts.claveCron.charCodeAt(i);
       if (diff !== 0) return json(res, 403, { error: "no_autorizado" });
+      if (url.includes("imagen") && opts.diagnosticoImagenes) {
+        try {
+          const r = (await opts.diagnosticoImagenes()) as { ok?: boolean };
+          return json(res, r?.ok ? 200 : 502, r);
+        } catch (e) {
+          return json(res, 500, { ok: false, motivo: String(e).slice(0, 150) });
+        }
+      }
       try {
         const r = await opts.diagnosticoIa();
         return json(res, r.ok ? 200 : 502, r);

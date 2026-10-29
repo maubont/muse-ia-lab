@@ -222,6 +222,10 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
           return probarProveedor(cfgIa);
         }
       : undefined,
+    // Prueba con los comprobantes reales del repo: ¿lee bien el monto y el estado?
+    diagnosticoImagenes: cfgIa
+      ? async () => (await import("./vision/diagnostico.ts")).diagnosticarImagenes(cfgIa)
+      : undefined,
   });
 
   const puerto = await servidor.escuchar(opciones.puerto ?? Number(env.PORT ?? 8080));
