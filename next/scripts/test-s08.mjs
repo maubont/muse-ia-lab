@@ -85,7 +85,9 @@ const entrega = (e) => e.some((x) => x.tipo === "reclamar_entrega");
   t("aprobado: registra como aprobado", de(e, "registrar_pago")[0].estado, "aprobado");
   t("aprobado: evento", de(e, "evento")[0].nombre, "pago_aprobado_auto");
   t("aprobado: ENTREGA", entrega(e), true);
-  t("aprobado: la barrera de entrega va antes de enviar", tipos(e).indexOf("reclamar_entrega") < tipos(e).indexOf("enviar"), true);
+  // La entrega dejó de ser un `enviar`: ahora es `entregar_curso`, que crea el
+  // acceso y manda UN enlace. La barrera tiene que seguir yendo antes.
+  t("aprobado: la barrera va antes de la entrega", tipos(e).indexOf("reclamar_entrega") < tipos(e).indexOf("entregar_curso"), true);
 }
 {
   const e = base({ breakerActivo: true });

@@ -116,6 +116,15 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     console.log("[musa] cron de recordatorios: POST /cron/recordatorios");
   }
 
+  // Lector de comprobantes: prefil tro -> cache -> presupuesto -> proveedor.
+  // Si no hay proveedor configurado, todo va a la cola humana (nunca a ciegas).
+  const { configDesdeEntorno: configIa } = await import("./vision/proveedor.ts");
+  const cfgIa = configIa(env as Record<string, string | undefined>);
+  console.log(
+    cfgIa
+      ? `[musa] visión: ${cfgIa.modelo} · presupuesto ${env.MUSA_PRESUPUESTO_DIARIO_USD ?? "1"} USD/día`
+      : "[musa] visión: sin proveedor · los comprobantes van a la cola humana",
+  );
   // Acceso al curso: /a/<token> canjea el enlace por una cookie.
   let acceso: OpcionesServidor["acceso"];
   if (consultar) {

@@ -18,7 +18,9 @@
 // Las llamadas a visión, descarga, subida y base de datos NO viven aquí: entran
 // como datos y salen como efectos. Así el estado se prueba sin red ni gastar tokens.
 
-import { decidirComprobante } from "../../../functions/motor/comprobante.ts";
+// La decisión pasa por la capa estricta (next/src/motor/pago-estricto.ts): no se
+// toca el módulo verificado, se envuelve. Ver EVALUACION-P2-P3.md.
+import { evaluarPago } from "./pago-estricto.ts";
 import type { CfgComprobante, DatosComprobante } from "../../../functions/motor/comprobante.ts";
 import type { CfgCopy } from "../../../functions/motor/copy.ts";
 import type { Efecto, LeadMotor } from "./efectos.ts";
@@ -86,7 +88,9 @@ export function decidirS08(e: EntradaS08): Efecto[] {
   if (e.imagenDuplicada) return colaHumana("imagen_duplicada", datos, acuse);
 
   // ── 4. Decisión por CÓDIGO (no por el LLM) ───────────────────────────────
-  const decision = decidirComprobante(cfg, datos, e.esPrimerPago);
+  // Pasa por la capa estricta: destino exacto, Venezuela fuera, ventana de 24 h,
+  // monto que cuadre y cuentas de simulación descartadas. Solo endurece.
+  const decision = evaluarPago(cfg, datos, e.esPrimerPago);
 
   // ── 5. Captura incompleta: se pide otra, sin molestar al dueño ───────────
   if (decision.accion === "PEDIR_REENVIO") {
