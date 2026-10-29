@@ -18,6 +18,7 @@
 // Las llamadas a GPT NO viven aquí: la clasificación entra como dato y las
 // respuestas libres salen como efectos. Así el gate se puede probar sin red.
 
+import { edadDelGate } from "./gate-edad.ts";
 import { clasificarEdadHeuristico, contienePregunta } from "../../../functions/motor/guardarrailes.ts";
 import { etapa, resolverPlaceholders } from "../../../functions/motor/copy.ts";
 import type { CfgCopy, LeadNombre } from "../../../functions/motor/copy.ts";
@@ -65,7 +66,9 @@ export function decidirS04(entrada: EntradaS04): Efecto[] {
   const { lead, cfg, body, norm } = entrada;
   const efectos: Efecto[] = [];
 
-  let edad = clasificarEdadHeuristico(norm);
+  // La heurística marca «menor» cualquier mensaje que empiece por «no». Esta capa
+  // lo corrige sin tocar el módulo verificado: ver gate-edad.ts.
+  let edad = edadDelGate(norm);
   let cls: ClasificacionGPT = null;
   if (!edad) {
     cls = entrada.clasificacion ?? null;
