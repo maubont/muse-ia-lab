@@ -58,6 +58,9 @@ async function construirMotor(env: Entorno): Promise<Motor> {
 
   const conexion = crearConexion(urlBaseDatos);
   const cfgIa = configIa(env as Record<string, string | undefined>);
+  // Se calcula UNA vez y se registra el número efectivo: si alguien escribe mal el
+  // nombre de la variable, el log mostrará 1 y no el valor que creía haber puesto.
+  const presupuestoDiario = Number(env.MUSA_PRESUPUESTO_DIARIO_USD ?? 1);
 
   // El lector vive aquí porque necesita la conexión. Sin proveedor devuelve
   // `cola_humana`: el comprobante lo mira una persona, nunca se auto-valida.
@@ -66,7 +69,7 @@ async function construirMotor(env: Entorno): Promise<Motor> {
       {
         consultar: conexion.consultar,
         proveedor: cfgIa,
-        presupuestoDiario: Number(env.MUSA_PRESUPUESTO_DIARIO_USD ?? 1),
+        presupuestoDiario,
         descargarImagen: async (url: string) => {
           if (!url) return null;
           try {
@@ -84,7 +87,7 @@ async function construirMotor(env: Entorno): Promise<Motor> {
       entrada as never,
     );
 
-  console.log("[musa] motor real contra Postgres");
+  console.log(`[musa] motor real contra Postgres · presupuesto IA ${presupuestoDiario} USD/día`);
   return crearMotorReal({
     consultar: conexion.consultar,
     canal: crearCanalEvolutionConfig(env),
