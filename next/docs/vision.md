@@ -120,3 +120,30 @@ moneda, destino, referencia, estado) y devuelve el coste real por comprobante.
 
 Y la regla que manda sobre las cuatro: **cualquier duda termina en una persona.**
 Un pago nunca se aprueba sin datos válidos, aunque el modelo diga que está seguro.
+
+---
+
+## 7. Medición real (29-oct-2026)
+
+Con la clave en producción y los 3 comprobantes del repo, enviados al endpoint:
+
+| Comprobante | Lectura | Tiempo | Coste |
+|---|---|---|---|
+| Nequi · envío exitoso | 33.000 COP · 3223565761 · 1834502671 · exitosa | 3,1 s | $0,000139 |
+| Pago Móvil · Venezuela | 7.400 VES · 0414-1234567 · 004812670933 · exitosa | 2,5 s | $0,000147 |
+| Nequi · programada | 33.000 COP · 3223565761 · M7740031288 · **programada** | 1,9 s | $0,000147 |
+
+**15 de 15 campos correctos.** Coste de las tres pruebas: **$0,000432**.
+
+A ese precio, **1.000 comprobantes cuestan $0,14**.
+
+### Y la decisión que producen
+
+| Comprobante | Decisión | Por qué |
+|---|---|---|
+| Nequi · exitosa | **AUTO_APROBAR** | monto, destino, fecha y estado correctos |
+| Pago Móvil · VES | **COLA_HUMANA** | Venezuela fuera del lanzamiento |
+| Nequi · programada | **COLA_HUMANA** | una transferencia programada todavía no es dinero |
+
+El modelo distinguió «Programada» de «Exitosa» por sí solo — el caso que más
+preocupaba, porque un falso «exitosa» entregaría el curso sin cobrar.
