@@ -1,5 +1,35 @@
 # 🚀 LANZAMIENTO — Línea base (26-jun-2026)
 
+## Retoma y seguimiento — 13-sep-2026
+
+Este archivo sigue siendo el plan principal. Las casillas históricas reflejan avances registrados, no una nueva verificación de producción. Al cerrar cada pendiente, anotar aquí evidencia, resultado y siguiente paso.
+
+- [x] Comparar versión local y GitHub sin modificar el código: `main` remoto en `1dbad96`; HEAD local `0596199`, dos commits por delante y sin divergencia respecto a ese remoto. Cambian este documento y `scripts/verificar-funnel-colombia.mjs`. Estado de trabajo limpio antes de esta nota. No se hizo pull, push ni despliegue.
+- [ ] Seguridad: A4 registra rotación el 7-jul; no repetirla automáticamente. Revisión local del 13-sep confirma que `validarFirmaTwilio` detecta firma ausente o inválida, pero el camino de lead registra `firma_invalida` y continúa; comandos de operador sí rechazan con 403. Siguiente paso: preparar rechazo de leads sin firma válida y verificación local con datos ficticios, preservando el acceso interno autenticado. Antes de desplegar, comprobar compatibilidad con la URL firmada y mensajes reales conforme al presupuesto acordado. No se leyeron valores de secretos ni se probó producción.
+- [ ] Canal: comprobar número/sender de WhatsApp real y conexión con Musa.
+- [ ] Venta Colombia: comprobar titular, enlaces del curso, aprobación de pago manual y entrega; pruebas reales solo con presupuesto acordado.
+
+Enfoque acordado: un pendiente por vez, lecturas breves, aprovechar lo ya investigado, sin auditorías extensas ni subagentes salvo petición. Antes de cualquier prueba pagada de OpenAI, Twilio o fal.ai, acordar presupuesto y cómo limitarlo. El uso de Codex también consume cuota. Wompi sigue post-lanzamiento. No tocar `valentina-chat` ni `contact_messages` del backend compartido. Tener presente que ciertos cambios en `main` activan despliegues automáticos.
+
+---
+
+## 🔄 Cambio de canal — 27-oct-2026
+
+**Twilio → Evolution API (Baileys) sobre Railway.** El plan de negocio de este
+archivo **sigue vigente**; lo que cambia es el transporte.
+
+- Costo de canal: ~$405/mes → ~$10–25/mes; costo por lead $0,135 → ~$0.
+- **B2 deja de ser el camino crítico**: desaparece la espera de registro del sender
+  en Meta. En su lugar: conectar una instancia en Evolution y escanear un QR.
+- Lo que se pierde: `ctwa_clid` (atribución de anuncios por CAPI) y el marco oficial
+  de plantillas/ventanas. Detalle y mitigaciones en `ADR-001-CANAL-Y-PLATAFORMA.md` §2.
+- Documentos de trabajo: **[LINEA-BASE.md](LINEA-BASE.md)** (punto de partida),
+  **[SEGUIMIENTO.md](SEGUIMIENTO.md)** (paso a paso con responsables y evidencia).
+- El repo viejo queda congelado como oráculo hasta que el stack nuevo pase la
+  puerta de paridad (`scripts/verificar-funnel-colombia.mjs`, 8/8).
+
+---
+
 > **LA LÍNEA:** lanzar la campaña CTWA en **Colombia**, cobrando con el **flujo manual ya
 > validado** (captura + visión + auto-aprobación, Fase 4). **Wompi queda POST-lanzamiento**
 > (el código ya está construido y dormido tras el toggle `pago.proveedor`).
