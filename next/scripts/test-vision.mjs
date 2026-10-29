@@ -241,7 +241,50 @@ const lector = (db, extra = {}) => ({
   t("config parcial: null", configDesdeEntorno({ MUSA_IA_URL: "https://x" }), null);
   const c = configDesdeEntorno({ MUSA_IA_URL: "https://x/v1/", MUSA_IA_KEY: "k", MUSA_IA_MODELO: "m" });
   t("config completa: vale", c.baseUrl, "https://x/v1/");
-  t("config: precios por defecto", [c.precioEntrada, c.precioSalida], [0.15, 0.6]);
+  // Precios verificados de gpt-6-luna (developers.openai.com, oct-2026).
+}
+
+// ============================== razonamiento y salida estructurada ==============================
+{
+  // Lo que se envía al proveedor importa: sin `reasoning_effort`, gpt-6-luna
+  // razona por defecto (medium) y esos tokens se pagan como salida.
+  let cuerpo = null;
+  const captura = async (_url, opciones) => {
+    cuerpo = JSON.parse(opciones.body);
+    return {
+      ok: true, status: 200,
+      json: async () => ({ choices: [{ message: { content: JSON.stringify(DATOS_OK) } }], usage: { prompt_tokens: 10, completion_tokens: 5 } }),
+      text: async () => "",
+    };
+  };
+  await leerConProveedor({ ...PROVEEDOR, razonamiento: "none", salidaEstructurada: true }, "data:image/jpeg;base64,AAA", captura);
+  t("se envía razonamiento none", cuerpo.reasoning_effort, "none");
+  t("se pide JSON", cuerpo.response_format, { type: "json_object" });
+  t("temperatura 0", cuerpo.temperature, 0);
+  t("tope de tokens de salida", cuerpo.max_tokens, 400);
+  t("la imagen va en el mensaje", JSON.stringify(cuerpo.messages).includes("image_url"), true);
+}
+
+{
+  let cuerpo = null;
+  const captura = async (_url, opciones) => {
+    cuerpo = JSON.parse(opciones.body);
+    return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: JSON.stringify(DATOS_OK) } }], usage: {} }), text: async () => "" };
+  };
+  await leerConProveedor({ ...PROVEEDOR, razonamiento: undefined, salidaEstructurada: false }, "data:image/jpeg;base64,AAA", captura);
+  t("sin configurar: no se envía razonamiento", "reasoning_effort" in cuerpo, false);
+  t("sin configurar: no se pide JSON", "response_format" in cuerpo, false);
+}
+
+{
+  // Precios verificados de gpt-6-luna (developers.openai.com, oct-2026).
+  const c = configDesdeEntorno({ MUSA_IA_URL: "https://api.openai.com/v1", MUSA_IA_KEY: "k", MUSA_IA_MODELO: "gpt-6-luna" });
+  t("precio de entrada verificado", c.precioEntrada, 0.1);
+  t("precio de salida verificado", c.precioSalida, 0.5);
+  t("razonamiento por defecto: ninguno", c.razonamiento, "none");
+  t("json por defecto", c.salidaEstructurada, true);
+  t("se puede apagar el json", configDesdeEntorno({ MUSA_IA_URL: "u", MUSA_IA_KEY: "k", MUSA_IA_MODELO: "m", MUSA_IA_JSON: "no" }).salidaEstructurada, false);
+  t("reserva por comprobante < 0.001 USD", costeReservado(c) < 0.001, true);
 }
 
 console.log(`visión: ${ok} ok, ${fallas} fallas`);

@@ -26,6 +26,17 @@ export interface ConfigProveedor {
   /** precio por millón de tokens, para el registro de gasto */
   precioEntrada: number;
   precioSalida: number;
+  /**
+   * Esfuerzo de razonamiento. `none` para leer un comprobante: no hace falta
+   * razonar, y el valor por defecto de los modelos nuevos (`medium`) genera
+   * tokens de razonamiento que se pagan como salida.
+   */
+  razonamiento?: "none" | "low" | "medium" | "high";
+  /**
+   * Si el proveedor soporta salida estructurada, se envía el esquema y el modelo
+   * no puede devolver algo que no cuadre. Los que no lo soportan ignoran el campo.
+   */
+  salidaEstructurada?: boolean;
 }
 
 export interface RespuestaProveedor {
@@ -122,6 +133,9 @@ export async function leerConProveedor(
         model: cfg.modelo,
         max_tokens: cfg.maxTokensSalida ?? 400,
         temperature: 0,
+        // Sin esto, los modelos nuevos razonan por defecto y la factura sube.
+        ...(cfg.razonamiento ? { reasoning_effort: cfg.razonamiento } : {}),
+        ...(cfg.salidaEstructurada ? { response_format: { type: "json_object" } } : {}),
         messages: [
           { role: "system", content: INSTRUCCION_LECTURA },
           {
@@ -176,7 +190,10 @@ export function configDesdeEntorno(env: Record<string, string | undefined>): Con
     modelo,
     maxTokensSalida: Number(env.MUSA_IA_MAX_TOKENS ?? 400),
     timeoutMs: Number(env.MUSA_IA_TIMEOUT_MS ?? 30000),
-    precioEntrada: Number(env.MUSA_IA_PRECIO_ENTRADA ?? 0.15),
-    precioSalida: Number(env.MUSA_IA_PRECIO_SALIDA ?? 0.6),
+    // Precios verificados de gpt-6-luna (developers.openai.com, oct-2026).
+    precioEntrada: Number(env.MUSA_IA_PRECIO_ENTRADA ?? 0.1),
+    precioSalida: Number(env.MUSA_IA_PRECIO_SALIDA ?? 0.5),
+    razonamiento: (env.MUSA_IA_RAZONAMIENTO ?? "none") as "none" | "low" | "medium" | "high",
+    salidaEstructurada: (env.MUSA_IA_JSON ?? "si") !== "no",
   };
 }
