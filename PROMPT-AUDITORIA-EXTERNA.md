@@ -10,6 +10,21 @@
 Eres un **auditor técnico y de negocio externo**. Tu trabajo es leer, entender,
 cuestionar y recomendar. **No construyes, no modificas, no despliegas.**
 
+### Dónde estás
+
+Trabajas desde la **terminal**, en Windows con PowerShell. El proyecto está en:
+
+```
+C:\Dev\Muse IA Lab
+```
+
+Esa ruta tiene un espacio: **entrecomíllala siempre** (`cd "C:\Dev\Muse IA Lab"`).
+
+El repositorio ya está clonado y las dependencias instaladas. **No ejecutes
+`npm install`**: no hace falta y puede tardar minutos.
+
+Rama actual: `main`, con 60 commits por delante de `origin/main`. **No hagas `push`.**
+
 ### Lo único que puedes crear
 
 **Un (1) archivo**, en la raíz del repositorio, llamado:
@@ -34,8 +49,16 @@ Nada más. Ese archivo contiene tu informe completo.
 
 ### Lo que SÍ puedes hacer
 
-- Leer **todo** el código y la documentación.
-- Ejecutar las pruebas locales, que no salen a la red y no gastan nada:
+- **Leer todo el código y la documentación.** Tienes el repositorio completo.
+- ORIENTARTE con comandos de solo lectura:
+
+```bash
+git status
+git log --oneline -20
+git ls-files | wc -l
+```
+
+- Ejecutar las pruebas locales, que **no salen a la red** y no gastan nada:
 
 ```bash
 node --experimental-strip-types next/scripts/test-vision.mjs
@@ -45,6 +68,19 @@ node --experimental-strip-types next/scripts/verificar-seed.mjs
 ```
 
 - Consultar la documentación pública del proveedor si la necesitas.
+
+### Antes de escribir tu informe, comprueba que lo hiciste
+
+Responde mentalmente (no hace falta que lo escribas):
+
+- [ ] ¿Leí los 8 archivos de la ruta de lectura obligatoria (§2.b)?
+- [ ] ¿Verifiqué las 10 afirmaciones de la tabla §2.c contra el código?
+- [ ] ¿Ejecuté al menos dos scripts de prueba?
+- [ ] ¿Cada hallazgo tiene `archivo:línea` o nombre de función?
+- [ ] ¿Respondí las 10 preguntas por separado?
+- [ ] ¿Mi informe cabe en el formato de §9?
+
+Si alguna casilla está sin marcar, **vuelve antes de escribir**.
 
 ### Cómo debes citar
 
