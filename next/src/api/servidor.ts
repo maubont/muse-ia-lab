@@ -280,7 +280,9 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     }
 
     // ---- diagnóstico del proveedor de IA: gated por la clave del cron ----
-    if (url === RUTA_DIAG_IA) {
+    // Con `startsWith` porque esta ruta lleva parámetros (`?imagen=1`); comparar la
+    // URL entera devolvía 404.
+    if (url.startsWith(RUTA_DIAG_IA)) {
       if (!opts.diagnosticoIa || !opts.claveCron) return json(res, 404, { error: "no_encontrado" });
       if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
       const recibida = req.headers["x-cron-key"];
