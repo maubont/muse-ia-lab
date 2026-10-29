@@ -485,3 +485,39 @@ Responde cada una por separado. Si no tienes base para responder, dilo.
 - Si encuentras una contradicción entre la documentación y el código, **esa
   contradicción es el hallazgo**.
 - Tú no tienes acceso a las credenciales ni a las cuentas. No las busques.
+---
+
+## Nota de la primera tentativa (29-oct-2026)
+
+Este prompt se ejecutó en Grok Build (modelo Grok 4.7 high, ventana gratuita de
+256K). **La auditoría no llegó a entregarse.** Esto es lo que pasó, sin adornos:
+
+```
+08:19  leyó este archivo
+08:20  «Empiezo por la ruta obligatoria y las diez afirmaciones»
+       exploró 2 directorios, 24 archivos, 9 búsquedas, 2 comandos
+       consumió 68K de contexto (35K → 103K)
+08:25  «You hit your free usage limit»
+       → no creó ningún archivo
+```
+
+**Lección, y por eso está la instrucción de escribir incremental en §0:**
+
+Leyó 24 archivos e hizo trabajo real, pero **nunca lo materializó**. Cuando la
+ventana se cerró, todo ese análisis quedó inaccesible. Un informe perfecto que
+nunca se guardó no vale nada.
+
+**Si retomas esta auditoría**, hazlo así:
+
+1. Pídele que escriba el archivo **antes** de explorar mucho más.
+2. Cada sección terminada, al disco. No acumules.
+3. Si la ventana es limitada, empieza por **una sola área** (seguridad del cobro)
+   y entrega algo pequeño y completo.
+
+**Y comprueba siempre al final:**
+
+```powershell
+Test-Path "C:\Dev\Muse IA Lab\AUDITORIA-EXTERNA-GROK.md"
+```
+
+Si devuelve `False`, la auditoría no ocurrió, por muy bueno que fuera el análisis.
