@@ -20,6 +20,7 @@ import type { Motor } from "./motor/contrato.ts";
 import type { Entorno } from "./config.ts";
 import type { Consultar } from "./db/repositorio.ts";
 import type { OpcionesServidor } from "./api/servidor.ts";
+import type { DepsMotorReal } from "./motor/motor-real.ts";
 import { crearVigilante, alertarPorWebhook } from "./monitor/vigilante.ts";
 import { revisarConfigAlerta } from "./monitor/alertas.ts";
 
@@ -52,12 +53,43 @@ async function construirMotor(env: Entorno): Promise<Motor> {
 
   const { crearConexion } = await import("./db/pool.ts");
   const { crearMotorReal } = await import("./motor/motor-real.ts");
+  const { configDesdeEntorno: configIa } = await import("./vision/proveedor.ts");
+  const { leerComprobante } = await import("./vision/lector.ts");
+
   const conexion = crearConexion(urlBaseDatos);
+  const cfgIa = configDesdeEntorno(env as Record<string, string | undefined>);
+
+  // El lector vive aquí porque necesita la conexión. Sin proveedor devuelve
+  // `cola_humana`: el comprobante lo mira una persona, nunca se auto-valida.
+  const lector: DepsMotorReal["lector"] = (entrada) =>
+    leerComprobante(
+      {
+        consultar: conexion.consultar,
+        proveedor: cfgIa,
+        presupuestoDiario: Number(env.MUSA_PRESUPUESTO_DIARIO_USD ?? 1),
+        descargarImagen: async (url: string) => {
+          if (!url) return null;
+          try {
+            const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+            if (!res.ok) return null;
+            return {
+              bytes: Buffer.from(await res.arrayBuffer()),
+              tipo: res.headers.get("content-type") ?? "image/jpeg",
+            };
+          } catch {
+            return null;
+          }
+        },
+      },
+      entrada as never,
+    );
+
   console.log("[musa] motor real contra Postgres");
   return crearMotorReal({
     consultar: conexion.consultar,
     canal: crearCanalEvolutionConfig(env),
     urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined,
+    lector,
   });
 }
 
@@ -125,6 +157,7 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
       ? `[musa] visión: ${cfgIa.modelo} · presupuesto ${env.MUSA_PRESUPUESTO_DIARIO_USD ?? "1"} USD/día`
       : "[musa] visión: sin proveedor · los comprobantes van a la cola humana",
   );
+
   // Acceso al curso: /a/<token> canjea el enlace por una cookie.
   let acceso: OpcionesServidor["acceso"];
   if (consultar) {

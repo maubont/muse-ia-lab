@@ -20,6 +20,8 @@ import { ejecutar } from "./ejecutar.ts";
 import type { ClasificacionGPT } from "./efectos.ts";
 import { normalizar } from "../../../functions/motor/guardarrailes.ts";
 import { recordatoriosParaEstado, cuandoEnviar, ajustarAHorario } from "./recordatorios.ts";
+import { dentroDeHorarioRazonable } from "./politica-contacto.ts";
+import { MSG_PAGO_REENVIO } from "./s08.ts";
 
 export interface DepsMotorReal {
   consultar: Consultar;
@@ -33,6 +35,18 @@ export interface DepsMotorReal {
   esperar?: (ms: number) => Promise<void>;
   /** Dominio público; sin él la entrega manda los enlaces sueltos. */
   urlPublica?: string;
+  /**
+   * Lector de comprobantes. Si no se pasa, S08 recibe `datos: null` y el caso va
+   * a la cola humana — nunca se auto-valida un pago sin haberlo leído.
+   */
+  lector?: (entrada: {
+    lead: string;
+    media: { url: string; tipo: string; tamano?: number };
+    yaPago: boolean;
+  }) => Promise<
+    | { ok: true; datos: unknown; origen: string; coste: number }
+    | { ok: false; accion: "pedir_reenvio" | "cola_humana"; motivo: string; coste: number }
+  >;
 }
 
 interface LeadFila {
@@ -135,12 +149,58 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         : null;
 
       // 4. decisión
+      // 4.5. Si el estado es S08 y llegó un adjunto, se LEE aquí: es el único punto
+      //      donde el comprobante se convierte en datos. Si la lectura no da datos,
+      //      S08 recibe null y manda el caso a un humano — nunca auto-valida.
+      let comprobante: { datos: unknown; esPrimerPago: boolean; imagenDuplicada: boolean; dentroDeHorario: boolean } | undefined;
+      const dentroDeHorario = dentroDeHorarioRazonable(ahora(), "America/Bogota");
+
+      if (lead.estado_funnel === "S08_ESPERA_CAPTURA" && mensaje.media && deps.lector) {
+        const lectura = await deps.lector({
+          lead: mensaje.telefono,
+          media: {
+            url: mensaje.media.url ?? "",
+            tipo: mensaje.media.mime ?? "",
+            tamano: undefined,
+          },
+          yaPago: lead.pagado === true,
+        });
+
+        if (lectura.ok) {
+          comprobante = {
+            datos: lectura.datos,
+            esPrimerPago: lead.pagado !== true,
+            imagenDuplicada: false,
+            dentroDeHorario,
+          };
+        } else if (lectura.accion === "pedir_reenvio") {
+          // No se puede leer ese archivo (PDF, vacío, no bajó): se pide otro. No
+          // se molesta al operador por algo que el cliente arregla en un mensaje.
+          await ejecutar(
+            [
+              { tipo: "evento", nombre: "comprobante_no_leible", detalle: { motivo: lectura.motivo } },
+              { tipo: "enviar", textos: [MSG_PAGO_REENVIO] },
+            ],
+            { repo: crearRepositorio({ consultar, canal, telefonoOperador: cfg.operador?.whatsapp ?? "", esperar: deps.esperar, urlPublica: deps.urlPublica }), phone: mensaje.telefono },
+          );
+          await consultar(
+            "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1,$2,$3::jsonb)",
+            [mensaje.telefono, "respuesta_enviada", JSON.stringify({ ms: Date.now() - t0, estado: lead.estado_funnel })],
+          ).catch(() => ({ rows: [] }));
+          return [];
+        } else {
+          // Sin proveedor, sin presupuesto o el proveedor falló: a un humano, con acuse.
+          comprobante = { datos: null, esPrimerPago: lead.pagado !== true, imagenDuplicada: false, dentroDeHorario };
+        }
+      }
+
       const efectos = decidirRuta({
         lead,
         cfg: cfg as never,
         body: mensaje.texto,
         norm: normalizar(mensaje.texto),
         clasificacion,
+        comprobante: comprobante as never,
       });
 
       // 5. ejecución contra Postgres
