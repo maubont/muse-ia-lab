@@ -10,7 +10,8 @@
 import { readFileSync } from "node:fs";
 import { leerConProveedor } from "./proveedor.ts";
 import type { ConfigProveedor } from "./proveedor.ts";
-import { costeEstimado } from "./presupuesto.ts";
+import { costeEstimado, registrarConsumo } from "./presupuesto.ts";
+import type { Consultar } from "../db/repositorio.ts";
 
 export interface CasoDiagnostico {
   archivo: string;
@@ -152,7 +153,7 @@ export async function diagnosticarImagenSuelta(
   cfg: ConfigProveedor,
   base64: string,
   esperado?: Partial<CasoDiagnostico["esperado"]>,
-  opciones: { fetchImpl?: typeof fetch; tipo?: string } = {},
+  opciones: { fetchImpl?: typeof fetch; tipo?: string; consultar?: Consultar } = {},
 ): Promise<ResultadoCaso & { coste: number; tokens?: { entrada: number; salida: number } }> {
   const tipo = opciones.tipo ?? "image/png";
   const dataUrl = `data:${tipo};base64,${base64}`;
@@ -163,6 +164,21 @@ export async function diagnosticarImagenSuelta(
     entrada: cfg.precioEntrada,
     salida: cfg.precioSalida,
   });
+
+  // El gasto de una prueba también se registra: si no, la tabla de consumo miente.
+  if (opciones.consultar) {
+    await registrarConsumo(opciones.consultar, {
+      lead: null,
+      proveedor: cfg.baseUrl,
+      modelo: cfg.modelo,
+      proposito: "diagnostico",
+      tokensEntrada: r.tokensEntrada,
+      tokensSalida: r.tokensSalida,
+      coste,
+      exito: !!r.datos,
+      motivoFallo: r.motivoFallo,
+    });
+  }
 
   if (!r.datos) {
     return { nombre: "imagen_enviada", ok: false, ms, coste, datos: null, fallos: [], motivo: r.motivoFallo };

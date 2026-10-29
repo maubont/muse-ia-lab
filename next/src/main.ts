@@ -227,7 +227,10 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     // petición y el servidor solo responde lo que leyó.
     diagnosticoImagenes: cfgIa
       ? async (base64: string, tipo?: string, esperado?: Record<string, unknown>) =>
-          (await import("./vision/diagnostico.ts")).diagnosticarImagenSuelta(cfgIa, base64, esperado as never, { tipo })
+          (await import("./vision/diagnostico.ts")).diagnosticarImagenSuelta(cfgIa, base64, esperado as never, {
+            tipo,
+            consultar,
+          })
       : undefined,
   });
 
