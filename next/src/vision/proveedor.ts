@@ -37,6 +37,14 @@ export interface ConfigProveedor {
    * no puede devolver algo que no cuadre. Los que no lo soportan ignoran el campo.
    */
   salidaEstructurada?: boolean;
+  /**
+   * Nombre del parámetro que limita la respuesta.
+   *
+   * gpt-6-luna RECHAZA `max_tokens` con un 400 y exige `max_completion_tokens`.
+   * Los proveedores antiguos y los modelos anteriores usan `max_tokens`. Se
+   * configura para no romper ninguno de los dos.
+   */
+  parametroMaxTokens?: "max_completion_tokens" | "max_tokens";
 }
 
 export interface RespuestaProveedor {
@@ -131,7 +139,7 @@ export async function leerConProveedor(
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.apiKey}` },
       body: JSON.stringify({
         model: cfg.modelo,
-        max_tokens: cfg.maxTokensSalida ?? 400,
+        [cfg.parametroMaxTokens ?? "max_completion_tokens"]: cfg.maxTokensSalida ?? 400,
         temperature: 0,
         // Sin esto, los modelos nuevos razonan por defecto y la factura sube.
         ...(cfg.razonamiento ? { reasoning_effort: cfg.razonamiento } : {}),
@@ -194,6 +202,7 @@ export function configDesdeEntorno(env: Record<string, string | undefined>): Con
     precioEntrada: Number(env.MUSA_IA_PRECIO_ENTRADA ?? 0.1),
     precioSalida: Number(env.MUSA_IA_PRECIO_SALIDA ?? 0.5),
     razonamiento: (env.MUSA_IA_RAZONAMIENTO ?? "none") as "none" | "low" | "medium" | "high",
+    parametroMaxTokens: (env.MUSA_IA_PARAM_TOKENS ?? "max_completion_tokens") as "max_completion_tokens" | "max_tokens",
     salidaEstructurada: (env.MUSA_IA_JSON ?? "si") !== "no",
   };
 }
@@ -215,7 +224,7 @@ export async function probarProveedor(
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.apiKey}` },
       body: JSON.stringify({
         model: cfg.modelo,
-        max_tokens: 5,
+        [cfg.parametroMaxTokens ?? "max_completion_tokens"]: 5,
         temperature: 0,
         ...(cfg.razonamiento ? { reasoning_effort: cfg.razonamiento } : {}),
         messages: [{ role: "user", content: "Responde solo: ok" }],

@@ -261,7 +261,9 @@ const lector = (db, extra = {}) => ({
   t("se envía razonamiento none", cuerpo.reasoning_effort, "none");
   t("se pide JSON", cuerpo.response_format, { type: "json_object" });
   t("temperatura 0", cuerpo.temperature, 0);
-  t("tope de tokens de salida", cuerpo.max_tokens, 400);
+  t("tope con el nombre nuevo", cuerpo.max_completion_tokens, 400);
+  t("no se envía el nombre viejo", "max_tokens" in cuerpo, false);
+  // gpt-6-luna rechaza `max_tokens` y exige `max_completion_tokens`.
   t("la imagen va en el mensaje", JSON.stringify(cuerpo.messages).includes("image_url"), true);
 }
 
@@ -285,6 +287,24 @@ const lector = (db, extra = {}) => ({
   t("json por defecto", c.salidaEstructurada, true);
   t("se puede apagar el json", configDesdeEntorno({ MUSA_IA_URL: "u", MUSA_IA_KEY: "k", MUSA_IA_MODELO: "m", MUSA_IA_JSON: "no" }).salidaEstructurada, false);
   t("reserva por comprobante < 0.001 USD", costeReservado(c) < 0.001, true);
+}
+
+{
+  // Proveedores antiguos: se puede volver al nombre viejo sin tocar código.
+  let cuerpo = null;
+  const captura = async (_url, opciones) => {
+    cuerpo = JSON.parse(opciones.body);
+    return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: JSON.stringify(DATOS_OK) } }], usage: {} }), text: async () => "" };
+  };
+  await leerConProveedor({ ...PROVEEDOR, parametroMaxTokens: "max_tokens" }, "data:image/jpeg;base64,AAA", captura);
+  t("parámetro alternativo: max_tokens", cuerpo.max_tokens, 400);
+  t("parámetro alternativo: sin el nuevo", "max_completion_tokens" in cuerpo, false);
+}
+
+{
+  const c = configDesdeEntorno({ MUSA_IA_URL: "u", MUSA_IA_KEY: "k", MUSA_IA_MODELO: "gpt-6-luna" });
+  t("por defecto usa el nombre nuevo", c.parametroMaxTokens, "max_completion_tokens");
+  t("se puede volver al viejo", configDesdeEntorno({ MUSA_IA_URL: "u", MUSA_IA_KEY: "k", MUSA_IA_MODELO: "m", MUSA_IA_PARAM_TOKENS: "max_tokens" }).parametroMaxTokens, "max_tokens");
 }
 
 console.log(`visión: ${ok} ok, ${fallas} fallas`);
