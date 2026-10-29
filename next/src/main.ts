@@ -222,9 +222,12 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
           return probarProveedor(cfgIa);
         }
       : undefined,
-    // Prueba con los comprobantes reales del repo: ¿lee bien el monto y el estado?
+    // Prueba con una imagen que envía el cliente: los comprobantes de prueba NO se
+    // despliegan (están ignorados por git por privacidad), así que viajan en la
+    // petición y el servidor solo responde lo que leyó.
     diagnosticoImagenes: cfgIa
-      ? async () => (await import("./vision/diagnostico.ts")).diagnosticarImagenes(cfgIa)
+      ? async (base64: string, tipo?: string, esperado?: Record<string, unknown>) =>
+          (await import("./vision/diagnostico.ts")).diagnosticarImagenSuelta(cfgIa, base64, esperado as never, { tipo })
       : undefined,
   });
 

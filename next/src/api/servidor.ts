@@ -51,7 +51,7 @@ export interface OpcionesServidor {
    */
   diagnosticoIa?: () => Promise<{ ok: boolean; motivo?: string; ms: number; muestra?: string }>;
   /** Prueba con los comprobantes reales del repo. Cuesta ~0,001 USD por pasada. */
-  diagnosticoImagenes?: () => Promise<unknown>;
+  diagnosticoImagenes?: (base64: string, tipo?: string, esperado?: Record<string, unknown>) => Promise<unknown>;
   /** Lectura del estado de la sesión, para `/salud/sesion`. */
   estadoSesion?: () => Promise<{ estado: string; detalle?: string }>;
   /**
@@ -283,7 +283,10 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     // Con `startsWith` porque esta ruta lleva parámetros (`?imagen=1`); comparar la
     // URL entera devolvía 404.
     if (url.startsWith(RUTA_DIAG_IA)) {
-      if (!opts.diagnosticoIa || !opts.claveCron) return json(res, 404, { error: "no_encontrado" });
+      // Basta con UNA de las dos pruebas: pedir imágenes sin la de texto es válido.
+      if ((!opts.diagnosticoIa && !opts.diagnosticoImagenes) || !opts.claveCron) {
+        return json(res, 404, { error: "no_encontrado" });
+      }
       if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
       const recibida = req.headers["x-cron-key"];
       const clave = Array.isArray(recibida) ? recibida[0] : recibida;
@@ -292,9 +295,25 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       for (let i = 0; i < clave.length; i++) diff |= clave.charCodeAt(i) ^ opts.claveCron.charCodeAt(i);
       if (diff !== 0) return json(res, 403, { error: "no_autorizado" });
       if (url.includes("imagen") && opts.diagnosticoImagenes) {
+        // La imagen viaja en el cuerpo: los comprobantes de prueba NO se despliegan
+        // (están ignorados por git por privacidad).
+        const cuerpo = await leerCuerpo(req, 12 * 1024 * 1024);
+        let peticion: { base64?: string; tipo?: string; esperado?: Record<string, unknown> } = {};
         try {
-          const r = (await opts.diagnosticoImagenes()) as { ok?: boolean };
-          return json(res, r?.ok ? 200 : 502, r);
+          peticion = cuerpo ? JSON.parse(cuerpo) : {};
+        } catch {
+          return json(res, 400, { ok: false, motivo: "cuerpo_no_json" });
+        }
+        if (!peticion.base64) {
+          return json(res, 400, {
+            ok: false,
+            motivo:
+              "falta la imagen. Envía {\"base64\":\"…\",\"tipo\":\"image/png\",\"esperado\":{…}}. Los comprobantes de prueba no se despliegan por privacidad.",
+          });
+        }
+        try {
+          const r = await opts.diagnosticoImagenes(peticion.base64, peticion.tipo, peticion.esperado);
+          return json(res, (r as { ok?: boolean })?.ok ? 200 : 502, r);
         } catch (e) {
           return json(res, 500, { ok: false, motivo: String(e).slice(0, 150) });
         }

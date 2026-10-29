@@ -141,3 +141,50 @@ export async function diagnosticarImagenes(
     total,
   };
 }
+/**
+ * Diagnóstico con UNA imagen que envía el cliente.
+ *
+ * Por qué así: los comprobantes de prueba están ignorados por git (privacidad), así
+ * que NO viajan al contenedor. En lugar de meterlos en el repo, la imagen viaja en
+ * la petición y el servidor solo responde lo que leyó. Nada sensible se almacena.
+ */
+export async function diagnosticarImagenSuelta(
+  cfg: ConfigProveedor,
+  base64: string,
+  esperado?: Partial<CasoDiagnostico["esperado"]>,
+  opciones: { fetchImpl?: typeof fetch; tipo?: string } = {},
+): Promise<ResultadoCaso & { coste: number; tokens?: { entrada: number; salida: number } }> {
+  const tipo = opciones.tipo ?? "image/png";
+  const dataUrl = `data:${tipo};base64,${base64}`;
+  const t0 = Date.now();
+  const r = await leerConProveedor(cfg, dataUrl, opciones.fetchImpl);
+  const ms = Date.now() - t0;
+  const coste = costeEstimado(r.tokensEntrada, r.tokensSalida, {
+    entrada: cfg.precioEntrada,
+    salida: cfg.precioSalida,
+  });
+
+  if (!r.datos) {
+    return { nombre: "imagen_enviada", ok: false, ms, coste, datos: null, fallos: [], motivo: r.motivoFallo };
+  }
+
+  const d = r.datos;
+  const fallos: string[] = [];
+  if (esperado) {
+    if (esperado.monto !== undefined && Number(d.monto) !== Number(esperado.monto)) fallos.push("monto");
+    if (esperado.moneda !== undefined && String(d.moneda ?? "").toUpperCase() !== esperado.moneda) fallos.push("moneda");
+    if (esperado.destino !== undefined && digitos(d.destino) !== digitos(esperado.destino)) fallos.push("destino");
+    if (esperado.referencia !== undefined && digitos(d.numero_referencia) !== digitos(esperado.referencia)) fallos.push("referencia");
+    if (esperado.estado !== undefined && String(d.estado_operacion ?? "") !== esperado.estado) fallos.push("estado");
+  }
+
+  return {
+    nombre: "imagen_enviada",
+    ok: fallos.length === 0,
+    ms,
+    coste,
+    datos: d as unknown as Record<string, unknown>,
+    fallos,
+    tokens: { entrada: r.tokensEntrada, salida: r.tokensSalida },
+  };
+}
