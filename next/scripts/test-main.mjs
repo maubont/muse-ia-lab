@@ -134,6 +134,30 @@ t("arranca en un puerto real", srv.puerto > 0, true);
 
 await srv.cerrar();
 
+// ---------- arranque con base de datos: el camino que tumbó producción ----------
+// Las otras pruebas arrancan SIN DATABASE_URL, así que nunca ejecutaban
+// `construirMotor` de verdad. Un error de nombre ahí (configDesdeEntorno vs
+// configIa) llegó a producción y tumbó el servidor. Esta prueba lo cubre.
+{
+  let arrancado = null;
+  let error = null;
+  try {
+    arrancado = await arrancar({
+      env: { ...ENV, DATABASE_URL: "postgres://fake:fake@127.0.0.1:5432/fake", MUSA_URL_PUBLICA: "https://musa.test" },
+      puerto: 0,
+      vigilar: false,
+    });
+  } catch (e) {
+    error = e instanceof Error ? e.message : String(e);
+  }
+  t("arranca con base de datos configurada", error, null);
+  t("queda escuchando", typeof arrancado?.puerto, "number");
+  if (arrancado) {
+    const salud = await fetch(`http://127.0.0.1:${arrancado.puerto}/salud`);
+    t("responde salud con el motor real", salud.status, 200);
+    await arrancado.cerrar();
+  }
+}
 // ---------- configuración incompleta: no arranca ----------
 {
   let error = null;

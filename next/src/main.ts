@@ -57,7 +57,7 @@ async function construirMotor(env: Entorno): Promise<Motor> {
   const { leerComprobante } = await import("./vision/lector.ts");
 
   const conexion = crearConexion(urlBaseDatos);
-  const cfgIa = configDesdeEntorno(env as Record<string, string | undefined>);
+  const cfgIa = configIa(env as Record<string, string | undefined>);
 
   // El lector vive aquí porque necesita la conexión. Sin proveedor devuelve
   // `cola_humana`: el comprobante lo mira una persona, nunca se auto-valida.
