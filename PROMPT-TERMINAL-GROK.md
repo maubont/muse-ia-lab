@@ -44,6 +44,23 @@ hallazgos P0, P1 y P2 encontraste, y las tres cosas que harías primero.
 
 ---
 
+## Antes de pegarlo: comprueba tu acceso
+
+Grok Build **no es gratis**: xAI lo abrió a los suscriptores de **SuperGrok** y
+**X Premium Plus** (antes solo SuperGrok Heavy). Si tu cuenta es gratuita, el
+comando `grok` no existirá o pedirá suscripción.
+
+Compruébalo en 5 segundos:
+
+```powershell
+grok --version
+```
+
+- Responde con una versión → tienes acceso, sigue abajo.
+- «no se reconoce» → no está instalado. Instalación: `https://x.ai/cli`
+- Pide suscripción → tu plan no lo incluye; puedes usar el prompt igual desde el
+  chat, pero perderá lo mejor: que **lea el código él mismo**.
+
 ## Qué hace este prompt
 
 | Instrucción | Para qué |
