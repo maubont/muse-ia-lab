@@ -77,15 +77,24 @@ El repositorio ya está clonado y las dependencias instaladas. **No ejecutes
 
 Rama actual: `main`, con 60 commits por delante de `origin/main`. **No hagas `push`.**
 
-### Lo único que puedes crear
+### El trato: dos archivos, dos direcciones
 
-**Un (1) archivo**, en la raíz del repositorio, llamado:
+| Archivo | Quién lo escribe | Quién lo lee |
+|---|---|---|
+| `PROMPT-AUDITORIA-EXTERNA.md` (este) | el agente que construyó el proyecto | **tú, ahora** |
+| `AUDITORIA-EXTERNA-GROK.md` | **tú** | el agente que construyó el proyecto |
+
+Tú **lees** el mío. Tú **escribes** el tuyo. No hay más intercambio.
+
+**Lo único que puedes crear** es:
 
 ```
 AUDITORIA-EXTERNA-GROK.md
 ```
 
-Nada más. Ese archivo contiene tu informe completo.
+Un (1) archivo, en la raíz del repositorio. Nada más. Ese archivo contiene tu
+informe completo, y es tu única entrega. Si ese archivo no existe al terminar,
+la auditoría no ocurrió.
 
 ### Lo que NO puedes hacer
 
