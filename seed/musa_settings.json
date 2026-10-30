@@ -134,7 +134,7 @@
               },
               "modulos": [
                 {
-                  "titulo": "Bienvenida y cómo aprovechar el curso",
+                  "titulo": "Bienvenida y estrategia",
                   "archivos": [
                     "media:curso/01/1.1-Empieza-aqui-Introduccion.mp4",
                     "media:curso/01/1.2-Tu-estrategia-en-Instagram.mp4",
@@ -153,7 +153,7 @@
                   ]
                 },
                 {
-                  "titulo": "Rostro, cuerpo y coherencia",
+                  "titulo": "Las herramientas: ChatGPT, Leonardo, SeaArt y DeepSeek",
                   "archivos": [
                     "media:curso/03/3.1-Chatgpt-en-su-maximo-esplendor",
                     "media:curso/03/3.2-Leonardo-AI-para-capos",
@@ -164,7 +164,7 @@
                   ]
                 },
                 {
-                  "titulo": "Voz y sincronización labial",
+                  "titulo": "Crear contenido en serie",
                   "archivos": [
                     "media:curso/04/4.1-Creando-em-Leonardo-AI",
                     "media:curso/04/4.2-Creando-Contenidos-Infinitos",
@@ -172,56 +172,56 @@
                   ]
                 },
                 {
-                  "titulo": "Video: del prompt al resultado",
+                  "titulo": "Monetización: los primeros pasos",
                   "archivos": [
                     "media:curso/05/Copia-de-5.1-MONETIZA-TU-IA-CON-ESTOS-SENCILLOS-PASOS"
                   ]
                 },
                 {
-                  "titulo": "Escenarios y luz",
+                  "titulo": "Telegram: tu grupo y tu bot",
                   "archivos": [
                     "media:curso/06/Copia-de-6.1-CREANDO-GRUPO-DE-TELEGRAM",
                     "media:curso/06/Copia-de-6.2-CREANDO-Y-CONFIGURANDO-EL-BOT-DE-TELEGRAM"
                   ]
                 },
                 {
-                  "titulo": "Publicación y calendario",
+                  "titulo": "Herramientas para potenciar tu IA",
                   "archivos": [
                     "media:curso/07/Copia-de-7.1-Herramientas-para-potenciar-tu-IA.pdf"
                   ]
                 },
                 {
-                  "titulo": "Instagram: crecimiento real",
+                  "titulo": "Hazte viral en TikTok",
                   "archivos": [
                     "media:curso/08/Copia-de-8.1-HAZTE-VIRAL-EN-TIKTOK"
                   ]
                 },
                 {
-                  "titulo": "TikTok: qué funciona y qué no",
+                  "titulo": "Mente de empresario",
                   "archivos": [
                     "media:curso/09/Copia-de-Atencion-Mente-de-Empresario.txt"
                   ]
                 },
                 {
-                  "titulo": "Monetización: primeras ventas",
+                  "titulo": "Fanvue: cómo funciona",
                   "archivos": [
                     "media:curso/10/-10-Fanvue.mp4"
                   ]
                 },
                 {
-                  "titulo": "Atención y comunidad",
+                  "titulo": "Crea videos 100 % realistas",
                   "archivos": [
                     "media:curso/11/CREA-VIDEOS-100_-REALISTAS"
                   ]
                 },
                 {
-                  "titulo": "Métricas y decisiones",
+                  "titulo": "ManyChat desde cero",
                   "archivos": [
                     "media:curso/12/12.1-MANYCHAT-DESDE-CERO.mp4"
                   ]
                 },
                 {
-                  "titulo": "Escalar sin perder calidad",
+                  "titulo": "Biblioteca de prompts",
                   "archivos": [
                     "media:curso/13/13.1-Prompts.pdf",
                     "media:curso/13/13.2-Prompts-PARTE-2.pdf"

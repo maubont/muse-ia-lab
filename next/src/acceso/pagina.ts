@@ -69,21 +69,81 @@ export function normalizarModulo(entrada: EntradaModulo): ModuloConfig {
 }
 
 /** Títulos de los 13 módulos. Hoy la configuración solo trae URLs. */
+/**
+ * Títulos de los 13 módulos.
+ *
+ * ── SE RENOMBRARON EL 30-OCT-2026 ────────────────────────────────────────────
+ * Los anteriores eran un índice inventado para la página de venta: se prometía
+ * «Escenarios y luz» y el archivo dentro era un tutorial de bots de Telegram. Cada
+ * uno de estos dice lo que el módulo contiene de verdad, revisado archivo por archivo.
+ */
 export const TITULOS_MODULOS = [
-  "Bienvenida y cómo aprovechar el curso",
+  "Bienvenida y estrategia",
   "Tu primer modelo con IA",
-  "Rostro, cuerpo y coherencia",
-  "Voz y sincronización labial",
-  "Video: del prompt al resultado",
-  "Escenarios y luz",
-  "Publicación y calendario",
-  "Instagram: crecimiento real",
-  "TikTok: qué funciona y qué no",
-  "Monetización: primeras ventas",
-  "Atención y comunidad",
-  "Métricas y decisiones",
-  "Escalar sin perder calidad",
+  "Las herramientas: ChatGPT, Leonardo, SeaArt y DeepSeek",
+  "Crear contenido en serie",
+  "Monetización: los primeros pasos",
+  "Telegram: tu grupo y tu bot",
+  "Herramientas para potenciar tu IA",
+  "Hazte viral en TikTok",
+  "Mente de empresario",
+  "Fanvue: cómo funciona",
+  "Crea videos 100 % realistas",
+  "ManyChat desde cero",
+  "Biblioteca de prompts",
 ] as const;
+
+/**
+ * NOMBRES EXACTOS para los archivos del curso.
+ *
+ * La limpieza automática no basta: los archivos llegaron como
+ * «Copia-de-6.2-CREANDO-Y-CONFIGURANDO-EL-BOT-DE-TELEGRAM» y en pantalla se veía
+ * tal cual. Aquí está el nombre que debe leer el alumno, escrito a mano uno por uno.
+ * Si un archivo no está en esta tabla, se usa la limpieza automática.
+ */
+export const NOMBRES_CURSO: Record<string, string> = {
+  "curso/01/1.1-Empieza-aqui-Introduccion.mp4": "Empieza aquí: introducción",
+  "curso/01/1.2-Tu-estrategia-en-Instagram.mp4": "Tu estrategia en Instagram",
+  "curso/01/1.3-Entendiendo-la-base-del-mercado-de-Modelos-IA.mp4": "Entiende el mercado de modelos IA",
+
+  "curso/02/2.1-Creando-los-primeros-modelos-con-Candy.mp4": "Crea tus primeros modelos con Candy",
+  "curso/02/2.1-Enlace-Candy.pdf": "Enlace: Candy",
+  "curso/02/2.2-Atencion_-contenido-18_.mp4": "Atención: contenido +18",
+  "curso/02/2.3-Enlaces-Ainudez-y-Pornjourney.pdf": "Enlaces: herramientas de nudify",
+  "curso/02/2.4-Dandole-vida-a-tu-modelo-_18_": "Dale vida a tu modelo (+18)",
+  "curso/02/2.5-Enlaces-Dandole-vida-a-tu-modelo-_18_.pdf": "Enlaces: dale vida a tu modelo (+18)",
+
+  "curso/03/3.1-Chatgpt-en-su-maximo-esplendor": "ChatGPT al máximo",
+  "curso/03/3.2-Leonardo-AI-para-capos": "Leonardo AI",
+  "curso/03/3.3-Seaairt.ai-lo-mas-secreto-de-la-IA": "SeaArt AI",
+  "curso/03/3.4-Deepseek-_-Opensource-_-Pollo-AI": "DeepSeek, OpenSource y Pollo AI",
+  "curso/03/3.5-Enlaces-Deepseek-_-Opensource-_-Pollo-AI.pdf": "Enlaces: DeepSeek, OpenSource y Pollo AI",
+  "curso/03/3.6-Reve-_-Nudify": "Reve y Nudify",
+
+  "curso/04/4.1-Creando-em-Leonardo-AI": "Crear en Leonardo AI",
+  "curso/04/4.2-Creando-Contenidos-Infinitos": "Contenido infinito",
+  "curso/04/4.3-Llamada-de-Mentoria-Secreta-2.0.mp4": "Mentoría: llamada 2.0",
+
+  "curso/05/Copia-de-5.1-MONETIZA-TU-IA-CON-ESTOS-SENCILLOS-PASOS": "Monetiza tu IA en pasos sencillos",
+
+  "curso/06/Copia-de-6.1-CREANDO-GRUPO-DE-TELEGRAM": "Crear tu grupo de Telegram",
+  "curso/06/Copia-de-6.2-CREANDO-Y-CONFIGURANDO-EL-BOT-DE-TELEGRAM": "Configurar tu bot de Telegram",
+
+  "curso/07/Copia-de-7.1-Herramientas-para-potenciar-tu-IA.pdf": "Herramientas para potenciar tu IA",
+
+  "curso/08/Copia-de-8.1-HAZTE-VIRAL-EN-TIKTOK": "Hazte viral en TikTok",
+
+  "curso/09/Copia-de-Atencion-Mente-de-Empresario.txt": "Mente de empresario",
+
+  "curso/10/-10-Fanvue.mp4": "Fanvue: cómo funciona",
+
+  "curso/11/CREA-VIDEOS-100_-REALISTAS": "Crea videos 100 % realistas",
+
+  "curso/12/12.1-MANYCHAT-DESDE-CERO.mp4": "ManyChat desde cero",
+
+  "curso/13/13.1-Prompts.pdf": "Prompts (parte 1)",
+  "curso/13/13.2-Prompts-PARTE-2.pdf": "Prompts (parte 2)",
+};
 
 /** Nombres legibles de los bonos a partir de su clave en la configuración. */
 export function nombreDeBono(clave: string): string {
@@ -124,6 +184,11 @@ function legible(segmento: string): string {
  * la carpeta el alumno vería tres enlaces con el mismo nombre.
  */
 export function nombreVisible(clave: string, prefijo?: string): string {
+  // LA TABLA VA PRIMERO, con la clave completa: si se busca después de recortar el
+  // prefijo, ninguna entrada coincide.
+  const exacto = NOMBRES_CURSO[clave] ?? NOMBRES_CURSO[clave.replace(/^\/+/, "")];
+  if (exacto) return exacto;
+
   let resto = clave;
   if (prefijo && resto.startsWith(prefijo + "/")) resto = resto.slice(prefijo.length + 1);
 
@@ -136,7 +201,13 @@ export function nombreVisible(clave: string, prefijo?: string): string {
 
 /** Tipo de archivo por extensión, para etiquetar cada enlace. */
 export function tipoDeArchivo(clave: string): { etiqueta: string; icono: string } {
-  const ext = (clave.split(".").pop() ?? "").toLowerCase();
+  // SIN EXTENSIÓN = VIDEO. Se comprobó archivo por archivo contra el almacén: los
+  // 13 que vienen sin extensión son video/mp4. Antes se etiquetaban como «Archivo»
+  // y el alumno no sabía que podía reproducirlos.
+  const partes = (clave.split("/").pop() ?? "").split(".");
+  const tieneExtension = partes.length > 1 && /^[a-z0-9]{2,5}$/i.test(partes[partes.length - 1]);
+  if (!tieneExtension) return { etiqueta: "Video", icono: "▶" };
+  const ext = (partes.pop() ?? "").toLowerCase();
   if (ext === "mp4" || ext === "mov" || ext === "mkv") return { etiqueta: "Video", icono: "▶" };
   if (ext === "pdf") return { etiqueta: "PDF", icono: "▤" };
   if (ext === "mp3" || ext === "m4a") return { etiqueta: "Audio", icono: "♪" };
@@ -189,12 +260,17 @@ function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string 
     .filter((x): x is { archivo: string; url: string } => !!x.url);
   if (filas.length === 0) return "";
 
+  // UN SOLO ARCHIVO: MISMA ESTRUCTURA QUE LOS DEMÁS.
+  // Antes se pintaba como tarjeta suelta al mismo nivel que los archivos del módulo
+  // anterior, y el alumno no distinguía dónde empezaba el módulo 5. Siete de los trece
+  // módulos tienen un archivo, así que el desorden dominaba la página.
   if (filas.length === 1) {
-    const { etiqueta, icono } = tipoDeArchivo(filas[0].archivo);
-    return `<a class="tarjeta" href="${escapar(filas[0].url)}" target="_blank" rel="noopener noreferrer">
-      <span class="num">${indice + 1}</span>
-      <span><strong>${escapar(titulo)}</strong><span>${icono} ${etiqueta}</span></span>
-    </a>`;
+    const { archivo, url } = filas[0];
+    const { etiqueta, icono } = tipoDeArchivo(archivo);
+    const fila = `<a class="tarjeta" href="${escapar(url)}" target="_blank" rel="noopener noreferrer" style="margin-left:26px">
+        <span><strong>${escapar(nombreVisible(archivo, "curso"))}</strong><span>${icono} ${etiqueta}</span></span>
+      </a>`;
+    return `<h2>${indice + 1}. ${escapar(titulo)}<small>1 archivo</small></h2>${fila}`;
   }
 
   // Varios archivos: se muestra el módulo y una fila por archivo.
