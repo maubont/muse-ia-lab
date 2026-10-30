@@ -15,10 +15,10 @@ usan **provisionales marcados** y se anotan para actualizar.
 |---|---|---|
 | **P0-1** | Referencia no obligatoria + imagen reutilizada no detectada | ✅ **cerrado** — referencia mínima de 4 caracteres, caché marcada como duplicada, `dupeRef` escalado |
 | **P0-2** | Los bytes reales de Evolution no llegaban al lector (la visión nunca corría) | ✅ **cerrado** — `obtenerBytes()` conectado, prefiltro acepta bytes |
-| **P0-3** | Landing con número placeholder y legales sin completar | 🔄 **en curso** — con datos provisionales |
+| **P0-3** | Landing con número placeholder y legales sin completar | ✅ **cerrado con provisionales** — número vacío con aviso, legales con datos marcados `[PROVISIONAL]` |
 | **P0-4** | Categoría «adult» frente a la política de WhatsApp | 🟡 **documentado** — mal citado por el auditor; con Baileys el bloqueo es por app no oficial |
-| **P1-1** | Entrega fallida sin reintento: el cliente paga y no recibe acceso | 🔄 **en curso — el más grave** |
-| **P1-2** | Deduplicación en RAM: se pierden mensajes al reiniciar | ⬜ pendiente |
+| **P1-1** | Entrega fallida sin reintento | ✅ **cerrado** — reintento a 15 min + aviso al operador con el enlace |
+| **P1-2** | Deduplicación en RAM | ✅ **cerrado** — tabla `musa_mensajes_vistos` con `on conflict` |
 | **P1-3** | Cron duplicaba envíos y no respetaba `escalado_humano` | ✅ **cerrado** |
 | **P1-4** | Horario de seguimientos vs. normativa publicitaria | ⬜ pendiente de verificar la norma |
 | **P1-5** | El gate de edad es autodeclaración | 🟡 **no tiene arreglo técnico** — es de negocio |
@@ -26,7 +26,7 @@ usan **provisionales marcados** y se anotan para actualizar.
 | **P1-7** | «Acceso de por vida» con token que vencía al año | ✅ **cerrado** — renovación al usarse |
 | **P1-8** | RLS no acreditable desde el repo | 🟡 **informativo** — se verifica en la base |
 | **P1-9** | Su verificación no fue verde en su entorno | 🟡 **era `EACCES` de su sandbox**, no un fallo nuestro |
-| **P1-10** | La promesa de «17 enlaces» no coincide con la entrega (60 archivos) | ⬜ pendiente |
+| **P1-10** | «17 enlaces» vs entrega real | ✅ **cerrado** — landing, copy de S10 y documentación alineados |
 
 ### Del registro interno
 
