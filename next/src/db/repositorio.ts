@@ -174,11 +174,28 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       const { token } = await crearAcceso(consultar, phone);
       const enlace = enlaceDeAcceso(urlPublica, token);
 
-      await this.enviar(phone, [
-        `🎓 *Tu acceso personal:*\n${enlace}\n\nGuárdalo: es tuyo y no caduca.`,
-        entrega.bienvenida,
-      ]);
-      await this.registrarEvento(phone, "acceso_creado", {});
+      const mensajeAcceso = `🎓 *Tu acceso personal:*\n${enlace}\n\nGuárdalo: es tuyo y no caduca.`;
+      const envio = await this.enviar(phone, [mensajeAcceso, entrega.bienvenida]);
+
+      if (envio.ok) {
+        await this.registrarEvento(phone, "acceso_creado", {});
+        return;
+      }
+
+      // PAGÓ Y NO RECIBIÓ. El pago ya quedó marcado por la barrera, así que no basta
+      // con anotar el fallo: hay que reintentar y avisar a una persona. Sin esto, un
+      // corte de red en el instante de la entrega dejaba al cliente sin curso y sin
+      // que nadie lo supiera.
+      await this.registrarEvento(phone, "entrega_fallida", {});
+      await consultar(
+        "insert into public.musa_recordatorios (lead_phone, tipo, programado_para, motivo) values ($1, $2, now() + interval \'15 minutes\', $3)",
+        [phone, "entrega_pendiente", mensajeAcceso],
+      ).catch(() => ({ rows: [] }));
+      if (telefonoOperador) {
+        await canal.enviar(telefonoOperador, {
+          texto: `⚠️ Entregué un acceso y el envío falló. Reenvía a ${phone}:\n${enlace}`,
+        });
+      }
     },
 
     async reclamarEntrega(phone) {
@@ -200,6 +217,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       // sensación es humana, la espera no.
       const bloques = limitarTurno(textos.flatMap((t) => partirMensaje(t)));
       let indice = 0;
+      let todoBien = true;
       for (const texto of bloques) {
         // El «escribiendo…» NO se espera: si el canal está lento sería otro
         // timeout por mensaje. Se dispara y se sigue.
@@ -207,6 +225,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         await esperar(retardoDeTurno(indice, texto));
         const r = await canal.enviar(phone, { texto });
         if (!r.ok) {
+          todoBien = false;
           await registrarEnvioFallido(phone, r.status, r.motivo);
           // Canal caído: insistir con el resto solo acumula timeouts y el
           // cliente no va a recibir ninguno. Se corta el turno.
@@ -215,11 +234,12 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
             if (restantes > 0) {
               await registrarEnvioFallido(phone, undefined, `turno_abortado:${restantes}_sin_intentar`);
             }
-            return;
+            return { ok: false };
           }
         }
         indice++;
       }
+      return { ok: todoBien };
     },
 
     async enviarMedia(phone, media) {

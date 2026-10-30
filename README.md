@@ -15,7 +15,7 @@ Stack: Twilio (WhatsApp) · OpenAI GPT-5.1 · InsForge (Postgres, edge functions
 | `functions/` | Edge functions de InsForge (se despliegan automáticamente al hacer push) |
 | `bonos/` | Bono «Plan de Acción 7 Días» (fuente .md/.html + PDF) |
 | `config/` | Datos de pago y marca (los valores reales viven en `musa_settings` / secrets) |
-| `enlaces.txt` | Los 17 enlaces de entrega (1–13 módulos, 14–17 bonos) |
+| `enlaces.txt` | La entrega del curso: enlace personal al área con 13 módulos y 4 bonos |
 
 ## Despliegue automático (CI/CD)
 

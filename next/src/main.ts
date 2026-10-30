@@ -206,9 +206,27 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     }
   }
 
+  // Deduplicación PERSISTENTE: el insert con «on conflict do nothing» devuelve fila
+  // solo la primera vez. Sobrevive a reinicios y a varias réplicas.
+  const yaProcesado = consultar
+    ? async (id: string): Promise<boolean> => {
+        try {
+          const { rows } = await consultar(
+            "insert into public.musa_mensajes_vistos (id_externo) values ($1) on conflict (id_externo) do nothing returning id_externo",
+            [id],
+          );
+          return rows.length === 0;
+        } catch {
+          // Si la tabla no existe todavía, no se bloquea el webhook: se procesa.
+          return false;
+        }
+      }
+    : undefined;
+
   const servidor = crearServidor({
     canal,
     motor,
+    yaProcesado,
     host: opciones.host ?? "0.0.0.0",
     despacharRecordatorios,
     claveCron,

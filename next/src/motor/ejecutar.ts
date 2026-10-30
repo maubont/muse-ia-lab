@@ -29,7 +29,8 @@ export interface Repositorio {
   /** Claim atómico `pagado: false -> true`. false = no se ganó la carrera. */
   reclamarEntrega(phone: string): Promise<boolean>;
   notificarOperador(texto: string): Promise<void>;
-  enviar(phone: string, textos: string[]): Promise<void>;
+  /** Devuelve si TODOS los mensajes salieron. Un fallo parcial se reintenta. */
+  enviar(phone: string, textos: string[]): Promise<{ ok: boolean }>;
   /** Adjunto con pie de texto (video del avatar). */
   enviarMedia(phone: string, media: { url: string; tipo: "video" | "imagen"; texto: string }): Promise<void>;
   /**

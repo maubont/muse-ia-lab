@@ -236,7 +236,7 @@ Mientras Meta verifica el negocio (1 día–3 semanas, variable, **con riesgo re
 ## 11. Insumos y decisiones pendientes del dueño
 
 **Decisiones tomadas (11/12-jun-2026):**
-1. ✅ **Enlaces confirmados**: [enlaces.txt](enlaces.txt) ahora tiene 17 enlaces numerados. Mapeo: 1–13 módulos, 14 Colección +20 modelos IA, 15 Audios FemPro, 16 YouTube Money Machine, 17 MegaPack Master IA.
+1. ✅ **Enlaces confirmados**: [enlaces.txt](enlaces.txt) ahora describe la entrega por enlace personal numerados. Mapeo: 1–13 módulos, 14 Colección +20 modelos IA, 15 Audios FemPro, 16 YouTube Money Machine, 17 MegaPack Master IA.
 2. ✅ **Avatar**: personalizado a 6 s, fal.ai (veed/lipsync) + **OpenAI TTS** (sin ElevenLabs) ≈ $0,042/video + **3 videos genéricos** como respaldo y grupo de control; revisión del A/B a 30 días.
 3. ✅ **Asesora: «Musa»** (reemplaza a «Valentina» en todo el copy al cargarlo en Fase 2).
 4. ✅ **Bono «Plan de Acción 7 Días»**: aprobado — PDF en [bonos/](bonos/).

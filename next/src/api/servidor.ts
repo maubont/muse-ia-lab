@@ -36,6 +36,11 @@ export interface OpcionesServidor {
   /** deduplicación en memoria; el tamaño se recorta solo (ver `recordar`) */
   maxIdsRecordados?: number;
   /**
+   * Comprobador de duplicados. Si se entrega, manda él: sobrevive a reinicios y
+   * sirve con varias réplicas. Sin él se usa la memoria (solo pruebas).
+   */
+  yaProcesado?: (id: string) => Promise<boolean> | boolean;
+  /**
    * Interfaz de escucha. Por defecto `127.0.0.1` (seguro en local y en pruebas).
    * En un contenedor hay que pasar `0.0.0.0`, o el proxy de la plataforma no llega.
    */
@@ -388,8 +393,11 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     for (const mensaje of mensajes) {
       const id = mensaje.id_externo;
       if (id) {
-        if (vistos.has(id)) continue;
-        recordar(id);
+        // PERSISTENTE PRIMERO. La memoria se olvida al reiniciar y Evolution
+        // reintenta hasta 10 veces: el cliente recibía el mismo mensaje varias veces.
+        const ya = opts.yaProcesado ? await opts.yaProcesado(id) : vistos.has(id);
+        if (ya) continue;
+        if (!opts.yaProcesado) recordar(id);
       }
       try {
         const salientes = await opts.motor.procesar(mensaje);

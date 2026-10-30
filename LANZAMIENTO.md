@@ -74,7 +74,7 @@ Responsable: **TÚ** = solo Mauricio puede hacerlo · **CLAUDE** = pídemelo y l
 ## FASE C — Coherencia de marca (en paralelo con la espera de Meta)
 
 - [ ] **C1.** Cablear la Musa definitiva (Fusión C) al saludo del bot: nuevo video base + genéricos en el bucket + actualizar `musa_videos_cache` (el video del anuncio y el del chat deben ser LA MISMA mujer). (peso 8) — CLAUDE (gasto fal ~$1–2; confirmar saldo)
-- [ ] **C2.** Verificar que los 17 enlaces de entrega (Drive) están vivos y correctos. (peso 4) — CLAUDE
+- [ ] **C2.** Verificar que la entrega del curso (enlace personal al área) están vivos y correctos. (peso 4) — CLAUDE
 - [ ] **C3.** Completar titular parcial visible de Nequi y Bre-B en `cuentas_co` (hoy dice "PENDIENTE"). (peso 3) — TÚ (1 mensaje) + CLAUDE aplica
 
 **Subtotal: 15**
