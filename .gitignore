@@ -50,3 +50,7 @@ avatar/creativos-candidatos/
 # Artefactos locales de la herramienta de agentes (no son del proyecto)
 .dsh-acl-recovery/
 .npm-cache/
+
+# Paquete de auditoría externa: es una copia del proyecto, no se versiona.
+/musa-auditoria.zip
+/musa-auditoria/
