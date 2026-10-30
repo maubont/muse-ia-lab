@@ -66,8 +66,18 @@ const SQL_LEAD = `
     from public.musa_leads where phone = $1
 `;
 
-const SQL_MARCAR_ENVIADO = `
-  update public.musa_recordatorios set enviado_en = now() where id = $1
+// RECLAMO ATÓMICO: se marca la fila ANTES de enviar y solo si sigue libre. Si dos
+// pasadas del cron coinciden, solo una gana; la otra no envía nada. Sin esto,
+// dos procesos podían mandar el mismo recordatorio dos veces al cliente.
+const SQL_RECLAMAR = `
+  update public.musa_recordatorios set enviado_en = now()
+   where id = $1 and enviado_en is null
+  returning id
+`;
+
+/** Si el envío falla, se libera la fila para que otra pasada la reintente. */
+const SQL_LIBERAR = `
+  update public.musa_recordatorios set enviado_en = null where id = $1
 `;
 
 const SQL_REPROGRAMAR = `
@@ -116,6 +126,14 @@ export async function despacharRecordatorios(deps: DepsDespacho): Promise<Resume
     }
 
     // Dio de baja o ya pagó: no se le persigue.
+    // Escalado a humano: no se le escriben seguimientos automáticos. La conversación
+    // está en manos de una persona y el bot debe callarse.
+    if (lead.escalado_humano) {
+      await consultar(SQL_CANCELAR, [rec.id, "escalado_humano"]);
+      resumen.cancelados++;
+      continue;
+    }
+
     if (lead.opt_out) {
       await consultar(SQL_CANCELAR, [rec.id, "opt_out"]);
       resumen.cancelados++;
@@ -154,18 +172,23 @@ export async function despacharRecordatorios(deps: DepsDespacho): Promise<Resume
       continue;
     }
 
+    // Reclamo: si otra pasada ya lo tomó, esta se retira en silencio.
+    const reclamo = await consultar(SQL_RECLAMAR, [rec.id]);
+    if (reclamo.rows.length === 0) continue;
+
     try {
       void canal.marcarEscribiendo(rec.lead_phone).catch?.(() => {});
       await esperar(300);
       const r = await canal.enviar(rec.lead_phone, { texto });
       if (!r.ok) {
-        // El canal falló: se reprograma para dentro de una hora, no se pierde.
+        // El canal falló: se LIBERA el reclamo y se reprograma para dentro de una
+        // hora. El recordatorio no se pierde.
+        await consultar(SQL_LIBERAR, [rec.id]);
         await consultar(SQL_REPROGRAMAR, [rec.id, new Date(ahora().getTime() + 3600_000).toISOString(), "reintento_por_fallo"]);
         await consultar(SQL_EVENTO, [rec.lead_phone, "recordatorio_fallido", JSON.stringify({ tipo: rec.tipo, motivo: r.motivo ?? null })]);
         resumen.fallidos++;
         continue;
       }
-      await consultar(SQL_MARCAR_ENVIADO, [rec.id]);
       await consultar(SQL_CONTAR_SEGUIMIENTO, [rec.lead_phone]);
       await consultar(SQL_EVENTO, [rec.lead_phone, "recordatorio_enviado", JSON.stringify({ tipo: rec.tipo })]);
       resumen.enviados++;

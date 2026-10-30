@@ -10,7 +10,7 @@
 import { readFileSync } from "node:fs";
 import { leerConProveedor } from "./proveedor.ts";
 import type { ConfigProveedor } from "./proveedor.ts";
-import { costeEstimado, registrarConsumo } from "./presupuesto.ts";
+import { costeEstimado, registrarConsumo, consultarPresupuesto } from "./presupuesto.ts";
 import type { Consultar } from "../db/repositorio.ts";
 
 export interface CasoDiagnostico {
@@ -153,8 +153,23 @@ export async function diagnosticarImagenSuelta(
   cfg: ConfigProveedor,
   base64: string,
   esperado?: Partial<CasoDiagnostico["esperado"]>,
-  opciones: { fetchImpl?: typeof fetch; tipo?: string; consultar?: Consultar } = {},
+  opciones: { fetchImpl?: typeof fetch; tipo?: string; consultar?: Consultar; presupuestoDiario?: number } = {},
 ): Promise<ResultadoCaso & { coste: number; tokens?: { entrada: number; salida: number } }> {
+  // El diagnóstico también gasta: se comprueba el tope antes de llamar. Antes se
+  // saltaba el presupuesto y podía vaciarlo fuera del control del sistema.
+  if (opciones.consultar) {
+    const estado = await consultarPresupuesto(opciones.consultar, {
+      tope: opciones.presupuestoDiario,
+      estimado: costeEstimado(1400, 400, { entrada: cfg.precioEntrada, salida: cfg.precioSalida }),
+    });
+    if (!estado.permitido) {
+      return {
+        nombre: "imagen_enviada", ok: false, ms: 0, coste: 0, datos: null, fallos: [],
+        motivo: `sin_presupuesto:${estado.motivo}`,
+      };
+    }
+  }
+
   const tipo = opciones.tipo ?? "image/png";
   const dataUrl = `data:${tipo};base64,${base64}`;
   const t0 = Date.now();

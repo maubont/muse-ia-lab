@@ -92,9 +92,12 @@ export async function validarToken(
   if (!Number.isFinite(expira) || expira < Date.now()) return { ok: false, motivo: "caducado" };
 
   if (registrarVisita) {
+    // RENOVACIÓN AL USARSE. El acceso se vende como «de por vida», pero antes
+    // vencía a los 365 días y nadie lo extendía: quien pagó perdía el curso al año.
+    // Ahora cada visita empuja la caducidad otro año hacia adelante.
     await consultar(
-      "update public.musa_accesos set ultimo_acceso = now(), visitas = visitas + 1 where token = $1",
-      [token],
+      "update public.musa_accesos set ultimo_acceso = now(), visitas = visitas + 1, expira_en = now() + ($2 || ' days')::interval where token = $1",
+      [token, String(DIAS_POR_DEFECTO)],
     );
   }
 

@@ -26,6 +26,10 @@ function entorno({ recordatorios = [], lead, enviar, ahora = bogota(28, 10) } = 
     const q = sql.replace(/\s+/g, " ").trim();
     log.push({ q, params });
     if (q.startsWith("select id, lead_phone")) return { rows: recordatorios };
+    // Reclamo atómico: se comporta como si esta pasada ganara la fila.
+    if (q.startsWith("update public.musa_recordatorios set enviado_en = now()") && q.includes("returning id")) {
+      return { rows: [{ id: params[0] }] };
+    }
     if (q.startsWith("select phone, opt_out")) return { rows: lead ? [lead] : [] };
     return { rows: [] };
   };
