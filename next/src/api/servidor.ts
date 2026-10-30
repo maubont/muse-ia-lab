@@ -229,12 +229,15 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const v = await opts.acceso.validar(token);
       if (!v.ok) return html(res, 403, opts.acceso.sinAcceso(v.motivo));
 
-      // Cookie HttpOnly (no la lee JavaScript), SameSite=Lax (no viaja desde otros
-      // sitios) y Secure cuando la petición llegó por HTTPS.
-      const seguro = String(req.headers["x-forwarded-proto"] ?? "").includes("https") ? " Secure;" : "";
+      // Cookie HttpOnly (no la lee JavaScript), SameSite=Lax (permite abrir el enlace
+      // desde WhatsApp, que es una navegación de nivel superior) y Secure por defecto:
+      // si la petición no dice el protocolo, asumimos HTTPS, que es lo que sirve
+      // Railway. Un enlace que no abre por una cookie mal puesta es una venta perdida.
+      const proto = String(req.headers["x-forwarded-proto"] ?? "https");
+      const seguro = proto.includes("https") ? " Secure;" : "";
       res.setHeader(
         "Set-Cookie",
-        `musa_acceso=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 3600};${seguro}`,
+        `musa_acceso=${encodeURIComponent(token.trim())}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 3600};${seguro}`,
       );
       res.statusCode = 302;
       res.setHeader("Location", "/curso");
@@ -243,13 +246,26 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     }
 
     // ---- la página del curso, solo con cookie válida ----
-    if (url === "/curso") {
+    if (url === "/curso" || url.startsWith("/curso?")) {
       if (!opts.acceso) return json(res, 404, { error: "no_encontrado" });
       const cookies = String(req.headers.cookie ?? "");
       const m = cookies.match(/(?:^|;\s*)musa_acceso=([^;]+)/);
-      const token = m ? decodeURIComponent(m[1]) : "";
+      // RESPALDO: si el navegador del chat no guardó la cookie (pasa en navegadores
+      // dentro de la app de WhatsApp e Instagram), el enlace trae el token en ?t=.
+      // Sin esto, el cliente ve «enlace no válido» en un enlace que sí lo es.
+      const deUrl = new URL(url, "http://x").searchParams.get("t") ?? "";
+      const token = deUrl || (m ? decodeURIComponent(m[1]) : "");
       const v = token ? await opts.acceso.validar(token) : { ok: false, motivo: "sin_cookie" };
       if (!v.ok || !v.phone) return html(res, 403, opts.acceso.sinAcceso(v.motivo));
+      // Deja la cookie puesta si llegó por parámetro: las siguientes visitas ya
+      // entran solas, sin el ?t=.
+      if (deUrl) {
+        const seguro = (req.headers["x-forwarded-proto"] ?? "https") === "https" ? " Secure;" : "";
+        res.setHeader(
+          "Set-Cookie",
+          `musa_acceso=${encodeURIComponent(token.trim())}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 3600};${seguro}`,
+        );
+      }
       // El token va a la página: sin él los enlaces `media:` no se pueden construir.
       return html(res, 200, await opts.acceso.pagina(v.phone, token));
     }

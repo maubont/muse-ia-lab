@@ -73,6 +73,20 @@ export async function crearAcceso(
  * Devuelve el motivo exacto para poder distinguir «caducó» de «no existe» en logs
  * internos (al usuario NO se le da esa información).
  */
+/**
+ * Normaliza un token recibido por enlace.
+ *
+ * Los enlaces se comparten por WhatsApp y llegan con basura pegada: un punto final,
+ * un paréntesis, un salto de línea o espacios. Y algunos teclados cambian las
+ * mayúsculas. Un enlace que el cliente no puede abrir es una venta perdida.
+ */
+export function limpiarToken(bruto: string): string {
+  return String(bruto ?? "")
+    .trim()
+    .replace(/^[^A-Za-z0-9_-]+/, "")
+    .replace(/[^A-Za-z0-9_-]+$/, "");
+}
+
 export async function validarToken(
   consultar: Consultar,
   token: string,
@@ -81,8 +95,10 @@ export async function validarToken(
   if (!token || token.length < 20 || token.length > 64) return { ok: false, motivo: "formato" };
 
   const { rows } = await consultar(
-    "select lead_phone, expira_en, revocado_en from public.musa_accesos where token = $1",
-    [token],
+    // Comparación sin mayúsculas: el token tiene 24 bytes aleatorios, así que perder
+    // la distinción de caja no debilita nada relevante.
+    "select lead_phone, expira_en, revocado_en from public.musa_accesos where lower(token) = lower($1)",
+    [limpiarToken(token)],
   );
   const fila = rows[0] as { lead_phone: string; expira_en: string; revocado_en: string | null } | undefined;
   if (!fila) return { ok: false, motivo: "no_existe" };

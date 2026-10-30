@@ -169,7 +169,12 @@ a.tarjeta:hover{border-color:#3b3b4d}
 .tarjeta span{font-size:12.5px;color:var(--tenue)}
 .aviso{margin-top:36px;padding:14px 16px;border-radius:12px;background:var(--panel);
   border:1px solid var(--borde);font-size:13px;color:var(--tenue)}
-.error{max-width:420px;margin:80px auto;text-align:center}
+.boton{display:inline-block;padding:14px 22px;border-radius:12px;text-decoration:none;
+      font-weight:700;font-size:15px;color:#fff;
+      background:linear-gradient(180deg,#a78bfa,#7c3aed);
+      box-shadow:0 10px 24px -12px rgba(139,92,246,.9)}
+    .boton:hover{filter:brightness(1.06)}
+    .error{max-width:420px;margin:80px auto;text-align:center}
 .error h1{color:#f87171;margin-bottom:12px}
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--borde);font-size:12px;color:#6b6b7d}
 </style></head><body><main>`;
@@ -282,18 +287,49 @@ ${pie}`;
 }
 
 /** Pantalla para un enlace caducado, revocado o inventado. Sin pistas útiles. */
-export function paginaSinAcceso(motivo?: string): string {
-  const detalle =
-    motivo === "caducado"
-      ? "Este enlace caducó."
-      : motivo === "revocado"
-        ? "Este enlace fue reemplazado por uno nuevo."
-        : "Este enlace no es válido.";
-  return `${cabecera("Acceso no válido — Modelos IA")}
+/**
+ * Un enlace roto no debe terminar en una pantalla muda.
+ *
+ * Antes todas las causas mostraban «Este enlace no es válido» y mandaban a escribir
+ * por WhatsApp, sin número configurado: el cliente quedaba atrapado. Ahora cada caso
+ * explica qué pasó y siempre hay una salida.
+ */
+function motivoLegible(motivo?: string): { titulo: string; detalle: string } {
+  switch (motivo) {
+    case "revocado":
+      return {
+        titulo: "Este enlace fue reemplazado",
+        detalle: "Te enviamos uno nuevo en algún momento y este dejó de servir. Abre el último mensaje.",
+      };
+    case "vencido":
+      return {
+        titulo: "Este enlace caducó",
+        detalle: "Pide uno nuevo y te lo enviamos al instante. Tu compra sigue registrada.",
+      };
+    case "sin_cookie":
+      return {
+        titulo: "Abre el enlace completo",
+        detalle: "El enlace del mensaje tiene una clave al final. Si copiaste solo una parte, no funciona.",
+      };
+    default:
+      return {
+        titulo: "Este enlace no es válido",
+        detalle: "Revisa que lo copiaste completo. Si el problema sigue, escríbenos y te enviamos otro.",
+      };
+  }
+}
+
+export function paginaSinAcceso(motivo?: string, enlaceSoporte?: string): string {
+  const legible = motivoLegible(motivo);
+  return `${cabecera(`${legible.titulo} — Modelos IA`)}
 <div class="error">
-  <h1>No puedo abrirte el curso</h1>
-  <p>${escapar(detalle)}</p>
-  <p style="margin-top:14px">Escríbenos por WhatsApp y te enviamos uno nuevo al instante.</p>
+  <h1>${escapar(legible.titulo)}</h1>
+  <p>${escapar(legible.detalle)}</p>
+  ${
+    enlaceSoporte
+      ? `<p style="margin-top:18px"><a class="boton" href="${escapar(enlaceSoporte)}" target="_blank" rel="noopener noreferrer">Pedir un enlace nuevo</a></p>`
+      : `<p class="fino" style="margin-top:18px">Escríbenos al WhatsApp desde el que compraste y te enviamos uno nuevo.</p>`
+  }
 </div>
 ${pie}`;
 }

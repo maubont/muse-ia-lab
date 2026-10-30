@@ -177,7 +177,15 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
         const nombre = fila?.nombre ?? fila?.profile_name ?? null;
         return paginaCurso(cfg.entrega as never, nombre, { token });
       },
-      sinAcceso: paginaSinAcceso,
+      // Un enlace roto no puede terminar en una pantalla muda: si hay número de
+      // soporte, la página ofrece pedir uno nuevo.
+      sinAcceso: (motivo?: string) =>
+        paginaSinAcceso(
+          motivo,
+          process.env.MUSA_SOPORTE_WA
+            ? `https://wa.me/${process.env.MUSA_SOPORTE_WA}?text=${encodeURIComponent("Hola, mi enlace del curso no abre")}`
+            : undefined,
+        ),
     };
     console.log("[musa] acceso al curso: GET /a/<token> → /curso");
   }
