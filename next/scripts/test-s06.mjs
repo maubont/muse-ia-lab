@@ -40,7 +40,8 @@ const de = (e, tipo) => e.filter((x) => x.tipo === tipo);
   t("«dale»: envía UN mensaje con todo", de(e, "enviar")[0].textos.length, 1);
   t("«dale»: sin GPT", tipos(e).includes("gpt_fallback"), false);
 
-  const texto = de(e, "enviar")[0].textos[0];
+  const textoDe = (efectos) => (efectos.filter((x) => x.tipo === "enviar").flatMap((x) => x.textos) ?? []).join("\n");
+const texto = de(e, "enviar")[0].textos[0];
   t("«dale»: trae los datos de Colombia", texto.includes("Nequi"), true);
   t("«dale»: NO trae Venezuela (no es cobrable)", texto.includes("Venezuela"), false);
   t("«dale»: sin placeholders", texto.includes("{{"), false);
@@ -100,7 +101,8 @@ const de = (e, tipo) => e.filter((x) => x.tipo === tipo);
   t("sin cuentas válidas: escala a humano", de(e, "lead")[0].patch.escalado_humano, true);
   t("sin cuentas válidas: registra el motivo", de(e, "evento")[0].detalle.motivo, "datos_pago_incompletos");
   t("sin cuentas válidas: NO cambia de estado", tipos(e).includes("estado"), false);
-  const texto = de(e, "enviar")[0].textos[0];
+  const textoDe = (efectos) => (efectos.filter((x) => x.tipo === "enviar").flatMap((x) => x.textos) ?? []).join("\n");
+const texto = de(e, "enviar")[0].textos[0];
   t("sin cuentas válidas: no filtra cuentas", /nequi|bancolombia/i.test(texto), false);
 }
 
@@ -108,7 +110,8 @@ const de = (e, tipo) => e.filter((x) => x.tipo === tipo);
 
 {
   const e = efectosDatosPago(LEAD, CFG);
-  const texto = de(e, "enviar")[0].textos[0];
+  const textoDe = (efectos) => (efectos.filter((x) => x.tipo === "enviar").flatMap((x) => x.textos) ?? []).join("\n");
+const texto = de(e, "enviar")[0].textos[0];
   t("CO: un solo mensaje", de(e, "enviar")[0].textos.length, 1);
   t("CO: encabezado y pie en el mismo mensaje", texto.split("\n").length > 6, true);
   t("CO: incluye la llave Bre-B", texto.includes(String(CFG.cuentasCo.breb.llave)), true);
@@ -130,10 +133,19 @@ const de = (e, tipo) => e.filter((x) => x.tipo === tipo);
     },
   };
   const e = efectosDatosPago(LEAD, cfgAmbas);
-  const texto = de(e, "enviar")[0].textos[0];
-  t("ambas: incluye Venezuela", texto.includes("Pago Móvil"), true);
+  const textoDe = (efectos) => (efectos.filter((x) => x.tipo === "enviar").flatMap((x) => x.textos) ?? []).join("\n");
+const texto = de(e, "enviar")[0].textos[0];
+  // POLÍTICA: Venezuela está fuera del lanzamiento. Aunque las cuentas existan y
+  // pasen la validación, sin `paisesHabilitados` que lo autorice NO se envían.
+  t("ambas: por defecto NO incluye Venezuela", texto.includes("Pago Móvil"), false);
   t("ambas: incluye Colombia", texto.includes("Nequi"), true);
-  t("ambas: Venezuela va primero", texto.indexOf("Pago Móvil") < texto.indexOf("Nequi"), true);
+
+  // Y si algún día se habilita, vuelve a salir — con su país primero.
+  const cfgConVe = { ...cfgAmbas, paisesHabilitados: ["CO", "VE"] };
+  const conVe = efectosDatosPago(LEAD, cfgConVe);
+  const txtConVe = textoDe(conVe);
+  t("habilitando VE: lo incluye", txtConVe.includes("Pago Móvil"), true);
+  t("habilitando VE: Venezuela va primero", txtConVe.indexOf("Pago Móvil") < txtConVe.indexOf("Nequi"), true);
 }
 
 // ============================== cerrarConDatos directo ==============================

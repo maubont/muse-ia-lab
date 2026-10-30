@@ -149,7 +149,9 @@ function db() {
   // Cada módulo puede tener varios archivos: se comprueban los títulos, no el marcado.
   t("página: los 13 módulos", TITULOS_MODULOS.filter((x) => html.includes(escaparDePrueba(x))).length, 13);
   // Tres bonos son un solo enlace; youtube_money_machine son 6 archivos y se agrupa.
-  t("página: bonos de un enlace", (html.match(/Bono incluido/g) ?? []).length, 3);
+  // audios_fempro y coleccion_modelos son un enlace; youtube_money_machine (6) y
+  // megapack_master_ia (22) se agrupan.
+  t("página: bonos de un enlace", (html.match(/Bono incluido/g) ?? []).length, 2);
   t("página: el bono de varios archivos se agrupa", html.includes("YouTube Money Machine") && html.includes("6 archivos"), true);
   t("página: el plan de 7 días", html.includes("Plan de Acción 7 Días"), true);
   t("página: el plan se sirve con el token", html.includes("/media/TOK/bonos/plan-accion-7-dias.pdf"), true);

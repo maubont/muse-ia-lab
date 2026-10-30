@@ -50,17 +50,31 @@ export function componerEntrega(lead: LeadNombre, cfg: CfgCopy): Entrega {
   const bonos = cfg.entrega?.bonos ?? {};
   const plan = cfg.entrega?.plan_accion_7dias ?? "";
 
+  // El contenido ya no son URLs sueltas: cada módulo es un objeto con título y
+  // varios archivos. Pintar `${m}` a secas producía «[object Object]» — el cliente
+  // habría recibido basura en vez del curso.
   const bloque1 = ["📚 *Tu curso (13 módulos):*"];
-  modulos.forEach((url, i) => bloque1.push(`${i + 1}. ${url}`));
+  modulos.forEach((m, i) => {
+    const titulo = (m && typeof m === "object" && "titulo" in m && (m as { titulo?: string }).titulo) || `Módulo ${i + 1}`;
+    const archivos = Array.isArray(m) ? m.length : (m && typeof m === "object" && Array.isArray((m as { archivos?: unknown[] }).archivos) ? (m as { archivos: unknown[] }).archivos.length : 0);
+    bloque1.push(`${i + 1}. ${titulo}${archivos ? ` (${archivos} ${archivos === 1 ? "archivo" : "archivos"})` : ""}`);
+  });
 
   const bloque2 = ["🎁 *Tus 4 bonos + regalo:*"];
   let n = 1;
-  for (const [clave, url] of Object.entries(bonos)) {
-    if (!url) continue;
-    bloque2.push(`${n}. ${ETIQUETAS_BONOS[clave] ?? clave}: ${url}`);
+  for (const [clave, valor] of Object.entries(bonos)) {
+    const archivos = Array.isArray(valor) ? valor.filter(Boolean) : valor ? [valor] : [];
+    if (archivos.length === 0) continue;
+    const cuantos = archivos.length === 1 ? "1 archivo" : `${archivos.length} archivos`;
+    bloque2.push(`${n}. ${ETIQUETAS_BONOS[clave] ?? clave} (${cuantos})`);
     n++;
   }
-  if (plan) bloque2.push(`🎁 *Regalo — Plan de Acción 7 Días:* ${plan}`);
+  if (plan) {
+    // El plan puede ser una clave interna (`media:…`). Nunca se le enseña al cliente
+    // una clave del almacén: o es un enlace de verdad, o se anuncia sin enlace.
+    const visible = /^https?:\/\//i.test(plan) ? ` ${plan}` : "";
+    bloque2.push(`🎁 *Regalo — Plan de Acción 7 Días:*${visible || " incluido"}`);
+  }
 
   return {
     bloqueModulos: bloque1.join("\n"),

@@ -72,7 +72,7 @@
           {
             "key": "horario_verificacion",
             "value": {
-              "tz": "America/Caracas",
+              "tz": "America/Bogota",
               "fin": 22,
               "inicio": 8
             },
@@ -452,7 +452,7 @@
                 },
                 {
                   "objecion": "¿Es legal?",
-                  "respuesta": "Sí 😊 Crear modelos virtuales con IA y vender contenido digital propio es una actividad legal: es contenido generado por ti, de personas que no existen, con herramientas públicas de IA. El curso además te enseña a trabajar dentro de las normas de cada plataforma. Lo que compras es formación: videos y guías paso a paso."
+                  "respuesta": "Sí, si trabajas con personajes ficticios 😊 Crear modelos virtuales con IA y vender contenido digital propio es una actividad legal. Lo que NO es legal —y el curso no lo enseña— es usar la cara de una persona real sin su consentimiento."
                 },
                 {
                   "objecion": "Soy mujer, ¿me sirve?",
@@ -566,6 +566,12 @@
               "personalizado_activo": true
             },
             "updated_at": "2026-06-12T05:20:04.311Z"
+          },
+          {
+            "key": "paises_habilitados",
+            "value": [
+              "CO"
+            ]
           }
         ]
       }

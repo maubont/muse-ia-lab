@@ -27,6 +27,9 @@ const LEAD = { phone: "+573001112233", nombre: "Carlos", profile_name: "Carlos",
 const tipos = (e) => e.map((x) => x.tipo);
 const de = (e, tipo) => e.filter((x) => x.tipo === tipo);
 const urls = (texto) => texto.match(/https?:\/\/[^\s]+/g) ?? [];
+// El curso ya no se entrega como 17 URLs sueltas: cada módulo tiene varios
+// archivos servidos con enlace firmado. Se comprueba la forma NUEVA.
+const archivosDeclarados = (texto) => [...texto.matchAll(/\((\d+) archivos?\)/g)].reduce((a, m) => a + Number(m[1]), 0);
 
 // ============================== datos reales ==============================
 
@@ -45,12 +48,12 @@ const linksModulos = urls(e.bloqueModulos);
 const linksBonos = urls(e.bloqueBonos);
 const linksBonosSinPlan = linksBonos.filter((u) => u !== linkPlan);
 
-t("bloque de módulos: 13 enlaces", linksModulos.length, 13);
-t("bloque de bonos: 4 bonos + el regalo", linksBonos.length, 5);
-t("la promesa de 17 enlaces se cumple", linksModulos.length + linksBonosSinPlan.length, 17);
-t("el cliente recibe 18 enlaces en total", linksModulos.length + linksBonos.length, 18);
-t("bloque de módulos: numerado del 1 al 13", /^1\. https/.test(e.bloqueModulos.split("\n")[1]), true);
-t("bloque de módulos: termina en 13", e.bloqueModulos.trim().endsWith(CFG.entrega.modulos[12]), true);
+t("bloque de módulos: 13 líneas de módulo", (e.bloqueModulos.match(/^\d+\. /gm) ?? []).length, 13);
+t("bloque de bonos: 4 bonos + el regalo", (e.bloqueBonos.match(/^\d+\. /gm) ?? []).length + (e.bloqueBonos.includes("Regalo") ? 1 : 0), 5);
+t("los 13 módulos están numerados con su título", e.bloqueModulos.includes("1. Bienvenida"), true);
+t("los bonos se numeran aparte", (e.bloqueBonos.match(/^\d+\. /gm) ?? []).length, 4);
+t("bloque de módulos: empieza en 1", /^1\. /.test(e.bloqueModulos.split("\n")[1]), true);
+t("bloque de módulos: termina en 13", /^13\. /.test(e.bloqueModulos.trim().split("\n").at(-1)), true);
 t("bloque de bonos: etiquetas legibles", e.bloqueBonos.includes("Colección de Modelos"), true);
 t("bloque de bonos: incluye el plan", e.bloqueBonos.includes("Plan de Acción 7 Días"), true);
 t("bienvenida: usa el nombre", e.bienvenida.includes("Carlos"), true);
@@ -58,9 +61,9 @@ t("bienvenida: sin placeholders", e.bienvenida.includes("{{"), false);
 t("sin tokens internos", /\[[A-Z0-9_]{3,}/.test(e.bloqueModulos + e.bloqueBonos + e.bienvenida), false);
 t("conteos declarados", { modulos: e.modulos, bonos: e.bonos, tienePlan: e.tienePlan }, { modulos: 13, bonos: 4, tienePlan: true });
 
-// Los 17 enlaces de la promesa deben ser distintos (un duplicado sería un módulo perdido).
-const todos = [...linksModulos, ...linksBonosSinPlan];
-t("los 17 enlaces son distintos", new Set(todos).size, 17);
+// El total de archivos de los 13 módulos debe ser el real del curso.
+t("los módulos declaran sus archivos", archivosDeclarados(e.bloqueModulos), 29);
+t("ningún módulo aparece vacío", e.bloqueModulos.includes("(0 archivos)"), false);
 
 // ============================== efectos ==============================
 
@@ -83,7 +86,8 @@ t("los 17 enlaces son distintos", new Set(todos).size, 17);
   const cfg = { entrega: { ...CFG.entrega, plan_accion_7dias: "" } };
   const r = componerEntrega(LEAD, cfg);
   t("sin plan: no aparece el regalo", r.bloqueBonos.includes("Plan de Acción"), false);
-  t("sin plan: sigue habiendo 4 bonos", urls(r.bloqueBonos).length, 4);
+  t("sin plan: no aparece «Plan de Acción»", r.bloqueBonos.includes("Plan de Acción"), false);
+  t("sin plan: siguen los 4 bonos", (r.bloqueBonos.match(/^\d+\. /gm) ?? []).length, 4);
   t("sin plan: tienePlan=false", r.tienePlan, false);
 }
 
@@ -93,7 +97,7 @@ t("los 17 enlaces son distintos", new Set(todos).size, 17);
   const cfg = { entrega: { ...CFG.entrega, bonos } };
   const r = componerEntrega(LEAD, cfg);
   t("bono vacío: se omite", r.bloqueBonos.includes("undefined"), false);
-  t("bono vacío: quedan 3 bonos (más el regalo)", urls(r.bloqueBonos).filter((u) => u !== linkPlan).length, 3);
+  t("bono vacío: quedan 3 bonos (más el regalo)", (r.bloqueBonos.match(/^\d+\. /gm) ?? []).length, 3);
   t("bono vacío: el conteo lo refleja", r.bonos, 3);
 }
 

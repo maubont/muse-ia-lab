@@ -109,7 +109,20 @@ export function efectosDatosPago(lead: LeadNombre, cfg: CfgCopy): Efecto[] {
   const s07 = etapa(cfg, "S07_DATOS_PAGO");
   const disp = metodosPagoDisponibles(cfg);
 
-  if (!disp.ve && !disp.co) {
+  // PAÍS HABILITADO: que una cuenta esté bien formada no significa que se venda
+  // en ese país. `paises_habilitados` manda. Por defecto, solo Colombia.
+  const permitidos = (
+    Array.isArray((cfg as { paisesHabilitados?: string[] }).paisesHabilitados) &&
+    (cfg as { paisesHabilitados: string[] }).paisesHabilitados.length > 0
+      ? (cfg as { paisesHabilitados: string[] }).paisesHabilitados
+      : ["CO"]
+  ).map((p) => String(p).toUpperCase());
+
+  const veHabilitado = permitidos.includes("VE");
+  const coHabilitado = permitidos.includes("CO");
+  const hayAlgunPais = (disp.ve && veHabilitado) || (disp.co && coHabilitado);
+
+  if (!hayAlgunPais) {
     return [
       { tipo: "lead", patch: { escalado_humano: true } },
       { tipo: "evento", nombre: "escalado", detalle: { motivo: "datos_pago_incompletos" } },
@@ -118,12 +131,12 @@ export function efectosDatosPago(lead: LeadNombre, cfg: CfgCopy): Efecto[] {
   }
 
   const partes: string[] = [resolverPlaceholders(sinPrefijo(s07.mensajes[0]), lead, cfg)];
-  if (disp.ve) {
+  if (disp.ve && veHabilitado) {
     // Se compone desde el bloque validado, no desde el placeholder del copy: así
     // lo que se envía es exactamente lo que pasó la validación.
     partes.push("\n🇻🇪 *Venezuela*\n" + bloqueCuentasVE(cfg));
   }
-  if (disp.co) {
+  if (disp.co && coHabilitado) {
     partes.push("\n🇨🇴 *Colombia*\n" + bloqueCuentasCO(cfg));
   }
   partes.push(resolverPlaceholders(sinPrefijo(s07.mensajes[1]), lead, cfg));

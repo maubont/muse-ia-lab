@@ -23,6 +23,8 @@ export interface CfgFunnel {
     link_grupo?: string;
   };
   marca: { asesora?: string; firma?: string };
+  /** Países habilitados para el negocio. ["CO"] = solo Colombia. */
+  paisesHabilitados: string[];
   operador: { whatsapp?: string };
 }
 
@@ -35,6 +37,7 @@ export const CLAVES = [
   "entrega",
   "marca",
   "operador",
+  "paises_habilitados",
 ] as const;
 
 /** Lee las claves necesarias. Valores por defecto explícitos, como el original. */
@@ -55,6 +58,9 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
     cuentasCo: (mapa.cuentas_co ?? {}) as Record<string, unknown>,
     entrega: (mapa.entrega ?? {}) as CfgFunnel["entrega"],
     marca: (mapa.marca ?? {}) as CfgFunnel["marca"],
+    paisesHabilitados: (Array.isArray(mapa.paises_habilitados) && mapa.paises_habilitados.length > 0
+      ? (mapa.paises_habilitados as string[])
+      : ["CO"]) as string[],
     operador: (mapa.operador ?? {}) as CfgFunnel["operador"],
   };
 }

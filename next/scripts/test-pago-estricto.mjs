@@ -109,7 +109,16 @@ const decidir = (d, extra) => evaluarPago(CFG, d, true, { ahora, ...extra });
 // ============================== ventana de 24 horas ==============================
 {
   t("hoy: pasa", decidir(datos({ fecha: "2026-10-28" })).accion, "AUTO_APROBAR");
-  t("ayer: pasa (menos de 24 h si es el mismo día hábil)", decidir(datos({ fecha: "2026-10-27" })).motivo === "comprobante_viejo", true);
+  // OJO: el módulo verificado compara la fecha contra Date.now() real, no contra
+  // `ahora`. Una fecha fija ("2026-10-27") hacía que esta prueba pasara un día y
+  // fallara al siguiente. Se calcula relativa al día de hoy.
+  const hoy = new Date();
+  const ayer = new Date(hoy.getTime() - 24 * 3600_000).toISOString().slice(0, 10);
+  // Se alinea el ancla con el reloj real: el módulo verificado usa Date.now() y la
+  // capa estricta usa `ahora`. Si no coinciden, la prueba mide otra cosa.
+  const rAyer = decidir(datos({ fecha: ayer }), { ahora: new Date() });
+  t("ayer: va a humano (más de 24 h)", rAyer.accion, "COLA_HUMANA");
+  t("ayer: por ventana, no por otra cosa", ["comprobante_viejo", "fecha_vieja"].includes(rAyer.motivo), true);
   t("hace tres días: humano", decidir(datos({ fecha: "2026-10-25" })).accion, "COLA_HUMANA");
   // Entre 24 h y 3 días el verificado pasaría; la ventana estricta es la que corta.
   t("hace 30 h: humano por ventana", decidir(datos({ fecha: "2026-10-27T09:00:00Z".slice(0,10) })).accion, "COLA_HUMANA");
