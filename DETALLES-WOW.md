@@ -136,3 +136,49 @@ querer el resto.
 Arreglar el desajuste de títulos y contenido (módulos 5 a 12). Una plataforma que
 enseña «Escenarios y luz» y entrega un tutorial de bots de Telegram **no genera
 confianza: la destruye**. Enseñar eso sería peor que no enseñar nada.
+
+---
+
+## 7. Lo que se descartó (y por qué) — 30-oct-2026
+
+Se anotan aquí las ideas evaluadas y **rechazadas** para no volver a proponerlas.
+
+### Garantía de devolución — DESCARTADA
+
+Se propuso una garantía de 7 días para reducir el riesgo percibido. El dueño la
+rechazó con un argumento que se sostiene:
+
+> No se puede verificar si el comprador descargó, consumió o simplemente decidió no
+> hacerlo. Una devolución es un coste administrativo cierto contra un beneficio
+> incierto, y premia justo a quien no hizo nada.
+
+**Decisión:** sin garantía. El curso queda disponible para siempre y cada quien lo
+hace en 6 días o en 6 meses.
+
+**Consecuencia:** hay que compensar la desconfianza con otra cosa. Ya está en marcha:
+mostrar el producto, nombrar la parte difícil y decir con claridad qué no es esto.
+
+### Reto de 7 días con el bot — DESCARTADO
+
+Se construyó y se probó (7 tareas, una por día, cada una pidiendo una imagen o una
+decisión al comprador, con el plan de 7 días convertido de PDF en conversación). El
+dueño lo rechazó:
+
+> No puedo hacer del bot un generador de spam, tampoco quiero crear estrés en el
+> cliente. Una vez paga, es responsable de hacer su curso. Si hace el curso genera
+> valor; si no, pues perdió, y no es mi culpa.
+
+**Decisión:** revertido por completo. El código se borró; no quedó ni una rama muerta.
+
+**Lo que queda de aquello:** nada en código. El plan de 7 días sigue como PDF dentro
+del curso, y esa es toda la insistencia.
+
+**Por qué importa esta decisión más de lo que parece:** un mensaje diario a quien ya
+pagó convierte al bot en una máquina de molestar. Y si nadie contesta lo que el
+comprador manda, el acompañamiento se vuelve una promesa incumplida — peor que el
+silencio.
+
+### Lo que esto dice del producto
+
+El bot acompaña **mientras se vende** y se calla **cuando se cobra**. Todo lo que
+ocurra después depende del comprador, no de un recordatorio.
