@@ -66,3 +66,42 @@ reales.**
 8. P1-4 · verificar norma de horarios
 9. Verificación completa + despliegue
 10. Documento de cierre
+
+---
+
+## Cierre
+
+| Métrica | Valor |
+|---|---|
+| Hallazgos cerrados | **12 de 15** |
+| Sin arreglo técnico | 3 (norma publicitaria, autodeclaración de edad, RLS) |
+| Suites en verde | 37 |
+| Aserciones | 1.831 |
+| Migraciones aplicadas | 7 |
+| Desplegado en producción | sí |
+
+### Lo que queda, y por qué
+
+| Pendiente | Motivo | Quién |
+|---|---|---|
+| **P1-4** horario de seguimientos | Hay que verificar la norma publicitaria colombiana aplicable | abogado |
+| **P1-5** gate de edad | Es autodeclaración por diseño; verificar documentos cuesta más que el ticket | dueño |
+| **P1-8** RLS | Se acredita en la base, no en el repositorio | auditoría técnica |
+
+### Datos provisionales a sustituir antes de publicar
+
+Todos llevan la marca `PROVISIONAL` visible en el HTML:
+
+1. Número de WhatsApp (con la landing avisando «en configuración» mientras esté vacío).
+2. Razón social y NIT.
+3. Correo de contacto: hola@musa-ia.example
+4. Plazo de reembolso (5 días hábiles) y retención de datos (12 meses).
+5. Revisión jurídica del derecho de retracto.
+
+### Cómo verificar sin creerme
+
+```
+node --experimental-strip-types next/scripts/verificar-todo.mjs
+```
+
+Si ese comando no termina en «todo verde», algo se rompió.
