@@ -209,7 +209,7 @@ const DATOS = {
   const { repo, consultas } = entorno();
   await repo.registrarEvento("+5730", "prueba", { a: 1 });
   t("evento: json serializado", consultas[0].params[2], '{"a":1}');
-  t("columnas del lead son 16", COLUMNAS_LEAD.size, 16);
+  t("columnas del lead son 17", COLUMNAS_LEAD.size, 17);
 }
 
 console.log(`repositorio: ${ok} ok, ${fallas} fallas`);

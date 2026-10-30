@@ -120,16 +120,16 @@ on conflict (key) do update set
 insert into public.musa_settings (key, value, updated_at) values (
   'paises_habilitados',
   $musa_json$["CO"]$musa_json$::jsonb,
-  '2026-10-30T03:55:15.648Z'::timestamptz
+  '2026-10-30T03:59:00.999Z'::timestamptz
 )
 on conflict (key) do update set
   value = excluded.value,
   updated_at = excluded.updated_at;
 
--- precio (38 caracteres de JSON)
+-- precio (189 caracteres de JSON)
 insert into public.musa_settings (key, value, updated_at) values (
   'precio',
-  $musa_json${"cop":33000,"usd":9,"margen_bs":1.02}$musa_json$::jsonb,
+  $musa_json${"cop":33000,"usd":9,"margen_bs":1.02,"montos_extra":[],"nota_montos_extra":"Montos válidos además del precio base (upsell/bump). Vacío = solo el precio base. Los valores se suman en COP."}$musa_json$::jsonb,
   '2026-06-12T05:20:04.311Z'::timestamptz
 )
 on conflict (key) do update set

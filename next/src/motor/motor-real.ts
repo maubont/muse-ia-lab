@@ -59,6 +59,7 @@ interface LeadFila {
   mayor_18: boolean | null;
   opt_out: boolean;
   escalado_humano: boolean;
+  email: string | null;
   pagado: boolean;
   last_in_at: string | null;
 }
@@ -70,7 +71,7 @@ const SQL_UPSERT = `
     set last_in_at = now(),
         profile_name = coalesce(excluded.profile_name, public.musa_leads.profile_name),
         updated_at = now()
-  returning phone, profile_name, nombre, pais, estado_funnel, mayor_18, opt_out, escalado_humano, pagado, last_in_at
+  returning phone, profile_name, nombre, pais, estado_funnel, mayor_18, opt_out, escalado_humano, pagado, last_in_at, email
 `;
 
 const SQL_MENSAJE = `
@@ -101,10 +102,15 @@ function aLead(fila: LeadFila) {
     mayor_18: fila.mayor_18,
     opt_out: fila.opt_out,
     escalado_humano: fila.escalado_humano,
+    email: fila.email,
     pagado: fila.pagado,
     last_in_at: fila.last_in_at,
   };
 }
+
+// Un correo escrito por el cliente se guarda como canal de respaldo: si WhatsApp
+// cae, es la única forma de avisarle que su acceso sigue vivo.
+const CORREO_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 
 export function crearMotorReal(deps: DepsMotorReal): Motor {
   const { consultar, canal } = deps;
@@ -134,6 +140,17 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       const fila = rows[0] as unknown as LeadFila | undefined;
       if (!fila) throw new Error("upsert de lead sin fila devuelta");
       const lead = aLead(fila);
+
+      // 1.b CAPTURA DEL CORREO. No se pide: si el cliente lo escribe, se guarda.
+      // Es el único canal que sobrevive a un bloqueo de WhatsApp, así que la base de
+      // compradores deja de depender solo de Meta.
+      const correoVisto = (mensaje.texto ?? "").match(CORREO_RE)?.[0]?.toLowerCase();
+      if (correoVisto && lead.email !== correoVisto) {
+        await consultar("update public.musa_leads set email = $2, updated_at = now() where phone = $1", [
+          mensaje.telefono,
+          correoVisto,
+        ]).catch(() => ({ rows: [] }));
+      }
 
       // 2. dejar rastro del mensaje entrante ANTES de decidir
       await consultar(SQL_MENSAJE, [

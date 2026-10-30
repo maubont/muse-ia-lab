@@ -278,7 +278,8 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
 
    Configuración: cambia NUMERO y los parámetros por defecto.
 ------------------------------------------------------------------- */
-var NUMERO = "57XXXXXXXXXX"; // ← REEMPLAZAR por el número de Musa, sin "+"
+// ⚠ PROVISIONAL: reemplazar por el número real de Musa (sin "+") antes de publicar.
+  var NUMERO = "";
 var REF_POR_DEFECTO = "landing";
 
 var params = new URLSearchParams(location.search);
@@ -286,7 +287,13 @@ var ref = (params.get("ref") || params.get("utm_campaign") || REF_POR_DEFECTO)
   .toString().slice(0, 20).replace(/[^A-Za-z0-9_-]/g, "");
 
 var texto = "Hola, vengo de la página. Ref: " + ref + ". Quiero ver el contenido del curso.";
-var enlace = "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent(texto);
+if (!NUMERO) {
+    // PROVISIONAL: todavía no hay número configurado. Es mejor un aviso claro que
+    // un enlace roto que abre WhatsApp sin destinatario.
+    alert("Estamos terminando de configurar el WhatsApp. Vuelve en unos minutos.");
+    return;
+  }
+  var enlace = "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent(texto);
 
 var puerta = document.getElementById("puerta");
 var irWa = document.getElementById("ir-wa");

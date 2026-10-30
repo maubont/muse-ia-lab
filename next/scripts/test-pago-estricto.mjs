@@ -175,5 +175,15 @@ const decidir = (d, extra) => evaluarPago(CFG, d, true, { ahora, ...extra });
   t("la capa estricta no puede desbloquear lo que el verificado bloquea", evaluarPago(cfgBreb, d, true, { ahora }).accion, "COLA_HUMANA");
 }
 
+// El bump: con un solo monto válido, todo comprador de un upsell caía a humano.
+{
+  const cfg = { ...CFG, precio: { ...CFG.precio, montos_extra: [72900] } };
+  const conBump = (monto, c = cfg) => evaluarPago(c, datos({ monto }), true, { ahora }).accion;
+  t("bump: el precio base sigue valiendo", conBump(33000), "AUTO_APROBAR");
+  t("bump: el monto del pack también", conBump(72900), "AUTO_APROBAR");
+  t("bump: un monto inventado sigue a humano", conBump(80000), "COLA_HUMANA");
+  t("bump: sin configurar, el pack va a humano", evaluarPago(CFG, datos({ monto: 72900 }), true, { ahora }).accion, "COLA_HUMANA");
+}
+
 console.log(`pago estricto: ${ok} ok, ${fallas} fallas`);
 process.exit(fallas === 0 ? 0 : 1);

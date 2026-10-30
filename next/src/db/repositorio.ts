@@ -51,6 +51,7 @@ export const COLUMNAS_LEAD = new Set([
   "mayor_18",
   "avatar_enviado",
   "opt_out",
+    "email",
   "opt_in_vip",
   "pagado",
   "escalado_humano",
