@@ -16,6 +16,8 @@
 // este archivo a propósito. Cierra el fail-open que hoy tiene el webhook de Twilio.
 
 import { createServer } from "node:http";
+import { readFileSync as leerArchivo, existsSync as existeRuta, statSync } from "node:fs";
+import { join as unirRuta, normalize as normalizar, extname } from "node:path";
 import { createReadStream } from "node:fs";
 import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import type { Canal, MensajeEntrante } from "../../../functions/canal/tipos.ts";
@@ -40,6 +42,10 @@ export interface OpcionesServidor {
    * sirve con varias réplicas. Sin él se usa la memoria (solo pruebas).
    */
   yaProcesado?: (id: string) => Promise<boolean> | boolean;
+  /** Carpeta de la landing. Si no existe, las rutas públicas no se montan. */
+  landingDir?: string;
+  /** Permite apagar la landing sin quitar el archivo. */
+  landingHabilitada?: boolean;
   /**
    * Interfaz de escucha. Por defecto `127.0.0.1` (seguro en local y en pruebas).
    * En un contenedor hay que pasar `0.0.0.0`, o el proxy de la plataforma no llega.
@@ -134,6 +140,38 @@ function leerCuerpo(req: IncomingMessage, limite: number): Promise<string | null
   });
 }
 
+const MIME: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".mp4": "video/mp4",
+  ".pdf": "application/pdf",
+};
+
+/**
+ * Sirve la landing sin dependencias.
+ *
+ * SEGURIDAD: la ruta pedida se normaliza y se comprueba que el destino siga dentro
+ * de la carpeta. Sin eso, un `GET /../.env` leería el entorno del contenedor.
+ */
+function servirLanding(raiz: string, pedida: string): { cuerpo: Buffer; tipo: string } | null {
+  const limpia = pedida.split("?")[0].split("#")[0];
+  const relativa = normalizar(decodeURIComponent(limpia)).replace(/^([/\\])+/, "");
+  if (relativa.includes("..")) return null;
+
+  const destino = unirRuta(raiz, relativa === "" ? "index.html" : relativa);
+  const dentro = normalizar(destino).startsWith(normalizar(raiz));
+  if (!dentro || !existeRuta(destino) || !statSync(destino).isFile()) return null;
+
+  return { cuerpo: leerArchivo(destino), tipo: MIME[extname(destino).toLowerCase()] ?? "application/octet-stream" };
+}
+
 export function crearServidor(opts: OpcionesServidor): Servidor {
   const rutaWebhook = opts.rutaWebhook ?? "/webhook/evolution";
   const limite = opts.limiteBytes ?? 25 * 1024 * 1024;
@@ -153,6 +191,29 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
 
   const manejar = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = req.url ?? "/";
+
+    // ── LANDING ──────────────────────────────────────────────────────────────
+    // Pública a propósito: es la página de venta. Se sirve desde el mismo servidor
+    // para no depender de un hosting extra.
+    if (opts.landingHabilitada !== false && opts.landingDir && (req.method === "GET" || req.method === "HEAD")) {
+      const esRaiz = url === "/" || url === "";
+      const esPagina = /\.html?$/i.test(url) || esRaiz;
+      const esActivo = url.startsWith("/assets/");
+      if (esRaiz || esPagina || esActivo) {
+        const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : url);
+        if (archivo) {
+          res.writeHead(200, {
+            "Content-Type": archivo.tipo,
+            "Content-Length": archivo.cuerpo.length,
+            "Cache-Control": esActivo ? "public, max-age=86400" : "no-cache",
+            "X-Content-Type-Options": "nosniff",
+          });
+          res.end(req.method === "HEAD" ? undefined : archivo.cuerpo);
+          return;
+        }
+        if (esRaiz) return json(res, 500, { error: "landing_no_encontrada" });
+      }
+    }
 
     if (url === RUTA_SALUD) {
       if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });

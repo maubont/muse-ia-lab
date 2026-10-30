@@ -227,6 +227,11 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     canal,
     motor,
     yaProcesado,
+    // La landing vive dentro del mismo contenedor: el servicio corre desde la raíz
+    // del repo, así que la carpeta ya está desplegada.
+    landingDir: process.env.MUSA_LANDING_DIR ?? "next/landing",
+    // La opción explícita manda sobre el entorno: así se puede apagar en pruebas.
+    landingHabilitada: opciones.landingHabilitada ?? process.env.MUSA_LANDING !== "0",
     host: opciones.host ?? "0.0.0.0",
     despacharRecordatorios,
     claveCron,
