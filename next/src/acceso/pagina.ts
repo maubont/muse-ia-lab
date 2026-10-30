@@ -16,6 +16,8 @@
 
 export interface ModuloConfig {
   titulo?: string;
+  /** Una línea con lo que el alumno logra al terminar el módulo. */
+  resultado?: string;
   archivos: string[];
 }
 
@@ -30,6 +32,8 @@ export interface EntregaConfig {
 }
 
 export interface OpcionesPagina {
+  /** Enlace de soporte (WhatsApp). Si falta, no se pinta la tarjeta. */
+  soporte?: string;
   /**
    * Token del alumno. Con él se construyen los enlaces internos (`media:…`),
    * que de otro modo no se pueden servir: el contenido va detrás del acceso.
@@ -62,6 +66,7 @@ export function normalizarModulo(entrada: EntradaModulo): ModuloConfig {
   if (entrada && typeof entrada === "object") {
     return {
       titulo: typeof entrada.titulo === "string" ? entrada.titulo : undefined,
+  resultado: typeof entrada.resultado === "string" ? entrada.resultado : undefined,
       archivos: Array.isArray(entrada.archivos) ? entrada.archivos.filter((x) => typeof x === "string") : [],
     };
   }
@@ -250,6 +255,12 @@ a.tarjeta:hover{border-color:#3b3b4d}
       background:linear-gradient(180deg,#a78bfa,#7c3aed);
       box-shadow:0 10px 24px -12px rgba(139,92,246,.9)}
     .boton:hover{filter:brightness(1.06)}
+    .resultado{color:#a5a5b8;font-size:14px;margin:-6px 0 12px}
+    .soporte{margin-top:40px;padding:20px;border-radius:14px;text-align:center;
+      background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(139,92,246,.03));
+      border:1px solid rgba(196,181,253,.3)}
+    .soporte strong{display:block;color:#f4f4f7;font-size:16px;margin-bottom:4px}
+    .soporte p{font-size:14px;margin-bottom:14px}
     .error{max-width:420px;margin:80px auto;text-align:center}
 .error h1{color:#f87171;margin-bottom:12px}
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--borde);font-size:12px;color:#6b6b7d}
@@ -265,6 +276,10 @@ function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string 
     .filter((x): x is { archivo: string; url: string } => !!x.url);
   if (filas.length === 0) return "";
 
+  // Una línea que dice qué se logra: convierte el módulo en un objetivo, no en
+  // una carpeta. Es lo primero que hace legible un catálogo largo.
+  const subtitulo = m.resultado ? `<p class="resultado">${escapar(m.resultado)}</p>` : "";
+
   // UN SOLO ARCHIVO: MISMA ESTRUCTURA QUE LOS DEMÁS.
   // Antes se pintaba como tarjeta suelta al mismo nivel que los archivos del módulo
   // anterior, y el alumno no distinguía dónde empezaba el módulo 5. Siete de los trece
@@ -275,7 +290,7 @@ function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string 
     const fila = `<a class="tarjeta" href="${escapar(url)}" target="_blank" rel="noopener noreferrer" style="margin-left:26px">
         <span><strong>${escapar(nombreVisible(archivo, "curso"))}</strong><span>${icono} ${etiqueta}</span></span>
       </a>`;
-    return `<h2>${indice + 1}. ${escapar(titulo)}<small>1 archivo</small></h2>${fila}`;
+    return `<h2>${indice + 1}. ${escapar(titulo)}<small>1 archivo</small></h2>${subtitulo}${fila}`;
   }
 
   // Varios archivos: se muestra el módulo y una fila por archivo.
@@ -288,7 +303,7 @@ function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string 
     })
     .join("");
 
-  return `<h2>${indice + 1}. ${escapar(titulo)}<small>${filas.length} archivos</small></h2>${subfilas}`;
+  return `<h2>${indice + 1}. ${escapar(titulo)}<small>${filas.length} archivos</small></h2>${subtitulo}${subfilas}`;
 }
 
 /**
@@ -298,6 +313,7 @@ function tarjetaModulo(indice: number, m: ModuloConfig, token?: string): string 
  */
 export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opciones: OpcionesPagina = {}): string {
   const token = opciones.token;
+  const enlaceSoporte = opciones.soporte;
   const modulos = (Array.isArray(entrega.modulos) ? entrega.modulos : []).map(normalizarModulo);
   const bonos = entrega.bonos && typeof entrega.bonos === "object" ? entrega.bonos : {};
 
@@ -360,6 +376,11 @@ ${listaBonos || "<p>—</p>"}
 ${plan ? `<h2>Plan de trabajo</h2>${plan}` : ""}
 ${grupo ? `<h2>Comunidad</h2>${grupo}` : ""}
 
+${enlaceSoporte ? `<div class="soporte">
+  <strong>¿Te atascaste?</strong>
+  <p>Escríbenos y te respondemos. No estás solo con el curso.</p>
+  <a class="boton" href="${escapar(enlaceSoporte)}" target="_blank" rel="noopener noreferrer">Pedir ayuda</a>
+</div>` : ""}
 <div class="aviso">
   Si compartes este enlace, quien lo abra entra con tu nombre. Si necesitas uno nuevo, pídelo por WhatsApp y este deja de funcionar.
 </div>

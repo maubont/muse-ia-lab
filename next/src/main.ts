@@ -175,7 +175,12 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
         const { rows } = await consultarAcceso("select nombre, profile_name from public.musa_leads where phone = $1", [phone]);
         const fila = rows[0] as { nombre?: string | null; profile_name?: string | null } | undefined;
         const nombre = fila?.nombre ?? fila?.profile_name ?? null;
-        return paginaCurso(cfg.entrega as never, nombre, { token });
+        // Mismo número de soporte que la pantalla de error: si el alumno se atasca
+        // dentro del curso, tiene a quién escribir sin salir de la página.
+        const soporte = process.env.MUSA_SOPORTE_WA
+          ? `https://wa.me/${process.env.MUSA_SOPORTE_WA}?text=${encodeURIComponent("Hola, necesito ayuda con el curso")}`
+          : undefined;
+        return paginaCurso(cfg.entrega as never, nombre, { token, soporte });
       },
       // Un enlace roto no puede terminar en una pantalla muda: si hay número de
       // soporte, la página ofrece pedir uno nuevo.

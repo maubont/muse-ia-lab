@@ -139,7 +139,8 @@
                     "media:curso/01/1.1-Empieza-aqui-Introduccion.mp4",
                     "media:curso/01/1.2-Tu-estrategia-en-Instagram.mp4",
                     "media:curso/01/1.3-Entendiendo-la-base-del-mercado-de-Modelos-IA.mp4"
-                  ]
+                  ],
+                  "resultado": "Entiende el mercado y lo que vas a construir"
                 },
                 {
                   "titulo": "Tu primer modelo con IA",
@@ -150,7 +151,8 @@
                     "media:curso/02/2.3-Enlaces-Ainudez-y-Pornjourney.pdf",
                     "media:curso/02/2.4-Dandole-vida-a-tu-modelo-_18_",
                     "media:curso/02/2.5-Enlaces-Dandole-vida-a-tu-modelo-_18_.pdf"
-                  ]
+                  ],
+                  "resultado": "Tu primer personaje generado con IA"
                 },
                 {
                   "titulo": "Las herramientas: ChatGPT, Leonardo, SeaArt y DeepSeek",
@@ -161,7 +163,8 @@
                     "media:curso/03/3.4-Deepseek-_-Opensource-_-Pollo-AI",
                     "media:curso/03/3.5-Enlaces-Deepseek-_-Opensource-_-Pollo-AI.pdf",
                     "media:curso/03/3.6-Reve-_-Nudify"
-                  ]
+                  ],
+                  "resultado": "Domina las cuatro herramientas que importan"
                 },
                 {
                   "titulo": "Crear contenido en serie",
@@ -169,63 +172,73 @@
                     "media:curso/04/4.1-Creando-em-Leonardo-AI",
                     "media:curso/04/4.2-Creando-Contenidos-Infinitos",
                     "media:curso/04/4.3-Llamada-de-Mentoria-Secreta-2.0.mp4"
-                  ]
+                  ],
+                  "resultado": "Un flujo para producir sin quedarte sin ideas"
                 },
                 {
                   "titulo": "Monetización: los primeros pasos",
                   "archivos": [
                     "media:curso/05/Copia-de-5.1-MONETIZA-TU-IA-CON-ESTOS-SENCILLOS-PASOS"
-                  ]
+                  ],
+                  "resultado": "Cómo se convierte una imagen en un cobro"
                 },
                 {
                   "titulo": "Telegram: tu grupo y tu bot",
                   "archivos": [
                     "media:curso/06/Copia-de-6.1-CREANDO-GRUPO-DE-TELEGRAM",
                     "media:curso/06/Copia-de-6.2-CREANDO-Y-CONFIGURANDO-EL-BOT-DE-TELEGRAM"
-                  ]
+                  ],
+                  "resultado": "Tu grupo y tu bot funcionando"
                 },
                 {
                   "titulo": "Herramientas para potenciar tu IA",
                   "archivos": [
                     "media:curso/07/Copia-de-7.1-Herramientas-para-potenciar-tu-IA.pdf"
-                  ]
+                  ],
+                  "resultado": "Atajos y herramientas que ahorran horas"
                 },
                 {
                   "titulo": "Hazte viral en TikTok",
                   "archivos": [
                     "media:curso/08/Copia-de-8.1-HAZTE-VIRAL-EN-TIKTOK"
-                  ]
+                  ],
+                  "resultado": "La publicación que sí se comparte"
                 },
                 {
                   "titulo": "Mente de empresario",
                   "archivos": [
                     "media:curso/09/Copia-de-Atencion-Mente-de-Empresario.txt"
-                  ]
+                  ],
+                  "resultado": "Piensa como negocio, no como hobby"
                 },
                 {
                   "titulo": "Fanvue: cómo funciona",
                   "archivos": [
                     "media:curso/10/-10-Fanvue.mp4"
-                  ]
+                  ],
+                  "resultado": "Configura tu canal de venta"
                 },
                 {
                   "titulo": "Crea videos 100 % realistas",
                   "archivos": [
                     "media:curso/11/CREA-VIDEOS-100_-REALISTAS"
-                  ]
+                  ],
+                  "resultado": "Video realista con IA"
                 },
                 {
                   "titulo": "ManyChat desde cero",
                   "archivos": [
                     "media:curso/12/12.1-MANYCHAT-DESDE-CERO.mp4"
-                  ]
+                  ],
+                  "resultado": "Responde solo lo que se repite"
                 },
                 {
                   "titulo": "Biblioteca de prompts",
                   "archivos": [
                     "media:curso/13/13.1-Prompts.pdf",
                     "media:curso/13/13.2-Prompts-PARTE-2.pdf"
-                  ]
+                  ],
+                  "resultado": "Los prompts que sostienen todo el sistema"
                 }
               ],
               "link_grupo": "PENDIENTE",
