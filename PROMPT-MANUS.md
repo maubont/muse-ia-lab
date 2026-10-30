@@ -1,65 +1,147 @@
 # Prompt de auditoría externa — Manus
 
-> Adaptación del prompt de auditoría para un agente que lee **desde GitHub**, no
-> desde una copia local. Todo lo que necesita está aquí.
+> Auditoría de **solo lectura** del proyecto Musa. Manus trabaja en tu equipo
+> (Manus Studio · «My Computer»), sobre la carpeta del proyecto.
 
 ---
 
-## 0. Antes de empezar: cómo darte acceso
+## 0. Cómo empezar (antes de pegar el prompt)
 
-### Opción recomendada: conector de GitHub (lectura)
+**1. Abre Manus Studio → «My computer».**
 
-El repositorio es **privado**: `github.com/maubont/muse-ia-lab`
+**2. Autoriza UNA sola carpeta:**
 
-1. En Manus: **Connectors → GitHub → Connect**.
-2. Autoriza el repositorio `maubont/muse-ia-lab` (solo ese).
-3. Rama a leer: **`deploy/evolution`**
+```
+C:\Dev\Muse IA Lab
+```
 
-> ⚠️ **No leas `main`.** Está congelada a propósito en un commit antiguo. Todo el
-> trabajo está en `deploy/evolution`.
+No autorices tu carpeta personal ni el Escritorio. Solo el proyecto.
 
-### Por qué por GitHub y no por tu PC
+**3. Aprueba los comandos con «Allow once», no con «Always allow».**
+Es más lento, pero ves cada comando antes de que se ejecute. Con «Always allow» un
+error de criterio del agente puede tocar archivos sin que lo veas.
 
-Manus Studio puede trabajar con archivos locales, pero exige instalar la app,
-autorizar carpetas y **aprobar comando por comando**. Además, la documentación
-oficial **no aclara si el contenido de los archivos locales se envía a los
-servidores de Manus** (que están en Estados Unidos y Singapur).
+**4. Pega el bloque de §1 en el chat.**
 
-Por GitHub, Manus lee vía API: no hace falta darle acceso a tu equipo y el
-contenido no pasa por un terminal local. Para una auditoría de solo lectura, es
-menos superficie.
+> **Sobre la privacidad:** Manus ejecuta su núcleo en la nube y su documentación
+> **no aclara** si el contenido de los archivos locales se envía a sus servidores.
+> El proyecto no tiene credenciales versionadas (los `.env` están ignorados por
+> git), pero sí contiene precios, copy y estrategia comercial. Tenlo en cuenta.
 
 ---
 
-## 1. Tu papel y tus límites
+## 1. El bloque a pegar
+
+```text
+Eres un auditor externo de software y negocio. Trabajas en mi equipo con Manus
+Studio, sobre la carpeta C:\Dev\Muse IA Lab
+
+Lee PROMPT-MANUS.md COMPLETO, entero, antes de escribir nada. Ese archivo es tu
+instrucción: define tu papel, tus límites, qué debes leer, qué afirmaciones debes
+verificar en el código y el formato exacto de tu informe. Síguelo al pie de la letra.
+
+REGLA DE ORO — solo puedes crear UN archivo, en la raíz del proyecto:
+    AUDITORIA-EXTERNA-MANUS.md
+No modifiques, muevas ni borres ningún otro archivo. No hagas git commit, git push
+ni cambies de rama. No toques Railway, la base de datos ni Evolution API. No busques
+ni leas credenciales (.env, .insforge). No ejecutes nada que llame a producción ni
+que gaste dinero en APIs.
+
+Cuando termines, dime en el chat: la ruta del archivo que creaste, cuántos hallazgos
+P0, P1 y P2 encontraste, y las tres cosas que harías primero.
+```
+
+---
+
+## 2. El trato: dos archivos, dos direcciones
+
+| Archivo | Quién lo escribe | Quién lo lee |
+|---|---|---|
+| `PROMPT-MANUS.md` (este) | el agente que construyó el proyecto | **tú, ahora** |
+| `AUDITORIA-EXTERNA-MANUS.md` | **tú** | el agente que construyó el proyecto |
+
+Tú **lees** el mío. Tú **escribes** el tuyo. No hay más intercambio.
+
+**Lo único que puedes crear** es `AUDITORIA-EXTERNA-MANUS.md` en la raíz. Nada más.
+Si ese archivo no existe al terminar, la auditoría no ocurrió.
+
+---
+
+## 3. Tu papel y tus límites
 
 Eres un **auditor técnico y de negocio externo**. Lees, entiendes, cuestionas y
 recomiendas. **No construyes, no modificas, no despliegas.**
 
-### El conector de GitHub puede escribir. No lo uses para eso.
-
-La documentación de Manus dice que el conector GitHub puede *"crear una rama,
-corregir el código y abrir un pull request"*. **Aquí está prohibido:**
+A diferencia de un auditor que solo lee, tú tienes terminal en este equipo. Eso te da
+una ventaja —puedes ejecutar las pruebas— y una responsabilidad mayor:
 
 | Prohibido | Por qué |
 |---|---|
-| Crear ramas, commits o pull requests | El código está en producción; el único autorizado a cambiarlo es quien lo construyó |
-| Comentar en issues o PRs del repositorio | Deja rastro público en un proyecto privado |
-| Modificar cualquier archivo del repo | Igual |
-| Leer `.env`, `.insforge/` ni buscar credenciales | Son secretos. Si los encuentras por accidente, no los cites |
-| Ejecutar nada contra producción (Railway, base de datos, WhatsApp) | Haría peticiones reales y podría gastar dinero |
-| Llamar a APIs de IA de pago | Cuesta dinero del dueño |
+| Modificar, mover o borrar cualquier archivo existente | El código está en producción y probado; el único autorizado a tocarlo es quien lo construyó |
+| `git commit`, `git push`, cambiar de rama | Alteraría el historial de un sistema desplegado |
+| Instalar dependencias o tocar `package.json` | Ya está todo instalado; rompería la build |
+| Tocar Railway, la base de datos o Evolution API | Son sistemas en producción |
+| Leer `.env`, `.env.*`, `.insforge/` o buscar credenciales | Son secretos. Si los encuentras por accidente, **no los cites** |
+| Ejecutar `ensayo-e2e.mjs` u otro script que llame a URLs de producción | Haría peticiones reales y podría gastar dinero |
+| Llamar a APIs de IA (OpenAI, etc.) | Cuesta dinero real del dueño |
 
-### Tu única entrega
+### Lo que SÍ puedes hacer
 
-**Un informe en markdown**, devuelto **completo en el chat** y, si puedes, como
-archivo adjunto. El dueño lo guardará como `AUDITORIA-EXTERNA-MANUS.md`.
+- **Leer todo** el código y la documentación.
+- Ejecutar las pruebas locales, que **no salen a la red** y no gastan nada:
 
-Si el informe no llega completo, la auditoría no ocurrió.
+```powershell
+node --experimental-strip-types next/scripts/verificar-todo.mjs
+node --experimental-strip-types next/scripts/test-vision.mjs
+node --experimental-strip-types next/scripts/test-pago-estricto.mjs
+node --experimental-strip-types next/scripts/test-servidor.mjs
+```
+
+`verificar-todo.mjs` recorre las 35 suites: **1.811 aserciones, 0 fallas**. Si una
+prueba falla en tu entorno, **eso también es un hallazgo**: dilo.
+
+### Cómo debes citar
+
+Cada hallazgo con **evidencia verificable**: `archivo:línea`, nombre de la función o
+fragmento. Si no puedes señalar dónde, no es un hallazgo: es una opinión, y debes
+marcarla como tal.
 
 ---
 
-## 2. Qué es Musa
+## 4. Cómo aprovechar tus capacidades (y no quedarte sin contexto)
+
+### Escribe el informe de forma incremental. Esto no es opcional.
+
+Antes que tú, otro agente auditó este proyecto: leyó 24 archivos, consumió 68K de
+contexto y **la ventana se agotó sin crear el archivo**. Todo ese análisis se perdió.
+
+Por eso:
+
+1. Abre `AUDITORIA-EXTERNA-MANUS.md` **al principio**, con el resumen ejecutivo.
+2. Añade cada sección a medida que la termines. No acumules.
+3. Si algo se corta, lo hecho queda en disco.
+
+**Un informe perfecto que nunca se guardó no vale nada.**
+
+### Las cuentas del repositorio
+
+| Zona | Líneas | Tokens aprox. |
+|---|---|---|
+| Todo el texto del repo | 27.069 | ≈108K |
+| `next/` (el sistema nuevo) | 9.001 | ≈36K |
+| `functions/` (el sistema viejo) | 6.146 | ≈25K |
+
+Lee `next/` **completo**. De `functions/` solo los tres módulos verificados de §6.
+**No pegues archivos de más de 400 líneas**: lee la función o el bloque.
+
+### Trabaja en cuatro fases
+
+Una por área: **seguridad → operación → UI/UX → negocio**. Presenta el plan al
+principio y luego trabaja de corrido.
+
+---
+
+## 5. Qué es Musa
 
 Un **bot de ventas por WhatsApp** que vende un curso digital sobre crear modelos con
 IA. Precio: **9 USD / 33.000 COP**, pago único. Mercado: **Colombia**.
@@ -81,7 +163,7 @@ de WhatsApp (la instancia está en `connecting`).
 
 ---
 
-## 3. Mapa del repositorio
+## 6. Mapa del repositorio
 
 ```
 next/src/            4.448 líneas   el sistema nuevo (lo que importa)
@@ -94,7 +176,7 @@ next/src/            4.448 líneas   el sistema nuevo (lo que importa)
   main.ts                  punto de entrada
 
 next/scripts/        4.553 líneas   pruebas y herramientas
-functions/           6.146 líneas   el sistema VIEJO (ver §5)
+functions/           6.146 líneas   el sistema VIEJO (ver §7)
 seed/                    configuración real de producción en JSON
 next/migrations/        5 migraciones SQL
 next/docs/vision.md     documentación de la visión artificial
@@ -103,16 +185,12 @@ next/landing/           landing de conversión (NO publicada)
 AUDITORIA-INTERNA-2026-10-29.md   lo que ya se auditó y corrigió
 ARQUITECTURA-Y-OPERACION.md       estado verificado del sistema
 DETALLES-WOW.md                   pendientes clasificados por riesgo
-PROMPT-AUDITORIA-EXTERNA.md       este prompt (versión para otro agente)
 ```
 
-**88 commits.** Rama de despliegue: `deploy/evolution`.
+**88 commits.** Rama de trabajo: `main` (local). La rama de despliegue es
+`deploy/evolution`, pero **no necesitas GitHub para nada**.
 
----
-
-## 4. Ruta de lectura obligatoria
-
-Léela en este orden. Son unas 1.500 líneas y con eso entiendes el sistema.
+### Ruta de lectura obligatoria (≈1.500 líneas)
 
 | Orden | Archivo | Por qué |
 |---|---|---|
@@ -125,12 +203,12 @@ Léela en este orden. Son unas 1.500 líneas y con eso entiendes el sistema.
 | 7 | `next/src/motor/pago-estricto.ts` | La capa que puede mandar a humano |
 | 8 | `next/src/acceso/medios.ts` | Path traversal: aquí es donde importa |
 
-Para opinar de negocio, además: `seed/musa_settings.json`, `next/landing/index.html`,
+Para opinar de negocio: `seed/musa_settings.json`, `next/landing/index.html`,
 `next/src/acceso/pagina.ts`, `DETALLES-WOW.md`.
 
 ---
 
-## 5. La parte incómoda: hay dos sistemas
+## 7. La parte incómoda: hay dos sistemas
 
 | | Sistema viejo (`functions/`) | Sistema nuevo (`next/`) |
 |---|---|---|
@@ -138,18 +216,18 @@ Para opinar de negocio, además: `seed/musa_settings.json`, `next/landing/index.
 | Estado | En producción, congelado, sin uso | Desplegado, sin clientes |
 | Rol | Oráculo de comportamiento | Reemplazo |
 
-El sistema nuevo se construyó **portando** el viejo. Para tres módulos críticos
-(copy, guardarraíles, comprobante) se hizo una **prueba diferencial**: se comparan
-miles de entradas contra el código viejo para demostrar equivalencia.
+El nuevo se construyó **portando** el viejo. Para tres módulos críticos (copy,
+guardarraíles, comprobante) se hizo una **prueba diferencial**: se comparan miles de
+entradas contra el código viejo para demostrar equivalencia.
 
 > ⚠️ **Consecuencia que debes evaluar:** hay módulos que **no se pueden modificar sin
 > perder esa garantía**. Cuando se encontró un fallo en uno, se optó por **envolverlo
-> con una capa nueva** (`gate-edad.ts` y `pago-estricto.ts`) en vez de arreglarlo por
-> dentro. ¿Es deuda sana o un problema que va a crecer?
+> con una capa nueva** (`gate-edad.ts` y `pago-estricto.ts`). ¿Es deuda sana o un
+> problema que va a crecer?
 
 ---
 
-## 6. Decisiones ya tomadas (y por qué)
+## 8. Decisiones ya tomadas (y por qué)
 
 No las evalúes como errores sin entender el motivo. Si crees que están mal, dilo con
 un argumento mejor.
@@ -159,15 +237,15 @@ un argumento mejor.
 | **Evolution API con Baileys** (no oficial) | Coste cero y arranque rápido. El dueño aceptó el riesgo de baneo |
 | **Servidor HTTP propio, cero dependencias** | Control total del webhook y menos superficie |
 | **Almacén de objetos de Railway** con URL firmadas | 12,5 GB no caben en el contenedor; el video no pasa por el servidor |
-| **Capa estricta sobre el comprobante** en vez de modificar el módulo verificado | Conservar las comparaciones diferenciales |
+| **Capa estricta sobre el comprobante** | Conservar las comparaciones diferenciales |
 | **Un solo CTA en la landing** | Un caso documentado subió 39 % quitando el botón dominante |
-| **Presupuesto diario de IA** (1 USD) con caída a cola humana | El gasto en IA es invisible por naturaleza |
+| **Presupuesto diario de IA** (1 USD) con caída a cola humana | El gasto en IA es invisible |
 | **Todo lo que falla va a un humano** | Un falso positivo entrega el curso sin cobrar |
-| **Venezuela deshabilitada** (`paises_habilitados: ["CO"]`) | Decisión del dueño: el lanzamiento es solo Colombia |
+| **Venezuela deshabilitada** (`paises_habilitados: ["CO"]`) | El lanzamiento es solo Colombia |
 
 ---
 
-## 7. Estado real, verificado
+## 9. Estado real, verificado
 
 ### Infraestructura (Railway)
 
@@ -193,9 +271,7 @@ musa_recordatorios    9 filas
 
 **Cero clientes reales. Cero ingresos.**
 
-### Lo que está medido con datos reales
-
-La lectura de comprobantes se probó con tres capturas reales:
+### Lo medido con datos reales
 
 | Comprobante | Aciertos | Decisión |
 |---|---|---|
@@ -205,17 +281,9 @@ La lectura de comprobantes se probó con tres capturas reales:
 
 Coste real: **0,00014 USD por comprobante**.
 
-### Verificación disponible
-
-`next/scripts/verificar-todo.mjs` recorre 35 suites: **1.811 aserciones, 0 fallas**.
-No requiere red, ni base de datos, ni gastar tokens.
-
-Si puedes ejecutarlo, hazlo. Si una prueba falla en tu entorno, **eso también es un
-hallazgo**.
-
 ---
 
-## 8. Afirmaciones que debes verificar tú
+## 10. Afirmaciones que debes verificar tú
 
 No me creas. Si alguna no cuadra, **la discrepancia es el hallazgo más valioso**.
 
@@ -234,10 +302,10 @@ No me creas. Si alguna no cuadra, **la discrepancia es el hallazgo más valioso*
 
 ---
 
-## 9. A dónde queremos llegar
+## 11. A dónde queremos llegar
 
-**Objetivo:** lanzar en Colombia, vender el curso a 9 USD y que el bot atienda solo
-la mayor parte del proceso.
+**Objetivo:** lanzar en Colombia, vender el curso a 9 USD y que el bot atienda solo la
+mayor parte del proceso.
 
 | Hito | Estado |
 |---|---|
@@ -254,7 +322,7 @@ digitales de 5–25 USD), CPA 0,20–0,25 USD, palanca de margen en *upsell* pos
 
 ---
 
-## 10. Qué quiero que audites
+## 12. Qué quiero que audites
 
 ### A. Seguridad
 
@@ -281,8 +349,7 @@ digitales de 5–25 USD), CPA 0,20–0,25 USD, palanca de margen en *upsell* pos
 
 - **Observabilidad**: hay monitor de sesión con aviso externo, pero **nadie vigila el
   servidor desde fuera**. ¿Qué es lo mínimo imprescindible?
-- **Despliegue**: cada push a `deploy/evolution` reconstruye y despliega. ¿Riesgo de
-  publicar roto? Ya pasó una vez.
+- **Despliegue**: cada push reconstruye y despliega. ¿Riesgo de publicar roto? Ya pasó.
 - **Backups**: la base no tiene copia automática. ¿Cuál es el mínimo viable?
 - **Redis**: la deduplicación vive en memoria del proceso. ¿Cuándo deja de servir?
   ¿Qué se rompe con dos réplicas? ¿Y al reiniciar?
@@ -290,20 +357,20 @@ digitales de 5–25 USD), CPA 0,20–0,25 USD, palanca de margen en *upsell* pos
 
 ### D. Visión de negocio
 
-Ya hubo una auditoría de negocio (ver `AUDITORIA-INTERNA-2026-10-29.md`). **No
-repitas sus conclusiones: contrástalas.**
+Ya hubo una auditoría de negocio (ver `AUDITORIA-INTERNA-2026-10-29.md`). **No repitas
+sus conclusiones: contrástalas.**
 
 - ¿9 USD es correcto para Colombia, o está por debajo del umbral donde el soporte se
   come el margen?
 - **Riesgo de baneo con Baileys**: el dueño lo aceptó. ¿La mitigación (número
   desechable, sin masivos, máximo 3 seguimientos, horario 8–22) es suficiente?
-- **Contenido +18**: el curso enseña a crear modelos con IA y toca herramientas de
-  desnudo sintético. ¿Implicaciones para el pago, para Meta y para la ley colombiana?
+- **Contenido +18**: el curso toca herramientas de desnudo sintético. ¿Implicaciones
+  para el pago, para Meta y para la ley colombiana?
 - ¿La entrega de 12,5 GB por enlace firmado es sostenible con 100 clientes?
 
 ---
 
-## 11. Lo que quiero preguntarte de forma directa
+## 13. Lo que quiero preguntarte de forma directa
 
 Responde cada una por separado. Si no tienes base, dilo.
 
@@ -324,7 +391,7 @@ Responde cada una por separado. Si no tienes base, dilo.
 
 ---
 
-## 12. Formato de tu informe
+## 14. Formato de tu informe
 
 ```markdown
 # Auditoría externa — Musa IA Lab (Manus)
@@ -347,9 +414,19 @@ Responde cada una por separado. Si no tienes base, dilo.
 ## Anexo: lo que no pude verificar
 ```
 
+### Antes de escribir, comprueba
+
+- [ ] ¿Leí los 8 archivos de la ruta de lectura?
+- [ ] ¿Verifiqué las 10 afirmaciones de §10 contra el código?
+- [ ] ¿Ejecuté al menos dos scripts de prueba?
+- [ ] ¿Cada hallazgo tiene `archivo:línea`?
+- [ ] ¿Respondí las 10 preguntas por separado?
+
+Si alguna casilla está sin marcar, **vuelve antes de escribir**.
+
 ---
 
-## 13. Reglas de honestidad
+## 15. Reglas de honestidad
 
 - **No inventes métricas.** Todo número sale de este documento o lo cuentas tú.
 - **No propongas reescribir** sin señalar el problema concreto que resuelve.
