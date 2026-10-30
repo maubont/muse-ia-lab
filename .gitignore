@@ -54,3 +54,5 @@ avatar/creativos-candidatos/
 # Paquete de auditoría externa: es una copia del proyecto, no se versiona.
 /musa-auditoria.zip
 /musa-auditoria/
+# Carpeta de trabajo del agente Manus
+/.manus/
