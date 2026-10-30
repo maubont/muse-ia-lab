@@ -53,10 +53,20 @@ export function costeReservado(proveedor: ConfigProveedor): number {
 
 export async function leerComprobante(
   deps: DepsLector,
-  entrada: { lead: string; media: MediaEntrante | null; yaPago: boolean },
+  entrada: {
+    lead: string;
+    media: MediaEntrante | null;
+    yaPago: boolean;
+    /** Bytes ya obtenidos del canal. Si vienen, no se descarga nada. */
+    bytes?: Buffer;
+  },
 ): Promise<ResultadoLectura> {
   // 1. PREFILTRO — sin gastar nada.
-  const pre: ResultadoPrefiltro = prefiltrar({ media: entrada.media, yaPago: entrada.yaPago });
+  const pre: ResultadoPrefiltro = prefiltrar({
+    media: entrada.media,
+    yaPago: entrada.yaPago,
+    tieneBytes: !!entrada.bytes && entrada.bytes.length > 0,
+  });
   if (!pre.leer) {
     return { ok: false, accion: pre.accion, motivo: pre.motivo, coste: 0 };
   }
@@ -68,10 +78,10 @@ export async function leerComprobante(
   }
 
   // 2. Traer la imagen. Si falla, es un reenvío (no un rechazo).
-  let bytes: Buffer | null = null;
+  let bytes: Buffer | null = entrada.bytes && entrada.bytes.length > 0 ? entrada.bytes : null;
   let tipo = media.tipo;
   try {
-    if (deps.descargarImagen) {
+    if (!bytes && deps.descargarImagen && media.url) {
       const descargada = await deps.descargarImagen(media.url);
       if (descargada) {
         bytes = descargada.bytes;

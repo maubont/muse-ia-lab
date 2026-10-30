@@ -43,6 +43,7 @@ export interface DepsMotorReal {
     lead: string;
     media: { url: string; tipo: string; tamano?: number };
     yaPago: boolean;
+    bytes?: Buffer;
   }) => Promise<
     | { ok: true; datos: unknown; origen: string; coste: number }
     | { ok: false; accion: "pedir_reenvio" | "cola_humana"; motivo: string; coste: number }
@@ -156,21 +157,36 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       const dentroDeHorario = dentroDeHorarioRazonable(ahora(), "America/Bogota");
 
       if (lead.estado_funnel === "S08_ESPERA_CAPTURA" && mensaje.media && deps.lector) {
+        // OJO: el adaptador de Evolution entrega `obtenerBytes()`, NO una URL.
+        // Antes se pasaba `url ?? ""` y toda imagen real caía en «sin_imagen»:
+        // el cliente entraba en un bucle de reenvíos y la visión nunca corría.
+        let bytes: Buffer | undefined;
+        try {
+          const crudo = await mensaje.media.obtenerBytes();
+          if (crudo && crudo.byteLength > 0) bytes = Buffer.from(crudo);
+        } catch {
+          bytes = undefined;
+        }
+
         const lectura = await deps.lector({
           lead: mensaje.telefono,
           media: {
             url: mensaje.media.url ?? "",
             tipo: mensaje.media.mime ?? "",
-            tamano: undefined,
+            tamano: bytes ? bytes.length : undefined,
           },
           yaPago: lead.pagado === true,
+          bytes,
         });
 
         if (lectura.ok) {
           comprobante = {
             datos: lectura.datos,
             esPrimerPago: lead.pagado !== true,
-            imagenDuplicada: false,
+            // Una lectura que viene de la caché significa que ESTA MISMA IMAGEN ya
+            // se procesó antes. Si no se marca, dos leads pueden enviar la misma
+            // captura y los dos reciben el curso.
+            imagenDuplicada: lectura.origen === "cache",
             dentroDeHorario,
           };
         } else if (lectura.accion === "pedir_reenvio") {
@@ -211,7 +227,20 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         esperar: deps.esperar,
         urlPublica: deps.urlPublica,
       });
-      await ejecutar(efectos, { repo, phone: mensaje.telefono });
+      const resumen = await ejecutar(efectos, { repo, phone: mensaje.telefono });
+
+      // `dupeRef` significa que la referencia ya existía en otro pago. El ejecutor
+      // ya se detuvo, pero hasta ahora ese resultado se descartaba en silencio: ni
+      // aviso al operador ni revisión. Ahora se escala.
+      if (resumen.dupeRef) {
+        await ejecutar(
+          [
+            { tipo: "evento", nombre: "pago_duplicado", detalle: { motivo: "referencia_ya_registrada" } },
+            { tipo: "notificar_operador", texto: `Pago con referencia repetida: ${mensaje.telefono}` },
+          ],
+          { repo, phone: mensaje.telefono },
+        );
+      }
 
       // 6. recordatorios: si el estado cambió, se programan los del nuevo estado.
       //    `ajustarAHorario` evita que caigan de madrugada.

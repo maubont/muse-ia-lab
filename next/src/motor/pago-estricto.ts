@@ -157,6 +157,15 @@ export function endurecer(
     return { accion: "COLA_HUMANA", motivo: verificacion.motivo ?? "destino_no_exacto" };
   }
 
+  // 2.b) REFERENCIA OBLIGATORIA.
+  // Sin referencia no hay forma de comprobar que un pago es único: dos personas
+  // podrían presentar la misma captura sin número legible y aprobarse las dos.
+  // PostgreSQL no protege de eso: un UNIQUE con NULL permite filas repetidas.
+  const referencia = String(d.numero_referencia ?? "").replace(/[^A-Za-z0-9]/g, "");
+  if (referencia.length < 4) {
+    return { accion: "COLA_HUMANA", motivo: "sin_referencia" };
+  }
+
   // 3) Ventana de 24 horas.
   if (d.fecha) {
     const dia = new Date(d.fecha + "T00:00:00Z").getTime();

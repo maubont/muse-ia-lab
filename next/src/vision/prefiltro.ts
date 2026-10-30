@@ -34,10 +34,18 @@ export interface ContextoPrefiltro {
   yaPago: boolean;
   /** ¿hay un media adjunto? */
   media: MediaEntrante | null;
+  /**
+   * ¿ya tenemos los bytes en la mano?
+   *
+   * IMPRESCINDIBLE: el adaptador de Evolution entrega `obtenerBytes()`, NO una
+   * `url`. Exigir `url` hacía que toda imagen real de WhatsApp se clasificara como
+   * «sin_imagen» y el cliente entrara en un bucle de reenvíos.
+   */
+  tieneBytes?: boolean;
 }
 
 export function prefiltrar(ctx: ContextoPrefiltro): ResultadoPrefiltro {
-  if (!ctx.media || !ctx.media.url) {
+  if (!ctx.media || (!ctx.media.url && !ctx.tieneBytes)) {
     return { leer: false, accion: "pedir_reenvio", motivo: "sin_imagen" };
   }
 

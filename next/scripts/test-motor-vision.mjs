@@ -85,5 +85,36 @@ const mensaje = { media: { tipo: "imagen", mime: "image/jpeg", url: "https://x/c
   t("sin lector: no entrega", envios.some((x) => x.includes("/a/")), false);
 }
 
+// 5. EL CASO REAL DE EVOLUTION: media sin `url`, solo `obtenerBytes`.
+// Antes esto caía en «sin_imagen» y el cliente entraba en un bucle de reenvíos.
+{
+  const { motor, envios } = entorno(async () => ({ ok: true, datos: DATOS, origen: "proveedor", coste: 0.0003 }));
+  await motor.procesar({
+    canal: "evolution", id_externo: "M5", telefono: LEAD.phone, nombre_perfil: "Ana", texto: "",
+    media: {
+      tipo: "imagen", mime: "image/jpeg",
+      obtenerBytes: async () => new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4]).buffer,
+    },
+    atribucion: { ctwa_clid: null, source_id: null }, enviado_en: Date.now(),
+  });
+  t("media sin url: entrega el curso", envios.some((x) => x.includes("/a/TOK")), true);
+  t("media sin url: NO pide reenvío", envios.some((x) => /captura|reenv/i.test(x)), false);
+}
+
+// 6. Una lectura cacheada es un comprobante reutilizado: va a humano.
+{
+  const { motor, envios, consultas } = entorno(async () => ({ ok: true, datos: DATOS, origen: "cache", coste: 0 }));
+  await motor.procesar({
+    canal: "evolution", id_externo: "M6", telefono: LEAD.phone, nombre_perfil: "Ana", texto: "",
+    media: { tipo: "imagen", mime: "image/jpeg", url: "https://x/c.jpg" },
+    atribucion: { ctwa_clid: null, source_id: null }, enviado_en: Date.now(),
+  });
+  t("caché: NO entrega", envios.some((x) => x.includes("/a/")), false);
+  // S08 lo manda a revisión con motivo «imagen_duplicada»: el pago queda en
+  // estado revision y el motivo viaja en el evento pago_a_revision.
+  t("caché: el pago queda en revisión", consultas.some((c) => c.q.includes("musa_payments") && c.params?.includes("revision")), true);
+  t("caché: el motivo es imagen duplicada", consultas.some((c) => String(c.params?.[2] ?? "").includes("imagen_duplicada") || String(c.params?.[1] ?? "") === "imagen_duplicada"), true);
+}
+
 console.log(`motor con visión: ${ok} ok, ${fallas} fallas`);
 process.exit(fallas === 0 ? 0 : 1);
