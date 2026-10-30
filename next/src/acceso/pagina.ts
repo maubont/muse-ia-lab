@@ -183,7 +183,12 @@ function legible(segmento: string): string {
  * antepone: dentro del megapack hay un `1.1 Introducción` en cada módulo, y sin
  * la carpeta el alumno vería tres enlaces con el mismo nombre.
  */
-export function nombreVisible(clave: string, prefijo?: string): string {
+export function nombreVisible(claveBruta: string, prefijo?: string): string {
+  // La clave del almacén llega como `media:curso/01/...`. Sin quitar ese prefijo,
+  // ninguna entrada de la tabla coincide y el alumno vuelve a leer
+  // «Copia de 6.1 CREANDO GRUPO DE TELEGRAM».
+  const clave = claveBruta.replace(/^media:/, "");
+
   // LA TABLA VA PRIMERO, con la clave completa: si se busca después de recortar el
   // prefijo, ninguna entrada coincide.
   const exacto = NOMBRES_CURSO[clave] ?? NOMBRES_CURSO[clave.replace(/^\/+/, "")];

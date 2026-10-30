@@ -194,5 +194,19 @@ function db() {
   t("bono: nombre desconocido se humaniza", nombreDeBono("pack_extra_2027"), "Pack Extra 2027");
 }
 
+// El alumno debe leer nombres legibles, no la clave del almacén.
+{
+  const { nombreVisible } = await import("../src/acceso/pagina.ts");
+  t("nombre escrito a mano", nombreVisible("media:curso/01/1.1-Empieza-aqui-Introduccion.mp4", "curso"), "Empieza aquí: introducción");
+  t("sin «Copia de»", nombreVisible("media:curso/06/Copia-de-6.1-CREANDO-GRUPO-DE-TELEGRAM", "curso").includes("Copia"), false);
+  t("sin guiones bajos", nombreVisible("media:curso/01/1.1-Empieza-aqui-Introduccion.mp4", "curso").includes("_"), false);
+  const pagina = paginaCurso(ENTREGA, "Ana", { token: "TOK" });
+  t("nombres limpios en la página", pagina.includes("Copia de 6.1"), false);
+  t("y el de Telegram aparece bien", pagina.includes("Crear tu grupo de Telegram"), true);
+  // Se miran solo los textos visibles: el href del enlace SÍ lleva la clave real.
+  const visible = pagina.replace(/href="[^"]*"/g, "");
+  t("ningún nombre con guiones de la clave", /\d\.\d-[a-zA-Z]/.test(visible), false);
+}
+
 console.log(`acceso al curso: ${ok} ok, ${fallas} fallas`);
 process.exit(fallas === 0 ? 0 : 1);
