@@ -42,6 +42,18 @@ for (const [ruta, nombre] of [
   t("portada: sin número falso", html.includes("XXXXXXXXXX"), false);
 }
 
+// --- propuesta comercial: el curso vende una salida, no una afición ---
+{
+  const html = await (await pedir("/")).text();
+  t("copy: dice que no es un pasatiempo", html.includes("No es un pasatiempo"), true);
+  t("copy: habla de salida comercial", html.includes("salida comercial"), true);
+  t("copy: menciona plataformas que monetizan", html.includes("plataformas que ya monetizan"), true);
+  t("copy: el proceso tiene cuatro pasos", (html.match(/<li>\s*<strong>/g) ?? []).length >= 4, true);
+  t("copy: responde si genera ingresos", html.includes("Esto me va a generar ingresos"), true);
+  t("copy: no promete ingresos", html.includes("No garantizamos ingresos"), true);
+  t("copy: dice que no hay que mostrar la cara", html.includes("Tengo que mostrar mi cara"), true);
+}
+
 // --- activos ---
 for (const [ruta, tipo] of [
   ["/assets/demo.jpg", "image/jpeg"],

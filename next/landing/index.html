@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Modelos IA — crea modelos virtuales hiperrealistas con IA</title>
-<meta name="description" content="Aprende a crear modelos virtuales hiperrealistas con inteligencia artificial: 13 módulos, 4 bonos y plan de acción de 7 días. Acceso de por vida.">
+<meta name="description" content="Aprende a crear modelos virtuales con IA y a vender su contenido en plataformas que monetizan. 13 módulos, 4 bonos y plan de acción de 7 días.">
 <meta property="og:title" content="Modelos IA — crea modelos virtuales hiperrealistas con IA">
-<meta property="og:description" content="13 módulos, 4 bonos y un plan de acción de 7 días. Acceso de por vida.">
+<meta property="og:description" content="Del personaje al cobro: crea el modelo, produce el contenido y publícalo donde se paga. 13 módulos y 4 bonos.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0b0b10">
 <style>
@@ -138,6 +138,33 @@ p.fuerte{color:var(--texto)}
 }
 .paso p{color:var(--texto)}
 
+/* ---- pipeline comercial ---- */
+.pipeline{list-style:none;counter-reset:lin;display:grid;gap:0;margin-top:26px;position:relative}
+.pipeline li{
+  position:relative;padding:0 0 26px 52px;counter-increment:lin;
+}
+/* Hilo vertical que une los cuatro pasos: un solo proceso, no cuatro ideas. */
+.pipeline li::before{
+  content:counter(lin);position:absolute;left:0;top:0;
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-weight:800;font-size:14px;color:#fff;z-index:1;
+  background:linear-gradient(180deg,rgba(139,92,246,.9),rgba(109,40,217,.9));
+  box-shadow:0 0 0 4px rgba(139,92,246,.10), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.pipeline li::after{
+  content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;
+  background:linear-gradient(180deg,rgba(139,92,246,.45),rgba(240,201,138,.18));
+}
+.pipeline li:last-child{padding-bottom:0}
+.pipeline li:last-child::after{display:none}
+.pipeline strong{display:block;font-size:16px;letter-spacing:.01em;margin-bottom:2px}
+.pipeline p{font-size:15px;margin:0}
+/* El color avanza con el proceso: violeta → cian → oro. */
+.pipeline li:nth-child(2)::before{background:linear-gradient(180deg,rgba(94,234,212,.85),rgba(13,148,136,.85));box-shadow:0 0 0 4px rgba(94,234,212,.10), inset 0 1px 0 rgba(255,255,255,.25)}
+.pipeline li:nth-child(3)::before{background:linear-gradient(180deg,rgba(240,201,138,.9),rgba(180,131,60,.9));color:#1a1206;box-shadow:0 0 0 4px rgba(240,201,138,.10), inset 0 1px 0 rgba(255,255,255,.35)}
+.pipeline li:nth-child(4)::before{background:linear-gradient(180deg,rgba(196,181,253,.9),rgba(139,92,246,.9));box-shadow:0 0 0 4px rgba(196,181,253,.10), inset 0 1px 0 rgba(255,255,255,.3)}
+.nota-proceso{margin-top:22px;padding-left:14px;border-left:2px solid rgba(240,201,138,.45)}
+
 /* ---- objeciones ---- */
 .obj{display:grid;gap:10px;margin-top:20px}
 .obj div{
@@ -263,7 +290,7 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
 <header class="hero contenedor">
   <span class="etiqueta">13 módulos · 4 bonos · acceso de por vida</span>
   <h1>Crea modelos virtuales <span class="acento">hiperrealistas</span> con inteligencia artificial</h1>
-  <p class="fuerte">Sin saber diseño, sin cámara y sin modelos reales. Aprende el proceso completo, paso a paso.</p>
+  <p class="fuerte">Sin saber diseño, sin cámara y sin modelos reales. Aprendes a crear el personaje, producir su contenido y venderlo en plataformas que ya monetizan.</p>
 
   <div class="precio-linea">
     <strong>$9 USD</strong>
@@ -296,13 +323,41 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   <p class="fino" style="margin-top:10px;text-align:center">Generada 100 % con IA. Sin cámara, sin modelo real, sin estudio.</p>
 </section>
 
+<!-- ====================== DE LA IMAGEN AL COBRO ====================== -->
+<section class="contenedor" aria-labelledby="proceso-t">
+  <h2 id="proceso-t">No es un pasatiempo. Es un proceso con salida comercial.</h2>
+  <p>El curso no termina en una imagen bonita. Termina con un personaje publicado y un
+  sistema para vender su contenido en plataformas que ya cobran por esto.</p>
+
+  <ol class="pipeline">
+    <li>
+      <strong>Creas el personaje</strong>
+      <p>Rostro, cuerpo y coherencia para que sea siempre la misma persona, publicación tras publicación.</p>
+    </li>
+    <li>
+      <strong>Produces el contenido en serie</strong>
+      <p>Sets, video y piezas listas para publicar. Un flujo repetible, no una imagen suelta.</p>
+    </li>
+    <li>
+      <strong>Lo publicas donde se paga</strong>
+      <p>Plataformas de suscripción y venta de contenido, con el formato y la periodicidad que cada una exige.</p>
+    </li>
+    <li>
+      <strong>Operas el sistema y lo sostienes</strong>
+      <p>Qué publicar, cada cuánto y cómo atender a quien paga. Sin cámara, sin estudio y sin exponer tu cara: tú operas, el personaje hace la cara.</p>
+    </li>
+  </ol>
+
+  <p class="fino nota-proceso">Aprendes el método completo, incluida la parte que casi nadie enseña: cómo se convierte una imagen en algo por lo que alguien paga.</p>
+</section>
+
 <!-- ============================ CONTENIDO ============================ -->
 <section class="contenedor" aria-labelledby="incluye-t">
   <h2 id="incluye-t">Qué incluye</h2>
   <p class="fuerte">No es teoría sobre IA. Es el proceso completo para producir y publicar.</p>
 
   <div class="grid">
-    <div class="tarjeta"><h3>13 módulos</h3><p>Desde la primera imagen hasta la publicación y monetización.</p></div>
+    <div class="tarjeta"><h3>13 módulos</h3><p>Desde la primera imagen hasta la publicación y el cobro en plataformas.</p></div>
     <div class="tarjeta"><h3>4 bonos</h3><p>Colección de modelos, Megapack Master IA, YouTube Money Machine y audios.</p></div>
     <div class="tarjeta"><h3>Plan de acción de 7 días</h3><p>Qué hacer cada día para tener tu primer modelo publicado en una semana.</p></div>
     <div class="tarjeta"><h3>Acceso de por vida</h3><p>Sin mensualidades. Se actualiza y sigues teniendo acceso.</p></div>
@@ -317,7 +372,7 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
     <div class="paso"><p><strong>Si ya haces contenido</strong> y quieres producir sin depender de una persona real, un estudio o una sesión de fotos.</p></div>
     <div class="paso"><p><strong>Si empiezas de cero:</strong> el curso asume que no sabes nada de IA ni de diseño.</p></div>
   </div>
-  <p class="fino" style="margin-top:18px">No es para quien busque resultados automáticos sin dedicarle tiempo. Es un oficio, y se aprende practicando.</p>
+  <p class="fino" style="margin-top:18px">No es para quien busque un pasatiempo ni resultados automáticos sin dedicarle tiempo. Es un oficio con salida comercial, y se aprende practicando.</p>
 </section>
 
 <!-- ============================ OBJECIONES ============================ -->
@@ -340,7 +395,8 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
       <li>13 módulos completos</li>
       <li>4 bonos incluidos</li>
       <li>Plan de acción de 7 días</li>
-      <li>Acceso de por vida, sin mensualidades</li>
+      <li>Módulos de publicación y monetización incluidos</li>
+        <li>Acceso de por vida, sin mensualidades</li>
     </ul>
     <button class="cta" data-abrir-modal>Empezar ahora <span aria-hidden="true">→</span></button>
     <p class="fino" style="margin-top:10px">Pago por Nequi, Bancolombia o Bre-B. Te guío por WhatsApp.</p>
@@ -352,7 +408,9 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   <h2 id="faq-t">Preguntas frecuentes</h2>
   <details><summary>¿Cómo recibo el curso?</summary><p>Después de confirmar el pago te llega un enlace personal a tu área del curso, con los 13 módulos y los 4 bonos ordenados. Acceso inmediato y sin caducidad.</p></details>
   <details><summary>¿Cuánto tiempo necesito?</summary><p>El plan de 7 días está pensado para 30–45 minutos al día. Si tienes más tiempo, avanzas más rápido.</p></details>
-  <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
+  <details><summary>¿Esto me va a generar ingresos?</summary><p>El curso enseña el proceso completo: crear el personaje, producir el contenido y publicarlo en plataformas que monetizan. Cuánto genere depende de tu constancia y de cómo lo apliques. No garantizamos ingresos.</p></details>
+        <details><summary>¿Tengo que mostrar mi cara?</summary><p>No. El personaje hace la cara; tú operas el sistema desde tu computadora.</p></details>
+        <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
   <details><summary>¿Sirve desde el celular?</summary><p>Sí. Todo el curso se puede hacer desde el teléfono.</p></details>
   <details><summary>¿Quién me responde?</summary><p>Musa, una asistente virtual del equipo, y una persona cuando hace falta. Te lo digo claro: si preguntas si soy un bot, te lo confirmo.</p></details>
 </section>
