@@ -77,3 +77,62 @@ Los **W** son los que hacen que el cliente diga «¿esto es real?» — y esos n
 pueden automatizar: necesitan una decisión de marca y material propio.
 
 Lo que no está aquí: nada de lo que ya funciona. Esta lista es de lo pendiente.
+
+---
+
+## 6. La sala de exhibición — decisión tomada el 30-oct-2026
+
+**Estrategia del dueño:** que el prospecto vea la plataforma (sin comprar) con solo el
+video de introducción habilitado, para que compruebe que el curso existe y es serio.
+
+**Acordado:** no se construye todavía. Primero la grabación de pantalla; la sala real
+solo si el embudo muestra que la objeción de confianza es la que frena.
+
+### Por qué no se hace ahora
+
+Lo que hace atractiva la idea es lo mismo que la vuelve peligrosa:
+
+```
+/media/<token>/<clave>   valida el token y sirve CUALQUIER clave
+```
+
+Un token de «solo introducción» abre **los 60 archivos**. Y no basta con no pintar los
+enlaces en la página: las claves son predecibles (`curso/02/...`), así que basta
+editarlas en la barra del navegador. **El candado quedaría decorativo y el curso
+regalado a la primera persona curiosa.**
+
+### Paso 1 · lo que se hace ahora (coste: 20 minutos, riesgo: cero)
+
+Una **grabación de pantalla de 45 segundos** recorriendo la plataforma con los módulos
+bloqueados. Se manda por el chat en `S05_PRECIO`, antes del precio.
+
+- No hay token, no hay URL, no hay nada que filtrar.
+- El prospecto no tiene que hacer nada.
+- Sirve mañana, sin tocar código.
+
+**Guion sugerido:** resultado primero (15 s), plataforma por dentro (20 s),
+qué falta al desbloquear (10 s).
+
+### Paso 2 · la sala real, cuando toque construirla
+
+Requiere **cuatro** cambios, y el candado tiene que estar en el servidor:
+
+1. Columna `alcance` en `musa_accesos`: `'completo'` | `'intro'`.
+2. `/media` compara la clave pedida con el alcance del token y devuelve `403` si no
+   está permitida, aunque el archivo exista.
+3. Página de exhibición: los 13 módulos con candado y sus cifras («6 archivos»,
+   «22 archivos»), **sin generar ni un enlace**.
+4. Token con caducidad corta (7 días) y revocable.
+
+### La condición que decide si funciona
+
+**El video desbloqueado tiene que ser bueno.** Si la introducción es floja, enseñarla
+convierte peor que no enseñar nada. No puede empezar con «bienvenido al curso»: tiene
+que mostrar el resultado en los primeros 15 segundos y terminar con una razón para
+querer el resto.
+
+### Antes de construirla
+
+Arreglar el desajuste de títulos y contenido (módulos 5 a 12). Una plataforma que
+enseña «Escenarios y luz» y entrega un tutorial de bots de Telegram **no genera
+confianza: la destruye**. Enseñar eso sería peor que no enseñar nada.
