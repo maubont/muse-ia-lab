@@ -16,6 +16,7 @@ import { crearRepositorio } from "../db/repositorio.ts";
 import { leerConfigFunnel } from "../db/config-funnel.ts";
 import type { CfgFunnel } from "../db/config-funnel.ts";
 import { decidirRuta } from "./router.ts";
+import { atenderComandoOperador } from "./cola-revision.ts";
 import { ejecutar } from "./ejecutar.ts";
 import type { ClasificacionGPT } from "./efectos.ts";
 import { normalizar } from "../../../functions/motor/guardarrailes.ts";
@@ -225,6 +226,28 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
           // Sin proveedor, sin presupuesto o el proveedor falló: a un humano, con acuse.
           comprobante = { datos: null, esPrimerPago: lead.pagado !== true, imagenDuplicada: false, dentroDeHorario };
         }
+      }
+
+      // ── COMANDO DEL OPERADOR ──────────────────────────────────────────────
+      // El dueño recibe avisos que dicen «Responde: ok <id>». Hasta ahora ese
+      // mensaje se trataba como un lead nuevo: el bot le mandaba el saludo. Aquí
+      // se atiende primero, y solo si viene del número del operador.
+      const { interpretarComando, normalizarTelefono } = await import("./comandos-operador.ts");
+      const esOperador =
+        !!cfg.operador?.whatsapp &&
+        normalizarTelefono(mensaje.telefono) === normalizarTelefono(cfg.operador.whatsapp);
+      const comando = esOperador ? interpretarComando(mensaje.texto) : null;
+
+      if (comando) {
+        const repoOps = crearRepositorio({
+          consultar,
+          canal,
+          telefonoOperador: cfg.operador?.whatsapp ?? "",
+          esperar: deps.esperar,
+          urlPublica: deps.urlPublica,
+        });
+        await atenderComandoOperador(comando, repoOps, consultar, canal, mensaje.telefono, deps.urlPublica);
+        return [];
       }
 
       const efectos = decidirRuta({

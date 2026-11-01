@@ -139,7 +139,12 @@ export async function despacharRecordatorios(deps: DepsDespacho): Promise<Resume
       resumen.cancelados++;
       continue;
     }
-    if (lead.pagado) {
+    // «YA PAGÓ» NO CANCELA UN RESCATE DE ENTREGA.
+    // Si el envío del acceso falló, este recordatorio lleva el enlace para
+    // reintentarlo. Pero el lead ya quedó marcado como pagado por la barrera
+    // atómica, así que esta comprobación lo cancelaba: el cliente pagaba, no
+    // recibía nada, y el rescate se borraba solo.
+    if (lead.pagado && rec.tipo !== "entrega_pendiente") {
       await consultar(SQL_CANCELAR, [rec.id, "ya_pago"]);
       resumen.cancelados++;
       continue;

@@ -32,7 +32,7 @@ export const ETIQUETAS_BONOS: Record<string, string> = {
 
 export const MENSAJE_BIENVENIDA =
   "¡Bienvenida oficialmente, {{nombre}}! 💜 Ya tienes acceso de por vida a todo. " +
-  "Mi consejo: empieza HOY por el *Módulo 1* (el primer enlace de arriba) y avanza a tu ritmo. " +
+  "Mi consejo: empieza HOY por el *Módulo 1* (el que aparece primero en tu página) y avanza a tu ritmo. " +
   "Cualquier duda me escribes por aquí 😊";
 
 export interface Entrega {

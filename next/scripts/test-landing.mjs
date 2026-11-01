@@ -6,6 +6,14 @@
 
 import { arrancar } from "../src/main.ts";
 
+const ENV = {
+  EVOLUTION_URL: "https://evolution.test",
+  EVOLUTION_APIKEY: "clave-de-prueba",
+  EVOLUTION_INSTANCE: "musa",
+  EVOLUTION_JWT_KEY: "secreto-de-firma",
+  EVOLUTION_WEBHOOK_SECRET: "secreto-compartido",
+};
+
 let ok = 0;
 let fallas = 0;
 const t = (etiqueta, real, esperado) => {
@@ -14,7 +22,7 @@ const t = (etiqueta, real, esperado) => {
   console.error(`FALLA ${etiqueta}: esperado ${JSON.stringify(esperado)}, real ${JSON.stringify(real)}`);
 };
 
-const s = await arrancar({ puerto: 0, vigilar: false });
+const s = await arrancar({ env: ENV, puerto: 0, vigilar: false });
 const base = `http://127.0.0.1:${s.puerto}`;
 const pedir = (ruta) => fetch(base + ruta, { redirect: "manual" });
 
@@ -90,7 +98,7 @@ for (const ruta of ["/main.ts", "/api/servidor.ts", "/.env"]) {
 
 // --- apagable por entorno ---
 {
-  const s2 = await arrancar({ puerto: 0, vigilar: false, landingHabilitada: false });
+  const s2 = await arrancar({ env: ENV, puerto: 0, vigilar: false, landingHabilitada: false });
   const r = await fetch(`http://127.0.0.1:${s2.puerto}/`, { redirect: "manual" });
   t("apagada: la portada da 404", r.status, 404);
   await s2.cerrar();

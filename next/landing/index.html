@@ -501,13 +501,11 @@ var ref = (params.get("ref") || params.get("utm_campaign") || REF_POR_DEFECTO)
   .toString().slice(0, 20).replace(/[^A-Za-z0-9_-]/g, "");
 
 var texto = "Hola, vengo de la página. Ref: " + ref + ". Quiero ver el contenido del curso.";
-if (!NUMERO) {
-    // PROVISIONAL: todavía no hay número configurado. Es mejor un aviso claro que
-    // un enlace roto que abre WhatsApp sin destinatario.
-    alert("Estamos terminando de configurar el WhatsApp. Vuelve en unos minutos.");
-    return;
-  }
-  var enlace = "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent(texto);
+// PROVISIONAL: mientras no haya número, el enlace queda vacío y el aviso se da
+// AL PULSAR, no al cargar. Antes había aquí un `return;` suelto que no estaba
+// dentro de ninguna función: el navegador interpretaba todo el script como
+// inválido y NINGÚN botón funcionaba. Un `return` aquí rompe la página entera.
+var enlace = NUMERO ? "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent(texto) : "";
 
 var puerta = document.getElementById("puerta");
 var irWa = document.getElementById("ir-wa");
@@ -526,6 +524,11 @@ acepto.addEventListener("change", function () {
 });
 
 irWa.addEventListener("click", function (e) {
+  if (!NUMERO) {
+    e.preventDefault();
+    alert("Estamos terminando de configurar el WhatsApp. Vuelve en unos minutos.");
+    return;
+  }
   if (!acepto.checked) { e.preventDefault(); return; }
   /* Evento para el píxel, cuando exista. No se envía nada si no está. */
   if (typeof fbq === "function") fbq("track", "Contact");

@@ -29,8 +29,8 @@ const CFG = {
 };
 const NEQUI = crudo.cuentas_co.nequi.numero; // 3223565761
 
-const ahora = new Date("2026-10-28T15:00:00Z");
-const hoyBogota = "2026-10-28";
+const ahora = new Date();
+const hoyBogota = ahora.toISOString().slice(0, 10);
 
 const datos = (extra = {}) => ({
   metodo: "Nequi", monto: 33000, moneda: "COP", fecha: hoyBogota, hora: "10:00",
@@ -108,7 +108,7 @@ const decidir = (d, extra) => evaluarPago(CFG, d, true, { ahora, ...extra });
 
 // ============================== ventana de 24 horas ==============================
 {
-  t("hoy: pasa", decidir(datos({ fecha: "2026-10-28" })).accion, "AUTO_APROBAR");
+  t("hoy: pasa", decidir(datos({ fecha: hoyBogota })).accion, "AUTO_APROBAR");
   // OJO: el módulo verificado compara la fecha contra Date.now() real, no contra
   // `ahora`. Una fecha fija ("2026-10-27") hacía que esta prueba pasara un día y
   // fallara al siguiente. Se calcula relativa al día de hoy.
@@ -119,10 +119,13 @@ const decidir = (d, extra) => evaluarPago(CFG, d, true, { ahora, ...extra });
   const rAyer = decidir(datos({ fecha: ayer }), { ahora: new Date() });
   t("ayer: va a humano (más de 24 h)", rAyer.accion, "COLA_HUMANA");
   t("ayer: por ventana, no por otra cosa", ["comprobante_viejo", "fecha_vieja"].includes(rAyer.motivo), true);
-  t("hace tres días: humano", decidir(datos({ fecha: "2026-10-25" })).accion, "COLA_HUMANA");
+  const haceCuatroDias = new Date(hoy.getTime() - 4 * 24 * 3600_000).toISOString().slice(0, 10);
+  t("hace tres días: humano", decidir(datos({ fecha: haceCuatroDias })).accion, "COLA_HUMANA");
   // Entre 24 h y 3 días el verificado pasaría; la ventana estricta es la que corta.
-  t("hace 30 h: humano por ventana", decidir(datos({ fecha: "2026-10-27T09:00:00Z".slice(0,10) })).accion, "COLA_HUMANA");
-  t("fecha futura: humano", decidir(datos({ fecha: "2026-11-05" })).motivo, "fecha_futura");
+  const hace30h = new Date(hoy.getTime() - 30 * 3600_000).toISOString().slice(0, 10);
+  t("hace 30 h: humano por ventana", decidir(datos({ fecha: hace30h })).accion, "COLA_HUMANA");
+  const fechaFutura = new Date(hoy.getTime() + 4 * 24 * 3600_000).toISOString().slice(0, 10);
+  t("fecha futura: humano", decidir(datos({ fecha: fechaFutura })).motivo, "fecha_futura");
 }
 
 // ============================== monto ==============================
