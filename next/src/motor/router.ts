@@ -90,6 +90,28 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
     ];
   }
 
+  // 2.b RESET / REINICIAR: permite reiniciar la prueba del funnel desde cero.
+  if (norm === "reset" || norm === "reiniciar" || norm === "recomenzar") {
+    return [
+      {
+        tipo: "lead",
+        patch: {
+          estado_funnel: "S00_LLEGADA",
+          pagado: false,
+          mayor_18: false,
+          escalado_humano: false,
+        },
+      },
+      { tipo: "evento", nombre: "lead_reiniciado", detalle: {} },
+      {
+        tipo: "enviar",
+        textos: [
+          "🔄 Conversación reiniciada. ¡Escribe *Hola* para probar el funnel completo desde el principio!",
+        ],
+      },
+    ];
+  }
+
   // 3. «¿Eres un bot?»: se responde con la objeción del copy, sin mentir.
   if (norm && preguntaPorBot(norm)) {
     const objeciones = cfg.funnelCopy?.objeciones ?? [];
@@ -146,7 +168,17 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
 
     case "S08_ESPERA_CAPTURA":
       if (!e.comprobante) {
-        // Mensaje sin comprobante en S08: no se decide nada de dinero.
+        // Mensaje sin comprobante en S08: si es un saludo, recordar con amabilidad que esperamos el comprobante
+        if (norm && /^(hola|buen|buenas|buenas tardes|buenas noches|buenos dias|que mas)\b/i.test(norm)) {
+          return [
+            {
+              tipo: "enviar",
+              textos: [
+                "¡Hola! 😄 Quedo super pendiente de tu captura del comprobante por aquí 📸 para confirmarte y darte acceso inmediato a Modelos IA 🚀\n\nSi necesitas los datos de pago nuevamente o quieres probar desde el inicio, escribe *reiniciar* 💜",
+              ],
+            },
+          ];
+        }
         return [{ tipo: "gpt_fallback" }];
       }
       return decidirS08({ lead, cfg, ...e.comprobante });
