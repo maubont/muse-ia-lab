@@ -22,12 +22,18 @@ import { createReadStream } from "node:fs";
 import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import type { Canal, MensajeEntrante } from "../../../functions/canal/tipos.ts";
 import type { Motor } from "../motor/contrato.ts";
+import { retardoDeTurno } from "../motor/ritmo.ts";
 
 export interface OpcionesServidor {
   /** canal autenticado y listo (Evolution o Twilio) */
   canal: Canal;
   /** motor del funnel (o `motorEco` durante la Fase 1) */
   motor: Motor;
+  /**
+   * Pausa entre mensajes para simular ritmo humano. Si está configurado,
+   * marca 'escribiendo...' en WhatsApp y espera los ms antes de enviar.
+   */
+  esperar?: (ms: number) => Promise<void>;
   /** ruta del webhook; por defecto /webhook/evolution */
   rutaWebhook?: string;
   /**
@@ -478,7 +484,19 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       }
       try {
         const salientes = await opts.motor.procesar(mensaje);
-        for (const m of salientes) {
+        for (let i = 0; i < salientes.length; i++) {
+          const m = salientes[i];
+          if (opts.esperar) {
+            try {
+              await opts.canal.marcarEscribiendo(mensaje.telefono);
+            } catch {
+              /* best effort */
+            }
+            const retardo = retardoDeTurno(i, m.texto ?? "");
+            if (retardo > 0) {
+              await opts.esperar(retardo);
+            }
+          }
           const envio = await opts.canal.enviar(mensaje.telefono, m);
           if (!envio.ok) {
             console.error("[servidor] envío falló:", envio.status ?? "", envio.motivo ?? "");

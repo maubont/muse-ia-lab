@@ -249,6 +249,12 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     despacharRecordatorios,
     claveCron,
     estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined,
+    esperar:
+      opciones.esperar !== undefined
+        ? opciones.esperar
+        : process.env.MUSA_RITMO === "0"
+          ? undefined
+          : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
     acceso,
     medios,
     // Prueba mínima del proveedor: «configurado» y «funciona» no son lo mismo.

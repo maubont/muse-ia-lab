@@ -40,6 +40,18 @@ export const CLAVES = [
   "paises_habilitados",
 ] as const;
 
+function sanitizarFunnelCopy(fc: CfgFunnel["funnelCopy"]): CfgFunnel["funnelCopy"] {
+  if (!fc || typeof fc !== "object") return fc;
+  try {
+    const json = JSON.stringify(fc);
+    if (!/google drive/i.test(json)) return fc;
+    const limpio = json.replace(/enlaces directos de Google Drive/gi, "tu enlace personal al área del curso");
+    return JSON.parse(limpio);
+  } catch {
+    return fc;
+  }
+}
+
 /** Lee las claves necesarias. Valores por defecto explícitos, como el original. */
 export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel> {
   const { rows } = await consultar(
@@ -50,8 +62,18 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
   const mapa: Record<string, unknown> = {};
   for (const fila of rows) mapa[String(fila.key)] = fila.value;
 
+  const funnelCopy = sanitizarFunnelCopy((mapa.funnel_copy ?? { etapas: [] }) as CfgFunnel["funnelCopy"]);
+
+  // Auto-sanitización en la base de datos si contenía copy antiguo
+  if (mapa.funnel_copy && /google drive/i.test(JSON.stringify(mapa.funnel_copy))) {
+    consultar(
+      "update public.musa_settings set value = $1::jsonb, updated_at = now() where key = 'funnel_copy'",
+      [JSON.stringify(funnelCopy)],
+    ).catch(() => {});
+  }
+
   return {
-    funnelCopy: (mapa.funnel_copy ?? { etapas: [] }) as CfgFunnel["funnelCopy"],
+    funnelCopy,
     precio: (mapa.precio ?? { usd: 9, cop: 33000 }) as CfgFunnel["precio"],
     precioBsHoy: (mapa.precio_bs_hoy ?? { bs: 7400 }) as CfgFunnel["precioBsHoy"],
     cuentasVe: (mapa.cuentas_ve ?? {}) as Record<string, unknown>,
