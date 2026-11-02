@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consola Musa — Centro de Mando Agéntico | Muse IA Lab</title>
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration verbatim from Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#1b1b22",
+            "primary-container": "#a078ff",
+            "outline-variant": "#494454",
+            "surface-container-highest": "#34343c",
+            "secondary-fixed-dim": "#cebdff",
+            "on-background": "#e4e1eb",
+            "secondary": "#cebdff",
+            "on-secondary-fixed-variant": "#4f319c",
+            "tertiary-fixed": "#e7deff",
+            "surface-variant": "#34343c",
+            "surface-tint": "#d0bcff",
+            "on-surface-variant": "#cbc3d7",
+            "on-error": "#690005",
+            "background": "#13131a",
+            "primary-fixed": "#e9ddff",
+            "on-primary-fixed-variant": "#5516be",
+            "on-tertiary-fixed": "#1e0e4e",
+            "secondary-fixed": "#e8ddff",
+            "inverse-surface": "#e4e1eb",
+            "surface-container-high": "#2a2931",
+            "primary-fixed-dim": "#d0bcff",
+            "surface-bright": "#393840",
+            "on-secondary-fixed": "#21005e",
+            "tertiary-fixed-dim": "#ccbeff",
+            "surface-dim": "#13131a",
+            "surface-container": "#1f1f26",
+            "on-secondary": "#381385",
+            "inverse-on-surface": "#303037",
+            "error-container": "#93000a",
+            "surface-container-lowest": "#0e0e14",
+            "outline": "#958ea0",
+            "inverse-primary": "#6d3bd7",
+            "on-surface": "#e4e1eb",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#4a3d7c",
+            "on-secondary-container": "#bea8ff",
+            "tertiary-container": "#9587cc",
+            "primary": "#d0bcff",
+            "on-primary-fixed": "#23005c",
+            "on-tertiary": "#332664",
+            "on-primary": "#3c0091",
+            "on-primary-container": "#340080",
+            "surface": "#13131a",
+            "tertiary": "#ccbeff",
+            "secondary-container": "#4f319c",
+            "on-tertiary-container": "#2c1f5c",
+            "error": "#ffb4ab"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter-sm": "1rem",
+            "gutter-lg": "2rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "margin-desktop": "3rem",
+            "space-2xl": "4rem",
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "gutter": "1.5rem",
+            "space-md": "1rem",
+            "margin": "2rem"
+          },
+          "fontFamily": {
+            "body-xl": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "label-code": ["Inter"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-xl": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "label-code": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Obsidian Luminescence Glow and Micro-animations */
+    @keyframes pulse-wave {
+      0%, 100% { height: 6px; }
+      50% { height: 26px; }
+    }
+    .wave-bar {
+      animation: pulse-wave 1.2s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(6) { animation-delay: 0.5s; }
+    .wave-bar:nth-child(7) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(8) { animation-delay: 0.35s; }
+    .wave-bar:nth-child(9) { animation-delay: 0.6s; }
+    .wave-bar:nth-child(10) { animation-delay: 0.25s; }
+    .wave-bar:nth-child(11) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(12) { animation-delay: 0.18s; }
+
+    /* Custom thin scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0e0e14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2a2931;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #494454;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- ==================== SHARED COMPONENT: SideNavBar ==================== -->
+<!-- Executing style_shell_layout: fixed top-0 left-0 bottom-0 z-40 flex flex-col justify-between p-4, w-64 h-screen, border-r border-outline-variant/30 -->
+<aside class="fixed top-0 left-0 bottom-0 z-40 flex flex-col justify-between p-4 w-64 h-screen bg-surface-container-lowest border-r border-outline-variant/30 select-none">
+<!-- Header Brand Monogram -->
+<div>
+<div class="flex items-center gap-3 px-2 py-2 mb-6">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shadow-[0_0_16px_rgba(160,120,255,0.18)]">
+<span class="material-symbols-outlined" data-icon="terminal" data-weight="fill" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-md font-headline-md text-primary tracking-tight font-bold">Consola Musa</span>
+<span class="text-label-md font-label-md text-on-surface-variant font-medium">Muse IA Lab v4.2</span>
+</div>
+</div>
+<!-- Quick Action / CTA -->
+<a href="https://wa.me/573227462629?text=Hola" target="_blank" rel="noopener noreferrer" class="w-full mb-6 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-primary-container text-on-primary-container font-label-lg text-label-lg font-semibold shadow-[0_0_20px_rgba(160,120,255,0.25)] hover:bg-primary hover:text-on-primary active:scale-[0.98] transition-all duration-150">
+<span class="material-symbols-outlined text-sm" data-icon="sensors">sensors</span>
+<span>Probar Bot WhatsApp</span>
+</a>
+<!-- Main Navigation Links (Strict Labels & Exact Icons from JSON) -->
+<nav aria-label="Navegación principal" class="space-y-1.5">
+<!-- Active Tab: Command Feed (Since screen is 'Centro de Mando') -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-container-low text-primary border-l-2 border-primary font-medium active:scale-[0.98] transition-transform duration-150" href="#command-feed">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-label-md font-label-md">Command Feed</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 transition-colors active:scale-[0.98]" href="#agent-hub">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="text-label-md font-label-md">Agent Hub</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 transition-colors active:scale-[0.98]" href="#ocr-verifier">
+<span class="material-symbols-outlined" data-icon="document_scanner">document_scanner</span>
+<span class="text-label-md font-label-md">OCR Verifier</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 transition-colors active:scale-[0.98]" href="#telemetry">
+<span class="material-symbols-outlined" data-icon="activity_zone">activity_zone</span>
+<span class="text-label-md font-label-md">Telemetry</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 transition-colors active:scale-[0.98]" href="#system-config">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+<span class="text-label-md font-label-md">System Config</span>
+</a>
+</nav>
+</div>
+<!-- Footer Navigation (Exact Labels & Icons) -->
+<div class="pt-4 border-t border-outline-variant/30 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 transition-colors" href="#live-stream">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+<span class="text-label-md font-label-md">Live Stream</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 transition-colors" href="#security-protocol">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="text-label-md font-label-md">Security Protocol</span>
+</a>
+<!-- Agent Core Status Pill -->
+<div class="mt-4 p-2.5 rounded-lg bg-surface-container-low/70 border border-outline-variant/20 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span>
+<span class="text-label-code font-label-code text-on-surface-variant">Core Musa Active</span>
+</div>
+<span class="text-label-code font-label-code text-primary font-semibold">99.98%</span>
+</div>
+</div>
+</aside>
+<!-- ==================== SHARED COMPONENT: TopNavBar ==================== -->
+<!-- Executing style_shell_layout: fixed top-0 right-0 left-64 z-30 flex justify-between items-center px-6 h-16, border-b border-outline-variant/30 -->
+<header class="fixed top-0 right-0 left-64 z-30 flex justify-between items-center px-6 h-16 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30">
+<!-- Left: Product Identity & Operational Subtext -->
+<div class="flex items-center gap-6">
+<div class="flex items-baseline gap-2.5">
+<h1 class="text-headline-md font-headline-md font-bold text-on-surface tracking-wider">Consola Musa</h1>
+<span class="text-label-md font-label-md text-on-surface-variant tracking-normal font-normal">/ Centro de Mando Agéntico</span>
+</div>
+<!-- Dynamic Navigation Links (Active mapping: Operations Live) -->
+<nav class="hidden lg:flex items-center gap-5 text-label-lg font-label-lg ml-2">
+<a class="text-primary border-b-2 border-primary pb-1 font-semibold transition-colors" href="#operations-live">Operations Live</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-1" href="#dual-comm-hub">Dual Comm Hub</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-1" href="#ocr-approvals">OCR Approvals</a>
+<a class="text-emerald-400 hover:text-emerald-300 transition-colors pb-1 font-semibold flex items-center gap-1" href="/academia.html"><span class="material-symbols-outlined text-sm">school</span> Musa Academy</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-1 flex items-center gap-1" href="/"><span class="material-symbols-outlined text-sm">public</span> Landing</a>
+</nav>
+</div>
+<!-- Center/Right: Quick Status Indicators & Controls -->
+<div class="flex items-center gap-4">
+<!-- Live WhatsApp Bot Status with Emerald Pulse -->
+<div class="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/30 shadow-[0_0_12px_rgba(16,185,129,0.08)]">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+</span>
+<span class="text-label-code font-label-code text-on-surface font-semibold tracking-wide">WhatsApp Bot: <span class="text-emerald-400 font-bold">Conectado</span> (322 746 2629)</span>
+</div>
+<!-- Quick Metrics Counter Badges -->
+<div class="hidden xl:flex items-center gap-2">
+<!-- 3 Pagos en Revisión -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-amber-500/30 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+<span class="material-symbols-outlined text-xs" data-icon="pending_actions">pending_actions</span>
+<span class="text-label-code font-label-code font-semibold">3 Pagos en Revisión</span>
+</div>
+<!-- 12 Leads Activos -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-xs" data-icon="groups">groups</span>
+<span class="text-label-code font-label-code font-semibold">12 Leads Activos</span>
+</div>
+<!-- Tasa COP/USD -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface-variant">
+<span class="material-symbols-outlined text-xs" data-icon="currency_exchange">currency_exchange</span>
+<span class="text-label-code font-label-code">Tasa: 33.000 COP / $9 USD</span>
+</div>
+</div>
+<!-- System Telemetry: Latency -->
+<div class="flex items-center gap-1 text-label-code font-label-code text-on-surface-variant bg-surface-container-low px-2 py-1 rounded border border-outline-variant/20">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+<span>24ms</span>
+</div>
+<!-- Trailing Action Buttons -->
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant/30">
+<!-- Audio Sync Action -->
+<button class="p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-150" title="Audio Sync">
+<span class="material-symbols-outlined" data-icon="graphic_eq">graphic_eq</span>
+</button>
+<!-- Notifications Action -->
+<button class="relative p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-150" title="Notificaciones">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span>
+</button>
+<!-- Emergency Stop (Trailing primary action) -->
+<button class="px-2.5 py-1 text-label-md font-label-md font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-950/70 border border-rose-500/30 rounded-lg transition-colors active:scale-95 duration-150">
+          Emergency Stop
+        </button>
+<!-- Operator Profile Badge -->
+<div class="flex items-center gap-2 ml-1 cursor-pointer group" title="Operator Profile Badge">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 border border-primary/40 flex items-center justify-center text-primary group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- ==================== MAIN CONTENT CANVAS ==================== -->
+<main class="ml-64 pt-16 min-h-screen bg-surface p-6">
+<div class="max-w-[1720px] mx-auto space-y-6">
+<!-- Breadcrumb & Mode Banner -->
+<div class="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-outline-variant/20">
+<div class="flex items-center gap-2 text-label-md font-label-md text-on-surface-variant">
+<span class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="hub">hub</span>
+<span>Muse IA Lab</span>
+</span>
+<span>/</span>
+<span>Cluster Operativo Nariño-Global</span>
+<span>/</span>
+<span class="text-on-surface font-semibold">Despacho Autónomo Activo</span>
+</div>
+<!-- Mode Switcher: Escucha Activa -->
+<div class="flex items-center gap-3 bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/30">
+<span class="text-label-code font-label-code text-on-surface-variant">Modo Operador:</span>
+<div class="flex items-center gap-2">
+<span class="text-label-md font-label-md text-primary font-semibold">Escucha Activa &amp; Dúplex</span>
+<button aria-checked="true" class="w-9 h-5 rounded-full bg-primary-container relative p-0.5 transition-colors focus:outline-none cursor-pointer" role="switch" title="Conmutador de escucha activa">
+<span class="block w-4 h-4 rounded-full bg-surface-container-lowest transform translate-x-4 transition-transform shadow"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== SPLIT LAYOUT (TWO COLUMNS) ==================== -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+<!-- ==================== LEFT COLUMN: DUAL COMM HUB (Col 1-7) ==================== -->
+<div class="xl:col-span-7 space-y-6">
+<!-- 1. MÓDULO DE VOZ / PANEL AUDIBLE -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-[0_0_24px_-4px_rgba(139,92,246,0.08)] relative overflow-hidden">
+<!-- Glow background ambient radial -->
+<div class="absolute -top-12 -right-12 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Voice Panel Header -->
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4 relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high border border-primary/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="graphic_eq">graphic_eq</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-semibold flex items-center gap-2">
+                    Módulo de Voz Agéntica
+                    <span class="text-label-code font-label-code bg-surface-container px-2 py-0.5 rounded-full text-primary border border-outline-variant/30">DÚPLEX ACTIVO</span>
+</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Motor de síntesis neural y detección vocal en tiempo real</p>
+</div>
+</div>
+<!-- Voice Model Selector Pill -->
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/30">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="record_voice_over">record_voice_over</span>
+<span class="text-label-md font-label-md text-on-surface font-medium">Voz: <strong class="text-secondary">Sage (Neural Latent)</strong></span>
+<span class="text-label-code font-label-code text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-500/30">98.4% natural</span>
+</div>
+</div>
+<!-- Real-Time Waveform Visualizer: "Musa está hablando..." -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant/20 p-4 mb-4 relative">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="text-label-md font-label-md text-primary font-semibold tracking-wide">Musa está hablando...</span>
+</div>
+<div class="flex items-center gap-2 text-label-code font-label-code text-on-surface-variant">
+<span>Modulación Latente</span>
+<span class="text-secondary">48kHz / 24-bit Flac</span>
+</div>
+</div>
+<!-- Equalizer Wave Bar Simulation -->
+<div class="h-16 flex items-center justify-center gap-1.5 px-4 bg-surface-container-lowest/70 rounded-lg border border-outline-variant/10">
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary-container rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary-fixed-dim rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary-container rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary-container rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary-container rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary-container rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary-fixed-dim rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary-container rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-primary rounded-full wave-bar"></div>
+<div class="w-1.5 bg-secondary rounded-full wave-bar"></div>
+</div>
+<!-- Live Transcription Overlay -->
+<div class="mt-3 p-3 rounded-lg bg-surface-container/60 border border-outline-variant/20 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary text-base mt-0.5" data-icon="subtitles">subtitles</span>
+<p class="text-body-md font-body-md text-on-surface italic">
+                  “Confirmando pago de Mauricio Bonilla por $33.000 COP recibido hace 4 minutos vía Nequi... Verificando coincidencia en el Libro Mayor y preparando entrega por WhatsApp.”
+                </p>
+</div>
+</div>
+<!-- Audio Scrub Bar Preview (Audicionar antes de WhatsApp) -->
+<div class="bg-surface-container-low rounded-lg p-3 border border-outline-variant/20 mb-4 flex items-center gap-4">
+<button class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container transition-colors shadow-[0_0_12px_rgba(160,120,255,0.4)]">
+<span class="material-symbols-outlined text-xl" data-icon="pause">pause</span>
+</button>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between text-label-code font-label-code text-on-surface-variant">
+<span>Audición de Nota de Voz (Pre-Envío WhatsApp)</span>
+<span class="font-mono text-secondary">00:08 / 00:21</span>
+</div>
+<!-- Track Bar -->
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full relative cursor-pointer">
+<div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full w-[38%] relative">
+<span class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-secondary-fixed-dim rounded-full shadow-[0_0_8px_#cebdff]"></span>
+</div>
+</div>
+</div>
+<!-- Speed Selector -->
+<div class="flex items-center gap-1 bg-surface-container px-2 py-1 rounded border border-outline-variant/30 text-label-code font-label-code">
+<button class="px-1 text-primary font-bold">1.0x</button>
+<span class="text-outline-variant">|</span>
+<button class="px-1 text-on-surface-variant hover:text-on-surface">1.2x</button>
+</div>
+</div>
+<!-- Voice Control Bar -->
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-3">
+<!-- Large glowing Microphone Switch -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-high border border-primary/40 text-primary shadow-[0_0_16px_rgba(160,120,255,0.2)] hover:border-primary transition-all active:scale-95">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<span class="material-symbols-outlined text-lg" data-icon="mic">mic</span>
+<span class="text-label-md font-label-md font-semibold">Canal de Voz Vivo</span>
+</button>
+<!-- Interrupt Button -->
+<button class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low border border-rose-500/30 text-rose-300 hover:bg-rose-950/30 text-label-md font-label-md transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="stop_circle">stop_circle</span>
+<span>Interrumpir</span>
+</button>
+</div>
+<!-- Latency status -->
+<div class="text-label-code font-label-code text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs text-emerald-400" data-icon="sensors">sensors</span>
+<span>Buffer neural: 120ms sin pérdida de paquetes</span>
+</div>
+</div>
+</section>
+<!-- 2. TERMINAL DE CHAT AGÉNTICO ESCRITO -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-[0_0_24px_-4px_rgba(139,92,246,0.08)]">
+<div class="flex items-center justify-between pb-3 mb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="forum">forum</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold">Terminal Agéntico Escrito</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Interacción dual conversacional y disparadores autónomos</p>
+</div>
+</div>
+<!-- Executable shortcut pills -->
+<div class="hidden sm:flex items-center gap-1.5">
+<button class="text-label-code font-label-code px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-secondary hover:border-primary transition-colors">
+                  + Aprobar pago #402
+                </button>
+<button class="text-label-code font-label-code px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface-variant hover:text-on-surface transition-colors">
+                  + Seguimiento a María
+                </button>
+<button class="text-label-code font-label-code px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface-variant hover:text-on-surface transition-colors">
+                  + Reporte diario
+                </button>
+</div>
+</div>
+<!-- Conversation Stream -->
+<div class="space-y-4 max-h-[380px] overflow-y-auto pr-2 mb-4">
+<!-- Message: Lead Event -->
+<div class="flex items-start gap-3">
+<div class="w-7 h-7 rounded-full bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-on-surface-variant shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-sm" data-icon="person">person</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-label-md font-label-md font-semibold text-on-surface">Mauricio Bonilla</span>
+<span class="text-label-code font-label-code text-on-surface-variant font-mono">8:49 PM (WhatsApp)</span>
+</div>
+<div class="p-3 rounded-xl rounded-tl-none bg-surface-container-low border border-outline-variant/20 text-body-md font-body-md text-on-surface max-w-lg">
+                    Hola equipo Musa! Adjunto el comprobante de mi pago de $33.000 COP por Nequi para acceder al curso de Modelos IA. ¿Me confirman el link?
+                  </div>
+</div>
+</div>
+<!-- Message: Agent Musa Autonomous Action Card -->
+<div class="flex items-start gap-3">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5 shadow-[0_0_10px_rgba(160,120,255,0.4)]">
+<span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="space-y-1.5 flex-1">
+<div class="flex items-center gap-2">
+<span class="text-label-md font-label-md font-semibold text-primary">Musa IA</span>
+<span class="text-label-code font-label-code px-2 py-0.2 rounded-full bg-primary-container/20 text-primary border border-primary/30">Acción Autónoma</span>
+<span class="text-label-code font-label-code text-on-surface-variant font-mono">8:50 PM</span>
+</div>
+<div class="p-4 rounded-xl rounded-tl-none bg-surface-container border border-primary/30 shadow-[0_0_20px_rgba(160,120,255,0.06)] text-body-md font-body-md text-on-surface space-y-3">
+<p>
+                      He procesado la imagen entrante en el pipeline OCR. El comprobante Nequi tiene un índice de fidelidad del <strong>99.8%</strong>. El monto coincide exactamente con el arancel estipulado (33.000 COP).
+                    </p>
+<!-- 1-Click Action Triggers inside Agent response -->
+<div class="flex flex-wrap items-center gap-2 pt-1 border-t border-outline-variant/20">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md font-semibold hover:bg-primary hover:text-on-primary transition-all shadow-[0_0_12px_rgba(160,120,255,0.3)]">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+<span>Ejecutar Despacho Inmediato</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-colors border border-outline-variant/30">
+<span class="material-symbols-outlined text-sm" data-icon="edit_note">edit_note</span>
+<span>Modificar Mensaje Sage</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Command Input Box with Shortcuts -->
+<div class="relative bg-surface-container rounded-xl border border-outline-variant/30 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all p-2.5">
+<div class="flex items-center gap-2 mb-2 px-1">
+<span class="text-label-code font-label-code text-on-surface-variant">Atajos:</span>
+<button class="text-label-code font-label-code px-2 py-0.5 rounded bg-surface-container-low text-primary border border-primary/20 hover:bg-surface-container-high transition-colors">/aprobar</button>
+<button class="text-label-code font-label-code px-2 py-0.5 rounded bg-surface-container-low text-on-surface-variant border border-outline-variant/30 hover:bg-surface-container-high transition-colors">/mensaje</button>
+<button class="text-label-code font-label-code px-2 py-0.5 rounded bg-surface-container-low text-on-surface-variant border border-outline-variant/30 hover:bg-surface-container-high transition-colors">/escalar</button>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg ml-1" data-icon="terminal">terminal</span>
+<input class="w-full bg-transparent text-body-md font-body-md text-on-surface placeholder:text-outline focus:outline-none border-none p-0" placeholder="Escribe una instrucción para Musa o presiona espacio para dictar..." type="text"/>
+<button class="p-2 rounded-lg bg-primary-container text-on-primary-container hover:bg-primary transition-colors flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base" data-icon="arrow_upward">arrow_upward</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- ==================== RIGHT COLUMN: OCR VERIFIER & LIVE OPS (Col 8-12) ==================== -->
+<div class="xl:col-span-5 space-y-6">
+<!-- 1. WORKSTATION OCR: VERIFICACIÓN INTELIGENTE DE COMPROBANTE -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-[0_0_24px_-4px_rgba(139,92,246,0.08)] relative">
+<!-- Workstation Header -->
+<div class="flex items-center justify-between pb-3 mb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="document_scanner">document_scanner</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold">Recibo #402 — Nequi Colombia</h3>
+<span class="text-label-code font-label-code text-on-surface-variant">Transacción de Entrada Inmediata</span>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="px-2.5 py-1 rounded-full bg-amber-950/50 border border-amber-500/40 text-amber-300 text-label-code font-label-code font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                Pendiente de Validación
+              </span>
+</div>
+<!-- OCR Split View: Comprobante Preview + Visión IA Breakdown -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+<!-- Sub-card A: Simulated Nequi Receipt Capture -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant/30 p-3.5 flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="text-label-code font-label-code text-secondary font-bold tracking-widest uppercase">Nequi Comprobante</span>
+<span class="text-label-code font-label-code text-emerald-400 bg-emerald-950/50 px-1.5 rounded">Digital ID #402</span>
+</div>
+<!-- Receipt Body Content -->
+<div class="space-y-2 py-2 border-y border-outline-variant/20 my-2">
+<div class="flex justify-between items-baseline">
+<span class="text-label-code font-label-code text-on-surface-variant">Para:</span>
+<span class="text-label-md font-label-md font-semibold text-on-surface">MUSE IA LAB</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="text-label-code font-label-code text-on-surface-variant">De:</span>
+<span class="text-label-md font-label-md font-semibold text-on-surface">Mauricio Bonilla</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="text-label-code font-label-code text-on-surface-variant">Valor:</span>
+<span class="text-headline-sm font-headline-sm font-bold text-primary">$33.000 COP</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="text-label-code font-label-code text-on-surface-variant">Referencia:</span>
+<span class="text-label-code font-label-code font-mono text-secondary">M4920194</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="text-label-code font-label-code text-on-surface-variant">Fecha / Hora:</span>
+<span class="text-label-code font-label-code text-on-surface">Hoy 8:49 PM</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="text-label-code font-label-code text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="verified">verified</span>
+                    Sello criptográfico Nequi OK
+                  </span>
+<span class="text-label-code font-label-code text-on-surface-variant">Captura PNG 1080p</span>
+</div>
+</div>
+<!-- Sub-card B: Visión IA Extraction Panel with 100% Matches -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant/30 p-3.5 space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-code font-label-code text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="auto_awesome">auto_awesome</span>
+                    Visión IA (OCR Latente)
+                  </span>
+<span class="text-label-code font-label-code text-emerald-400 font-bold bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">99.8% match</span>
+</div>
+<ul class="space-y-2 text-label-md font-label-md">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5" data-icon="check_circle">check_circle</span>
+<div>
+<strong class="text-on-surface block">Monto: $33.000 COP</strong>
+<span class="text-label-code font-label-code text-on-surface-variant">Coincide al 100% con arancel de curso</span>
+</div>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5" data-icon="check_circle">check_circle</span>
+<div>
+<strong class="text-on-surface block">Fecha y Hora: Hoy 8:49 PM</strong>
+<span class="text-label-code font-label-code text-on-surface-variant">Ventana temporal válida (hace 4 min)</span>
+</div>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5" data-icon="check_circle">check_circle</span>
+<div>
+<strong class="text-on-surface block">Titular: Mauricio Bonilla</strong>
+<span class="text-label-code font-label-code text-on-surface-variant">Corresponde al lead en WhatsApp</span>
+</div>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5" data-icon="check_circle">check_circle</span>
+<div>
+<strong class="text-on-surface block">Autenticidad Comprobante</strong>
+<span class="text-label-code font-label-code text-on-surface-variant">Sin artefactos ni clonación de píxeles</span>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Botonera de Acción Rápida -->
+<div class="space-y-2 pt-2 border-t border-outline-variant/20">
+<!-- Primary glow action: Aprobar y Despachar Curso -->
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-lg text-label-lg font-bold shadow-[0_0_24px_rgba(160,120,255,0.4)] hover:bg-primary hover:text-on-primary hover:shadow-[0_0_32px_rgba(160,120,255,0.6)] active:scale-[0.99] transition-all duration-150">
+<span class="material-symbols-outlined text-lg" data-icon="check_circle">check_circle</span>
+<span>Aprobar y Despachar Curso</span>
+<span class="material-symbols-outlined text-lg" data-icon="rocket_launch">rocket_launch</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<!-- Secondary: Rechazar con Motivo -->
+<button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container border border-outline-variant/40 text-on-surface hover:border-error hover:text-error transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-base" data-icon="cancel">cancel</span>
+<span>Rechazar con Motivo</span>
+</button>
+<!-- Tertiary: Escalar a Humano -->
+<button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-low border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-base" data-icon="support_agent">support_agent</span>
+<span>Escalar a Humano</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 2. FEED DE ACTIVIDAD EN TIEMPO REAL (TELEMETRY & EVENT STREAM) -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-[0_0_24px_-4px_rgba(139,92,246,0.08)]">
+<div class="flex items-center justify-between pb-3 mb-3 border-b border-outline-variant/20">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="activity_zone">activity_zone</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold">Feed de Telemetría en Vivo</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Stream de eventos agénticos y conversiones</p>
+</div>
+</div>
+<span class="flex items-center gap-1 text-label-code font-label-code text-primary bg-surface-container px-2 py-1 rounded">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                LIVE
+              </span>
+</div>
+<!-- Chronological Event Stream List -->
+<div class="space-y-3">
+<!-- Event 1 -->
+<div class="p-3 rounded-lg bg-surface-container-low/70 border border-outline-variant/20 flex items-start gap-3 hover:bg-surface-container-low transition-colors">
+<div class="w-7 h-7 rounded-lg bg-primary-container/20 border border-primary/30 flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-sm" data-icon="person_add">person_add</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<p class="text-label-md font-label-md text-on-surface font-semibold truncate">Lead nuevo capturado vía Instagram Ads</p>
+<span class="text-label-code font-label-code text-on-surface-variant shrink-0 font-mono">Hace 2 min</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate">María Fernanda (+57 310 882 1940) — Preguntó por cupos IA</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="p-3 rounded-lg bg-surface-container-low/70 border border-outline-variant/20 flex items-start gap-3 hover:bg-surface-container-low transition-colors">
+<div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-sm" data-icon="receipt_long">receipt_long</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<p class="text-label-md font-label-md text-on-surface font-semibold truncate">Comprobante #402 recibido por WhatsApp</p>
+<span class="text-label-code font-label-code text-on-surface-variant shrink-0 font-mono">Hace 4 min</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate">Mauricio Bonilla envió captura de $33.000 COP Nequi</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="p-3 rounded-lg bg-surface-container-low/70 border border-outline-variant/20 flex items-start gap-3 hover:bg-surface-container-low transition-colors">
+<div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<p class="text-label-md font-label-md text-on-surface font-semibold truncate">Curso 'Modelos IA' despachado</p>
+<span class="text-label-code font-label-code text-on-surface-variant shrink-0 font-mono">Hace 12 min</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate">Enviado credenciales y token a Juan R. automáticamente</p>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="p-3 rounded-lg bg-surface-container-low/70 border border-outline-variant/20 flex items-start gap-3 hover:bg-surface-container-low transition-colors">
+<div class="w-7 h-7 rounded-lg bg-secondary-container/30 border border-secondary/30 flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-sm" data-icon="graphic_eq">graphic_eq</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<p class="text-label-md font-label-md text-on-surface font-semibold truncate">Audio de bienvenida entregado</p>
+<span class="text-label-code font-label-code text-on-surface-variant shrink-0 font-mono">Hace 18 min</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate">Generado con voz Sage para nuevo suscriptor de Bogotá</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Interactive Agentic Voice + Text + Live Telemetry Engine -->
+<script>
+(function() {
+  const statusPill = document.querySelector('header .text-emerald-400.font-bold');
+  const latencyBadge = document.querySelector('header .bg-surface-container-low.px-2.py-1 span:last-child');
+  const waveBars = document.querySelectorAll('.wave-bar');
+  const speakingLabel = document.querySelector('section .text-primary.font-semibold.tracking-wide');
+  const subtitleBox = document.querySelector('section p.italic');
+  const playPauseBtn = document.querySelector('section button.w-9.h-9.rounded-full');
+  const playPauseIcon = playPauseBtn ? playPauseBtn.querySelector('.material-symbols-outlined') : null;
+  const voiceChannelBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Canal de Voz Vivo'));
+  const interruptBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Interrumpir'));
+  const chatInput = document.querySelector('input[placeholder*="Escribe una instrucción"]');
+  const chatSendBtn = chatInput ? chatInput.nextElementSibling : null;
+  const chatStream = document.querySelector('.max-h-\\[380px\\]');
+  const telemetryStream = document.querySelector('section:last-of-type .space-y-3');
+
+  let isSpeaking = false;
+  let duplexEnabled = true;
+
+  function setWaveActive(active) {
+    waveBars.forEach(bar => {
+      bar.style.animationPlayState = active ? 'running' : 'paused';
+      if (!active) bar.style.height = '6px';
+    });
+    if (speakingLabel) {
+      speakingLabel.textContent = active ? 'Musa está hablando (Voz Neural Activa)...' : 'Musa en espera (Escucha Activa)';
+    }
+    if (playPauseIcon) {
+      playPauseIcon.textContent = active ? 'pause' : 'play_arrow';
+    }
+  }
+
+  // Initially pause waveform until user interacts or triggers voice
+  setWaveActive(false);
+
+  function speakText(text) {
+    if (subtitleBox) subtitleBox.textContent = '“' + text + '”';
+    if (!('speechSynthesis' in window)) {
+      setWaveActive(true);
+      setTimeout(() => setWaveActive(false), 4000);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'es-CO';
+    utter.rate = 1.03;
+    utter.pitch = 1.02;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => /es[-_](CO|MX|ES|US)/i.test(v.lang) && /Sabina|Helena|Dalia|Paulina|Natural|Google|Online/i.test(v.name))
+      || voices.find(v => v.lang.startsWith('es'));
+    if (preferred) utter.voice = preferred;
+
+    utter.onstart = () => { isSpeaking = true; setWaveActive(true); };
+    utter.onend = () => { isSpeaking = false; setWaveActive(false); };
+    utter.onerror = () => { isSpeaking = false; setWaveActive(false); };
+    window.speechSynthesis.speak(utter);
+  }
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+
+  if (playPauseBtn) {
+    playPauseBtn.addEventListener('click', () => {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        setWaveActive(false);
+      } else {
+        const currentText = subtitleBox ? subtitleBox.textContent.replace(/[“”"]/g, '').trim() : 'Hola Mauricio, soy Musa. El sistema está conectado y listo para despachar accesos.';
+        speakText(currentText);
+      }
+    });
+  }
+
+  if (interruptBtn) {
+    interruptBtn.addEventListener('click', () => {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      isSpeaking = false;
+      setWaveActive(false);
+      if (speakingLabel) speakingLabel.textContent = 'Síntesis interrumpida por el operador';
+    });
+  }
+
+  // Speech Recognition (Mic)
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'es-CO';
+    recognition.interimResults = false;
+    recognition.onstart = () => {
+      if (speakingLabel) speakingLabel.textContent = '🎙️ Escuchando tu voz... Habla ahora';
+      setWaveActive(true);
+    };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      if (chatInput) chatInput.value = transcript;
+      handleCommand(transcript);
+    };
+    recognition.onend = () => {
+      if (!isSpeaking) setWaveActive(false);
+    };
+  }
+
+  if (voiceChannelBtn) {
+    voiceChannelBtn.addEventListener('click', () => {
+      if (recognition) {
+        try { recognition.start(); } catch (_) { recognition.stop(); }
+      } else {
+        speakText('Hola Mauricio. Canal de voz activo. El bot de WhatsApp en el 322 746 2629 opera con normalidad y cadencia humana.');
+      }
+    });
+  }
+
+  function addTelemetryEvent(title, desc, icon = 'bolt') {
+    if (!telemetryStream) return;
+    const item = document.createElement('div');
+    item.className = 'p-3 rounded-lg bg-surface-container-low/70 border border-primary/30 flex items-start gap-3 transition-colors';
+    item.innerHTML = `
+      <div class="w-7 h-7 rounded-lg bg-primary-container/20 border border-primary/30 flex items-center justify-center text-primary shrink-0 mt-0.5">
+        <span class="material-symbols-outlined text-sm">${icon}</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-1">
+          <p class="text-label-md font-label-md text-on-surface font-semibold truncate">${title}</p>
+          <span class="text-label-code font-label-code text-primary shrink-0 font-mono">Ahora</span>
+        </div>
+        <p class="text-body-sm font-body-sm text-on-surface-variant truncate">${desc}</p>
+      </div>`;
+    telemetryStream.prepend(item);
+  }
+
+  function appendChatBubble(sender, text, isAgent = false) {
+    if (!chatStream) return;
+    const time = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex items-start gap-3';
+    if (!isAgent) {
+      wrapper.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-sm">terminal</span>
+        </div>
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-label-md font-label-md font-semibold text-on-surface">${sender}</span>
+            <span class="text-label-code font-label-code text-on-surface-variant font-mono">${time}</span>
+          </div>
+          <div class="p-3 rounded-xl rounded-tl-none bg-surface-container-high border border-outline-variant/30 text-body-md font-body-md text-on-surface max-w-lg">${text}</div>
+        </div>`;
+    } else {
+      wrapper.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5 shadow-[0_0_10px_rgba(160,120,255,0.4)]">
+          <span class="material-symbols-outlined text-sm">smart_toy</span>
+        </div>
+        <div class="space-y-1.5 flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-label-md font-label-md font-semibold text-primary">Musa IA</span>
+            <span class="text-label-code font-label-code px-2 py-0.2 rounded-full bg-primary-container/20 text-primary border border-primary/30">Respuesta Agéntica</span>
+            <span class="text-label-code font-label-code text-on-surface-variant font-mono">${time}</span>
+          </div>
+          <div class="p-3.5 rounded-xl rounded-tl-none bg-surface-container border border-primary/30 text-body-md font-body-md text-on-surface">${text}</div>
+        </div>`;
+    }
+    chatStream.appendChild(wrapper);
+    chatStream.scrollTop = chatStream.scrollHeight;
+  }
+
+  function handleCommand(raw) {
+    const cmd = (raw || '').trim();
+    if (!cmd) return;
+    appendChatBubble('Operador (Mauricio)', cmd, false);
+    if (chatInput) chatInput.value = '';
+
+    const lower = cmd.toLowerCase();
+    let reply = '';
+    if (lower.includes('aprobar') || lower.includes('402') || lower.includes('despachar')) {
+      reply = '¡Listo Mauricio! He aprobado el recibo #402 por $33.000 COP en Nequi. Generé el token criptográfico de acceso y envié el enlace personal de Musa Academy por WhatsApp con cadencia natural.';
+      approveReceiptUI();
+      addTelemetryEvent('Pago #402 Aprobado y Despachado', 'Token /a/ enviado por WhatsApp al instante', 'check_circle');
+    } else if (lower.includes('reporte') || lower.includes('estado') || lower.includes('resumen')) {
+      reply = 'Reporte operativo al día: WhatsApp conectado en el 322 746 2629, cadencia humana activa de 1.2 a 2.5 segundos, copy sanitizado sin enlaces de Google Drive, y almacén R2 sirviendo los 13 módulos y 4 bonos.';
+      addTelemetryEvent('Reporte Operativo Generado', 'Auditoría de estado solicitada desde consola', 'analytics');
+    } else if (lower.includes('seguimiento') || lower.includes('maría') || lower.includes('maria')) {
+      reply = 'He programado el mensaje de seguimiento empático para María con indicador Escribiendo... recordándole que su cupo de $33.000 COP incluye los 13 módulos y los 4 bonos de regalo.';
+      addTelemetryEvent('Seguimiento Agéntico Enviado', 'Recordatorio enviado a María (+57 310 882 1940)', 'send');
+    } else if (lower.includes('rechazar')) {
+      reply = 'Recibo #402 marcado como rechazado. He enviado una solicitud amable al usuario pidiendo una captura legible donde se vea el número de referencia Nequi.';
+      addTelemetryEvent('Comprobante #402 Rechazado', 'Notificación enviada al lead para nueva captura', 'cancel');
+    } else {
+      reply = 'Instrucción recibida: "' + cmd + '". El motor agéntico de Musa está sincronizado con Evolution API y PostgreSQL.';
+      addTelemetryEvent('Comando Agéntico Ejecutado', cmd, 'terminal');
+    }
+
+    setTimeout(() => {
+      appendChatBubble('Musa IA', reply, true);
+      if (duplexEnabled) speakText(reply);
+    }, 350);
+  }
+
+  function approveReceiptUI() {
+    const badge = Array.from(document.querySelectorAll('span')).find(s => s.textContent.includes('Pendiente de Validación'));
+    if (badge) {
+      badge.className = 'px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-label-code font-label-code font-semibold flex items-center gap-1';
+      badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Aprobado & Despachado';
+    }
+  }
+
+  if (chatSendBtn && chatInput) {
+    chatSendBtn.addEventListener('click', () => handleCommand(chatInput.value));
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleCommand(chatInput.value);
+    });
+  }
+
+  // Wire all shortcut buttons & OCR action buttons
+  document.querySelectorAll('button').forEach(btn => {
+    const txt = btn.textContent.trim();
+    if (txt.includes('+ Aprobar pago #402') || txt === '/aprobar' || txt.includes('Aprobar y Despachar Curso') || txt.includes('Ejecutar Despacho Inmediato')) {
+      btn.addEventListener('click', () => handleCommand('/aprobar pago #402 y despachar curso'));
+    } else if (txt.includes('+ Seguimiento a María')) {
+      btn.addEventListener('click', () => handleCommand('Enviar seguimiento cálido a María'));
+    } else if (txt.includes('+ Reporte diario')) {
+      btn.addEventListener('click', () => handleCommand('Dame el reporte diario de la operación'));
+    } else if (txt === '/mensaje') {
+      btn.addEventListener('click', () => { if (chatInput) { chatInput.value = '/mensaje '; chatInput.focus(); } });
+    } else if (txt === '/escalar' || txt.includes('Escalar a Humano')) {
+      btn.addEventListener('click', () => handleCommand('Escalar conversación a atención humana directa'));
+    } else if (txt.includes('Rechazar con Motivo')) {
+      btn.addEventListener('click', () => handleCommand('Rechazar comprobante #402 por captura incompleta'));
+    } else if (txt.includes('Modificar Mensaje Sage')) {
+      btn.addEventListener('click', () => {
+        const msg = '¡Hola Mauricio! Confirmamos tu pago de $33.000 COP. Aquí tienes tu enlace personal a Musa Academy.';
+        speakText(msg);
+      });
+    }
+  });
+
+  // Live Health & WhatsApp Session Polling
+  async function pollHealth() {
+    const t0 = performance.now();
+    try {
+      const [rSalud, rSesion] = await Promise.all([
+        fetch('/salud').then(r => r.json()).catch(() => null),
+        fetch('/salud/sesion').then(r => r.json()).catch(() => null),
+      ]);
+      const dt = Math.round(performance.now() - t0);
+      if (latencyBadge) latencyBadge.textContent = dt + 'ms';
+      if (statusPill && rSesion) {
+        const open = rSesion.ok && rSesion.estado === 'open';
+        statusPill.textContent = open ? 'Conectado' : (rSesion.estado || 'Verificando');
+        statusPill.className = open ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold';
+      }
+    } catch (_) {}
+  }
+  pollHealth();
+  setInterval(pollHealth, 15000);
+})();
+</script>
+
+</body></html>

@@ -366,6 +366,7 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opci
   return `${cabecera("Tu curso — Modelos IA")}
 <h1>${saludo} 👋</h1>
 <p>Este es tu acceso personal. Guárdalo: es tuyo y no caduca.</p>
+<div style="margin:18px 0 6px"><a class="boton" href="/academia.html">✦ Entrar al Aula Interactiva (Musa Academy LMS)</a></div>
 
 <h2>Los 13 módulos</h2>
 ${listaModulos}
