@@ -151,8 +151,8 @@
       </a>
 
       <div class="pl-2 border-l border-[#E4E0D8] flex items-center gap-2">
-        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#141413] text-[#F6F4F0] flex items-center justify-center font-bold text-xs">MB</div>
-        <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#141413] max-w-[120px] truncate">Mauricio Bonilla</span>
+        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#141413] text-[#F6F4F0] flex items-center justify-center font-bold text-xs">ES</div>
+        <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#141413] max-w-[120px] truncate">Estudiante</span>
       </div>
     </div>
 
@@ -177,7 +177,7 @@
           </div>
 
           <h1 class="text-2xl sm:text-3xl font-bold text-[#181415] tracking-tight leading-snug">
-            Hola, <span id="heroStudentName" class="font-serif-editorial italic font-semibold text-[#B86B77]">Mauricio</span>. Continúa donde lo dejaste o explora cualquier estación.
+            Hola, <span id="heroStudentName" class="font-serif-editorial italic font-semibold text-[#B86B77]">Estudiante</span>. Continúa donde lo dejaste o explora cualquier estación.
           </h1>
 
           <p class="text-sm text-[#5C5352] leading-relaxed max-w-xl">
@@ -502,10 +502,24 @@ let bonoActivoIdx = -1;
 let estacionFiltroActual = "todas";
 let modoCineActivo = false;
 
-let modulosCompletados = JSON.parse(localStorage.getItem("musa_modulos_completados_v5") || "[1, 2]");
+function obtenerClaveProgreso() {
+  const t = (typeof obtenerTokenUrl === "function") ? obtenerTokenUrl() : "";
+  return t ? "musa_progreso_tok_" + t.slice(0, 16) : "musa_progreso_demo";
+}
+
+let modulosCompletados = [];
+
+function cargarProgresoLocal() {
+  try {
+    modulosCompletados = JSON.parse(localStorage.getItem(obtenerClaveProgreso()) || "[]");
+    if (!Array.isArray(modulosCompletados)) modulosCompletados = [];
+  } catch {
+    modulosCompletados = [];
+  }
+}
 
 function guardarProgreso() {
-  localStorage.setItem("musa_modulos_completados_v5", JSON.stringify(modulosCompletados));
+  localStorage.setItem(obtenerClaveProgreso(), JSON.stringify(modulosCompletados));
 }
 
 function mostrarToast(mensaje) {
@@ -561,14 +575,34 @@ async function cargarCatalogo() {
     return;
   }
 
-  if (catalogoData?.alumno) {
-    const nombre = catalogoData.alumno.nombre || "Mauricio Bonilla";
-    const primerNombre = nombre.split(" ")[0] || "Mauricio";
-    document.getElementById("studentNameSidebar").textContent = nombre;
-    const heroName = document.getElementById("heroStudentName");
-    if (heroName) heroName.textContent = primerNombre;
-    const iniciales = nombre.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "MB";
-    document.getElementById("avatarInitials").textContent = iniciales;
+  cargarProgresoLocal();
+
+  const esVisitante = !catalogoData?.autenticado;
+  const alumno = catalogoData?.alumno || {};
+  const nombre = esVisitante ? "Visitante" : (alumno.nombre || "Estudiante");
+  const primerNombre = esVisitante ? "Explorador" : (nombre.split(" ")[0] || "Estudiante");
+
+  const sideNameEl = document.getElementById("studentNameSidebar");
+  if (sideNameEl) sideNameEl.textContent = nombre;
+
+  const heroNameEl = document.getElementById("heroStudentName");
+  if (heroNameEl) heroNameEl.textContent = primerNombre;
+
+  const iniciales = esVisitante ? "VS" : (nombre.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "ES");
+  const avatarEl = document.getElementById("avatarInitials");
+  if (avatarEl) avatarEl.textContent = iniciales;
+
+  const affBtn = document.getElementById("btnAfiliadosHeader");
+  if (affBtn) {
+    if (catalogoData?.enlaceReferido) {
+      affBtn.onclick = () => {
+        navigator.clipboard.writeText(catalogoData.enlaceReferido);
+        mostrarToast("Enlace de afiliado copiado");
+      };
+      affBtn.title = "Copiar tu enlace de afiliado (50% comisión)";
+    } else {
+      affBtn.onclick = () => abrirModalConversion();
+    }
   }
 
   if (catalogoData?.soporteWa) {
@@ -626,13 +660,24 @@ function crearTarjetaMinimalista(m, idx) {
   const tituloLimpio = limpiarTextoUI(m.titulo);
   const resultadoLimpio = limpiarTextoUI(m.resultado);
 
-  const estadoBadge = isCompleted
-    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold shadow-sm">
-         <span class="material-symbols-outlined text-[13px]">check_circle</span> Vista
+  const esDemo = !catalogoData?.autenticado;
+  const bloqueada = Boolean(m.bloqueado) || (esDemo && m.numero > 1);
+
+  const estadoBadge = bloqueada
+    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-stone-900/85 backdrop-blur-sm text-stone-100 text-[10.5px] font-semibold">
+         <span class="material-symbols-outlined text-[13px] text-[#EBCAD0]">lock</span> Bloqueada
        </span>`
-    : `<span class="font-mono-tech px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[#FAF7F5] text-[10px]">
-         ${portada.exif}
-       </span>`;
+    : (isCompleted
+      ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold shadow-sm">
+           <span class="material-symbols-outlined text-[13px]">check_circle</span> Vista
+         </span>`
+      : (esDemo
+        ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-700 text-white text-[10.5px] font-semibold shadow-sm">
+             <span class="material-symbols-outlined text-[13px]">play_circle</span> Clase Libre Demo
+           </span>`
+        : `<span class="font-mono-tech px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[#FAF7F5] text-[10px]">
+             ${portada.exif}
+           </span>`));
 
   return `
     <article class="studio-card flex flex-col justify-between cursor-pointer group" onclick="seleccionarModulo(${idx}, true)">
@@ -665,8 +710,8 @@ function crearTarjetaMinimalista(m, idx) {
 
       <div class="px-5 py-3.5 border-t border-[#F4ECEB] flex items-center justify-between text-xs text-[#5C5352]">
         <span>${totalRec} ${totalRec === 1 ? "archivo en esta clase" : "archivos en esta clase"}</span>
-        <span class="font-semibold text-[#181415] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
-          Abrir clase <span class="material-symbols-outlined text-[15px] text-[#B86B77]">arrow_forward</span>
+        <span class="font-semibold ${bloqueada ? "text-[#B86B77]" : "text-[#181415]"} group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+          ${bloqueada ? "Desbloquear" : "Abrir clase"} <span class="material-symbols-outlined text-[15px] ${bloqueada ? "text-[#B86B77]" : "text-[#B86B77]"}">${bloqueada ? "lock" : "arrow_forward"}</span>
         </span>
       </div>
     </article>
@@ -903,6 +948,11 @@ function guardarNotaClaseActual() {
 
 function seleccionarModulo(idx, abrirVista = true) {
   if (!catalogoData?.modulos?.[idx]) return;
+  const m = catalogoData.modulos[idx];
+  if (m.bloqueado || (!catalogoData?.autenticado && m.numero > 1)) {
+    abrirModalConversion(idx);
+    return;
+  }
   bonoActivoIdx = -1;
   moduloActivoIdx = idx;
   leccionActivaIdx = 0;
@@ -935,6 +985,10 @@ function seleccionarModulo(idx, abrirVista = true) {
 
 function abrirBono(bIdx) {
   if (!catalogoData?.bonos?.[bIdx]) return;
+  if (!catalogoData?.autenticado) {
+    abrirModalConversion();
+    return;
+  }
   bonoActivoIdx = bIdx;
   leccionActivaIdx = 0;
   mostrarVistaLeccion();
@@ -1016,6 +1070,22 @@ function copiarEnlaceAfiliado() {
   mostrarToast("Enlace de afiliado (50%) copiado");
 }
 
+function abrirModalConversion(idx) {
+  const modal = document.getElementById("modalConversionCompra");
+  if (!modal) return;
+  modal.style.display = "flex";
+  if (typeof idx === "number" && catalogoData?.modulos?.[idx]) {
+    const mod = catalogoData.modulos[idx];
+    const sub = document.getElementById("modalSubtituloClase");
+    if (sub) sub.textContent = `La Clase ${mod.numero} (${limpiarTextoUI(mod.titulo)}) y sus recursos forman parte del acceso completo a Musa Studio.`;
+  }
+}
+
+function cerrarModalConversion() {
+  const modal = document.getElementById("modalConversionCompra");
+  if (modal) modal.style.display = "none";
+}
+
 // Auto-avance inteligente y atajos de teclado discretos (←, →, M, T)
 window.addEventListener("DOMContentLoaded", () => {
   cargarCatalogo();
@@ -1052,5 +1122,62 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
+
+<!-- MODAL DE CONVERSIÓN Y VENTA MUSA STUDIO -->
+<div id="modalConversionCompra" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm" style="display: none;">
+  <div class="relative w-full max-w-md bg-[#FAF8F5] border border-[#EBCAD0] rounded-3xl p-6 sm:p-7 shadow-2xl text-[#181415] space-y-5 animate-in fade-in zoom-in duration-200">
+    <button onclick="cerrarModalConversion()" class="absolute top-5 right-5 text-stone-400 hover:text-stone-700 transition-colors p-1" title="Cerrar">
+      <span class="material-symbols-outlined text-[22px]">close</span>
+    </button>
+
+    <div class="space-y-1.5 text-center pr-6 pl-2">
+      <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F9EBEE] border border-[#EBCAD0] text-[#B86B77] font-mono-tech text-[10.5px] font-bold uppercase">
+        <span class="material-symbols-outlined text-[13px]">lock</span>
+        Acceso Exclusivo
+      </div>
+      <h3 class="text-xl sm:text-2xl font-bold tracking-tight">Desbloquea Musa Studio</h3>
+      <p id="modalSubtituloClase" class="text-xs text-[#5C5352] leading-relaxed">
+        Estás en el Modo Demostración. La Clase 1 es libre; las Clases 2 a 13 y los 4 Megapacks de Bonos requieren acceso completo.
+      </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-white border border-[#E8DFDC] space-y-2 text-xs text-[#383332]">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-emerald-600 text-[17px] shrink-0">check_circle</span>
+        <span><strong>13 Clases completas</strong> de Producción Hiperrealista & Monetización</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-emerald-600 text-[17px] shrink-0">check_circle</span>
+        <span><strong>Prompts maestros</strong> listos para copiar y generar</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-emerald-600 text-[17px] shrink-0">check_circle</span>
+        <span><strong>4 Megapacks de Bonos</strong> (Modelos, Audios, YouTube, Master IA)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-emerald-600 text-[17px] shrink-0">check_circle</span>
+        <span><strong>Acceso Vitalicio</strong> oficial en tu propia cuenta</span>
+      </div>
+    </div>
+
+    <div class="text-center space-y-0.5">
+      <div class="flex items-baseline justify-center gap-2">
+        <span class="text-3xl font-extrabold text-[#181415]">$33.000 COP</span>
+        <span class="text-xs text-stone-500 font-medium">/ 9 USD internacional</span>
+      </div>
+      <p class="text-[11px] text-stone-500">Pago único seguro vía Nequi, Bancolombia, Bre-B o Tarjeta</p>
+    </div>
+
+    <div class="space-y-2 pt-1">
+      <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20el%20estudio%20probando%20la%20demo%20y%20quiero%20desbloquear%20el%20acceso%20completo%20por%2033.000%20COP" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 px-5 rounded-xl bg-[#181415] hover:bg-[#302729] text-[#FAF7F5] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 text-center">
+        <span class="material-symbols-outlined text-[18px] text-[#B86B77]">chat</span>
+        <span>Comprar Acceso en WhatsApp</span>
+      </a>
+      <button onclick="cerrarModalConversion()" class="w-full py-1.5 text-xs text-stone-500 hover:text-stone-800 transition-colors">
+        Seguir viendo la Clase 1 gratuita
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

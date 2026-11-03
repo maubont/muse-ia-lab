@@ -81,21 +81,13 @@ export async function obtenerCatalogoAcademia(
   consultar?: Consultar,
   tokenBruto?: string,
 ): Promise<Record<string, unknown>> {
-  let token = (tokenBruto ?? "").trim();
+  const token = (tokenBruto ?? "").trim();
   let autenticado = false;
   let phone: string | undefined;
-  let nombreAlumno = "Mauricio Bonilla";
+  let nombreAlumno = "Visitante";
 
-  if (consultar && !token) {
-    // Si se abre /academia.html directamente sin ?t=, recuperar el token activo más reciente
-    const { rows } = await consultar(
-      "select token, lead_phone from public.musa_accesos where revocado_en is null and expira_en > now() order by id desc limit 1",
-    ).catch(() => ({ rows: [] }));
-    if (rows[0]?.token) {
-      token = String(rows[0].token);
-    }
-  }
-
+  // NUNCA recuperar tokens ajenos por fallback.
+  // Solo se autentica si se proporciona un token explícito y válido.
   if (consultar && token) {
     const val = await validarToken(consultar, token, false).catch(() => ({ ok: false as const }));
     if (val.ok && "phone" in val && val.phone) {
@@ -106,7 +98,7 @@ export async function obtenerCatalogoAcademia(
         [phone],
       ).catch(() => ({ rows: [] }));
       const f = rows[0] as { nombre?: string | null; profile_name?: string | null } | undefined;
-      nombreAlumno = f?.nombre || f?.profile_name || "Miembro Musa Academy";
+      nombreAlumno = f?.nombre || f?.profile_name || "Estudiante Musa Studio";
     }
   }
 
@@ -130,13 +122,32 @@ export async function obtenerCatalogoAcademia(
     const titulo = tituloRaw.replace(/,\s*Leonardo/gi, "").replace(/Leonardo\s*(AI)?/gi, "Generador IA");
     const resultadoRaw = norm.resultado ?? RESULTADOS_POR_DEFECTO[idx] ?? "Paso práctico del método";
     const resultado = resultadoRaw.replace(/cuatro herramientas/gi, "herramientas");
-    const prompt = PROMPTS_POR_MODULO[idx] ?? PROMPTS_POR_MODULO[0];
+
+    // Protección de propiedad intelectual:
+    // Si está autenticado: todos los prompts maestros completos.
+    // Si NO está autenticado (Modo Demo): Módulo 1 incluye prompt teaser de muestra; módulos 2-13 protegidos.
+    const esModuloGratis = idx === 0;
+    const bloqueado = !autenticado && !esModuloGratis;
+    const prompt = autenticado || esModuloGratis
+      ? (PROMPTS_POR_MODULO[idx] ?? PROMPTS_POR_MODULO[0])
+      : null;
 
     const lecciones = norm.archivos.map((archivo, lIdx) => {
       const infoTipo = tipoDeArchivo(archivo);
       const urlReal = autenticado ? resolverEnlace(archivo, token) : null;
       const esVideo = infoTipo.etiqueta === "Video";
       const esPdf = infoTipo.etiqueta === "PDF";
+      const esLeccionMuestra = esModuloGratis && lIdx === 0;
+
+      let urlFinal: string;
+      if (autenticado) {
+        urlFinal = urlReal ?? "#";
+      } else if (esLeccionMuestra && esVideo) {
+        urlFinal = "/assets/demo.mp4";
+      } else {
+        urlFinal = "#requiere-acceso";
+      }
+
       return {
         id: `m${idx + 1}-l${lIdx + 1}`,
         titulo: nombreVisible(archivo, "curso"),
@@ -144,7 +155,9 @@ export async function obtenerCatalogoAcademia(
         icono: infoTipo.icono,
         esVideo,
         esPdf,
-        url: urlReal ?? (esVideo ? "/assets/demo.mp4" : "#requiere-acceso"),
+        esMuestraGratis: esLeccionMuestra,
+        bloqueada: !autenticado && !esLeccionMuestra,
+        url: urlFinal,
         requiereToken: !autenticado,
       };
     });
@@ -153,6 +166,8 @@ export async function obtenerCatalogoAcademia(
       numero: idx + 1,
       titulo,
       resultado,
+      bloqueado,
+      esMuestraGratis: esModuloGratis,
       prompt,
       totalLecciones: lecciones.length,
       lecciones,
@@ -170,12 +185,14 @@ export async function obtenerCatalogoAcademia(
         titulo: nombreVisible(item, prefijo),
         etiqueta: info.etiqueta,
         icono: info.icono,
-        url: urlReal ?? (info.etiqueta === "Video" ? "/assets/demo.mp4" : "#requiere-acceso"),
+        bloqueado: !autenticado,
+        url: autenticado ? (urlReal ?? "#") : "#requiere-acceso",
       };
     });
     return {
       clave,
       titulo: nombreDeBono(clave),
+      bloqueado: !autenticado,
       totalArchivos: archivos.length,
       archivos,
     };
@@ -186,11 +203,12 @@ export async function obtenerCatalogoAcademia(
   return {
     ok: true,
     autenticado,
+    modo: autenticado ? "estudiante" : "demostracion",
     alumno: {
       nombre: nombreAlumno,
-      rango: autenticado ? "Acceso Vitalicio Activo" : "Modo Vista Previa",
+      rango: autenticado ? "Acceso Vitalicio Activo" : "Modo Demostración",
       refCode,
-      enlaceReferido: `https://server-production-3709.up.railway.app/?ref=${refCode}`,
+      enlaceReferido: autenticado ? `https://server-production-3709.up.railway.app/?ref=${refCode}` : null,
     },
     soporteWa: "https://wa.me/573227462629?text=" + encodeURIComponent("Hola Musa, estoy dentro de Musa Studio y tengo una consulta"),
     modulos,

@@ -48,16 +48,19 @@ export interface OpcionesArranque {
  *  · con `DATABASE_URL` -> motor real contra Postgres (carga `pg` dinámicamente)
  *  · sin ella           -> motorEco, que solo hace eco (ensayo de conectividad)
  */
-async function construirMotor(env: Entorno): Promise<Motor> {
+async function construirMotor(env: Entorno, consultarInyectado?: Consultar): Promise<Motor> {
   const urlBaseDatos = (env.DATABASE_URL ?? "").trim();
   if (!urlBaseDatos) return motorEco();
 
-  const { crearConexion } = await import("./db/pool.ts");
   const { crearMotorReal } = await import("./motor/motor-real.ts");
   const { configDesdeEntorno: configIa } = await import("./vision/proveedor.ts");
   const { leerComprobante } = await import("./vision/lector.ts");
 
-  const conexion = crearConexion(urlBaseDatos);
+  let consultar = consultarInyectado;
+  if (!consultar) {
+    const { crearConexion } = await import("./db/pool.ts");
+    consultar = crearConexion(urlBaseDatos).consultar;
+  }
   const cfgIa = configIa(env as Record<string, string | undefined>);
   // Se calcula UNA vez y se registra el número efectivo: si alguien escribe mal el
   // nombre de la variable, el log mostrará 1 y no el valor que creía haber puesto.
@@ -68,7 +71,7 @@ async function construirMotor(env: Entorno): Promise<Motor> {
   const lector: DepsMotorReal["lector"] = (entrada) =>
     leerComprobante(
       {
-        consultar: conexion.consultar,
+        consultar,
         proveedor: cfgIa,
         presupuestoDiario,
         descargarImagen: async (url: string) => {
@@ -90,7 +93,7 @@ async function construirMotor(env: Entorno): Promise<Motor> {
 
   console.log(`[musa] motor real contra Postgres · presupuesto IA ${presupuestoDiario} USD/día`);
   return crearMotorReal({
-    consultar: conexion.consultar,
+    consultar,
     canal: crearCanalEvolutionConfig(env),
     urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined,
     lector,
@@ -128,20 +131,22 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     throw new Error(describirConfig(config));
   }
 
-  const canal = crearCanalEvolution(config.config);
-  const motor = opciones.motor ?? await construirMotor(env);
-
-  // El cron solo existe si hay base de datos y clave configurada.
-  const urlBaseDatos = (env.DATABASE_URL ?? "").trim();
-  const claveCron = (opciones.claveCron ?? env.MUSA_CRON_KEY ?? "").trim();
-  let despacharRecordatorios = opciones.despacharRecordatorios;
-
   // Una sola conexión para todo lo que use la base.
+  const urlBaseDatos = (env.DATABASE_URL ?? "").trim();
+  let conexionGlobal: { consultar: Consultar; cerrar?: () => Promise<void> } | undefined;
   let consultar: Consultar | undefined;
   if (urlBaseDatos) {
     const { crearConexion } = await import("./db/pool.ts");
-    consultar = crearConexion(urlBaseDatos).consultar;
+    conexionGlobal = crearConexion(urlBaseDatos);
+    consultar = conexionGlobal.consultar;
   }
+
+  const canal = crearCanalEvolution(config.config);
+  const motor = opciones.motor ?? await construirMotor(env, consultar);
+
+  // El cron solo existe si hay base de datos y clave configurada.
+  const claveCron = (opciones.claveCron ?? env.MUSA_CRON_KEY ?? "").trim();
+  let despacharRecordatorios = opciones.despacharRecordatorios;
 
   if (consultar && claveCron && !despacharRecordatorios) {
     const { despacharRecordatorios: despachar } = await import("./motor/despachar.ts");
@@ -259,6 +264,7 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     acceso,
     medios,
     academiaCatalogo: (token?: string) => obtenerCatalogoAcademia(consultar, token),
+    adminSecret: (env.MUSA_ADMIN_SECRET ?? process.env.MUSA_ADMIN_SECRET ?? "").trim() || (process.env.NODE_ENV !== "production" ? "musa_dev_admin_2026" : undefined),
     consolaEstado: () => obtenerEstadoConsola({ consultar, estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined }),
     consolaComando: (cmd: string) => ejecutarComandoConsola({ comandoTexto: cmd, consultar, canal, urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined, esperar: opciones.esperar }),
     // Prueba mínima del proveedor: «configurado» y «funciona» no son lo mismo.
@@ -313,6 +319,9 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     cerrar: async () => {
       vigilante.detener();
       await servidor.cerrar();
+      if (conexionGlobal?.cerrar) {
+        await conexionGlobal.cerrar();
+      }
     },
     rutas: { salud: "/salud", sesion: "/salud/sesion", webhook: "/webhook/evolution" },
   };

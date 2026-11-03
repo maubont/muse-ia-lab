@@ -166,13 +166,22 @@ export function endurecer(
     return { accion: "COLA_HUMANA", motivo: "sin_referencia" };
   }
 
-  // 3) Ventana de 24 horas.
+  // 3) Ventana de 24 horas calibrada en Colombia (America/Bogota, UTC-5).
   if (d.fecha) {
-    const dia = new Date(d.fecha + "T00:00:00Z").getTime();
-    if (Number.isNaN(dia)) {
+    let marcaTiempo: number;
+    if (d.hora) {
+      const horaStr = d.hora.length === 5 ? `${d.hora}:00` : d.hora;
+      marcaTiempo = new Date(`${d.fecha}T${horaStr}-05:00`).getTime();
+    } else {
+      // Si solo viene fecha (sin hora), se toma el final del día en Colombia (23:59:59 -05:00)
+      // para evitar rechazar erróneamente comprobantes pagados la noche anterior.
+      marcaTiempo = new Date(`${d.fecha}T23:59:59-05:00`).getTime();
+    }
+
+    if (Number.isNaN(marcaTiempo)) {
       return { accion: "COLA_HUMANA", motivo: "fecha_ilegible" };
     }
-    const horas = (ahora.getTime() - dia) / 3600_000;
+    const horas = (ahora.getTime() - marcaTiempo) / 3600_000;
     if (horas > ventanaHoras) return { accion: "COLA_HUMANA", motivo: "comprobante_viejo" };
     if (horas < -24) return { accion: "COLA_HUMANA", motivo: "fecha_futura" };
   }

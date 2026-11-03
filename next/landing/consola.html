@@ -310,6 +310,10 @@
 <button class="px-2.5 py-1 text-label-md font-label-md font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-950/70 border border-rose-500/30 rounded-lg transition-colors active:scale-95 duration-150">
           Emergency Stop
         </button>
+<button id="btnCerrarSesion" class="px-2.5 py-1 text-label-md font-label-md font-semibold text-on-surface-variant hover:text-white bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 rounded-lg transition-colors active:scale-95 duration-150 flex items-center gap-1.5" title="Cerrar Sesión">
+  <span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+  <span>Salir</span>
+</button>
 <!-- Operator Profile Badge -->
 <div class="flex items-center gap-2 ml-1 cursor-pointer group" title="Operator Profile Badge">
 <div class="w-8 h-8 rounded-full bg-primary-container/20 border border-primary/40 flex items-center justify-center text-primary group-hover:border-primary transition-colors">
@@ -904,9 +908,16 @@
     try {
       const res = await fetch('/api/consola/comando', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comando: cmd })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfTokenGlobal
+        },
+        body: JSON.stringify({ comando: cmd, _csrf: csrfTokenGlobal })
       });
+      if (res.status === 401) {
+        mostrarModalLogin();
+        return;
+      }
       const data = await res.json();
       const reply = data.respuesta || 'Comando procesado.';
       appendChatBubble('Musa IA', reply, true);
@@ -941,11 +952,81 @@
     }
   });
 
+  let csrfTokenGlobal = '';
+  const modalLoginAdmin = document.getElementById('modalLoginAdmin');
+  const formLoginAdmin = document.getElementById('formLoginAdmin');
+  const claveAdminInput = document.getElementById('claveAdminInput');
+  const loginErrorMsg = document.getElementById('loginErrorMsg');
+  const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+
+  function mostrarModalLogin() {
+    if (modalLoginAdmin) modalLoginAdmin.classList.remove('hidden');
+    if (claveAdminInput) {
+      claveAdminInput.value = '';
+      claveAdminInput.focus();
+    }
+  }
+
+  function ocultarModalLogin() {
+    if (modalLoginAdmin) modalLoginAdmin.classList.add('hidden');
+    if (loginErrorMsg) loginErrorMsg.classList.add('hidden');
+  }
+
+  if (formLoginAdmin) {
+    formLoginAdmin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginErrorMsg.classList.add('hidden');
+      const clave = (claveAdminInput.value || '').trim();
+      if (!clave) return;
+      try {
+        const res = await fetch('/api/consola/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clave })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          csrfTokenGlobal = data.csrfToken || '';
+          ocultarModalLogin();
+          cargarEstadoReal();
+          if (!window.__consolaTimer) {
+            window.__consolaTimer = setInterval(cargarEstadoReal, 15000);
+          }
+        } else {
+          loginErrorMsg.textContent = data.error === 'clave_incorrecta' ? 'Clave de administración incorrecta.' : 'Error de autenticación.';
+          loginErrorMsg.classList.remove('hidden');
+        }
+      } catch (err) {
+        loginErrorMsg.textContent = 'Error de red comunicando con el servidor.';
+        loginErrorMsg.classList.remove('hidden');
+      }
+    });
+  }
+
+  if (btnCerrarSesion) {
+    btnCerrarSesion.addEventListener('click', async () => {
+      try {
+        await fetch('/api/consola/logout', { method: 'POST' });
+      } catch (_) {}
+      csrfTokenGlobal = '';
+      if (window.__consolaTimer) {
+        clearInterval(window.__consolaTimer);
+        window.__consolaTimer = null;
+      }
+      mostrarModalLogin();
+    });
+  }
+
   async function cargarEstadoReal() {
     const t0 = performance.now();
     try {
       const res = await fetch('/api/consola/estado');
+      if (res.status === 401) {
+        mostrarModalLogin();
+        return;
+      }
       const data = await res.json();
+      if (data._csrf) csrfTokenGlobal = data._csrf;
       if (Array.isArray(data.pagos) && data.pagos.length > 0) {
         ultimoPagoEnRevision = data.pagos.find(p => p.status === 'revision') || data.pagos[0];
       }
@@ -981,9 +1062,49 @@
     } catch (_) {}
   }
 
-  cargarEstadoReal();
-  setInterval(cargarEstadoReal, 15000);
+  async function verificarSesionInicial() {
+    try {
+      const res = await fetch('/api/consola/session');
+      const data = await res.json();
+      if (data.autenticado) {
+        csrfTokenGlobal = data.csrfToken || '';
+        ocultarModalLogin();
+        cargarEstadoReal();
+        if (!window.__consolaTimer) {
+          window.__consolaTimer = setInterval(cargarEstadoReal, 15000);
+        }
+      } else {
+        mostrarModalLogin();
+      }
+    } catch (_) {
+      mostrarModalLogin();
+    }
+  }
+
+  verificarSesionInicial();
 })();
 </script>
+
+<!-- Modal de Autenticación de Administrador -->
+<div id="modalLoginAdmin" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md transition-opacity duration-200">
+  <div class="w-full max-w-md mx-4 p-6 rounded-2xl bg-[#121214] border border-[#d4af37]/40 shadow-2xl text-center">
+    <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37]">
+      <span class="material-symbols-outlined text-2xl" data-icon="admin_panel_settings">admin_panel_settings</span>
+    </div>
+    <h2 class="text-xl font-bold text-white mb-1 tracking-tight">Consola Musa · Centro de Mando</h2>
+    <p class="text-xs text-gray-400 mb-6">Ingresa la clave maestra de administración del servidor para desbloquear la telemetría y operaciones.</p>
+    <form id="formLoginAdmin" class="space-y-4">
+      <div class="text-left">
+        <label for="claveAdminInput" class="block text-xs font-medium text-gray-300 mb-1.5">Clave de Administrador</label>
+        <input type="password" id="claveAdminInput" required autocomplete="current-password" placeholder="••••••••••••" class="w-full px-4 py-2.5 rounded-lg bg-[#1a1a1e] border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] text-sm">
+      </div>
+      <div id="loginErrorMsg" class="hidden text-xs text-rose-400 bg-rose-950/40 border border-rose-500/30 p-2.5 rounded-lg text-left"></div>
+      <button type="submit" id="btnSubmitLogin" class="w-full py-2.5 px-4 rounded-lg bg-[#d4af37] hover:bg-[#c5a028] text-black font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2">
+        <span>Ingresar al Centro de Mando</span>
+        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+      </button>
+    </form>
+  </div>
+</div>
 
 </body></html>

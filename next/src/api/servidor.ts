@@ -19,6 +19,7 @@ import { createServer } from "node:http";
 import { readFileSync as leerArchivo, existsSync as existeRuta, statSync } from "node:fs";
 import { join as unirRuta, normalize as normalizar, extname } from "node:path";
 import { createReadStream } from "node:fs";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import type { Canal, MensajeEntrante } from "../../../functions/canal/tipos.ts";
 import type { Motor } from "../motor/contrato.ts";
@@ -98,6 +99,8 @@ export interface OpcionesServidor {
   consolaEstado?: () => Promise<unknown>;
   /** API de ejecución de comandos agénticos desde Consola Musa (/api/consola/comando). */
   consolaComando?: (comandoTexto: string) => Promise<unknown>;
+  /** Clave de administración para Consola Musa (/api/consola/*). */
+  adminSecret?: string;
 }
 
 export interface Servidor {
@@ -189,6 +192,39 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
   const limite = opts.limiteBytes ?? 25 * 1024 * 1024;
   const maxIds = opts.maxIdsRecordados ?? 5000;
   const host = opts.host ?? "127.0.0.1";
+  const adminSecret = (opts.adminSecret ?? process.env.MUSA_ADMIN_SECRET ?? "").trim() ||
+    (process.env.NODE_ENV !== "production" ? "musa_dev_admin_2026" : "");
+
+  function firmarSesionAdmin(timestamp: number, nonce: string): string {
+    return createHmac("sha256", adminSecret).update(`${timestamp}.${nonce}`).digest("hex");
+  }
+
+  function generarCsrfToken(timestamp: number, nonce: string): string {
+    return createHmac("sha256", adminSecret).update(`csrf.${timestamp}.${nonce}`).digest("hex");
+  }
+
+  function verificarSesionAdmin(req: IncomingMessage): { ok: boolean; csrfToken?: string; motivo?: string } {
+    if (!adminSecret) return { ok: false, motivo: "admin_secret_no_configurado" };
+    const cookies = String(req.headers.cookie ?? "");
+    const m = cookies.match(/(?:^|;\s*)musa_admin_session=([^;]+)/);
+    if (!m) return { ok: false, motivo: "sin_cookie_admin" };
+    const valor = decodeURIComponent(m[1]).trim();
+    const partes = valor.split(".");
+    if (partes.length !== 3) return { ok: false, motivo: "formato_sesion_invalido" };
+    const [tsStr, nonce, firmaRecibida] = partes;
+    const ts = Number(tsStr);
+    if (!Number.isFinite(ts)) return { ok: false, motivo: "timestamp_invalido" };
+    // Sesión válida por 8 horas
+    const ahora = Date.now();
+    if (ahora - ts > 8 * 3600 * 1000 || ts > ahora + 60000) {
+      return { ok: false, motivo: "sesion_expirada" };
+    }
+    const firmaEsperada = firmarSesionAdmin(ts, nonce);
+    if (firmaRecibida.length !== firmaEsperada.length) return { ok: false, motivo: "firma_invalida" };
+    const igual = timingSafeEqual(Buffer.from(firmaRecibida), Buffer.from(firmaEsperada));
+    if (!igual) return { ok: false, motivo: "firma_invalida" };
+    return { ok: true, csrfToken: generarCsrfToken(ts, nonce) };
+  }
 
   // Deduplicación en memoria. Sirve para el arranque y para un proceso único;
   // cuando haya más de una réplica, esto se muda a Redis con TTL (Fase 3.4).
@@ -299,13 +335,70 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       }
     }
 
-    // ---- API Consola Musa: GET /api/consola/estado & POST /api/consola/comando ----
+    // ---- API Consola Musa: Sesión, Estado & Comandos Protegidos ----
+    if (url === "/api/consola/session") {
+      if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
+      const s = verificarSesionAdmin(req);
+      return json(res, 200, { ok: true, autenticado: s.ok, csrfToken: s.csrfToken });
+    }
+
+    if (url === "/api/consola/login") {
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      if (!adminSecret) return json(res, 503, { ok: false, error: "admin_secret_no_configurado" });
+      const cuerpo = await leerCuerpo(req, 16 * 1024);
+      let payload: { clave?: string } = {};
+      try {
+        payload = cuerpo ? JSON.parse(cuerpo) : {};
+      } catch {
+        return json(res, 400, { ok: false, error: "json_invalido" });
+      }
+      const claveRecibida = String(payload.clave ?? "").trim();
+      if (!claveRecibida) return json(res, 400, { ok: false, error: "clave_requerida" });
+
+      const bufRecibida = Buffer.from(claveRecibida);
+      const bufEsperada = Buffer.from(adminSecret);
+      const coincide = bufRecibida.length === bufEsperada.length && timingSafeEqual(bufRecibida, bufEsperada);
+
+      if (!coincide) {
+        console.warn(`[consola-auth] Intento de acceso fallido desde IP ${req.socket.remoteAddress}`);
+        return json(res, 401, { ok: false, error: "clave_incorrecta" });
+      }
+
+      const ts = Date.now();
+      const nonce = randomBytes(16).toString("hex");
+      const firma = firmarSesionAdmin(ts, nonce);
+      const csrfToken = generarCsrfToken(ts, nonce);
+      const cookieValor = `${ts}.${nonce}.${firma}`;
+      const esHttps = (req.headers["x-forwarded-proto"] ?? "").toString().toLowerCase() === "https";
+      const flagsSeguridad = esHttps ? " Secure;" : "";
+
+      res.setHeader(
+        "Set-Cookie",
+        `musa_admin_session=${encodeURIComponent(cookieValor)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800;${flagsSeguridad}`,
+      );
+      console.log(`[consola-auth] Sesión iniciada con éxito desde IP ${req.socket.remoteAddress}`);
+      return json(res, 200, { ok: true, mensaje: "autenticado", csrfToken });
+    }
+
+    if (url === "/api/consola/logout") {
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      res.setHeader(
+        "Set-Cookie",
+        "musa_admin_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0;",
+      );
+      return json(res, 200, { ok: true, mensaje: "sesion_cerrada" });
+    }
+
     if (url === "/api/consola/estado" || url.startsWith("/api/consola/estado?")) {
       if (!opts.consolaEstado) return json(res, 404, { error: "no_encontrado" });
       if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
+      const sesion = verificarSesionAdmin(req);
+      if (!sesion.ok) {
+        return json(res, 401, { ok: false, error: "no_autorizado", motivo: sesion.motivo });
+      }
       try {
-        const datos = await opts.consolaEstado();
-        return json(res, 200, datos);
+        const datos = (await opts.consolaEstado()) as Record<string, unknown>;
+        return json(res, 200, { ...datos, _csrf: sesion.csrfToken });
       } catch (e) {
         return json(res, 500, { ok: false, error: String(e).slice(0, 150) });
       }
@@ -314,16 +407,31 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
     if (url === "/api/consola/comando") {
       if (!opts.consolaComando) return json(res, 404, { error: "no_encontrado" });
       if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      const sesion = verificarSesionAdmin(req);
+      if (!sesion.ok) {
+        return json(res, 401, { ok: false, error: "no_autorizado", motivo: sesion.motivo });
+      }
       const cuerpo = await leerCuerpo(req, 64 * 1024);
       if (cuerpo === null) return json(res, 413, { error: "cuerpo_demasiado_grande" });
-      let payload: { comando?: string } = {};
+      let payload: { comando?: string; _csrf?: string } = {};
       try {
         payload = cuerpo ? JSON.parse(cuerpo) : {};
       } catch {
         return json(res, 400, { ok: false, error: "json_invalido" });
       }
+
+      // Verificación CSRF
+      const csrfCabecera = String(req.headers["x-csrf-token"] ?? "");
+      const csrfRecibido = (csrfCabecera || payload._csrf || "").trim();
+      if (!csrfRecibido || csrfRecibido !== sesion.csrfToken) {
+        console.warn(`[consola-csrf] Intento de comando sin CSRF válido desde IP ${req.socket.remoteAddress}`);
+        return json(res, 403, { ok: false, error: "csrf_invalido" });
+      }
+
+      const cmd = String(payload.comando ?? "");
+      console.log(`[consola-audit] ${new Date().toISOString()} comando="${cmd}" ip="${req.socket.remoteAddress}"`);
       try {
-        const r = await opts.consolaComando(String(payload.comando ?? ""));
+        const r = await opts.consolaComando(cmd);
         return json(res, 200, r);
       } catch (e) {
         return json(res, 500, { ok: false, error: String(e).slice(0, 150) });
