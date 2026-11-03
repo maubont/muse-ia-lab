@@ -206,13 +206,14 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
 
     // ── LANDING ──────────────────────────────────────────────────────────────
     // Pública a propósito: es la página de venta. Se sirve desde el mismo servidor
-    // para no depender de un hosting extra.
+    // para no depender de un hosting extra. Ignora query strings (?ref=..., ?t=...).
     if (opts.landingHabilitada !== false && opts.landingDir && (req.method === "GET" || req.method === "HEAD")) {
-      const esRaiz = url === "/" || url === "";
-      const esPagina = /\.html?$/i.test(url) || esRaiz;
-      const esActivo = url.startsWith("/assets/");
+      const rutaSinQuery = url.split("?")[0].split("#")[0];
+      const esRaiz = rutaSinQuery === "/" || rutaSinQuery === "";
+      const esPagina = /\.html?$/i.test(rutaSinQuery) || esRaiz;
+      const esActivo = rutaSinQuery.startsWith("/assets/");
       if (esRaiz || esPagina || esActivo) {
-        const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : url);
+        const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : rutaSinQuery);
         if (archivo) {
           res.writeHead(200, {
             "Content-Type": archivo.tipo,

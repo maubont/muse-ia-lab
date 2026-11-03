@@ -29,6 +29,10 @@ const pedir = (ruta) => fetch(base + ruta, { redirect: "manual" });
 // --- páginas ---
 for (const [ruta, nombre] of [
   ["/", "portada"],
+  ["/?ref=musa-vip", "portada con ref"],
+  ["/?utm_campaign=meta_ads&fbclid=123", "portada con utm"],
+  ["/academia.html?t=tok_test", "academia con token"],
+  ["/consola.html?v=85", "consola con version"],
   ["/terminos.html", "términos"],
   ["/privacidad.html", "privacidad"],
   ["/reembolsos.html", "reembolsos"],
