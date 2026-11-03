@@ -259,7 +259,7 @@ async function entregarCurso(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> 
     bloque2.push(`${n}. ${ETIQUETAS_BONOS[k] ?? k}: ${url}`);
     n++;
   }
-  if (plan) bloque2.push(`🎁 *Regalo — Plan de Acción 7 Días:* ${plan}`);
+  if (plan) bloque2.push(`🎁 *Regalo — Guía Rápida de Implementación:* ${plan}`);
 
   const bienvenida = resolverPlaceholders(
     "¡Bienvenida oficialmente, {{nombre}}! 💜 Ya tienes acceso de por vida a todo. " +

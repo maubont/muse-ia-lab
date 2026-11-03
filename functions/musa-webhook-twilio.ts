@@ -1163,7 +1163,7 @@ async function entregarCurso(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> 
     bloque2.push(`${n}. ${ETIQUETAS_BONOS[k] ?? k}: ${url}`);
     n++;
   }
-  if (plan) bloque2.push(`🎁 *Regalo — Plan de Acción 7 Días:* ${plan}`);
+  if (plan) bloque2.push(`🎁 *Regalo — Guía Rápida de Implementación:* ${plan}`);
 
   const bienvenida = resolverPlaceholders(
     "¡Bienvenida oficialmente, {{nombre}}! 💜 Ya tienes acceso de por vida a todo. " +
@@ -1514,7 +1514,7 @@ function preguntaDeEtapa(estado: string): string {
 function mensajePrecioRapido(_lead: Lead, cfg: Cfg): string {
   const cop = formatMiles(Number(cfg.precio?.cop ?? 33000));
   const usd = Number(cfg.precio?.usd ?? 9);
-  return `El curso completo cuesta *${cop} COP* (≈ *${usd} USD*), pago único 💥 Incluye 13 módulos + 4 bonos + el bono Plan de Acción 7 Días, con acceso de por vida.`;
+  return `El curso completo cuesta *${cop} COP* (≈ *${usd} USD*), pago único 💥 Incluye 13 módulos prácticos + 4 bonos + la Guía Rápida de Implementación, con acceso de por vida.`;
 }
 
 /** CAMBIO 1 — S05 (precio con AMBAS monedas) + S06 cierre, listos para enviar */

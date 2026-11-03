@@ -55,7 +55,7 @@ t("los bonos se numeran aparte", (e.bloqueBonos.match(/^\d+\. /gm) ?? []).length
 t("bloque de módulos: empieza en 1", /^1\. /.test(e.bloqueModulos.split("\n")[1]), true);
 t("bloque de módulos: termina en 13", /^13\. /.test(e.bloqueModulos.trim().split("\n").at(-1)), true);
 t("bloque de bonos: etiquetas legibles", e.bloqueBonos.includes("Colección de Modelos"), true);
-t("bloque de bonos: incluye el plan", e.bloqueBonos.includes("Plan de Acción 7 Días"), true);
+t("bloque de bonos: incluye la guía rápida", e.bloqueBonos.includes("Guía Rápida de Implementación"), true);
 t("bienvenida: usa el nombre", e.bienvenida.includes("Carlos"), true);
 t("bienvenida: sin placeholders", e.bienvenida.includes("{{"), false);
 t("sin tokens internos", /\[[A-Z0-9_]{3,}/.test(e.bloqueModulos + e.bloqueBonos + e.bienvenida), false);

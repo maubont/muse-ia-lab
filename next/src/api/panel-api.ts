@@ -46,7 +46,7 @@ const PROMPTS_POR_MODULO: readonly string[] = [
   "Configura el mensaje de bienvenida de tu bot de Telegram con acceso al catálogo y respuesta automática 24/7.",
   "/imagine prompt: ultra high resolution skin texture upscale, cinematic color grading, Kodachrome 64 aesthetic --v 6.0",
   "5 ganchos visuales de 3 segundos para Reels y TikTok mostrando el detrás de cámaras de una modelo creada con IA.",
-  "Estructura semanal de publicación: 2 Reels diarios, 4 historias interactivas y seguimiento de conversiones en hoja de control.",
+  "Plantilla de publicación flexible: estructura de Reels e historias listas para copiar y adaptar a tu propio ritmo.",
   "Biografía optimizada para perfil de creadora virtual en Fanvue + mensaje automático de bienvenida para nuevos suscriptores.",
   "Motion prompt: subtle natural head turn, soft smile, gentle hair movement in breeze, 4k 60fps photorealistic.",
   "Flujo ManyChat: Cuando un usuario comente la palabra clave en un Reel, responder al comentario y enviar DM con el enlace.",
@@ -193,7 +193,7 @@ export async function obtenerCatalogoAcademia(
     soporteWa: "https://wa.me/573227462629?text=" + encodeURIComponent("Hola Musa, estoy dentro de Musa Academy y tengo una consulta"),
     planAccionUrl: autenticado && entrega.plan_accion_7dias
       ? resolverEnlace(entrega.plan_accion_7dias, token)
-      : "#plan-7-dias",
+      : "#guia-rapida",
     modulos,
     bonos,
   };

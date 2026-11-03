@@ -273,12 +273,12 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         4: "Totalmente 💪 El curso arranca desde CERO en el Módulo 1 y te lleva paso a paso hasta crear y monetizar tu primer modelo virtual, sin necesidad de experiencia previa.",
         5: "Sí 🌎 Todo el curso es 100 % online y tanto las herramientas de IA como las plataformas de monetización funcionan desde Colombia y cualquier país.",
         6: "Son *33.000 COP* (≈ *9 USD*) pago único 🙌 Puedes pagar por *Nequi, llave Bre-B o Bancolombia*. ¿Te paso los datos para hacerlo ahora?",
-        7: "Incluye *13 módulos paso a paso* (creación de modelos hiperrealistas, consistencia facial, video IA, TikTok/Instagram, Telegram, Fanvue, ManyChat y prompts) + *4 bonos exclusivos* + el *Plan de Acción 7 Días* por *33.000 COP* (≈ *9 USD*) pago único.",
+        7: "Incluye *13 módulos prácticos* (creación de modelos hiperrealistas, consistencia facial, video IA, TikTok/Instagram, Telegram, Fanvue, ManyChat y prompts) + *4 bonos exclusivos* + la *Guía Rápida de Implementación* por *33.000 COP* (≈ *9 USD*) pago único.",
         8: "Sí 😊 Crear y gestionar personajes ficticios generados con IA es completamente legal. El curso enseña a crear identidades 100 % originales.",
         9: "¡Por supuesto! 💜 Tú nunca muestras tu cara ni tu cuerpo: creas y diriges modelos virtuales con IA detrás de cámara.",
         10: "Te garantizamos la entrega inmediata y verificable de los 13 módulos + 4 bonos en tu área privada apenas envíes tu comprobante, con soporte directo por este mismo WhatsApp 📲",
         11: "Lo hicimos accesible a propósito (*33.000 COP* / *9 USD* pago único) para que cualquier persona en Colombia pueda empezar sin barreras.",
-        12: "¡Claro, tómate tu tiempo! 😊 Recuerda que en tus primeras 24 horas tienes incluido de regalo el *Plan de Acción 7 Días*. Cuando quieras continuar, escríbeme *quiero pagar* 💜",
+        12: "¡Claro, tómate tu tiempo! 😊 Recuerda que en tus primeras 24 horas tienes incluida de regalo la *Guía Rápida de Implementación*. Cuando quieras continuar, escríbeme *quiero pagar* 💜",
         13: "Sí 😄 Soy Musa, la asistente virtual de Modelos IA. Y automatizar la atención así con IA es justamente una de las habilidades que aprenderás dentro del curso 😉",
       };
       const base = respuestas[args.id] ?? respuestas[7];

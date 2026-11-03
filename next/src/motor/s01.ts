@@ -36,7 +36,7 @@ export interface EntradaLeadNuevo {
 export function mensajePrecioRapido(cfg: CfgCopy): string {
   const cop = formatMiles(Number(cfg.precio?.cop ?? 33000));
   const usd = Number(cfg.precio?.usd ?? 9);
-  return `El curso completo cuesta *${cop} COP* (≈ *${usd} USD*), pago único 💥 Incluye 13 módulos + 4 bonos + el bono Plan de Acción 7 Días, con acceso de por vida.`;
+  return `El curso completo cuesta *${cop} COP* (≈ *${usd} USD*), pago único 💥 Incluye 13 módulos prácticos + 4 bonos + la Guía Rápida de Implementación, con acceso de por vida.`;
 }
 
 /** Stack S04 + pregunta 18+, listos para enviar tras el saludo. */

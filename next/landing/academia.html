@@ -1,810 +1,1114 @@
 <!DOCTYPE html>
 <html class="dark" lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="robots" content="noindex,nofollow"/>
-  <title>Musa Academy — Dashboard | Modelos IA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root {
-      --bg-pure: #050508;
-      --bg-sidebar: #09090e;
-      --bg-card: #12121a;
-      --pink-accent: #ec4899;
-      --violet-accent: #a855f7;
-    }
-    body {
-      background-color: var(--bg-pure);
-      color: #f4f4f6;
-      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-      overflow-x: hidden;
-    }
-    .brand-script {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-style: italic;
-      background: linear-gradient(90deg, #f472b6, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      vertical-align: middle;
-    }
-    /* Custom thin scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #07070b; }
-    ::-webkit-scrollbar-thumb { background: #262636; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #ec4899; }
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Musa Atelier IA — Estudio Creativo & Biblioteca Práctica</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg-canvas: #15121F;
+    --bg-elevated: #1E1A2D;
+    --bg-card: #252038;
+    --bg-card-hover: #2E2846;
+    --accent-champagne: #F0C98A;
+    --accent-champagne-light: #FBE7BF;
+    --accent-rose: #F472B6;
+    --accent-blush: #FDA4AF;
+    --accent-lavender: #C084FC;
+    --accent-mint: #6EE7B7;
+    --text-primary: #FAF7F5;
+    --text-secondary: #D0C9E0;
+    --text-muted: #968EB0;
+  }
 
-    /* Poster Card 3:4 Portrait Style like HyperModels */
-    .poster-card {
-      position: relative;
-      aspect-ratio: 3 / 4.15;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: #12121c;
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
-      cursor: pointer;
-    }
-    .poster-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(236, 72, 153, 0.55);
-      box-shadow: 0 18px 40px -12px rgba(236, 72, 153, 0.28);
-    }
-    .poster-card .poster-bg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease, filter 0.35s ease;
-    }
-    .poster-card:hover .poster-bg {
-      transform: scale(1.04);
-    }
-    .poster-card.soft-locked .poster-bg {
-      filter: blur(14px) brightness(0.65) saturate(1.2);
-      transform: scale(1.08);
-    }
-    .poster-card.soft-locked:hover .poster-bg {
-      filter: blur(6px) brightness(0.8) saturate(1.2);
-    }
-    .poster-gradient {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(8,8,14,0.15) 0%, rgba(8,8,14,0.35) 45%, rgba(6,6,12,0.95) 100%);
-    }
-    .completed-ribbon {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 12px 16px;
-      background: linear-gradient(90deg, rgba(236, 72, 153, 0.92), rgba(168, 85, 247, 0.88));
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 15px;
-      color: #fff;
-      z-index: 10;
-    }
-    .progress-ring-badge {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      width: 54px;
-      height: 54px;
-      border-radius: 9999px;
-      background: rgba(12, 12, 20, 0.65);
-      backdrop-filter: blur(8px);
-      border: 3px solid rgba(255, 255, 255, 0.22);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      color: #fff;
-      z-index: 10;
-    }
-    .module-pill {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      background: #ec4899;
-      color: #ffffff;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      margin-bottom: 8px;
-    }
-    .bonus-pill {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, #f59e0b, #ec4899);
-      color: #ffffff;
-      font-size: 11.5px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-  </style>
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-canvas);
+    background-image:
+      radial-gradient(950px 520px at 15% -5%, rgba(244, 114, 182, 0.16), transparent 70%),
+      radial-gradient(850px 480px at 88% 4%, rgba(240, 201, 138, 0.15), transparent 70%),
+      radial-gradient(900px 600px at 50% 100%, rgba(192, 132, 252, 0.12), transparent 70%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  .font-serif-editorial {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .font-mono-code {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .text-gradient-atelier {
+    background: linear-gradient(95deg, #FBE7BF 0%, #FDA4AF 52%, #C084FC 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .btn-atelier-primary {
+    background: linear-gradient(135deg, #F472B6 0%, #C084FC 55%, #F0C98A 100%);
+    background-size: 160% 160%;
+    color: #15121F;
+    font-weight: 800;
+    box-shadow: 0 10px 28px -8px rgba(244, 114, 182, 0.45);
+    transition: all 0.25s ease;
+  }
+  .btn-atelier-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 34px -6px rgba(240, 201, 138, 0.5);
+    filter: brightness(1.05);
+  }
+
+  /* Lookbook Card (16:10 Sharp Editorial Split Card — Zero Blur, Zero 0% Guilt) */
+  .lookbook-card {
+    background: linear-gradient(180deg, rgba(42, 36, 64, 0.92) 0%, rgba(33, 28, 50, 0.96) 100%);
+    border: 1px solid rgba(255, 248, 240, 0.10);
+    border-radius: 22px;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+    box-shadow: 0 14px 34px -12px rgba(9, 7, 16, 0.55);
+  }
+  .lookbook-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(240, 201, 138, 0.42);
+    box-shadow: 0 22px 44px -12px rgba(244, 114, 182, 0.22), 0 0 0 1px rgba(240, 201, 138, 0.20);
+  }
+  .lookbook-card .card-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #1B1729;
+  }
+  .lookbook-card .card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+  }
+  .lookbook-card:hover .card-media img {
+    transform: scale(1.05);
+  }
+  .lookbook-card .card-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(21,18,31,0.10) 0%, rgba(21,18,31,0.0) 45%, rgba(33,28,50,0.88) 100%);
+    pointer-events: none;
+  }
+
+  /* Custom subtle scrollbars */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #15121F; }
+  ::-webkit-scrollbar-thumb { background: #352E4F; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #F0C98A; }
+</style>
 </head>
-<body class="min-h-screen flex bg-[#050508] text-white selection:bg-pink-500 selection:text-white">
+<body class="min-h-screen flex flex-col selection:bg-pink-400/30 selection:text-amber-100">
 
-  <!-- ==================== BARRA LATERAL FIJA (ESTILO HYPERMODELS) ==================== -->
-  <aside class="w-[275px] shrink-0 bg-[#08080c] border-r border-white/10 fixed top-0 bottom-0 left-0 z-40 flex flex-col justify-between p-4 select-none">
-    <div class="flex flex-col min-h-0 flex-1">
-      <!-- Logo Superior -->
-      <div class="flex items-center justify-between px-2 pt-1 pb-5">
-        <a href="#catalogo" onclick="mostrarCatalogo(); return false;" class="flex items-baseline gap-1 text-2xl font-extrabold tracking-tight">
-          <span>Musa</span>
-          <span class="brand-script text-[26px] pr-1">Models</span>
-          <span class="text-[10px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-white/10 text-pink-300 ml-1">IA</span>
-        </a>
-      </div>
+<!-- ==================== TOP GLASS ATELIER BAR (ZERO SIDEBAR CLONE) ==================== -->
+<header class="sticky top-0 z-40 backdrop-blur-2xl bg-[#1A1628]/85 border-b border-white/[0.09]">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
 
-      <!-- Botón Home / Volver al inicio -->
-      <button id="btnSidebarHome" onclick="mostrarCatalogo()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-colors mb-4">
-        <span class="material-symbols-outlined text-[20px]">home</span>
-        <span id="labelSidebarHome">Home</span>
+    <!-- Brand Identity: MUSA · ATELIER IA -->
+    <div class="flex items-center gap-3">
+      <a href="#atelier" onclick="volverAlCurso(); cambiarModoAtelier('estudio'); return false;" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F472B6] via-[#C084FC] to-[#F0C98A] p-[1px] shadow-lg shadow-pink-500/15">
+          <div class="w-full h-full rounded-[11px] bg-[#181425] flex items-center justify-center">
+            <span class="font-serif-editorial italic font-bold text-lg text-gradient-atelier">M</span>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="font-serif-editorial font-bold text-lg sm:text-xl tracking-wide text-[#FAF7F5]">MUSA</span>
+            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] px-2 py-0.5 rounded-md bg-[#F0C98A]/15 text-[#F0C98A] border border-[#F0C98A]/30">Atelier IA</span>
+          </div>
+          <span class="text-[11px] text-[#968EB0] hidden sm:inline">Estudio Práctico · Sin horarios ni carga escolar</span>
+        </div>
+      </a>
+
+      <span id="badgeModoAcceso" class="hidden xl:inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full bg-emerald-500/12 border border-emerald-400/30 text-emerald-300 ml-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        Acceso Vitalicio Activo
+      </span>
+    </div>
+
+    <!-- Center Workspace Mode Switcher (3 Instant Views) -->
+    <nav class="flex items-center p-1 rounded-2xl bg-[#13101C]/90 border border-white/[0.08] shadow-inner">
+      <button id="tabBtn-estudio" onclick="volverAlCurso(); cambiarModoAtelier('estudio')" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-[#F472B6]/25 via-[#C084FC]/25 to-[#F0C98A]/25 text-[#FAF7F5] border border-[#F0C98A]/35 shadow-sm flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[17px] text-[#F0C98A]">auto_awesome_mosaic</span>
+        <span>Cápsulas & Estudio</span>
+      </button>
+      <button id="tabBtn-prompts" onclick="volverAlCurso(); cambiarModoAtelier('prompts')" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#D0C9E0] hover:text-white transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[17px] text-[#F472B6]">terminal</span>
+        <span>Bóveda de Prompts</span>
+      </button>
+      <button id="tabBtn-bonos" onclick="volverAlCurso(); cambiarModoAtelier('bonos')" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#D0C9E0] hover:text-white transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[17px] text-[#F0C98A]">workspace_premium</span>
+        <span>Packs & Bonos VIP</span>
+      </button>
+    </nav>
+
+    <!-- Right Utilities: Afiliados 50%, Concierge WhatsApp, Consola & Alumno -->
+    <div class="flex items-center gap-2">
+      <button onclick="copiarEnlaceAfiliado()" title="Comparte tu enlace y recibe 50% por cada venta" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F0C98A]/10 hover:bg-[#F0C98A]/20 border border-[#F0C98A]/30 text-[#FBE7BF] text-xs font-bold transition-all">
+        <span class="material-symbols-outlined text-[16px] text-[#F0C98A]">redeem</span>
+        <span id="affLinkLabel">Socio 50%</span>
       </button>
 
-      <!-- 3 TARJETAS FIJAS DE COMUNIDAD, SOPORTE Y AFILIADOS -->
-      <div class="space-y-2.5 mb-4">
-        <!-- Tarjeta 1: Plan 7 Días & Comunidad -->
-        <a id="cardPlanSidebar" href="/academia.html#bonos" onclick="irABonos(); return false;" class="block p-3 rounded-xl bg-[#0c192c] border border-sky-500/30 hover:border-sky-400/60 transition-colors">
-          <div class="flex items-center gap-2 text-sky-400 font-bold text-xs mb-1">
-            <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
-            <span>Plan de Acción 7 Días & Bonos</span>
-          </div>
-          <p class="text-[11.5px] text-sky-100/80 leading-snug">
-            Accede a las 22 clases del Megapack Master IA y tu hoja de ruta diaria.
-          </p>
-        </a>
-
-        <!-- Tarjeta 2: Soporte Directo WhatsApp (En todas las pantallas) -->
-        <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Academy%20y%20tengo%20una%20duda" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-xl bg-[#380921] border border-pink-500/30 hover:border-pink-400/60 transition-colors">
-          <div class="flex items-center gap-2 text-pink-300 font-bold text-xs mb-1">
-            <span class="material-symbols-outlined text-[16px]">chat</span>
-            <span>¿Preguntas, dudas?</span>
-          </div>
-          <p class="text-[11.5px] text-pink-100/85 leading-snug mb-1.5">
-            Estamos aquí para ayudarte a sacar el máximo partido a Modelos IA.
-          </p>
-          <span class="text-[11.5px] font-bold text-white underline decoration-pink-400">Escríbenos por WhatsApp →</span>
-        </a>
-
-        <!-- Tarjeta 3: Programa de Afiliados 50% -->
-        <div onclick="copiarEnlaceAfiliado()" class="cursor-pointer p-3 rounded-xl bg-[#072617] border border-emerald-500/30 hover:border-emerald-400/60 transition-colors">
-          <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs mb-1">
-            <span class="material-symbols-outlined text-[16px]">payments</span>
-            <span>Gana recomendando Modelos IA</span>
-          </div>
-          <p class="text-[11.5px] text-emerald-100/80 leading-snug mb-1.5">
-            Nos repartimos el beneficio de cada venta al 50%. Consigue tu enlace.
-          </p>
-          <span id="affLinkLabel" class="text-[11.5px] font-bold text-emerald-300 flex items-center gap-1">
-            Copiar mi enlace →
-          </span>
-        </div>
-      </div>
-
-      <!-- Lista de Módulos navegable -->
-      <div class="text-xs font-bold uppercase tracking-wider text-zinc-400 px-2 mb-2 flex items-center justify-between">
-        <span>Módulos (13)</span>
-        <span id="sidebarProgressCount" class="text-pink-400 font-mono text-[11px]">2/13</span>
-      </div>
-      <div id="sidebarModuleList" class="flex-1 overflow-y-auto space-y-0.5 pr-1 text-xs">
-        <!-- Se llena dinámicamente desde /api/academia/catalogo -->
-      </div>
-    </div>
-
-    <!-- Pie de Sidebar: Perfil del Alumno & Consola -->
-    <div class="pt-3 mt-2 border-t border-white/10 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white shrink-0" id="avatarInitials">
-          M
-        </div>
-        <div class="min-w-0">
-          <p id="studentNameSidebar" class="text-xs font-bold text-white truncate">Mauricio Bonilla</p>
-          <p id="studentStatusSidebar" class="text-[10.5px] text-zinc-400 truncate">museialab@gmail.com</p>
-        </div>
-      </div>
-      <a href="/consola.html" title="Abrir Consola Agéntica Musa" class="p-1.5 rounded-lg bg-white/5 hover:bg-pink-500/20 text-zinc-400 hover:text-pink-300 transition-colors shrink-0">
-        <span class="material-symbols-outlined text-[18px]">terminal</span>
+      <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Atelier%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-pink-500/15 border border-white/10 hover:border-pink-400/40 text-[#FAF7F5] text-xs font-semibold transition-all">
+        <span class="material-symbols-outlined text-[16px] text-[#F472B6]">support_agent</span>
+        <span class="hidden md:inline">Concierge WhatsApp</span>
       </a>
+
+      <a href="/consola.html" title="Abrir Consola Agéntica" class="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 text-[#D0C9E0] hover:text-[#F0C98A] transition-colors">
+        <span class="material-symbols-outlined text-[18px]">monitoring</span>
+      </a>
+
+      <div class="pl-2 border-l border-white/10 flex items-center gap-2">
+        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#F472B6] to-[#F0C98A] flex items-center justify-center font-extrabold text-xs text-[#15121F] shadow">MB</div>
+        <div class="hidden xl:flex flex-col">
+          <span id="studentNameSidebar" class="text-xs font-bold text-[#FAF7F5] leading-tight max-w-[130px] truncate">Mauricio Bonilla</span>
+          <span id="studentRankSidebar" class="text-[10px] text-[#F0C98A] font-medium">Miembro Vitalicio</span>
+        </div>
+      </div>
     </div>
-  </aside>
 
-  <!-- ==================== CONTENIDO PRINCIPAL (DERECHA) ==================== -->
-  <div class="ml-[275px] flex-1 min-h-screen flex flex-col">
+  </div>
+</header>
 
-    <!-- ==================== VISTA 1: CATÁLOGO DE MÓDULOS (DASHBOARD HYPERMODELS) ==================== -->
-    <main id="vistaCatalogo" class="flex-1 px-6 lg:px-12 py-7 max-w-[1440px] w-full mx-auto space-y-8">
+<!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+<main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-6 sm:py-9">
 
-      <!-- Banners Superiores Descartables -->
-      <div class="space-y-3" id="bannersContainer">
-        <!-- Banner Rosa: Presentación / Plan de Acción 7 Días -->
-        <div id="bannerRosa" class="rounded-2xl bg-gradient-to-r from-[#ff007a] via-[#e6006e] to-[#b80058] px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-pink-600/20">
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-white text-[22px]">calendar_month</span>
-            <p class="text-xs sm:text-sm text-white font-medium">
-              <strong class="font-extrabold uppercase">HOJA DE RUTA DE 7 DÍAS:</strong> Cómo crear, publicar en serie y monetizar tu primera modelo IA desde cero esta misma semana.
-            </p>
+  <!-- ==================== VISTA 1: CATÁLOGO DEL ATELIER ==================== -->
+  <div id="vistaCurso" class="space-y-9">
+
+    <!-- HERO SPOTLIGHT DEL ATELIER (REEMPLAZA LOS BANNERS DE 7 DÍAS) -->
+    <section class="relative rounded-3xl overflow-hidden border border-[#F0C98A]/25 bg-gradient-to-br from-[#26203A] via-[#211C32] to-[#1A1628] p-6 sm:p-8 lg:p-10 shadow-2xl">
+      <div class="absolute -top-28 -right-24 w-96 h-96 rounded-full bg-[#F472B6]/15 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-28 left-1/3 w-96 h-96 rounded-full bg-[#F0C98A]/10 blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
+        <!-- Columna Izquierda: Mensaje Sin Fricción + Acciones Rápidas -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F0C98A]/12 border border-[#F0C98A]/30 text-[#FBE7BF] text-xs font-bold tracking-wide">
+            <span class="material-symbols-outlined text-[15px] text-[#F0C98A]">bolt</span>
+            <span>CERO CARGA DE ESTUDIO · COPIAR, PEGAR Y CREAR A TU RITMO</span>
           </div>
-          <div class="flex items-center gap-3">
-            <button onclick="seleccionarModulo(0, true)" class="px-4 py-1.5 rounded-full bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors">
-              Empezar Módulo 1
+
+          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#FAF7F5] leading-[1.15]">
+            Tu <span class="font-serif-editorial italic font-normal text-gradient-atelier">Atelier de Modelos IA</span> está abierto
+          </h1>
+
+          <p class="text-sm sm:text-base text-[#D0C9E0] max-w-2xl leading-relaxed">
+            Olvídate de horarios rígidos o retos agotadores. Todas las cápsulas, prompts verificados y packs están <strong class="text-[#FAF7F5] font-semibold">100% desbloqueados desde hoy</strong>: entra directo a lo que quieras construir o copia el comando listo en un clic.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button onclick="continuarUltimaCapsula()" class="btn-atelier-primary px-6 py-3 rounded-2xl text-sm flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">play_circle</span>
+              <span id="labelHeroResume">Abrir Cápsula 1 en el Estudio</span>
             </button>
-            <button onclick="document.getElementById('bannerRosa').remove()" class="text-white/80 hover:text-white">
-              <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- Banner Azul: Soporte y Estado de Acceso -->
-        <div id="bannerAzul" class="rounded-2xl bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] px-5 py-3 flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-sky-600/15">
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-white text-[20px]">verified</span>
-            <p id="bannerAccesoTexto" class="text-xs sm:text-sm text-white font-medium">
-              <strong>IMPORTANTE:</strong> Todos los 13 módulos y los 4 bonos (incluyendo las 22 clases del Megapack Master IA) están disponibles en tu cuenta.
-            </p>
-          </div>
-          <div class="flex items-center gap-3">
-            <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20necesito%20mi%20enlace%20personal%20de%20acceso" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 rounded-full bg-white text-slate-950 font-bold text-xs hover:bg-zinc-100 transition-colors">
-              Soporte WhatsApp
+            <button onclick="cambiarModoAtelier('prompts')" class="px-5 py-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.11] border border-white/15 text-[#FAF7F5] font-semibold text-sm flex items-center gap-2 transition-all">
+              <span class="material-symbols-outlined text-[18px] text-[#F0C98A]">content_copy</span>
+              <span>Explorar Bóveda de Prompts (13)</span>
+            </button>
+
+            <a id="btnHeroGuiaRapida" href="#bonos" onclick="abrirGuiaRapida(); return false;" class="px-4 py-3 rounded-2xl bg-[#F472B6]/10 hover:bg-[#F472B6]/20 border border-[#F472B6]/30 text-[#FDA4AF] font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined text-[18px]">description</span>
+              <span>Guía Rápida (PDF)</span>
             </a>
-            <button onclick="document.getElementById('bannerAzul').remove()" class="text-white/80 hover:text-white">
-              <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Logo Central del Catálogo -->
-      <div class="pt-2 text-center">
-        <div class="inline-flex items-baseline gap-1.5 text-3xl font-extrabold tracking-tight">
-          <span>Musa</span>
-          <span class="brand-script text-4xl pr-1">Models</span>
-        </div>
-      </div>
-
-      <!-- SECCIÓN 1: PRESENTACIÓN (MÓDULOS 1 Y 2) -->
-      <section class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-2xl font-extrabold tracking-tight text-white">Presentación</h2>
-          <span id="badgeModoAcceso" class="text-xs font-semibold px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300">
-            Cargando catálogo...
-          </span>
-        </div>
-        <div id="gridPresentacion" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Módulos 1 y 2 se renderizan aquí -->
-        </div>
-      </section>
-
-      <!-- SECCIÓN 2: EL MÉTODO MODELOS IA (MÓDULOS 3 AL 13) -->
-      <section class="space-y-4 pt-4">
-        <h2 class="text-2xl font-extrabold tracking-tight text-white">Modelos IA — El Recorrido Completo</h2>
-        <div id="gridMetodo" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Módulos 3 al 13 se renderizan aquí -->
-        </div>
-      </section>
-
-      <!-- SECCIÓN 3: BONOS EXCLUSIVOS & MEGAPACKS (4 BONOS + PLAN 7 DÍAS) -->
-      <section id="seccionBonos" class="space-y-4 pt-6 border-t border-white/10">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-2xl font-extrabold tracking-tight text-white">Bonus & Herramientas VIP</h2>
-            <p class="text-sm text-zinc-400">Incluidos en tu acceso: haz clic en cualquier bono para ver sus videos o descargar sus archivos</p>
-          </div>
-          <span class="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
-            ★ 4 Bonos Desbloqueados
-          </span>
-        </div>
-        <div id="gridBonos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <!-- Bonos se renderizan aquí -->
-        </div>
-      </section>
-    </main>
-
-    <!-- ==================== VISTA 2: AULA DE LECCIÓN ENFOCADA (ESTILO HYPERMODELS LESSON VIEW) ==================== -->
-    <section id="vistaLeccion" style="display: none;" class="flex-1 flex-col">
-      <!-- Barra Superior de Navegación de Lección -->
-      <header class="h-14 px-6 border-b border-white/10 bg-[#08080c] flex items-center justify-between gap-4 sticky top-0 z-30">
-        <div class="flex items-center gap-2 text-sm">
-          <button onclick="mostrarCatalogo()" class="text-zinc-400 hover:text-white transition-colors font-medium">Módulos</button>
-          <span class="text-zinc-600">/</span>
-          <span id="lessonBreadcrumbTitle" class="text-white font-semibold truncate max-w-[360px]">Módulo 1: Bienvenida y estrategia</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <button onclick="navegarModulo(-1)" class="text-xs sm:text-sm text-zinc-400 hover:text-white flex items-center gap-1 transition-colors">
-            <span class="material-symbols-outlined text-[16px]">chevron_left</span>
-            <span>Anterior</span>
-          </button>
-          <button onclick="navegarModulo(1)" class="text-xs sm:text-sm text-white font-semibold hover:text-pink-400 flex items-center gap-1 transition-colors">
-            <span>Finalizar</span>
-            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-          </button>
-          <button id="btnTopCompletado" onclick="marcarLeccionCompletada()" class="px-3.5 py-1.5 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-pink-600/25 transition-all">
-            <span class="material-symbols-outlined text-[16px]">check_circle</span>
-            <span id="labelTopCompletado">Completado</span>
-          </button>
-        </div>
-      </header>
-
-      <!-- Cuerpo Dividido: Reproductor Grande (Izquierda) + Riel de Lecciones (Derecha) -->
-      <div class="flex-1 grid grid-cols-1 xl:grid-cols-12 min-h-[calc(100vh-3.5rem)]">
-        <!-- Columna Central del Video / Documento (8 cols) -->
-        <div class="xl:col-span-8 p-6 lg:p-10 flex flex-col justify-between border-b xl:border-b-0 xl:border-r border-white/10">
-          <div class="space-y-5">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <span id="lessonActiveTag" class="text-xs font-bold uppercase tracking-wider text-pink-400">MÓDULO 1 • LECCIÓN 1</span>
-                <h1 id="lessonMainHeading" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Empieza aquí: introducción</h1>
+        <!-- Columna Derecha: Instant Prompt Studio Widget ("Valor en 5 segundos") -->
+        <div class="lg:col-span-5">
+          <div class="rounded-2xl bg-[#161322]/90 border border-[#F0C98A]/25 p-5 shadow-xl space-y-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#6EE7B7]"></span>
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#F0C98A]">Prompt Listo para Probar Hoy</span>
               </div>
-              <span id="lessonOutcomeBadge" class="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300">
-                Entiende el mercado y lo que vas a construir
-              </span>
-            </div>
-
-            <!-- Contenedor 16:9 de Video Real HTML5 o Visor de Recurso PDF/ZIP -->
-            <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl flex items-center justify-center">
-              <video id="realVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="/assets/demo.jpg">
-                <source id="realVideoSource" src="/assets/demo.mp4" type="video/mp4"/>
-                Tu navegador no soporta reproducción de video HTML5.
-              </video>
-
-              <!-- Overlay cuando la lección seleccionada es un PDF o Paquete ZIP -->
-              <div id="nonVideoOverlay" style="display: none;" class="absolute inset-0 bg-[#0b0b12] flex-col items-center justify-center p-8 text-center space-y-4">
-                <div class="w-16 h-16 rounded-2xl bg-pink-500/15 border border-pink-500/40 flex items-center justify-center text-pink-400">
-                  <span id="nonVideoIcon" class="material-symbols-outlined text-[36px]">description</span>
-                </div>
-                <div class="max-w-md space-y-1">
-                  <h3 id="nonVideoTitle" class="text-xl font-bold text-white">Guía Descargable del Módulo</h3>
-                  <p id="nonVideoDesc" class="text-sm text-zinc-400">Este recurso es un archivo descargable (PDF / Paquete) listo para abrir.</p>
-                </div>
-                <a id="nonVideoDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-pink-600/30 transition-all">
-                  <span class="material-symbols-outlined text-[18px]">download</span>
-                  <span>Abrir / Descargar Recurso</span>
-                </a>
-              </div>
-            </div>
-
-            <!-- Tarjeta de Prompt Base Copiable en 1 Clic -->
-            <div class="p-4 rounded-2xl bg-[#0e0e16] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="space-y-1 min-w-0">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
-                  Prompt de Laboratorio de este Módulo
-                </span>
-                <p id="lessonPromptText" class="text-xs font-mono text-zinc-300 truncate">/imagine prompt: editorial lifestyle portrait, instagram aesthetic, golden hour lighting, 35mm lens --v 6.0</p>
-              </div>
-              <button onclick="copiarPromptActivo()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-pink-500 text-white text-xs font-bold shrink-0 flex items-center gap-1.5 transition-colors">
-                <span class="material-symbols-outlined text-[15px]">content_copy</span>
-                <span id="btnCopyPromptLabel">Copiar Prompt</span>
+              <button onclick="rotarPromptDestacado()" class="text-xs font-semibold text-[#D0C9E0] hover:text-[#F0C98A] flex items-center gap-1 transition-colors">
+                <span class="material-symbols-outlined text-[15px]">refresh</span>
+                <span>Otro prompt</span>
               </button>
             </div>
-          </div>
 
-          <!-- Pie del Reproductor: Botón Completar → (Idéntico a HyperModels) -->
-          <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between">
-            <button onclick="mostrarCatalogo()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition-colors">
-              <span class="material-symbols-outlined text-[16px]">grid_view</span>
-              <span>Volver al Catálogo</span>
-            </button>
-            <button onclick="marcarLeccionCompletada()" class="px-6 py-3 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-pink-600/30 transition-all active:scale-95">
-              <span>Completar</span>
-              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </button>
-          </div>
-        </div>
+            <p id="heroPromptTitulo" class="text-xs font-bold text-[#FDA4AF]">Cápsula 03 · Retrato Hiperrealista de Estudio</p>
 
-        <!-- Riel Derecho: Lista de Lecciones del Módulo (4 cols) -->
-        <div class="xl:col-span-4 p-6 bg-[#07070b] flex flex-col justify-between">
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-bold text-zinc-300">Lecciones del Módulo</h3>
-              <span id="railLessonCounter" class="text-xs font-mono text-zinc-400">1 / 3</span>
+            <div class="p-3.5 rounded-xl bg-[#100D19] border border-white/[0.07] font-mono-code text-xs text-[#FBE7BF] leading-relaxed select-all" id="heroPromptTexto">
+              /imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0
             </div>
-            <div id="railLessonList" class="space-y-2.5">
-              <!-- Sub-lecciones del módulo activo -->
-            </div>
-          </div>
 
-          <!-- Nota de Acceso Personal -->
-          <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 mt-6">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-zinc-400 font-medium">Progreso Total del Curso</span>
-              <span id="railTotalPct" class="text-pink-400 font-bold">15%</span>
-            </div>
-            <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-              <div id="railTotalBar" class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-300" style="width: 15%"></div>
+            <div class="flex items-center justify-between gap-2 pt-1">
+              <span class="text-[11px] text-[#968EB0]">Pégalo en SeaArt, Leonardo o Midjourney</span>
+              <button id="btnCopyHeroPrompt" onclick="copiarPromptHero()" class="px-3.5 py-2 rounded-xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs flex items-center gap-1.5 transition-all shadow">
+                <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                <span>Copiar Prompt</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ==================== SUB-MODO 1A: CÁPSULAS & ESTUDIO ==================== -->
+    <div id="panelModo-estudio" class="space-y-7">
+
+      <!-- Barra de Estaciones Creativas (Filtros sin recarga + Buscador) -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-white/[0.08]">
+        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+          <button onclick="filtrarEstacion('todas')" id="filtroEst-todas" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#F0C98A] text-[#15121F] shadow transition-all whitespace-nowrap">
+            ✦ Todo el Estudio (13)
+          </button>
+          <button onclick="filtrarEstacion('identidad')" id="filtroEst-identidad" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+            01 · Identidad & Rostro IA
+          </button>
+          <button onclick="filtrarEstacion('produccion')" id="filtroEst-produccion" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+            02 · Consistencia & Video Realista
+          </button>
+          <button onclick="filtrarEstacion('viralidad')" id="filtroEst-viralidad" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+            03 · Tracción Viral & Bots
+          </button>
+          <button onclick="filtrarEstacion('monetizacion')" id="filtroEst-monetizacion" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+            04 · Monetización & Fanvue
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="relative flex-1 sm:w-64">
+            <span class="material-symbols-outlined text-[18px] text-[#968EB0] absolute left-3 top-1/2 -translate-y-1/2">search</span>
+            <input id="inputBuscarCapsula" oninput="renderizarCatalogo()" type="search" placeholder="Buscar herramienta, tema o prompt..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-[#1E1A2D] border border-white/10 text-xs text-[#FAF7F5] placeholder-[#968EB0] focus:outline-none focus:border-[#F0C98A]/50"/>
+          </div>
+          <span id="contadorExplorado" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#D0C9E0] bg-[#1E1A2D] px-3 py-2 rounded-xl border border-white/[0.07]">
+            <span class="material-symbols-outlined text-[15px] text-[#6EE7B7]">check_circle</span>
+            <span id="progresoTexto">2 exploradas</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Grid Lookbook de las 13 Cápsulas (16:10 Nítidas, Cero Blur, Cero 0%) -->
+      <div id="gridCapsulasAtelier" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Inyectado dinámicamente -->
+      </div>
+
+      <!-- Acceso Rápido a la Bóveda VIP al pie del Estudio -->
+      <div class="pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#F0C98A]">★ Vault VIP Incluido en tu Acceso</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#FAF7F5] mt-0.5">Packs de Producción & Bonos Especiales</h2>
+          <p class="text-xs sm:text-sm text-[#D0C9E0]">Catálogo de modelos listas, pack de audios, automatización de YouTube y 22 sesiones del Megapack Master IA.</p>
+        </div>
+        <button onclick="cambiarModoAtelier('bonos')" class="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-[#F0C98A]/15 hover:bg-[#F0C98A]/25 border border-[#F0C98A]/35 text-[#FBE7BF] text-xs font-bold flex items-center gap-1.5 transition-all">
+          <span>Ver Bóveda Completa</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </div>
+
+      <div id="gridBonosPreview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Tarjetas de los 4 bonos -->
+      </div>
+    </div>
+
+    <!-- ==================== SUB-MODO 1B: BÓVEDA DE PROMPTS COPIABLES ==================== -->
+    <div id="panelModo-prompts" style="display: none;" class="space-y-6">
+      <div class="rounded-2xl bg-[#1E1A2D] border border-[#F0C98A]/25 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#F472B6]">✦ Bóveda Interactiva de Comandos</span>
+          <h2 class="text-2xl font-extrabold text-[#FAF7F5] mt-1">Prompts & Plantillas de Copiar y Pegar</h2>
+          <p class="text-sm text-[#D0C9E0] mt-1">Copia cualquiera de las 13 plantillas verificadas del método en un clic o abre directamente su cápsula en video.</p>
+        </div>
+        <div class="relative w-full md:w-72">
+          <span class="material-symbols-outlined text-[18px] text-[#968EB0] absolute left-3 top-1/2 -translate-y-1/2">search</span>
+          <input id="inputBuscarPromptVault" oninput="renderizarBovedaPrompts()" type="search" placeholder="Filtrar prompts (ej. piel, Fanvue, Reel)..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-[#15121F] border border-white/15 text-xs text-[#FAF7F5] placeholder-[#968EB0] focus:outline-none focus:border-[#F0C98A]/60"/>
+        </div>
+      </div>
+
+      <div id="gridBovedaPrompts" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Inyectado dinámicamente -->
+      </div>
+    </div>
+
+    <!-- ==================== SUB-MODO 1C: PACKS & BONOS VIP ==================== -->
+    <div id="panelModo-bonos" style="display: none;" class="space-y-6">
+      <div class="rounded-2xl bg-gradient-to-r from-[#28213D] via-[#221C35] to-[#1E1A2D] border border-[#F0C98A]/30 p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#F0C98A]">★ Arsenal Complementario Desbloqueado</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-[#FAF7F5] mt-1">Packs & Bonos VIP (30 Recursos)</h2>
+          <p class="text-sm text-[#D0C9E0] mt-1 max-w-2xl">Explora y reproduce directamente las 22 sesiones del Megapack Master IA, las 6 clases de YouTube Money Machine, el catálogo de modelos y el pack de voces.</p>
+        </div>
+        <a id="btnBonoGuiaPdf" href="#guia" onclick="abrirGuiaRapida(); return false;" class="px-5 py-3 rounded-2xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all self-start md:self-auto">
+          <span class="material-symbols-outlined text-[18px]">download</span>
+          <span>Abrir Guía Rápida de Implementación (PDF)</span>
+        </a>
+      </div>
+
+      <div id="gridBonosCompleto" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Inyectado dinámicamente con desglose de archivos -->
+      </div>
+    </div>
+
   </div>
 
-  <!-- ==================== MODAL DE DESBLOQUEO (OCULTO POR DEFECTO CON DISPLAY:NONE) ==================== -->
-  <div id="unlockModal" style="display: none;" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm items-center justify-center p-4">
-    <div class="bg-[#11111a] border border-white/15 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex items-center gap-3 text-pink-400">
-        <span class="material-symbols-outlined text-[28px]">lock_open</span>
-        <h3 class="text-lg font-extrabold text-white">¿Quieres saltar a este módulo ahora?</h3>
-      </div>
-      <p class="text-sm text-zinc-300 leading-relaxed">
-        Recomendamos avanzar en orden para construir la base de tu modelo paso a paso. Sin embargo, en <strong>Musa Academy</strong> tú tienes el control total de tu aprendizaje.
-      </p>
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button onclick="cerrarModalDesbloqueo()" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold">
-          Seguir en orden
+  <!-- ==================== VISTA 2: MODO TEATRO / STUDIO PLAYER (12 COLUMNAS SIN ENCIERRO) ==================== -->
+  <div id="vistaLeccion" style="display: none;" class="space-y-6">
+
+    <!-- Barra Superior de Navegación del Reproductor -->
+    <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <button onclick="volverAlCurso()" class="px-3.5 py-2 rounded-xl bg-[#252038] hover:bg-[#2E2846] border border-white/10 text-xs font-bold text-[#FAF7F5] flex items-center gap-1.5 transition-all">
+          <span class="material-symbols-outlined text-[16px] text-[#F0C98A]">arrow_back</span>
+          <span>Volver al Atelier</span>
         </button>
-        <button id="btnConfirmUnlock" class="px-5 py-2.5 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white text-xs font-bold shadow-lg shadow-pink-600/30">
-          Sí, desbloquear y abrir →
+        <span class="text-white/20">/</span>
+        <span id="breadcrumbEstacion" class="text-xs font-semibold text-[#F0C98A]">Estación 01</span>
+        <span class="text-white/20">/</span>
+        <span id="breadcrumbModulo" class="text-xs sm:text-sm font-bold text-[#FAF7F5] truncate max-w-[240px] sm:max-w-md">Cápsula 1</span>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="btnTopComplete" onclick="marcarCompletadoActual()" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/15">
+          <span class="material-symbols-outlined text-[16px]" id="iconTopComplete">check_circle</span>
+          <span id="labelTopComplete">Marcar como explorada</span>
+        </button>
+
+        <button onclick="irSiguienteCapsula()" class="btn-atelier-primary px-4 py-2 rounded-xl text-xs flex items-center gap-1.5">
+          <span>Siguiente Cápsula</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
     </div>
+
+    <!-- Layout Teatro 12 Columnas: Video (8) + Laboratorio de Prompt y Recursos (4) -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
+
+      <!-- Columna Izquierda (8 cols): Reproductor 16:9 + Ficha de la Cápsula -->
+      <div class="xl:col-span-8 space-y-5">
+
+        <div class="relative aspect-video rounded-3xl overflow-hidden bg-[#0D0B14] border border-[#F0C98A]/25 shadow-2xl">
+          <video id="mainVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&auto=format&fit=crop&q=80">
+            <source id="mainVideoSource" src="/assets/demo.mp4" type="video/mp4"/>
+            Tu navegador no soporta reproducción de video HTML5.
+          </video>
+
+          <!-- Overlay cuando el recurso activo es un PDF o Enlace externo -->
+          <div id="nonVideoOverlay" style="display: none;" class="absolute inset-0 bg-[#15121F]/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-[#F0C98A]/15 border border-[#F0C98A]/35 flex items-center justify-center text-[#F0C98A] mb-4">
+              <span class="material-symbols-outlined text-4xl" id="nonVideoIcon">description</span>
+            </div>
+            <span class="text-[11px] font-extrabold uppercase tracking-widest text-[#F0C98A] mb-1">Recurso Descargable / Interactivo</span>
+            <h3 id="nonVideoTitle" class="text-xl sm:text-2xl font-bold text-[#FAF7F5] mb-2">Guía en PDF</h3>
+            <p class="text-sm text-[#D0C9E0] max-w-md mb-6">Este archivo forma parte de tu biblioteca práctica y se abre directamente en una pestaña segura desde el almacén privado.</p>
+            <a id="nonVideoLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-atelier-primary px-6 py-3 rounded-2xl text-sm inline-flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+              <span>Abrir Recurso Ahora</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Ficha de Título y Navegación Rápida debajo del Video -->
+        <div class="p-6 rounded-2xl bg-[#1E1A2D] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span id="badgeModuloPlayer" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#F472B6]/15 text-[#FDA4AF] border border-[#F472B6]/30">CÁPSULA 1</span>
+              <span id="tagTipoArchivo" class="text-xs font-semibold text-[#F0C98A]">🎬 Video HD</span>
+            </div>
+            <h1 id="tituloModuloPlayer" class="text-xl sm:text-2xl font-extrabold text-[#FAF7F5]">1. Bienvenida y mentalidad</h1>
+            <p id="subtituloResultadoPlayer" class="text-xs sm:text-sm text-[#D0C9E0]">Entiende el mercado y lo que vas a construir</p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-center">
+            <button onclick="irAnteriorCapsula()" class="px-3.5 py-2 rounded-xl bg-[#252038] hover:bg-[#2E2846] border border-white/10 text-xs font-semibold text-[#D0C9E0] flex items-center gap-1 transition-all">
+              <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+              <span>Anterior</span>
+            </button>
+            <button onclick="irSiguienteCapsula()" class="px-4 py-2 rounded-xl bg-[#F0C98A]/15 hover:bg-[#F0C98A]/25 border border-[#F0C98A]/35 text-xs font-bold text-[#FBE7BF] flex items-center gap-1 transition-all">
+              <span>Siguiente</span>
+              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Columna Derecha (4 cols): Laboratorio de Prompt Completo + Playlist del Bloque -->
+      <div class="xl:col-span-4 space-y-5">
+
+        <!-- Panel 1: Terminal de Prompt & Plantilla (100% visible, sin truncar) -->
+        <div class="p-5 rounded-2xl bg-gradient-to-b from-[#252038] to-[#1E1A2D] border border-[#F0C98A]/30 shadow-xl space-y-3.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#F0C98A] text-[19px]">terminal</span>
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#FAF7F5]">Prompt & Plantilla del Bloque</h3>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#6EE7B7]/15 text-[#6EE7B7]">Copiar y pegar</span>
+          </div>
+
+          <div id="promptText" class="p-3.5 rounded-xl bg-[#120F1D] border border-white/10 font-mono-code text-xs text-[#FBE7BF] leading-relaxed whitespace-pre-wrap break-words select-all">
+            /imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0
+          </div>
+
+          <button id="btnCopyPrompt" onclick="copiarPromptActual()" class="w-full py-2.5 px-4 rounded-xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow">
+            <span class="material-symbols-outlined text-[16px]">content_copy</span>
+            <span>Copiar Prompt al Portapapeles</span>
+          </button>
+        </div>
+
+        <!-- Panel 2: Archivos y Recursos de esta Cápsula -->
+        <div class="p-5 rounded-2xl bg-[#1E1A2D] border border-white/[0.08] space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#D0C9E0]">Archivos de esta Cápsula</h3>
+            <span id="leccionesCountBadge" class="text-[11px] font-bold text-[#F0C98A]">1 archivo</span>
+          </div>
+          <div id="listaArchivosModulo" class="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+            <!-- Inyectado dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Panel 3: Selector Rápido de Todas las Cápsulas -->
+        <div class="p-5 rounded-2xl bg-[#1E1A2D] border border-white/[0.08] space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#D0C9E0]">Cambiar de Cápsula (13)</h3>
+            <button onclick="volverAlCurso()" class="text-[11px] font-semibold text-[#F0C98A] hover:underline">Ver catálogo</button>
+          </div>
+          <div id="navModulosSidebar" class="space-y-1.5 max-h-[260px] overflow-y-auto pr-1">
+            <!-- Inyectado dinámicamente -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
-  <script>
-    // Portadas visuales de alta estética para los 13 módulos y 4 bonos
-    const PORTADAS_MODULOS = [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80"
-    ];
+</main>
 
-    let catalogoData = null;
-    let moduloActualIdx = 0;
-    let leccionActualIdx = 0;
-    let modoBonoActivo = null; // Si el usuario abrió un bono en el aula
+<!-- Widget Flotante de Concierge WhatsApp -->
+<a id="floatingWaBtn" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Atelier%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" title="Hablar con Musa por WhatsApp" class="fixed bottom-5 right-5 z-40 w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#251F38] to-[#32294B] hover:border-[#F0C98A]/50 border border-white/15 shadow-2xl flex items-center justify-center text-[#FAF7F5] hover:scale-105 transition-all">
+  <span class="material-symbols-outlined text-[22px] text-[#F0C98A]">chat</span>
+</a>
 
-    // Persistencia de progreso en localStorage
-    const STORAGE_KEY = "musa_academy_progress_v5";
-    let completados = {};
-    try {
-      completados = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"1":true,"2":true}');
-    } catch (_) {
-      completados = { "1": true, "2": true };
-    }
+<!-- Toast de Notificación Elegante -->
+<div id="atelierToast" style="display: none;" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-[#1E1A2D]/95 border border-[#F0C98A]/40 text-[#FAF7F5] text-xs font-bold shadow-2xl flex items-center gap-2 backdrop-blur-xl">
+  <span class="material-symbols-outlined text-[16px] text-[#6EE7B7]">check_circle</span>
+  <span id="atelierToastText">Prompt copiado al portapapeles</span>
+</div>
 
-    function guardarProgreso() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(completados)); } catch (_) {}
-    }
+<script>
+// Fotografías Editoriales Luminosas (Lookbook 16:10 — 100% Nítidas, sin blur)
+const IMAGENES_MODULOS = [
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900&auto=format&fit=crop&q=80", // 01
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900&auto=format&fit=crop&q=80", // 02
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900&auto=format&fit=crop&q=80", // 03
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900&auto=format&fit=crop&q=80", // 04
+  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=900&auto=format&fit=crop&q=80", // 05
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=900&auto=format&fit=crop&q=80", // 06
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=900&auto=format&fit=crop&q=80", // 07
+  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=900&auto=format&fit=crop&q=80", // 08
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&auto=format&fit=crop&q=80", // 09
+  "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=900&auto=format&fit=crop&q=80", // 10
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=900&auto=format&fit=crop&q=80", // 11
+  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop&q=80", // 12
+  "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&auto=format&fit=crop&q=80"  // 13
+];
 
-    async function cargarCatalogo() {
-      const params = new URLSearchParams(window.location.search);
-      const tokenUrl = params.get("t") || "";
-      const endpoint = tokenUrl ? `/api/academia/catalogo?t=${encodeURIComponent(tokenUrl)}` : "/api/academia/catalogo";
-      try {
-        const res = await fetch(endpoint);
-        catalogoData = await res.json();
-      } catch (e) {
-        console.error("Error cargando catálogo:", e);
-      }
-      if (!catalogoData || !catalogoData.modulos) return;
+// Estaciones Creativas (En lugar de bloques escolares o retos de 7 días)
+function obtenerEstacionDeModulo(numero) {
+  if ([1, 2, 3].includes(numero)) {
+    return { id: "identidad", nombre: "Estación 01 · Identidad & Rostro IA", corto: "Identidad IA", color: "text-[#F0C98A]" };
+  }
+  if ([4, 7, 11, 13].includes(numero)) {
+    return { id: "produccion", nombre: "Estación 02 · Consistencia & Video Realista", corto: "Producción & Video", color: "text-[#FDA4AF]" };
+  }
+  if ([6, 8, 12].includes(numero)) {
+    return { id: "viralidad", nombre: "Estación 03 · Tracción Viral & Bots", corto: "Viralidad & Bots", color: "text-[#C084FC]" };
+  }
+  return { id: "monetizacion", nombre: "Estación 04 · Monetización & Fanvue", corto: "Monetización", color: "text-[#6EE7B7]" };
+}
 
-      // Actualizar datos del alumno
-      const nombre = catalogoData.alumno?.nombre || "Mauricio Bonilla";
-      document.getElementById("studentNameSidebar").textContent = nombre;
-      document.getElementById("avatarInitials").textContent = nombre.slice(0, 1).toUpperCase();
-      document.getElementById("studentStatusSidebar").textContent = catalogoData.autenticado
-        ? "Acceso Vitalicio Verificado ✓"
-        : "museialab@gmail.com";
+let catalogoData = null;
+let moduloActivoIdx = 0;
+let leccionActivaIdx = 0;
+let bonoActivoIdx = -1;
+let modoAtelierActual = "estudio"; // 'estudio' | 'prompts' | 'bonos'
+let estacionFiltroActual = "todas";
+let heroPromptIdx = 2;
 
-      const badge = document.getElementById("badgeModoAcceso");
-      if (catalogoData.autenticado) {
-        badge.textContent = "✓ Acceso Personal Activo · Videos R2 Desbloqueados";
-        badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300";
+let modulosCompletados = JSON.parse(localStorage.getItem("musa_modulos_completados_v5") || "[1, 2]");
+
+function guardarProgreso() {
+  localStorage.setItem("musa_modulos_completados_v5", JSON.stringify(modulosCompletados));
+}
+
+function mostrarToast(mensaje) {
+  const toast = document.getElementById("atelierToast");
+  const text = document.getElementById("atelierToastText");
+  if (!toast || !text) return;
+  text.textContent = mensaje;
+  toast.style.display = "flex";
+  clearTimeout(window.__musaToastTimer);
+  window.__musaToastTimer = setTimeout(() => {
+    toast.style.display = "none";
+  }, 2400);
+}
+
+function obtenerTokenUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("t") || params.get("token") || "";
+}
+
+async function cargarCatalogo() {
+  const token = obtenerTokenUrl();
+  const endpoint = token ? "/api/academia/catalogo?t=" + encodeURIComponent(token) : "/api/academia/catalogo";
+  try {
+    const res = await fetch(endpoint, { credentials: "same-origin" });
+    catalogoData = await res.json();
+  } catch (e) {
+    console.error("Error cargando catálogo:", e);
+    return;
+  }
+
+  if (catalogoData?.alumno) {
+    const nombre = catalogoData.alumno.nombre || "Mauricio Bonilla";
+    document.getElementById("studentNameSidebar").textContent = nombre;
+    const iniciales = nombre.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "MB";
+    document.getElementById("avatarInitials").textContent = iniciales;
+  }
+
+  if (catalogoData?.soporteWa) {
+    document.getElementById("cardSoporteWa").href = catalogoData.soporteWa;
+    document.getElementById("floatingWaBtn").href = catalogoData.soporteWa;
+  }
+
+  const badgeAcceso = document.getElementById("badgeModoAcceso");
+  if (catalogoData?.autenticado) {
+    badgeAcceso.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Acceso Vitalicio Activo';
+  } else {
+    badgeAcceso.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Vista Previa Activa';
+  }
+
+  renderizarCatalogo();
+  renderizarBovedaPrompts();
+  renderizarBonos();
+  actualizarPromptHero();
+}
+
+function cambiarModoAtelier(modo) {
+  modoAtelierActual = modo;
+  const modos = ["estudio", "prompts", "bonos"];
+  modos.forEach((m) => {
+    const panel = document.getElementById("panelModo-" + m);
+    const btn = document.getElementById("tabBtn-" + m);
+    if (panel) panel.style.display = m === modo ? "block" : "none";
+    if (btn) {
+      if (m === modo) {
+        btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-[#F472B6]/25 via-[#C084FC]/25 to-[#F0C98A]/25 text-[#FAF7F5] border border-[#F0C98A]/35 shadow-sm flex items-center gap-1.5";
       } else {
-        badge.textContent = "✦ Vista de Catálogo · 13 Módulos + 4 Bonos";
+        btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#D0C9E0] hover:text-white transition-all flex items-center gap-1.5";
       }
-
-      renderizarTodo();
     }
+  });
+}
 
-    function renderizarTodo() {
-      if (!catalogoData) return;
-      const modulos = catalogoData.modulos;
-      const totalHechos = modulos.filter(m => completados[String(m.numero)]).length;
-      const pct = Math.round((totalHechos / modulos.length) * 100);
-
-      document.getElementById("sidebarProgressCount").textContent = `${totalHechos}/${modulos.length}`;
-      document.getElementById("railTotalPct").textContent = `${pct}%`;
-      document.getElementById("railTotalBar").style.width = `${pct}%`;
-
-      // 1. Renderizar Sidebar
-      const sideList = document.getElementById("sidebarModuleList");
-      sideList.innerHTML = "";
-      modulos.forEach((m, idx) => {
-        const done = !!completados[String(m.numero)];
-        const btn = document.createElement("button");
-        btn.className = "w-full text-left px-2.5 py-2 rounded-lg hover:bg-white/5 flex items-center justify-between gap-2 transition-colors group";
-        btn.innerHTML = `
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="material-symbols-outlined text-[15px] ${done ? 'text-pink-400' : 'text-zinc-500'}">${done ? 'check_circle' : 'menu_book'}</span>
-            <span class="truncate ${done ? 'text-white font-medium' : 'text-zinc-400 group-hover:text-white'}">${m.numero}. ${m.titulo}</span>
-          </div>
-        `;
-        btn.onclick = () => seleccionarModulo(idx, true);
-        sideList.appendChild(btn);
-      });
-
-      // 2. Renderizar Grid Presentación (Módulos 1 y 2) y Grid Método (Módulos 3 al 13)
-      const gridPres = document.getElementById("gridPresentacion");
-      const gridMet = document.getElementById("gridMetodo");
-      gridPres.innerHTML = "";
-      gridMet.innerHTML = "";
-
-      // Encontrar el primer módulo aún no completado para dejarlo nítido como "Siguiente paso"
-      const primerPendienteIdx = modulos.findIndex(m => !completados[String(m.numero)]);
-
-      modulos.forEach((m, idx) => {
-        const done = !!completados[String(m.numero)];
-        const esSiguiente = idx === primerPendienteIdx || idx <= 2;
-        const softLocked = !done && !esSiguiente;
-        const imgUrl = PORTADAS_MODULOS[idx % PORTADAS_MODULOS.length];
-
-        const card = document.createElement("div");
-        card.className = `poster-card ${softLocked ? 'soft-locked' : ''}`;
-        card.innerHTML = `
-          <img class="poster-bg" src="${imgUrl}" alt="Módulo ${m.numero}" loading="lazy"/>
-          <div class="poster-gradient"></div>
-          ${done ? `
-            <div class="completed-ribbon">
-              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">check_circle</span>
-              <span>Completado</span>
-            </div>
-          ` : `
-            <div class="progress-ring-badge">0%</div>
-          `}
-          <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
-            <span class="module-pill">Módulo ${m.numero}</span>
-            <h3 class="text-lg sm:text-xl font-extrabold text-white leading-snug mb-1">${m.titulo}</h3>
-            <p class="text-xs sm:text-sm text-zinc-300/90 leading-relaxed">${m.resultado}</p>
-            <p class="text-[11px] font-mono text-pink-300/80 mt-2">${m.totalLecciones} ${m.totalLecciones === 1 ? 'lección' : 'lecciones'} →</p>
-          </div>
-        `;
-
-        card.onclick = () => {
-          seleccionarModulo(idx, true);
-        };
-
-        if (idx < 2) {
-          gridPres.appendChild(card);
-        } else {
-          gridMet.appendChild(card);
-        }
-      });
-
-      // 3. Renderizar Bonos Exclusivos
-      const gridBonos = document.getElementById("gridBonos");
-      gridBonos.innerHTML = "";
-      (catalogoData.bonos || []).forEach((b, bIdx) => {
-        const card = document.createElement("div");
-        card.className = "p-5 rounded-2xl bg-[#101018] border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between gap-4 group";
-        card.innerHTML = `
-          <div>
-            <span class="bonus-pill">Bonus #${bIdx + 1}</span>
-            <h3 class="text-base font-extrabold text-white group-hover:text-pink-300 transition-colors">${b.titulo}</h3>
-            <p class="text-xs text-zinc-400 mt-1">${b.totalArchivos} ${b.totalArchivos === 1 ? 'archivo incluido' : 'archivos desbloqueados'}</p>
-          </div>
-          <div class="flex items-center justify-between pt-3 border-t border-white/10 text-xs font-bold text-pink-400">
-            <span>Abrir contenido del bono</span>
-            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </div>
-        `;
-        card.onclick = () => abrirBonoEnAula(b);
-        gridBonos.appendChild(card);
-      });
+function filtrarEstacion(estacionId) {
+  estacionFiltroActual = estacionId;
+  const ids = ["todas", "identidad", "produccion", "viralidad", "monetizacion"];
+  ids.forEach((id) => {
+    const btn = document.getElementById("filtroEst-" + id);
+    if (!btn) return;
+    if (id === estacionId) {
+      btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-[#F0C98A] text-[#15121F] shadow transition-all whitespace-nowrap";
+    } else {
+      btn.className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap";
     }
+  });
+  renderizarCatalogo();
+}
 
-    function abrirModalDesbloqueo(idx) {
-      const modal = document.getElementById("unlockModal");
-      const btn = document.getElementById("btnConfirmUnlock");
-      modal.style.display = "flex";
-      btn.onclick = () => {
-        cerrarModalDesbloqueo();
-        seleccionarModulo(idx, true);
-      };
-    }
+function actualizarPromptHero() {
+  if (!catalogoData?.modulos?.length) return;
+  const m = catalogoData.modulos[heroPromptIdx % catalogoData.modulos.length];
+  if (!m) return;
+  const tEl = document.getElementById("heroPromptTitulo");
+  const pEl = document.getElementById("heroPromptTexto");
+  if (tEl) tEl.textContent = "Cápsula " + String(m.numero).padStart(2, "0") + " · " + m.titulo;
+  if (pEl) pEl.textContent = m.prompt || "";
+}
 
-    function cerrarModalDesbloqueo() {
-      document.getElementById("unlockModal").style.display = "none";
-    }
+function rotarPromptDestacado() {
+  if (!catalogoData?.modulos?.length) return;
+  heroPromptIdx = (heroPromptIdx + 1) % catalogoData.modulos.length;
+  actualizarPromptHero();
+}
 
-    function mostrarCatalogo() {
-      document.getElementById("vistaLeccion").style.display = "none";
-      document.getElementById("vistaCatalogo").style.display = "block";
-      document.getElementById("labelSidebarHome").textContent = "Home";
-      const video = document.getElementById("realVideoPlayer");
-      if (video) video.pause();
-      renderizarTodo();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+function copiarPromptHero() {
+  const texto = document.getElementById("heroPromptTexto")?.textContent || "";
+  navigator.clipboard.writeText(texto);
+  mostrarToast("✦ Prompt copiado — listo para pegar en tu generador IA");
+}
 
-    function irABonos() {
-      mostrarCatalogo();
-      setTimeout(() => {
-        document.getElementById("seccionBonos")?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    }
+function copiarPromptDeModulo(idx, ev) {
+  if (ev) ev.stopPropagation();
+  const m = catalogoData?.modulos?.[idx];
+  if (!m) return;
+  navigator.clipboard.writeText(m.prompt || "");
+  mostrarToast("✦ Prompt de la Cápsula " + m.numero + " copiado al portapapeles");
+}
 
-    function seleccionarModulo(idx, abrirVista = true) {
-      if (!catalogoData || !catalogoData.modulos[idx]) return;
-      modoBonoActivo = null;
-      moduloActualIdx = idx;
-      leccionActualIdx = 0;
-      if (abrirVista) {
-        document.getElementById("vistaCatalogo").style.display = "none";
-        document.getElementById("vistaLeccion").style.display = "flex";
-        document.getElementById("labelSidebarHome").textContent = "Volver al inicio";
-      }
-      renderizarAulaActiva();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+function abrirGuiaRapida() {
+  if (catalogoData?.planAccionUrl && catalogoData.planAccionUrl !== "#guia-rapida") {
+    window.open(catalogoData.planAccionUrl, "_blank", "noopener,noreferrer");
+  } else {
+    cambiarModoAtelier("prompts");
+    mostrarToast("✦ Aquí tienes las plantillas de implementación rápida");
+  }
+}
 
-    function abrirBonoEnAula(bono) {
-      modoBonoActivo = {
-        numero: "★",
-        titulo: bono.titulo,
-        resultado: "Bono exclusivo desbloqueado en tu cuenta",
-        prompt: "Recurso extra incluido en tu acceso a Modelos IA.",
-        lecciones: bono.archivos.map((a, i) => ({
-          id: `b-${i}`,
-          titulo: a.titulo,
-          etiqueta: a.etiqueta,
-          icono: a.icono,
-          esVideo: a.etiqueta === "Video",
-          url: a.url
-        }))
-      };
-      leccionActualIdx = 0;
-      document.getElementById("vistaCatalogo").style.display = "none";
-      document.getElementById("vistaLeccion").style.display = "flex";
-      document.getElementById("labelSidebarHome").textContent = "Volver al inicio";
-      renderizarAulaActiva();
-    }
+function continuarUltimaCapsula() {
+  if (!catalogoData?.modulos?.length) return;
+  // Buscar la primera cápsula no explorada o abrir la 1
+  const siguienteIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
+  seleccionarModulo(siguienteIdx >= 0 ? siguienteIdx : 0, true);
+}
 
-    function renderizarAulaActiva() {
-      const m = modoBonoActivo || catalogoData.modulos[moduloActualIdx];
-      if (!m) return;
-      const lecciones = m.lecciones || [];
-      const lec = lecciones[leccionActualIdx] || lecciones[0];
+function crearTarjetaLookbook(m, idx) {
+  const imgUrl = IMAGENES_MODULOS[idx] || IMAGENES_MODULOS[0];
+  const isCompleted = modulosCompletados.includes(m.numero);
+  const est = obtenerEstacionDeModulo(m.numero);
+  const numStr = String(m.numero).padStart(2, "0");
+  const totalRec = m.totalLecciones || (m.lecciones ? m.lecciones.length : 1);
 
-      document.getElementById("lessonBreadcrumbTitle").textContent = `Módulo ${m.numero}: ${m.titulo}`;
-      document.getElementById("lessonActiveTag").textContent = `MÓDULO ${m.numero} • LECCIÓN ${leccionActualIdx + 1} DE ${lecciones.length}`;
-      document.getElementById("lessonMainHeading").textContent = lec ? lec.titulo : m.titulo;
-      document.getElementById("lessonOutcomeBadge").textContent = m.resultado || "";
-      document.getElementById("lessonPromptText").textContent = m.prompt || "";
-      document.getElementById("railLessonCounter").textContent = `${leccionActualIdx + 1} / ${lecciones.length}`;
+  const estadoBadge = isCompleted
+    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#6EE7B7]/20 border border-[#6EE7B7]/40 text-[#6EE7B7] text-[11px] font-bold backdrop-blur-md">
+         <span class="material-symbols-outlined text-[13px]">check_circle</span> Explorada
+       </span>`
+    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#15121F]/75 border border-white/15 text-[#FAF7F5] text-[11px] font-semibold backdrop-blur-md">
+         🎬 ${totalRec} ${totalRec === 1 ? "recurso" : "recursos"}
+       </span>`;
 
-      const done = !modoBonoActivo && !!completados[String(m.numero)];
-      document.getElementById("labelTopCompletado").textContent = done ? "Completado ✓" : "Marcar Completado";
-
-      // Configurar reproductor de video o tarjeta de descarga PDF/ZIP
-      const videoEl = document.getElementById("realVideoPlayer");
-      const sourceEl = document.getElementById("realVideoSource");
-      const overlayEl = document.getElementById("nonVideoOverlay");
-
-      if (lec && lec.esVideo) {
-        overlayEl.style.display = "none";
-        videoEl.style.display = "block";
-        if (sourceEl.getAttribute("src") !== lec.url) {
-          sourceEl.setAttribute("src", lec.url);
-          videoEl.load();
-        }
-      } else if (lec) {
-        videoEl.pause();
-        videoEl.style.display = "none";
-        overlayEl.style.display = "flex";
-        document.getElementById("nonVideoTitle").textContent = lec.titulo;
-        document.getElementById("nonVideoDesc").textContent = `Archivo ${lec.etiqueta} listo para abrir o descargar desde el almacén seguro.`;
-        const dlBtn = document.getElementById("nonVideoDownloadBtn");
-        dlBtn.href = lec.url;
-      }
-
-      // Renderizar lista derecha de lecciones
-      const railList = document.getElementById("railLessonList");
-      railList.innerHTML = "";
-      lecciones.forEach((item, i) => {
-        const active = i === leccionActualIdx;
-        const btn = document.createElement("button");
-        btn.className = active
-          ? "w-full text-left p-3.5 rounded-xl bg-[#ff007a] text-white font-bold flex items-center justify-between gap-3 shadow-lg shadow-pink-600/25 transition-all"
-          : "w-full text-left p-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 font-medium flex items-center justify-between gap-3 border border-white/5 transition-all";
-        btn.innerHTML = `
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-7 h-7 rounded-lg ${active ? 'bg-white/20 text-white' : 'bg-white/5 text-pink-400'} flex items-center justify-center text-xs shrink-0">
-              ${item.icono || '▶'}
+  return `
+    <article class="lookbook-card flex flex-col justify-between cursor-pointer group" onclick="seleccionarModulo(${idx}, true)">
+      <div>
+        <!-- Fotografía 16:10 Nítida (Cero Blur, Cero 0%) -->
+        <div class="card-media">
+          <img src="${imgUrl}" alt="Cápsula ${m.numero} — ${m.titulo}" loading="lazy"/>
+          <div class="absolute top-3.5 left-3.5 right-3.5 z-10 flex items-center justify-between gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-[#15121F]/80 backdrop-blur-md border border-[#F0C98A]/35 text-[11px] font-extrabold text-[#F0C98A] tracking-wide">
+              CÁPSULA ${numStr}
             </span>
-            <div class="min-w-0">
-              <p class="text-xs sm:text-sm truncate">${item.titulo}</p>
-              <p class="text-[10.5px] ${active ? 'text-pink-100' : 'text-zinc-500'} font-mono">${item.etiqueta}</p>
+            ${estadoBadge}
+          </div>
+          <div class="absolute bottom-3 left-3.5 right-3.5 z-10 flex items-center justify-between">
+            <span class="text-[11px] font-bold ${est.color} drop-shadow">${est.corto}</span>
+            <span class="px-3 py-1 rounded-xl bg-[#F0C98A] text-[#15121F] font-extrabold text-[11px] opacity-0 group-hover:opacity-100 transition-opacity shadow-lg flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">play_arrow</span> Abrir
+            </span>
+          </div>
+        </div>
+
+        <!-- Ficha Editorial Inferior -->
+        <div class="p-5 space-y-3">
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-[#FAF7F5] group-hover:text-[#FBE7BF] transition-colors leading-snug">
+              ${m.titulo}
+            </h3>
+            <p class="text-xs text-[#D0C9E0] mt-1 leading-relaxed line-clamp-2">
+              ${m.resultado}
+            </p>
+          </div>
+
+          <!-- Preview del Prompt Incluido -->
+          <div class="p-2.5 rounded-xl bg-[#161322] border border-white/[0.06] flex items-center justify-between gap-2">
+            <p class="font-mono-code text-[11px] text-[#FBE7BF]/90 truncate flex-1">${m.prompt || ""}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Acciones Directas (Ver Cápsula o Copiar Prompt sin entrar) -->
+      <div class="px-5 pb-4 pt-2 border-t border-white/[0.06] flex items-center justify-between gap-2">
+        <button type="button" onclick="seleccionarModulo(${idx}, true); event.stopPropagation();" class="text-xs font-extrabold text-[#F0C98A] hover:text-[#FBE7BF] flex items-center gap-1 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">play_circle</span>
+          <span>Entrar a la cápsula</span>
+        </button>
+
+        <button type="button" onclick="copiarPromptDeModulo(${idx}, event)" class="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-[#F0C98A]/20 border border-white/10 hover:border-[#F0C98A]/40 text-[11px] font-bold text-[#FAF7F5] flex items-center gap-1 transition-all">
+          <span class="material-symbols-outlined text-[14px] text-[#F0C98A]">content_copy</span>
+          <span>Copiar Prompt</span>
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderizarCatalogo() {
+  if (!catalogoData?.modulos) return;
+  const total = catalogoData.modulos.length;
+  const completadosCount = modulosCompletados.length;
+  const progEl = document.getElementById("progresoTexto");
+  if (progEl) progEl.textContent = `${completadosCount} de ${total} exploradas`;
+
+  // Actualizar etiqueta del botón principal del Hero
+  const sigIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
+  const labelHero = document.getElementById("labelHeroResume");
+  if (labelHero) {
+    const targetMod = catalogoData.modulos[sigIdx >= 0 ? sigIdx : 0];
+    labelHero.textContent = targetMod ? `Abrir Cápsula ${targetMod.numero}: ${targetMod.titulo}` : "Abrir Estudio";
+  }
+
+  const busqueda = (document.getElementById("inputBuscarCapsula")?.value || "").trim().toLowerCase();
+
+  const filtrados = catalogoData.modulos
+    .map((m, idx) => ({ m, idx, est: obtenerEstacionDeModulo(m.numero) }))
+    .filter(({ m, est }) => {
+      if (estacionFiltroActual !== "todas" && est.id !== estacionFiltroActual) return false;
+      if (!busqueda) return true;
+      return (
+        m.titulo.toLowerCase().includes(busqueda) ||
+        (m.resultado || "").toLowerCase().includes(busqueda) ||
+        (m.prompt || "").toLowerCase().includes(busqueda)
+      );
+    });
+
+  const gridEl = document.getElementById("gridCapsulasAtelier");
+  if (gridEl) {
+    if (filtrados.length === 0) {
+      gridEl.innerHTML = `
+        <div class="col-span-full p-10 rounded-2xl bg-[#1E1A2D] border border-white/10 text-center space-y-2">
+          <p class="text-sm font-bold text-[#FAF7F5]">No encontramos cápsulas con ese filtro</p>
+          <button onclick="document.getElementById('inputBuscarCapsula').value=''; filtrarEstacion('todas');" class="text-xs font-bold text-[#F0C98A] underline">Mostrar las 13 cápsulas</button>
+        </div>
+      `;
+    } else {
+      gridEl.innerHTML = filtrados.map(({ m, idx }) => crearTarjetaLookbook(m, idx)).join("");
+    }
+  }
+
+  // Renderizar también la lista lateral del modo Teatro
+  const navSidebar = document.getElementById("navModulosSidebar");
+  if (navSidebar) {
+    navSidebar.innerHTML = catalogoData.modulos.map((m, idx) => {
+      const done = modulosCompletados.includes(m.numero);
+      const isAct = bonoActivoIdx === -1 && idx === moduloActivoIdx;
+      return `
+        <button onclick="seleccionarModulo(${idx}, true)" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-left text-xs transition-all ${isAct ? "bg-[#F0C98A]/20 text-[#FBE7BF] font-bold border border-[#F0C98A]/40" : "text-[#D0C9E0] hover:bg-white/[0.05]"}">
+          <div class="flex items-center gap-2 truncate">
+            <span class="text-[11px] font-mono-code text-[#F0C98A]">${String(m.numero).padStart(2, "0")}</span>
+            <span class="truncate">${m.titulo}</span>
+          </div>
+          ${done ? '<span class="material-symbols-outlined text-[15px] text-[#6EE7B7] shrink-0">check_circle</span>' : ''}
+        </button>
+      `;
+    }).join("");
+  }
+}
+
+function renderizarBovedaPrompts() {
+  if (!catalogoData?.modulos) return;
+  const q = (document.getElementById("inputBuscarPromptVault")?.value || "").trim().toLowerCase();
+  const contenedor = document.getElementById("gridBovedaPrompts");
+  if (!contenedor) return;
+
+  const items = catalogoData.modulos
+    .map((m, idx) => ({ m, idx, est: obtenerEstacionDeModulo(m.numero) }))
+    .filter(({ m, est }) => {
+      if (!q) return true;
+      return (
+        m.titulo.toLowerCase().includes(q) ||
+        (m.prompt || "").toLowerCase().includes(q) ||
+        est.nombre.toLowerCase().includes(q)
+      );
+    });
+
+  contenedor.innerHTML = items.map(({ m, idx, est }) => `
+    <div class="p-5 rounded-2xl bg-[#252038] border border-white/10 hover:border-[#F0C98A]/40 transition-all flex flex-col justify-between gap-4 shadow-lg">
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#15121F] text-[#F0C98A] border border-[#F0C98A]/30">
+            Cápsula ${String(m.numero).padStart(2, "0")} · ${est.corto}
+          </span>
+          <button onclick="seleccionarModulo(${idx}, true)" class="text-xs font-bold text-[#FDA4AF] hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">play_circle</span>
+            <span>Ver video</span>
+          </button>
+        </div>
+        <h3 class="text-base font-extrabold text-[#FAF7F5]">${m.titulo}</h3>
+        <div class="p-3.5 rounded-xl bg-[#14111E] border border-white/[0.07] font-mono-code text-xs text-[#FBE7BF] leading-relaxed select-all">
+          ${m.prompt || ""}
+        </div>
+      </div>
+      <div class="flex items-center justify-between gap-2 pt-1">
+        <span class="text-[11px] text-[#968EB0]">${m.resultado}</span>
+        <button onclick="copiarPromptDeModulo(${idx}, event)" class="px-4 py-2 rounded-xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs flex items-center gap-1.5 shrink-0 transition-all">
+          <span class="material-symbols-outlined text-[15px]">content_copy</span>
+          <span>Copiar</span>
+        </button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderizarBonos() {
+  if (!catalogoData?.bonos) return;
+  const iconosBono = {
+    coleccion_modelos: "photo_library",
+    audios_fempro: "graphic_eq",
+    youtube_money_machine: "smart_display",
+    megapack_master_ia: "auto_awesome_motion"
+  };
+
+  // Preview de 4 tarjetas en la vista principal
+  const previewEl = document.getElementById("gridBonosPreview");
+  if (previewEl) {
+    previewEl.innerHTML = catalogoData.bonos.map((b, bIdx) => {
+      const icono = iconosBono[b.clave] || "redeem";
+      return `
+        <div onclick="abrirBono(${bIdx})" class="cursor-pointer group p-5 rounded-2xl bg-gradient-to-b from-[#26203A] to-[#1E1A2D] border border-[#F0C98A]/25 hover:border-[#F0C98A]/60 transition-all flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-[#F0C98A]/15 border border-[#F0C98A]/35 flex items-center justify-center text-[#F0C98A]">
+                <span class="material-symbols-outlined text-[22px]">${icono}</span>
+              </div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F0C98A]/15 text-[#FBE7BF] border border-[#F0C98A]/30">
+                ${b.totalArchivos} ${b.totalArchivos === 1 ? "recurso" : "recursos"}
+              </span>
+            </div>
+            <h4 class="font-extrabold text-sm sm:text-base text-[#FAF7F5] group-hover:text-[#FBE7BF] transition-colors mb-1">${b.titulo}</h4>
+            <p class="text-xs text-[#D0C9E0] leading-relaxed">Incluido en tu Vault VIP para abrir o reproducir cuando quieras.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/[0.07] flex items-center justify-between text-xs font-bold text-[#F0C98A]">
+            <span>Abrir Pack VIP</span>
+            <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Vista completa en la pestaña "Packs & Bonos VIP"
+  const fullEl = document.getElementById("gridBonosCompleto");
+  if (fullEl) {
+    fullEl.innerHTML = catalogoData.bonos.map((b, bIdx) => {
+      const icono = iconosBono[b.clave] || "redeem";
+      const primeros = (b.archivos || []).slice(0, 4);
+      return `
+        <div class="p-6 rounded-2xl bg-[#252038] border border-[#F0C98A]/30 flex flex-col justify-between gap-4 shadow-xl">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-[#F0C98A]/15 border border-[#F0C98A]/35 flex items-center justify-center text-[#F0C98A]">
+                  <span class="material-symbols-outlined text-[24px]">${icono}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#F0C98A]">Bono Exclusivo #${bIdx + 1}</span>
+                  <h3 class="text-lg font-extrabold text-[#FAF7F5]">${b.titulo}</h3>
+                </div>
+              </div>
+              <span class="text-xs font-bold px-3 py-1 rounded-full bg-[#15121F] text-[#FBE7BF] border border-white/10">
+                ${b.totalArchivos} archivos
+              </span>
+            </div>
+
+            <div class="space-y-1.5 pt-1">
+              ${primeros.map((a) => `
+                <div class="px-3 py-2 rounded-xl bg-[#181425] border border-white/[0.06] flex items-center justify-between text-xs text-[#D0C9E0]">
+                  <span class="truncate">${a.icono} ${a.titulo}</span>
+                  <span class="text-[10px] uppercase font-bold text-[#F0C98A] ml-2 shrink-0">${a.etiqueta}</span>
+                </div>
+              `).join("")}
+              ${b.totalArchivos > 4 ? `<p class="text-[11px] text-[#968EB0] pl-1">+ ${b.totalArchivos - 4} archivos adicionales dentro del reproductor</p>` : ""}
             </div>
           </div>
-          <span class="material-symbols-outlined text-[18px] ${active ? 'text-white' : 'text-zinc-600'}" style="font-variation-settings:'FILL' 1">check_circle</span>
-        `;
-        btn.onclick = () => {
-          leccionActualIdx = i;
-          renderizarAulaActiva();
-        };
-        railList.appendChild(btn);
-      });
-    }
 
-    function marcarLeccionCompletada() {
-      if (!catalogoData) return;
-      const m = modoBonoActivo || catalogoData.modulos[moduloActualIdx];
-      if (!m) return;
-      const lecciones = m.lecciones || [];
+          <button onclick="abrirBono(${bIdx})" class="btn-atelier-primary w-full py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">folder_open</span>
+            <span>Abrir los ${b.totalArchivos} recursos en el Estudio</span>
+          </button>
+        </div>
+      `;
+    }).join("");
+  }
+}
 
-      if (leccionActualIdx + 1 < lecciones.length) {
-        leccionActualIdx++;
-        renderizarAulaActiva();
-        return;
-      }
+function mostrarVistaLeccion() {
+  document.getElementById("vistaCurso").style.display = "none";
+  document.getElementById("vistaLeccion").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-      if (!modoBonoActivo) {
-        completados[String(m.numero)] = true;
-        guardarProgreso();
-        if (moduloActualIdx + 1 < catalogoData.modulos.length) {
-          seleccionarModulo(moduloActualIdx + 1, true);
-          return;
-        }
-      }
-      mostrarCatalogo();
-    }
+function volverAlCurso() {
+  const video = document.getElementById("mainVideoPlayer");
+  if (video) video.pause();
+  document.getElementById("vistaLeccion").style.display = "none";
+  document.getElementById("vistaCurso").style.display = "block";
+  renderizarCatalogo();
+}
 
-    function navegarModulo(delta) {
-      if (!catalogoData) return;
-      const next = moduloActualIdx + delta;
-      if (next >= 0 && next < catalogoData.modulos.length) {
-        seleccionarModulo(next, true);
-      } else {
-        mostrarCatalogo();
-      }
-    }
+function actualizarBotonesCompletado(numeroModulo) {
+  const isCompleted = modulosCompletados.includes(numeroModulo);
+  const topBtn = document.getElementById("btnTopComplete");
+  const labelTop = document.getElementById("labelTopComplete");
 
-    function copiarPromptActivo() {
-      const txt = document.getElementById("lessonPromptText").textContent;
-      navigator.clipboard.writeText(txt).then(() => {
-        const lbl = document.getElementById("btnCopyPromptLabel");
-        lbl.textContent = "¡Copiado!";
-        setTimeout(() => { lbl.textContent = "Copiar Prompt"; }, 2000);
-      });
-    }
+  if (isCompleted) {
+    topBtn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all bg-[#6EE7B7]/20 text-[#6EE7B7] border border-[#6EE7B7]/40";
+    labelTop.textContent = "Explorada ✓";
+  } else {
+    topBtn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/15";
+    labelTop.textContent = "Marcar como explorada";
+  }
+}
 
-    function copiarEnlaceAfiliado() {
-      const url = catalogoData?.alumno?.enlaceReferido || "https://server-production-3709.up.railway.app/?ref=musa-vip";
-      navigator.clipboard.writeText(url).then(() => {
-        const el = document.getElementById("affLinkLabel");
-        el.textContent = "✓ Enlace copiado al portapapeles";
-        setTimeout(() => { el.textContent = "Copiar mi enlace →"; }, 2500);
-      });
-    }
+function marcarCompletadoActual() {
+  if (!catalogoData?.modulos || bonoActivoIdx !== -1) return;
+  const m = catalogoData.modulos[moduloActivoIdx];
+  if (!m) return;
 
-    cargarCatalogo();
-  </script>
+  if (!modulosCompletados.includes(m.numero)) {
+    modulosCompletados.push(m.numero);
+    mostrarToast("✦ Cápsula " + m.numero + " marcada como explorada");
+  } else {
+    modulosCompletados = modulosCompletados.filter((n) => n !== m.numero);
+  }
+  guardarProgreso();
+  actualizarBotonesCompletado(m.numero);
+  renderizarCatalogo();
+}
+
+function irSiguienteCapsula() {
+  if (!catalogoData?.modulos) return;
+  const m = catalogoData.modulos[moduloActivoIdx];
+  if (m && !modulosCompletados.includes(m.numero)) {
+    modulosCompletados.push(m.numero);
+    guardarProgreso();
+  }
+  if (moduloActivoIdx + 1 < catalogoData.modulos.length) {
+    seleccionarModulo(moduloActivoIdx + 1, true);
+  } else {
+    volverAlCurso();
+  }
+}
+
+function irAnteriorCapsula() {
+  if (!catalogoData?.modulos) return;
+  if (moduloActivoIdx > 0) {
+    seleccionarModulo(moduloActivoIdx - 1, true);
+  } else {
+    volverAlCurso();
+  }
+}
+
+function seleccionarModulo(idx, abrirVista = true) {
+  if (!catalogoData?.modulos?.[idx]) return;
+  bonoActivoIdx = -1;
+  moduloActivoIdx = idx;
+  leccionActivaIdx = 0;
+
+  if (abrirVista) mostrarVistaLeccion();
+
+  const m = catalogoData.modulos[idx];
+  const est = obtenerEstacionDeModulo(m.numero);
+
+  document.getElementById("breadcrumbEstacion").textContent = est.corto;
+  document.getElementById("breadcrumbModulo").textContent = `Cápsula ${m.numero}: ${m.titulo}`;
+  document.getElementById("badgeModuloPlayer").textContent = `CÁPSULA ${String(m.numero).padStart(2, "0")} DE 13`;
+  document.getElementById("tituloModuloPlayer").textContent = `${m.numero}. ${m.titulo}`;
+  document.getElementById("subtituloResultadoPlayer").textContent = m.resultado;
+  document.getElementById("promptText").textContent = m.prompt;
+  document.getElementById("leccionesCountBadge").textContent = `${m.totalLecciones} ${m.totalLecciones === 1 ? "archivo" : "archivos"}`;
+
+  actualizarBotonesCompletado(m.numero);
+  renderizarCatalogo();
+  renderizarArchivosModulo(m.lecciones, false);
+  reproducirLeccion(0, false);
+}
+
+function abrirBono(bIdx) {
+  if (!catalogoData?.bonos?.[bIdx]) return;
+  bonoActivoIdx = bIdx;
+  leccionActivaIdx = 0;
+  mostrarVistaLeccion();
+
+  const b = catalogoData.bonos[bIdx];
+  document.getElementById("breadcrumbEstacion").textContent = "Vault VIP";
+  document.getElementById("breadcrumbModulo").textContent = `Bono: ${b.titulo}`;
+  document.getElementById("badgeModuloPlayer").textContent = `BONO VIP #${bIdx + 1}`;
+  document.getElementById("tituloModuloPlayer").textContent = `★ ${b.titulo}`;
+  document.getElementById("subtituloResultadoPlayer").textContent = `Pack exclusivo desbloqueado con ${b.totalArchivos} recursos listos para usar`;
+  document.getElementById("promptText").textContent = `Recurso VIP desbloqueado: selecciona cualquiera de los ${b.totalArchivos} archivos en el panel derecho para reproducirlo o abrirlo.`;
+  document.getElementById("leccionesCountBadge").textContent = `${b.totalArchivos} archivos`;
+
+  renderizarArchivosModulo(b.archivos, true);
+  reproducirLeccion(0, true);
+}
+
+function renderizarArchivosModulo(archivos, esBono) {
+  const lista = document.getElementById("listaArchivosModulo");
+  lista.innerHTML = archivos.map((l, lIdx) => {
+    const activo = lIdx === leccionActivaIdx;
+    return `
+      <button onclick="reproducirLeccion(${lIdx}, ${esBono})" class="w-full p-3 rounded-xl flex items-center gap-3 text-left transition-all ${activo ? "bg-gradient-to-r from-[#F0C98A] to-[#FDA4AF] text-[#15121F] font-extrabold shadow-md" : "bg-[#15121F]/70 hover:bg-white/[0.06] text-[#D0C9E0] border border-white/[0.06]"}">
+        <span class="material-symbols-outlined text-[18px] ${activo ? "text-[#15121F]" : "text-[#F0C98A]"}">${l.esVideo ? "play_circle" : (l.esPdf ? "description" : "link")}</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold truncate">${l.titulo}</p>
+          <span class="text-[10px] ${activo ? "text-[#15121F]/80" : "text-[#968EB0]"}">${l.icono} ${l.etiqueta}</span>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function reproducirLeccion(lIdx, esBono) {
+  leccionActivaIdx = lIdx;
+  const contenedor = esBono ? catalogoData.bonos[bonoActivoIdx] : catalogoData.modulos[moduloActivoIdx];
+  const lista = esBono ? contenedor.archivos : contenedor.lecciones;
+  const item = lista[lIdx];
+  if (!item) return;
+
+  renderizarArchivosModulo(lista, esBono);
+  document.getElementById("tagTipoArchivo").textContent = `${item.icono} ${item.etiqueta}`;
+
+  const video = document.getElementById("mainVideoPlayer");
+  const source = document.getElementById("mainVideoSource");
+  const overlay = document.getElementById("nonVideoOverlay");
+
+  if (item.esVideo) {
+    overlay.style.display = "none";
+    source.src = item.url;
+    video.load();
+    video.play().catch(() => {});
+  } else {
+    video.pause();
+    overlay.style.display = "flex";
+    document.getElementById("nonVideoIcon").textContent = item.esPdf ? "picture_as_pdf" : "folder_zip";
+    document.getElementById("nonVideoTitle").textContent = item.titulo;
+    document.getElementById("nonVideoLink").href = item.url;
+  }
+}
+
+function copiarPromptActual() {
+  const texto = document.getElementById("promptText").textContent;
+  navigator.clipboard.writeText(texto);
+  mostrarToast("✦ Prompt copiado al portapapeles");
+}
+
+function copiarEnlaceAfiliado() {
+  const link = catalogoData?.alumno?.enlaceReferido || "https://server-production-3709.up.railway.app/?ref=musa-vip";
+  navigator.clipboard.writeText(link);
+  const label = document.getElementById("affLinkLabel");
+  if (label) {
+    const prev = label.textContent;
+    label.textContent = "¡Link copiado!";
+    setTimeout(() => { label.textContent = prev; }, 2000);
+  }
+  mostrarToast("✦ Enlace de socio (50% comisión) copiado");
+}
+
+window.addEventListener("DOMContentLoaded", cargarCatalogo);
+</script>
 </body>
 </html>

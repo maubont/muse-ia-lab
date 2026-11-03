@@ -44,8 +44,12 @@ function sanitizarFunnelCopy(fc: CfgFunnel["funnelCopy"]): CfgFunnel["funnelCopy
   if (!fc || typeof fc !== "object") return fc;
   try {
     const json = JSON.stringify(fc);
-    if (!/google drive/i.test(json)) return fc;
-    const limpio = json.replace(/enlaces directos de Google Drive/gi, "tu enlace personal al área del curso");
+    if (!/google drive|plan de acci[oó]n 7 d[ií]as|esta misma semana|tu primera semana/i.test(json)) return fc;
+    const limpio = json
+      .replace(/enlaces directos de Google Drive/gi, "tu enlace personal al área del curso")
+      .replace(/Plan de Acci[oó]n 7 D[ií]as/gi, "Guía Rápida de Implementación")
+      .replace(/tu paso a paso para arrancar esta misma semana/gi, "tus plantillas listas para avanzar a tu propio ritmo y sin carga de estudio")
+      .replace(/el paso a paso exacto de tu primera semana/gi, "plantillas listas de copiar y pegar para avanzar a tu propio ritmo y sin carga de estudio");
     return JSON.parse(limpio);
   } catch {
     return fc;
@@ -65,7 +69,7 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
   const funnelCopy = sanitizarFunnelCopy((mapa.funnel_copy ?? { etapas: [] }) as CfgFunnel["funnelCopy"]);
 
   // Auto-sanitización en la base de datos si contenía copy antiguo
-  if (mapa.funnel_copy && /google drive/i.test(JSON.stringify(mapa.funnel_copy))) {
+  if (mapa.funnel_copy && /google drive|plan de acci[oó]n 7 d[ií]as|esta misma semana|tu primera semana/i.test(JSON.stringify(mapa.funnel_copy))) {
     consultar(
       "update public.musa_settings set value = $1::jsonb, updated_at = now() where key = 'funnel_copy'",
       [JSON.stringify(funnelCopy)],

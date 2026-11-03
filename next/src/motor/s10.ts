@@ -73,7 +73,7 @@ export function componerEntrega(lead: LeadNombre, cfg: CfgCopy): Entrega {
     // El plan puede ser una clave interna (`media:…`). Nunca se le enseña al cliente
     // una clave del almacén: o es un enlace de verdad, o se anuncia sin enlace.
     const visible = /^https?:\/\//i.test(plan) ? ` ${plan}` : "";
-    bloque2.push(`🎁 *Regalo — Plan de Acción 7 Días:*${visible || " incluido"}`);
+    bloque2.push(`🎁 *Regalo — Guía Rápida de Implementación:*${visible || " incluido"}`);
   }
 
   return {

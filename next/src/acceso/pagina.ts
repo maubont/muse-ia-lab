@@ -157,7 +157,7 @@ export function nombreDeBono(clave: string): string {
     coleccion_modelos: "Colección de modelos",
     megapack_master_ia: "Megapack Master IA",
     youtube_money_machine: "YouTube Money Machine",
-    plan_accion_7dias: "Plan de Acción 7 Días",
+    plan_accion_7dias: "Guía Rápida de Implementación",
   };
   if (nombres[clave]) return nombres[clave];
   return clave.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -350,8 +350,8 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opci
   const enlacePlan = resolverEnlace(entrega.plan_accion_7dias, token);
   const plan = enlacePlan
     ? `<a class="tarjeta" href="${escapar(enlacePlan)}" target="_blank" rel="noopener noreferrer">
-        <span class="num">7</span>
-        <span><strong>Plan de Acción 7 Días</strong><span>Qué hacer cada día</span></span>
+        <span class="num">⚡</span>
+        <span><strong>Guía Rápida de Implementación</strong><span>Plantillas y pasos a tu ritmo</span></span>
       </a>`
     : "";
 
@@ -366,7 +366,7 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opci
   return `${cabecera("Tu curso — Modelos IA")}
 <h1>${saludo} 👋</h1>
 <p>Este es tu acceso personal. Guárdalo: es tuyo y no caduca.</p>
-<div style="margin:18px 0 6px"><a class="boton" href="/academia.html${token ? `?t=${encodeURIComponent(token)}` : ""}">✦ Entrar al Aula Interactiva (Musa Academy LMS)</a></div>
+<div style="margin:18px 0 6px"><a class="boton" href="/academia.html${token ? `?t=${encodeURIComponent(token)}` : ""}">✦ Entrar a Musa Studio (Área Interactiva)</a></div>
 
 <h2>Los 13 módulos</h2>
 ${listaModulos}
@@ -374,7 +374,7 @@ ${listaModulos}
 <h2>Tus bonos</h2>
 ${listaBonos || "<p>—</p>"}
 
-${plan ? `<h2>Plan de trabajo</h2>${plan}` : ""}
+${plan ? `<h2>Guía de Arranque Rápido</h2>${plan}` : ""}
 ${grupo ? `<h2>Comunidad</h2>${grupo}` : ""}
 
 ${enlaceSoporte ? `<div class="soporte">
