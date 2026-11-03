@@ -89,7 +89,7 @@ export async function obtenerCatalogoAcademia(
   if (consultar && !token) {
     // Si se abre /academia.html directamente sin ?t=, recuperar el token activo más reciente
     const { rows } = await consultar(
-      "select token, lead_phone from public.musa_accesos where revocado_en is null and expira_en > now() order by created_at desc limit 1",
+      "select token, lead_phone from public.musa_accesos where revocado_en is null and expira_en > now() order by id desc limit 1",
     ).catch(() => ({ rows: [] }));
     if (rows[0]?.token) {
       token = String(rows[0].token);
