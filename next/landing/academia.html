@@ -184,11 +184,16 @@
             Mientras <strong class="text-[#181415] font-semibold">Musa</strong> es tu anfitriona oficial en toda la plataforma (y nuestro caso base de consistencia facial), en las 13 clases aprenderás a generar <strong class="text-[#181415] font-semibold">múltiples perfiles de modelos hiperrealistas estilo iPhone</strong> sin apariencia de plástico.
           </p>
 
-          <!-- Barra de Iniciativa: Siguiente Clase Sugerida -->
+          <!-- Barra de Iniciativa: Siguiente Clase Sugerida / Acceso -->
           <div class="pt-1 flex flex-col sm:flex-row sm:items-center gap-3">
             <button onclick="continuarUltimaCapsula()" class="px-5 py-3 rounded-xl text-[#181415] text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-2 transition-all shadow-sm hover:-translate-y-0.5" style="background: linear-gradient(135deg, #EAD4B0 0%, #E8C2C8 50%, #C8A97E 100%); border: 1px solid rgba(200,169,126,.55);">
               <span class="material-symbols-outlined text-[18px] text-[#181415]">play_arrow</span>
               <span id="labelHeroResume">Continuar Clase 3: Las herramientas</span>
+            </button>
+
+            <button onclick="reproducirVideoBienvenida()" id="btnSaludoMusaHero" class="px-4 py-3 rounded-xl bg-white hover:bg-[#F9EBEE] border border-[#EBCAD0] text-[#181415] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[17px] text-[#B86B77]">play_circle</span>
+              <span>Ver Saludo de Musa</span>
             </button>
 
             <button onclick="cambiarModoStudio('bonos')" class="px-4 py-3 rounded-xl bg-white hover:bg-[#F9EBEE] border border-[#EBCAD0] text-[#181415] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors">
@@ -646,6 +651,10 @@ function filtrarEstacion(estacionId) {
 }
 
 function continuarUltimaCapsula() {
+  if (!catalogoData?.autenticado) {
+    abrirModalConversion();
+    return;
+  }
   if (!catalogoData?.modulos?.length) return;
   const siguienteIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
   seleccionarModulo(siguienteIdx >= 0 ? siguienteIdx : 0, true);
@@ -661,7 +670,7 @@ function crearTarjetaMinimalista(m, idx) {
   const resultadoLimpio = limpiarTextoUI(m.resultado);
 
   const esDemo = !catalogoData?.autenticado;
-  const bloqueada = Boolean(m.bloqueado) || (esDemo && m.numero > 1);
+  const bloqueada = Boolean(m.bloqueado) || esDemo;
 
   const estadoBadge = bloqueada
     ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-stone-900/85 backdrop-blur-sm text-stone-100 text-[10.5px] font-semibold">
@@ -671,13 +680,9 @@ function crearTarjetaMinimalista(m, idx) {
       ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold shadow-sm">
            <span class="material-symbols-outlined text-[13px]">check_circle</span> Vista
          </span>`
-      : (esDemo
-        ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-700 text-white text-[10.5px] font-semibold shadow-sm">
-             <span class="material-symbols-outlined text-[13px]">play_circle</span> Clase Libre Demo
-           </span>`
-        : `<span class="font-mono-tech px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[#FAF7F5] text-[10px]">
-             ${portada.exif}
-           </span>`));
+      : `<span class="font-mono-tech px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[#FAF7F5] text-[10px]">
+           ${portada.exif}
+         </span>`);
 
   return `
     <article class="studio-card flex flex-col justify-between cursor-pointer group" onclick="seleccionarModulo(${idx}, true)">
@@ -734,10 +739,14 @@ function renderizarCatalogo() {
   const sigIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
   const labelHero = document.getElementById("labelHeroResume");
   if (labelHero) {
-    const targetMod = catalogoData.modulos[sigIdx >= 0 ? sigIdx : 0];
-    labelHero.textContent = targetMod
-      ? `Continuar Clase ${targetMod.numero}: ${limpiarTextoUI(targetMod.titulo)}`
-      : "Continuar en el Estudio";
+    if (!catalogoData?.autenticado) {
+      labelHero.textContent = "Desbloquear Acceso Completo ($33.000 COP)";
+    } else {
+      const targetMod = catalogoData.modulos[sigIdx >= 0 ? sigIdx : 0];
+      labelHero.textContent = targetMod
+        ? `Continuar Clase ${targetMod.numero}: ${limpiarTextoUI(targetMod.titulo)}`
+        : "Continuar en el Estudio";
+    }
   }
 
   const busqueda = (document.getElementById("inputBuscarCapsula")?.value || "").trim().toLowerCase();
@@ -949,7 +958,7 @@ function guardarNotaClaseActual() {
 function seleccionarModulo(idx, abrirVista = true) {
   if (!catalogoData?.modulos?.[idx]) return;
   const m = catalogoData.modulos[idx];
-  if (m.bloqueado || (!catalogoData?.autenticado && m.numero > 1)) {
+  if (m.bloqueado || !catalogoData?.autenticado) {
     abrirModalConversion(idx);
     return;
   }
@@ -958,8 +967,6 @@ function seleccionarModulo(idx, abrirVista = true) {
   leccionActivaIdx = 0;
 
   if (abrirVista) mostrarVistaLeccion();
-
-  const m = catalogoData.modulos[idx];
   const portada = PORTADAS_MUSA[idx % PORTADAS_MUSA.length];
   const est = obtenerEstacionDeModulo(m.numero);
   const tituloLimpio = limpiarTextoUI(m.titulo);
@@ -1086,6 +1093,23 @@ function cerrarModalConversion() {
   if (modal) modal.style.display = "none";
 }
 
+function reproducirVideoBienvenida() {
+  const modal = document.getElementById("modalSaludoMusa");
+  const video = document.getElementById("videoSaludoMusaPlayer");
+  if (modal) modal.style.display = "flex";
+  if (video) {
+    video.currentTime = 0;
+    video.play().catch(() => {});
+  }
+}
+
+function cerrarModalSaludoMusa() {
+  const modal = document.getElementById("modalSaludoMusa");
+  const video = document.getElementById("videoSaludoMusaPlayer");
+  if (video) video.pause();
+  if (modal) modal.style.display = "none";
+}
+
 // Auto-avance inteligente y atajos de teclado discretos (←, →, M, T)
 window.addEventListener("DOMContentLoaded", () => {
   cargarCatalogo();
@@ -1133,11 +1157,11 @@ window.addEventListener("DOMContentLoaded", () => {
     <div class="space-y-1.5 text-center pr-6 pl-2">
       <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F9EBEE] border border-[#EBCAD0] text-[#B86B77] font-mono-tech text-[10.5px] font-bold uppercase">
         <span class="material-symbols-outlined text-[13px]">lock</span>
-        Acceso Exclusivo
+        Catálogo Protegido
       </div>
       <h3 class="text-xl sm:text-2xl font-bold tracking-tight">Desbloquea Musa Studio</h3>
       <p id="modalSubtituloClase" class="text-xs text-[#5C5352] leading-relaxed">
-        Estás en el Modo Demostración. La Clase 1 es libre; las Clases 2 a 13 y los 4 Megapacks de Bonos requieren acceso completo.
+        Estás explorando el catálogo oficial de Musa Studio. Para acceder a las 13 clases maestras, prompts y bonos, activa tu cuenta oficial.
       </p>
     </div>
 
@@ -1169,13 +1193,52 @@ window.addEventListener("DOMContentLoaded", () => {
     </div>
 
     <div class="space-y-2 pt-1">
-      <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20el%20estudio%20probando%20la%20demo%20y%20quiero%20desbloquear%20el%20acceso%20completo%20por%2033.000%20COP" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 px-5 rounded-xl bg-[#181415] hover:bg-[#302729] text-[#FAF7F5] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 text-center">
+      <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20viendo%20la%20plataforma%20de%20Musa%20Studio%20y%20quiero%20activar%20mi%20acceso%20completo%20por%2033.000%20COP" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 px-5 rounded-xl bg-[#181415] hover:bg-[#302729] text-[#FAF7F5] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 text-center">
         <span class="material-symbols-outlined text-[18px] text-[#B86B77]">chat</span>
         <span>Comprar Acceso en WhatsApp</span>
       </a>
       <button onclick="cerrarModalConversion()" class="w-full py-1.5 text-xs text-stone-500 hover:text-stone-800 transition-colors">
-        Seguir viendo la Clase 1 gratuita
+        Seguir explorando el catálogo
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE SALUDO DE BIENVENIDA DE MUSA (ANFITRIONA) -->
+<div id="modalSaludoMusa" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md" style="display: none;">
+  <div class="relative w-full max-w-xl bg-[#FAF8F5] border border-[#EBCAD0] rounded-3xl p-5 sm:p-7 shadow-2xl text-[#181415] space-y-4 animate-in fade-in zoom-in duration-200">
+    <button onclick="cerrarModalSaludoMusa()" class="absolute top-5 right-5 text-stone-400 hover:text-stone-700 transition-colors p-1" title="Cerrar">
+      <span class="material-symbols-outlined text-[22px]">close</span>
+    </button>
+
+    <div class="space-y-1">
+      <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F9EBEE] border border-[#EBCAD0] text-[#B86B77] font-mono-tech text-[10.5px] font-bold uppercase">
+        <span class="material-symbols-outlined text-[13px]">waving_hand</span>
+        Anfitriona Oficial
+      </div>
+      <h3 class="text-xl sm:text-2xl font-bold tracking-tight">Bienvenido a Musa Studio</h3>
+      <p class="text-xs text-[#5C5352] leading-relaxed">
+        Conoce a Musa, el modelo hiperrealista creado con las técnicas y herramientas del laboratorio.
+      </p>
+    </div>
+
+    <!-- Video container -->
+    <div class="relative rounded-2xl overflow-hidden bg-black aspect-video shadow-inner">
+      <video id="videoSaludoMusaPlayer" controls class="w-full h-full object-contain" poster="/assets/musa-hero.jpg">
+        <source src="/assets/demo.mp4" type="video/mp4">
+        Tu navegador no soporta reproducción de video.
+      </video>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+      <div class="text-left">
+        <div class="text-xs text-stone-500">Acceso a las 13 clases de creación y monetización</div>
+        <div class="text-sm font-bold text-[#181415]">$33.000 COP <span class="text-xs font-normal text-stone-500">/ 9 USD</span></div>
+      </div>
+      <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vi%20tu%20video%20de%20bienvenida%20en%20la%20plataforma%20y%20quiero%20activar%20mi%20acceso%20a%20las%2013%20clases" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#181415] hover:bg-[#302729] text-[#FAF7F5] font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[16px] text-[#B86B77]">chat</span>
+        <span>Activar en WhatsApp</span>
+      </a>
     </div>
   </div>
 </div>

@@ -92,19 +92,20 @@ async function ejecutar() {
   afirmar("Anónimo: refCode no filtra teléfono", anon.alumno?.refCode === "musa-vip");
   afirmar("Anónimo: enlaceReferido es null", anon.alumno?.enlaceReferido === null);
 
-  // Protección de propiedad intelectual en anónimo
-  afirmar("Anónimo: Módulo 1 libre", anon.modulos[0].bloqueado === false);
-  afirmar("Anónimo: Módulo 1 incluye prompt teaser", typeof anon.modulos[0].prompt === "string");
+  // Protección de propiedad intelectual en anónimo (Modo Showroom 100% protegido)
+  afirmar("Anónimo: Módulo 1 bloqueado", anon.modulos[0].bloqueado === true);
+  afirmar("Anónimo: Módulo 1 oculta prompt", anon.modulos[0].prompt === null);
   afirmar("Anónimo: Módulo 2 bloqueado", anon.modulos[1].bloqueado === true);
   afirmar("Anónimo: Módulo 2 oculta prompt maestro", anon.modulos[1].prompt === null);
   afirmar("Anónimo: Módulo 13 bloqueado", anon.modulos[12].bloqueado === true);
   afirmar("Anónimo: Módulo 13 oculta prompt maestro", anon.modulos[12].prompt === null);
 
   // Protección de medios en anónimo
-  afirmar("Anónimo: Lección 1 es muestra gratis", anon.modulos[0].lecciones[0].esMuestraGratis === true);
-  afirmar("Anónimo: Lección 1 video apunta a demo.mp4", anon.modulos[0].lecciones[0].url === "/assets/demo.mp4");
+  afirmar("Anónimo: Lección 1 bloqueada", anon.modulos[0].lecciones[0].bloqueada === true);
+  afirmar("Anónimo: Lección 1 requiere acceso", anon.modulos[0].lecciones[0].url === "#requiere-acceso");
   afirmar("Anónimo: Lección 2 bloqueada", anon.modulos[1].lecciones[0].bloqueada === true);
   afirmar("Anónimo: Lección 2 no entrega URL de medio", anon.modulos[1].lecciones[0].url === "#requiere-acceso");
+  afirmar("Anónimo: Incluye video de bienvenida de Musa", anon.bienvenida?.videoUrl === "/assets/demo.mp4");
 
   // 2. Token inválido (inventado)
   const invalido = await obtenerCatalogoAcademia(consultarMock, "token_fantasma_xyz_1234567890123");

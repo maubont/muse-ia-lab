@@ -124,29 +124,16 @@ export async function obtenerCatalogoAcademia(
     const resultado = resultadoRaw.replace(/cuatro herramientas/gi, "herramientas");
 
     // Protección de propiedad intelectual:
-    // Si está autenticado: todos los prompts maestros completos.
-    // Si NO está autenticado (Modo Demo): Módulo 1 incluye prompt teaser de muestra; módulos 2-13 protegidos.
-    const esModuloGratis = idx === 0;
-    const bloqueado = !autenticado && !esModuloGratis;
-    const prompt = autenticado || esModuloGratis
-      ? (PROMPTS_POR_MODULO[idx] ?? PROMPTS_POR_MODULO[0])
-      : null;
+    // Si está autenticado: todos los prompts maestros y lecciones completas.
+    // Si NO está autenticado (Modo Showroom): 100% de los 13 módulos bloqueados. Cero lecciones libres.
+    const bloqueado = !autenticado;
+    const prompt = autenticado ? (PROMPTS_POR_MODULO[idx] ?? PROMPTS_POR_MODULO[0]) : null;
 
     const lecciones = norm.archivos.map((archivo, lIdx) => {
       const infoTipo = tipoDeArchivo(archivo);
       const urlReal = autenticado ? resolverEnlace(archivo, token) : null;
       const esVideo = infoTipo.etiqueta === "Video";
       const esPdf = infoTipo.etiqueta === "PDF";
-      const esLeccionMuestra = esModuloGratis && lIdx === 0;
-
-      let urlFinal: string;
-      if (autenticado) {
-        urlFinal = urlReal ?? "#";
-      } else if (esLeccionMuestra && esVideo) {
-        urlFinal = "/assets/demo.mp4";
-      } else {
-        urlFinal = "#requiere-acceso";
-      }
 
       return {
         id: `m${idx + 1}-l${lIdx + 1}`,
@@ -155,9 +142,9 @@ export async function obtenerCatalogoAcademia(
         icono: infoTipo.icono,
         esVideo,
         esPdf,
-        esMuestraGratis: esLeccionMuestra,
-        bloqueada: !autenticado && !esLeccionMuestra,
-        url: urlFinal,
+        esMuestraGratis: false,
+        bloqueada: !autenticado,
+        url: autenticado ? (urlReal ?? "#") : "#requiere-acceso",
         requiereToken: !autenticado,
       };
     });
@@ -167,7 +154,7 @@ export async function obtenerCatalogoAcademia(
       titulo,
       resultado,
       bloqueado,
-      esMuestraGratis: esModuloGratis,
+      esMuestraGratis: false,
       prompt,
       totalLecciones: lecciones.length,
       lecciones,
@@ -209,6 +196,12 @@ export async function obtenerCatalogoAcademia(
       rango: autenticado ? "Acceso Vitalicio Activo" : "Modo Demostración",
       refCode,
       enlaceReferido: autenticado ? `https://server-production-3709.up.railway.app/?ref=${refCode}` : null,
+    },
+    bienvenida: {
+      titulo: "Bienvenida a Musa Studio",
+      subtitulo: "Conoce a Musa, tu anfitriona oficial, y descubre cómo funciona la plataforma.",
+      videoUrl: "/assets/demo.mp4",
+      poster: "/assets/musa-hero.jpg",
     },
     soporteWa: "https://wa.me/573227462629?text=" + encodeURIComponent("Hola Musa, estoy dentro de Musa Studio y tengo una consulta"),
     modulos,
