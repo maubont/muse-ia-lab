@@ -142,7 +142,24 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       if (!fila) throw new Error("upsert de lead sin fila devuelta");
       const lead = aLead(fila);
 
-      // 1.b CAPTURA DEL CORREO. No se pide: si el cliente lo escribe, se guarda.
+      // 1.b Transcripción de audio / notas de voz con IA:
+      if (mensaje.media && mensaje.media.tipo === "audio" && (!mensaje.texto || mensaje.texto.trim() === "")) {
+        try {
+          const bytes = await mensaje.media.obtenerBytes();
+          if (bytes && bytes.byteLength > 0) {
+            const { transcribirAudio } = await import("./transcriptor-audio.ts");
+            const textoTranscrito = await transcribirAudio(Buffer.from(bytes), mensaje.media.mime ?? "audio/ogg");
+            if (textoTranscrito) {
+              console.log(`[musa] nota de voz transcrita (${mensaje.telefono}): "${textoTranscrito.slice(0, 80)}"`);
+              mensaje.texto = textoTranscrito;
+            }
+          }
+        } catch (e) {
+          console.warn("[musa] error transcribiendo nota de voz:", String(e).slice(0, 100));
+        }
+      }
+
+      // 1.c CAPTURA DEL CORREO. No se pide: si el cliente lo escribe, se guarda.
       // Es el único canal que sobrevive a un bloqueo de WhatsApp, así que la base de
       // compradores deja de depender solo de Meta.
       const correoVisto = (mensaje.texto ?? "").match(CORREO_RE)?.[0]?.toLowerCase();
@@ -250,6 +267,12 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         return [];
       }
 
+      const urlBase = (deps.urlPublica ?? "https://server-production-3709.up.railway.app").replace(/\/+$/, "");
+      const avatar = {
+        url: `${urlBase}/assets/demo.mp4`,
+        rama: "A",
+      };
+
       const efectos = decidirRuta({
         lead,
         cfg: cfg as never,
@@ -257,6 +280,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         norm: normalizar(mensaje.texto),
         clasificacion,
         comprobante: comprobante as never,
+        avatar,
       });
 
       // 5. ejecución contra Postgres

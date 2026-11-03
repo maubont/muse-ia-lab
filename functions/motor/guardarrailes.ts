@@ -188,8 +188,8 @@ export function clasificarEdadHeuristico(normRaw: string): string | null {
 }
 
 export function esAfirmativoCierre(norm: string): boolean {
-  return /^(si+|sip|dale|de una|ok|okey|okay|va|vale|listo|claro|perfecto|por supuesto|obvio|bueno|hagamoslo|quiero|me animo|empecemos|comencemos|arranquemos)\b/.test(norm) ||
-    /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero empezar|quiero comprar|si quiero|paso los datos)/.test(norm);
+  return /^(si+|sip|dale|de una|ok|okey|okay|va|vale|listo|claro|perfecto|por supuesto|obvio|bueno|hagamoslo|quiero|me animo|empecemos|comencemos|arranquemos|comprar|inscribirme)\b/.test(norm) ||
+    /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero empezar|quiero comprar|si quiero|paso los datos|me interesa|me llama la atencion|me gusta|como es|como seria|quiero info|quiero informacion|pasame la cuenta|a que cuenta|donde transfiero|donde consigno|tienes nequi|pago por nequi|nequi|bancolombia|bre-?b|cuanto cuesta|cuanto vale|que vale|precio|pasa los datos|dame los datos|donde deposito|quiero entrar|quiero acceder|como entro|quiero inscribirme)/.test(norm);
 }
 
 export function esNegativoCierre(norm: string): boolean {
@@ -213,5 +213,5 @@ export function contienePregunta(body: string, norm: string): boolean {
 
 /** el mensaje ya es en sí una petición de los datos de pago */
 export function pideDatosDirecto(norm: string): boolean {
-  return /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero comprar|paso los datos)/.test(norm);
+  return /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero comprar|paso los datos|pasame la cuenta|a que cuenta|donde transfiero|donde consigno|dame los datos|cuenta de nequi|cuenta nequi|nequi|bancolombia)/.test(norm);
 }

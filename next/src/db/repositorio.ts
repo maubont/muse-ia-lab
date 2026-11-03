@@ -259,11 +259,13 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
     },
     async gptFallback(phone) {
       const msg =
-        "¡Aquí estoy para ayudarte! 💜 El curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a Musa Academy) tiene un único pago de *33.000 COP* (≈ *9 USD*).\n\n" +
-        "Escríbeme *quiero pagar* para enviarte los datos de Nequi / Bre-B, cuéntame tu duda o escribe *reiniciar* si quieres ver la presentación desde el inicio 😊";
+        "¡Aquí estoy para ayudarte! 💜 Recuerda que el curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a Musa Studio) tiene un único pago promocional de *33.000 COP* (≈ *9 USD*).\n\n" +
+        "✨ Si deseas degustar la plataforma antes de decidirte, puedes ver la *Clase 1 gratis* aquí:\n" +
+        "https://server-production-3709.up.railway.app/academia.html\n\n" +
+        "¿Te gustaría que te comparta los datos de Nequi o Bancolombia para activar tu acceso completo, o tienes alguna duda específica?";
       void canal.marcarEscribiendo(phone).catch?.(() => {});
       await canal.enviar(phone, { texto: msg }).catch(() => ({ ok: false }));
-      await this.registrarEvento(phone, "gpt_no_implementado", { motivo: "fallback" });
+      await this.registrarEvento(phone, "asistencia_comercial", { motivo: "fallback" });
     },
     async responderObjecion(phone, args) {
       const respuestas: Record<number, string> = {

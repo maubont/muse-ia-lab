@@ -64,18 +64,22 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
 
   const soporte = mensajesStackYGate(lead, cfg);
 
+  const urlAcademia = "https://server-production-3709.up.railway.app/academia.html";
+  const textoDegustacion = `✨ *Degusta la plataforma antes de decidir:*\nPuedes explorar el estudio y ver la *Clase 1 gratis* aquí 👇\n${urlAcademia}`;
+
   // 3-4. momento avatar + stack/gate
   if (avatar) {
     const rama = (cfg.funnelCopy?.etapas ?? [])
       .find((x) => x.id === "S02_AVATAR")?.ramas?.[avatar.rama];
     const mensajes = rama?.mensajes ?? [];
-    const caption = resolverPlaceholders(sinPrefijo(mensajes[0] ?? ""), lead, cfg);
+    const caption = resolverPlaceholders(sinPrefijo(mensajes[0] ?? ""), lead, cfg) ||
+      "¡Hola! Soy Musa, anfitriona oficial de Muse IA Lab y modelo virtual creada 100% con IA 🎬";
 
     efectos.push({ tipo: "enviar_media", url: avatar.url, mediaTipo: "video", texto: caption });
     if (mensajes[1]) {
       efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(sinPrefijo(mensajes[1]), lead, cfg)] });
     }
-    efectos.push({ tipo: "enviar", textos: soporte });
+    efectos.push({ tipo: "enviar", textos: [textoDegustacion, ...soporte] });
     efectos.push({ tipo: "lead", patch: { avatar_enviado: true } });
     efectos.push({ tipo: "evento", nombre: "avatar_enviado", detalle: { rama: avatar.rama, media_url: avatar.url } });
     efectos.push({ tipo: "estado", nuevo: "S04_GATE18" });
@@ -87,8 +91,7 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
     .find((x) => x.id === "S02_AVATAR")?.ramas?.A?.sin_video ??
     "Te cuento todo en un momento 😉 Pero primero lo importante:";
 
-  efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(puente, lead, cfg)] });
-  efectos.push({ tipo: "enviar", textos: soporte });
+  efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(puente, lead, cfg), textoDegustacion, ...soporte] });
   efectos.push({ tipo: "lead", patch: { avatar_enviado: false } });
   efectos.push({ tipo: "estado", nuevo: "S04_GATE18" });
   return efectos;
