@@ -116,7 +116,7 @@ export async function atenderComandoOperador(
       [comando.shortId, comando.motivo.slice(0, 200)],
     );
     await consultar(
-      `insert into public.musa_funnel_events (lead_phone, tipo, detalle)
+      `insert into public.musa_funnel_events (lead_phone, evento, detalle)
        values ($1, 'pago_rechazado_operador', $2::jsonb)`,
       [telefono, JSON.stringify({ short_id: comando.shortId, motivo: comando.motivo })],
     ).catch(() => ({ rows: [] }));
@@ -159,7 +159,7 @@ export async function atenderComandoOperador(
       [comando.shortId],
     );
     await consultar(
-      `insert into public.musa_funnel_events (lead_phone, tipo, detalle)
+      `insert into public.musa_funnel_events (lead_phone, evento, detalle)
        values ($1, 'pago_aprobado_operador', $2::jsonb)`,
       [telefono, JSON.stringify({ short_id: comando.shortId })],
     ).catch(() => ({ rows: [] }));

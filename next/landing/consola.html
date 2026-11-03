@@ -763,11 +763,12 @@
 </div>
 </main>
 
-<!-- Interactive Agentic Voice + Text + Live Telemetry Engine -->
 <script>
 (function() {
   const statusPill = document.querySelector('header .text-emerald-400.font-bold');
   const latencyBadge = document.querySelector('header .bg-surface-container-low.px-2.py-1 span:last-child');
+  const revCounterBadge = Array.from(document.querySelectorAll('header span')).find(s => s.textContent.includes('Pagos en Revisión'));
+  const leadsCounterBadge = Array.from(document.querySelectorAll('header span')).find(s => s.textContent.includes('Leads Activos'));
   const waveBars = document.querySelectorAll('.wave-bar');
   const speakingLabel = document.querySelector('section .text-primary.font-semibold.tracking-wide');
   const subtitleBox = document.querySelector('section p.italic');
@@ -795,35 +796,23 @@
       playPauseIcon.textContent = active ? 'pause' : 'play_arrow';
     }
   }
-
-  // Initially pause waveform until user interacts or triggers voice
   setWaveActive(false);
 
   function speakText(text) {
     if (subtitleBox) subtitleBox.textContent = '“' + text + '”';
-    if (!('speechSynthesis' in window)) {
-      setWaveActive(true);
-      setTimeout(() => setWaveActive(false), 4000);
-      return;
-    }
+    if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = 'es-CO';
     utter.rate = 1.03;
-    utter.pitch = 1.02;
     const voices = window.speechSynthesis.getVoices();
     const preferred = voices.find(v => /es[-_](CO|MX|ES|US)/i.test(v.lang) && /Sabina|Helena|Dalia|Paulina|Natural|Google|Online/i.test(v.name))
       || voices.find(v => v.lang.startsWith('es'));
     if (preferred) utter.voice = preferred;
-
     utter.onstart = () => { isSpeaking = true; setWaveActive(true); };
     utter.onend = () => { isSpeaking = false; setWaveActive(false); };
     utter.onerror = () => { isSpeaking = false; setWaveActive(false); };
     window.speechSynthesis.speak(utter);
-  }
-
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
   }
 
   if (playPauseBtn) {
@@ -833,7 +822,7 @@
         isSpeaking = false;
         setWaveActive(false);
       } else {
-        const currentText = subtitleBox ? subtitleBox.textContent.replace(/[“”"]/g, '').trim() : 'Hola Mauricio, soy Musa. El sistema está conectado y listo para despachar accesos.';
+        const currentText = subtitleBox ? subtitleBox.textContent.replace(/[“”"]/g, '').trim() : 'Hola Mauricio, soy Musa.';
         speakText(currentText);
       }
     });
@@ -844,11 +833,9 @@
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       isSpeaking = false;
       setWaveActive(false);
-      if (speakingLabel) speakingLabel.textContent = 'Síntesis interrumpida por el operador';
     });
   }
 
-  // Speech Recognition (Mic)
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognition = null;
   if (SpeechRecognition) {
@@ -874,27 +861,9 @@
       if (recognition) {
         try { recognition.start(); } catch (_) { recognition.stop(); }
       } else {
-        speakText('Hola Mauricio. Canal de voz activo. El bot de WhatsApp en el 322 746 2629 opera con normalidad y cadencia humana.');
+        handleCommand('reporte');
       }
     });
-  }
-
-  function addTelemetryEvent(title, desc, icon = 'bolt') {
-    if (!telemetryStream) return;
-    const item = document.createElement('div');
-    item.className = 'p-3 rounded-lg bg-surface-container-low/70 border border-primary/30 flex items-start gap-3 transition-colors';
-    item.innerHTML = `
-      <div class="w-7 h-7 rounded-lg bg-primary-container/20 border border-primary/30 flex items-center justify-center text-primary shrink-0 mt-0.5">
-        <span class="material-symbols-outlined text-sm">${icon}</span>
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between gap-1">
-          <p class="text-label-md font-label-md text-on-surface font-semibold truncate">${title}</p>
-          <span class="text-label-code font-label-code text-primary shrink-0 font-mono">Ahora</span>
-        </div>
-        <p class="text-body-sm font-body-sm text-on-surface-variant truncate">${desc}</p>
-      </div>`;
-    telemetryStream.prepend(item);
   }
 
   function appendChatBubble(sender, text, isAgent = false) {
@@ -902,6 +871,7 @@
     const time = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
     const wrapper = document.createElement('div');
     wrapper.className = 'flex items-start gap-3';
+    const htmlText = String(text).replace(/\n/g, '<br/>').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" class="text-primary underline font-semibold">$1</a>');
     if (!isAgent) {
       wrapper.innerHTML = `
         <div class="w-7 h-7 rounded-full bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shrink-0 mt-0.5">
@@ -912,7 +882,7 @@
             <span class="text-label-md font-label-md font-semibold text-on-surface">${sender}</span>
             <span class="text-label-code font-label-code text-on-surface-variant font-mono">${time}</span>
           </div>
-          <div class="p-3 rounded-xl rounded-tl-none bg-surface-container-high border border-outline-variant/30 text-body-md font-body-md text-on-surface max-w-lg">${text}</div>
+          <div class="p-3 rounded-xl rounded-tl-none bg-surface-container-high border border-outline-variant/30 text-body-md font-body-md text-on-surface max-w-lg">${htmlText}</div>
         </div>`;
     } else {
       wrapper.innerHTML = `
@@ -921,54 +891,35 @@
         </div>
         <div class="space-y-1.5 flex-1">
           <div class="flex items-center gap-2">
-            <span class="text-label-md font-label-md font-semibold text-primary">Musa IA</span>
-            <span class="text-label-code font-label-code px-2 py-0.2 rounded-full bg-primary-container/20 text-primary border border-primary/30">Respuesta Agéntica</span>
+            <span class="text-label-md font-label-md font-semibold text-primary">Musa IA (PostgreSQL Live)</span>
             <span class="text-label-code font-label-code text-on-surface-variant font-mono">${time}</span>
           </div>
-          <div class="p-3.5 rounded-xl rounded-tl-none bg-surface-container border border-primary/30 text-body-md font-body-md text-on-surface">${text}</div>
+          <div class="p-3.5 rounded-xl rounded-tl-none bg-surface-container border border-primary/30 text-body-md font-body-md text-on-surface">${htmlText}</div>
         </div>`;
     }
     chatStream.appendChild(wrapper);
     chatStream.scrollTop = chatStream.scrollHeight;
   }
 
-  function handleCommand(raw) {
+  async function handleCommand(raw) {
     const cmd = (raw || '').trim();
     if (!cmd) return;
     appendChatBubble('Operador (Mauricio)', cmd, false);
     if (chatInput) chatInput.value = '';
 
-    const lower = cmd.toLowerCase();
-    let reply = '';
-    if (lower.includes('aprobar') || lower.includes('402') || lower.includes('despachar')) {
-      reply = '¡Listo Mauricio! He aprobado el recibo #402 por $33.000 COP en Nequi. Generé el token criptográfico de acceso y envié el enlace personal de Musa Academy por WhatsApp con cadencia natural.';
-      approveReceiptUI();
-      addTelemetryEvent('Pago #402 Aprobado y Despachado', 'Token /a/ enviado por WhatsApp al instante', 'check_circle');
-    } else if (lower.includes('reporte') || lower.includes('estado') || lower.includes('resumen')) {
-      reply = 'Reporte operativo al día: WhatsApp conectado en el 322 746 2629, cadencia humana activa de 1.2 a 2.5 segundos, copy sanitizado sin enlaces de Google Drive, y almacén R2 sirviendo los 13 módulos y 4 bonos.';
-      addTelemetryEvent('Reporte Operativo Generado', 'Auditoría de estado solicitada desde consola', 'analytics');
-    } else if (lower.includes('seguimiento') || lower.includes('maría') || lower.includes('maria')) {
-      reply = 'He programado el mensaje de seguimiento empático para María con indicador Escribiendo... recordándole que su cupo de $33.000 COP incluye los 13 módulos y los 4 bonos de regalo.';
-      addTelemetryEvent('Seguimiento Agéntico Enviado', 'Recordatorio enviado a María (+57 310 882 1940)', 'send');
-    } else if (lower.includes('rechazar')) {
-      reply = 'Recibo #402 marcado como rechazado. He enviado una solicitud amable al usuario pidiendo una captura legible donde se vea el número de referencia Nequi.';
-      addTelemetryEvent('Comprobante #402 Rechazado', 'Notificación enviada al lead para nueva captura', 'cancel');
-    } else {
-      reply = 'Instrucción recibida: "' + cmd + '". El motor agéntico de Musa está sincronizado con Evolution API y PostgreSQL.';
-      addTelemetryEvent('Comando Agéntico Ejecutado', cmd, 'terminal');
-    }
-
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/consola/comando', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comando: cmd })
+      });
+      const data = await res.json();
+      const reply = data.respuesta || 'Comando procesado.';
       appendChatBubble('Musa IA', reply, true);
-      if (duplexEnabled) speakText(reply);
-    }, 350);
-  }
-
-  function approveReceiptUI() {
-    const badge = Array.from(document.querySelectorAll('span')).find(s => s.textContent.includes('Pendiente de Validación'));
-    if (badge) {
-      badge.className = 'px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-label-code font-label-code font-semibold flex items-center gap-1';
-      badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Aprobado & Despachado';
+      if (duplexEnabled) speakText(reply.replace(/https?:\/\/\S+/g, 'enlace generado'));
+      cargarEstadoReal();
+    } catch (e) {
+      appendChatBubble('Musa IA', 'Error de red comunicando con el servidor.', true);
     }
   }
 
@@ -979,48 +930,60 @@
     });
   }
 
-  // Wire all shortcut buttons & OCR action buttons
   document.querySelectorAll('button').forEach(btn => {
     const txt = btn.textContent.trim();
     if (txt.includes('+ Aprobar pago #402') || txt === '/aprobar' || txt.includes('Aprobar y Despachar Curso') || txt.includes('Ejecutar Despacho Inmediato')) {
-      btn.addEventListener('click', () => handleCommand('/aprobar pago #402 y despachar curso'));
+      btn.addEventListener('click', () => handleCommand('acceso +573223565761'));
     } else if (txt.includes('+ Seguimiento a María')) {
-      btn.addEventListener('click', () => handleCommand('Enviar seguimiento cálido a María'));
+      btn.addEventListener('click', () => handleCommand('reporte'));
     } else if (txt.includes('+ Reporte diario')) {
-      btn.addEventListener('click', () => handleCommand('Dame el reporte diario de la operación'));
+      btn.addEventListener('click', () => handleCommand('reporte'));
     } else if (txt === '/mensaje') {
-      btn.addEventListener('click', () => { if (chatInput) { chatInput.value = '/mensaje '; chatInput.focus(); } });
+      btn.addEventListener('click', () => { if (chatInput) { chatInput.value = 'mensaje +573223565761 Hola!'; chatInput.focus(); } });
     } else if (txt === '/escalar' || txt.includes('Escalar a Humano')) {
-      btn.addEventListener('click', () => handleCommand('Escalar conversación a atención humana directa'));
-    } else if (txt.includes('Rechazar con Motivo')) {
-      btn.addEventListener('click', () => handleCommand('Rechazar comprobante #402 por captura incompleta'));
-    } else if (txt.includes('Modificar Mensaje Sage')) {
-      btn.addEventListener('click', () => {
-        const msg = '¡Hola Mauricio! Confirmamos tu pago de $33.000 COP. Aquí tienes tu enlace personal a Musa Academy.';
-        speakText(msg);
-      });
+      btn.addEventListener('click', () => handleCommand('reiniciar +573223565761'));
     }
   });
 
-  // Live Health & WhatsApp Session Polling
-  async function pollHealth() {
+  async function cargarEstadoReal() {
     const t0 = performance.now();
     try {
-      const [rSalud, rSesion] = await Promise.all([
-        fetch('/salud').then(r => r.json()).catch(() => null),
-        fetch('/salud/sesion').then(r => r.json()).catch(() => null),
-      ]);
+      const res = await fetch('/api/consola/estado');
+      const data = await res.json();
       const dt = Math.round(performance.now() - t0);
       if (latencyBadge) latencyBadge.textContent = dt + 'ms';
-      if (statusPill && rSesion) {
-        const open = rSesion.ok && rSesion.estado === 'open';
-        statusPill.textContent = open ? 'Conectado' : (rSesion.estado || 'Verificando');
-        statusPill.className = open ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold';
+      if (statusPill && data.sesion) {
+        statusPill.textContent = data.sesion.ok ? 'Conectado' : (data.sesion.estado || 'Verificando');
+      }
+      if (data.metricas) {
+        if (revCounterBadge) revCounterBadge.textContent = data.metricas.pagosEnRevision + ' Pagos en Revisión';
+        if (leadsCounterBadge) leadsCounterBadge.textContent = data.metricas.leadsTotales + ' Leads (' + data.metricas.leadsPagados + ' Pagados)';
+      }
+      if (telemetryStream && Array.isArray(data.eventos) && data.eventos.length > 0) {
+        telemetryStream.innerHTML = '';
+        data.eventos.slice(0, 6).forEach(ev => {
+          const item = document.createElement('div');
+          item.className = 'p-3 rounded-lg bg-surface-container-low/70 border border-outline-variant/20 flex items-start gap-3';
+          const fecha = ev.created_at ? new Date(ev.created_at).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '';
+          item.innerHTML = `
+            <div class="w-7 h-7 rounded-lg bg-primary-container/20 border border-primary/30 flex items-center justify-center text-primary shrink-0 mt-0.5">
+              <span class="material-symbols-outlined text-sm">bolt</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <p class="text-label-md font-label-md text-on-surface font-semibold truncate">${ev.evento}</p>
+                <span class="text-label-code font-label-code text-on-surface-variant shrink-0 font-mono">${fecha}</span>
+              </div>
+              <p class="text-body-sm font-body-sm text-on-surface-variant truncate">Lead: ${ev.lead_phone || 'sistema'}</p>
+            </div>`;
+          telemetryStream.appendChild(item);
+        });
       }
     } catch (_) {}
   }
-  pollHealth();
-  setInterval(pollHealth, 15000);
+
+  cargarEstadoReal();
+  setInterval(cargarEstadoReal, 15000);
 })();
 </script>
 

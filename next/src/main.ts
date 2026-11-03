@@ -13,6 +13,7 @@
 // Cuando el funnel esté completo, aquí se inyecta el motor real: es una línea.
 
 import { crearServidor } from "./api/servidor.ts";
+import { obtenerCatalogoAcademia, obtenerEstadoConsola, ejecutarComandoConsola } from "./api/panel-api.ts";
 import { crearCanalEvolution } from "../../functions/canal/evolution.ts";
 import { leerConfigCanal, describirConfig } from "./config.ts";
 import { motorEco } from "./motor/contrato.ts";
@@ -257,6 +258,9 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
           : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
     acceso,
     medios,
+    academiaCatalogo: (token?: string) => obtenerCatalogoAcademia(consultar, token),
+    consolaEstado: () => obtenerEstadoConsola({ consultar, estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined }),
+    consolaComando: (cmd: string) => ejecutarComandoConsola({ comandoTexto: cmd, consultar, canal, urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined, esperar: opciones.esperar }),
     // Prueba mínima del proveedor: «configurado» y «funciona» no son lo mismo.
     diagnosticoIa: cfgIa
       ? async () => {

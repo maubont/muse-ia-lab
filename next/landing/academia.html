@@ -1,851 +1,815 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="es"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Musa Academy — Modelos IA | Muse IA Lab</title>
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          "colors": {
-            "outline-variant": "#494454",
-            "tertiary-fixed": "#e7deff",
-            "tertiary": "#ccbeff",
-            "on-error": "#690005",
-            "on-primary-fixed": "#23005c",
-            "on-primary": "#3c0091",
-            "on-tertiary": "#332664",
-            "inverse-surface": "#e4e1eb",
-            "surface-container-lowest": "#0e0e14",
-            "on-error-container": "#ffdad6",
-            "on-primary-container": "#340080",
-            "secondary-fixed-dim": "#cebdff",
-            "on-background": "#e4e1eb",
-            "surface-container-high": "#2a2931",
-            "on-surface-variant": "#cbc3d7",
-            "tertiary-container": "#9587cc",
-            "on-tertiary-fixed-variant": "#4a3d7c",
-            "surface-tint": "#d0bcff",
-            "primary-fixed-dim": "#d0bcff",
-            "inverse-on-surface": "#303037",
-            "background": "#09090d",
-            "surface-container-low": "#111118",
-            "surface": "#13131a",
-            "on-primary-fixed-variant": "#5516be",
-            "surface-variant": "#34343c",
-            "on-secondary": "#381385",
-            "on-surface": "#e4e1eb",
-            "on-tertiary-container": "#2c1f5c",
-            "error-container": "#93000a",
-            "surface-bright": "#393840",
-            "on-tertiary-fixed": "#1e0e4e",
-            "on-secondary-fixed-variant": "#4f319c",
-            "primary": "#d0bcff",
-            "error": "#ffb4ab",
-            "secondary-container": "#4f319c",
-            "outline": "#958ea0",
-            "on-secondary-container": "#bea8ff",
-            "inverse-primary": "#6d3bd7",
-            "primary-fixed": "#e9ddff",
-            "surface-dim": "#13131a",
-            "surface-container-highest": "#34343c",
-            "secondary": "#cebdff",
-            "surface-container": "#161622",
-            "secondary-fixed": "#e8ddff",
-            "primary-container": "#a078ff",
-            "on-secondary-fixed": "#21005e",
-            "tertiary-fixed-dim": "#ccbeff"
-          },
-          "borderRadius": {
-            "DEFAULT": "0.25rem",
-            "lg": "0.5rem",
-            "xl": "0.75rem",
-            "full": "9999px"
-          },
-          "spacing": {
-            "space-2xl": "4rem",
-            "gutter": "1.5rem",
-            "space-md": "1rem",
-            "gutter-sm": "1rem",
-            "space-xs": "0.25rem",
-            "margin-desktop": "3rem",
-            "gutter-lg": "2rem",
-            "margin-mobile": "1rem",
-            "margin": "2rem",
-            "space-lg": "1.5rem",
-            "space-sm": "0.5rem",
-            "space-xl": "2.5rem"
-          },
-          "fontFamily": {
-            "label-md": ["Inter"],
-            "headline-sm": ["Plus Jakarta Sans"],
-            "display-hero": ["Plus Jakarta Sans"],
-            "headline-lg": ["Plus Jakarta Sans"],
-            "headline-lg-mobile": ["Plus Jakarta Sans"],
-            "headline-xl": ["Plus Jakarta Sans"],
-            "display-hero-mobile": ["Plus Jakarta Sans"],
-            "body-lg": ["Plus Jakarta Sans"],
-            "headline-xl-mobile": ["Plus Jakarta Sans"],
-            "headline-md": ["Plus Jakarta Sans"],
-            "body-xl": ["Plus Jakarta Sans"],
-            "label-lg": ["Inter"],
-            "body-md": ["Plus Jakarta Sans"],
-            "body-sm": ["Plus Jakarta Sans"],
-            "label-code": ["Inter"]
-          },
-          "fontSize": {
-            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
-            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
-            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-            "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
-            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400" }],
-            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
-            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
-            "body-xl": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
-            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
-            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
-            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }],
-            "label-code": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "600" }]
-          }
-        }
-      }
+<html class="dark" lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <title>Musa Academy — Dashboard | Modelos IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-pure: #050508;
+      --bg-sidebar: #09090e;
+      --bg-card: #12121a;
+      --pink-accent: #ec4899;
+      --violet-accent: #a855f7;
     }
-  </script>
-<style>
+    body {
+      background-color: var(--bg-pure);
+      color: #f4f4f6;
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .brand-script {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      background: linear-gradient(90deg, #f472b6, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      display: inline-block;
       vertical-align: middle;
-      line-height: 1;
     }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 5px;
+    /* Custom thin scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #07070b; }
+    ::-webkit-scrollbar-thumb { background: #262636; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ec4899; }
+
+    /* Poster Card 3:4 Portrait Style like HyperModels */
+    .poster-card {
+      position: relative;
+      aspect-ratio: 3 / 4.15;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #12121c;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+      cursor: pointer;
     }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #0e0e14;
+    .poster-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(236, 72, 153, 0.55);
+      box-shadow: 0 18px 40px -12px rgba(236, 72, 153, 0.28);
     }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #2a2931;
-      border-radius: 4px;
+    .poster-card .poster-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease, filter 0.35s ease;
     }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #a078ff;
+    .poster-card:hover .poster-bg {
+      transform: scale(1.04);
+    }
+    .poster-card.soft-locked .poster-bg {
+      filter: blur(14px) brightness(0.65) saturate(1.2);
+      transform: scale(1.08);
+    }
+    .poster-card.soft-locked:hover .poster-bg {
+      filter: blur(6px) brightness(0.8) saturate(1.2);
+    }
+    .poster-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(8,8,14,0.15) 0%, rgba(8,8,14,0.35) 45%, rgba(6,6,12,0.95) 100%);
+    }
+    .completed-ribbon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, rgba(236, 72, 153, 0.92), rgba(168, 85, 247, 0.88));
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      z-index: 10;
+    }
+    .progress-ring-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 54px;
+      height: 54px;
+      border-radius: 9999px;
+      background: rgba(12, 12, 20, 0.65);
+      backdrop-filter: blur(8px);
+      border: 3px solid rgba(255, 255, 255, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      z-index: 10;
+    }
+    .module-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: #ec4899;
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin-bottom: 8px;
+    }
+    .bonus-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #f59e0b, #ec4899);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
   </style>
 </head>
-<body class="bg-background text-on-surface antialiased selection:bg-primary-container selection:text-surface-container-lowest min-h-screen flex flex-col font-body-md overflow-x-hidden">
-<!-- TOP APP BAR -->
-<header class="fixed top-0 left-0 right-0 w-full h-16 px-gutter flex items-center justify-between z-50 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.6)]">
-<!-- Brand Anchor & Course Pill -->
-<div class="flex items-center gap-space-md">
-<div class="flex items-center gap-space-sm group cursor-pointer">
-<div class="w-9 h-9 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center relative overflow-hidden group-hover:border-primary/60 transition-colors shadow-[0_0_15px_-3px_rgba(160,120,255,0.35)]">
-<span class="font-headline-sm text-headline-sm font-extrabold text-primary">M</span>
-<div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-</div>
-<div class="flex flex-col">
-<div class="flex items-center gap-space-xs">
-<span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface">Muse IA Lab</span>
-<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-primary border border-primary/30 font-label-code text-label-code uppercase tracking-wider">ACADEMY</span>
-</div>
-<span class="font-label-md text-label-md text-on-surface-variant text-[11px] leading-none">Musa Academy — Modelos IA</span>
-</div>
-</div>
-<!-- Navigation Links from Shared Components -->
-<nav class="hidden xl:flex items-center gap-6 ml-6 border-l border-outline-variant/30 pl-6">
-<a class="text-primary font-semibold border-b-2 border-primary pb-1 font-label-lg text-label-lg transition-colors" href="#curriculum">Curriculum</a>
-<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors font-label-lg text-label-lg" href="#lab-prompts">Lab Prompts</a>
-<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors font-label-lg text-label-lg" href="#artifacts">Artifacts</a>
-<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors font-label-lg text-label-lg" href="#community">Community</a>
-</nav>
-</div>
-<!-- Center Progress Indicator -->
-<div class="hidden lg:flex items-center gap-space-md w-1/3 max-w-md px-space-md py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30">
-<div class="flex-1">
-<div class="flex justify-between items-center mb-1">
-<span class="font-label-md text-label-md text-on-surface-variant">Progreso del curso</span>
-<span class="font-label-code text-label-code text-primary font-bold">38% <span class="text-outline font-normal">(5/13 Mód.)</span></span>
-</div>
-<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-<div class="h-full bg-gradient-to-r from-primary-container to-primary rounded-full relative shadow-[0_0_12px_rgba(160,120,255,0.7)]" style="width: 38%;"></div>
-</div>
-</div>
-</div>
-<!-- Right Actions & Student Badge -->
-<div class="flex items-center gap-space-md">
-<!-- Search Input -->
-<div class="relative hidden sm:block w-48 xl:w-64">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
-<input class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg pl-9 pr-3 py-1.5 font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary/60 transition-colors" placeholder="Buscar lección o prompt..." type="text"/>
-</div>
-<!-- Action Icons from JSON -->
-<div class="flex items-center gap-1 border-l border-outline-variant/30 pl-space-sm sm:pl-space-md">
-<button class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors relative" title="Notificaciones">
-<span class="material-symbols-outlined text-[20px]">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_#a078ff]"></span>
-</button>
-<a href="/consola.html" class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" title="Ir a Consola Agéntica Musa">
-<span class="material-symbols-outlined text-[20px]">terminal</span>
-</a>
-</div>
-<!-- Trailing Action from Shared Components JSON -->
-<a href="/consola.html" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/40 hover:border-primary/40 font-label-md text-label-md text-on-surface hover:text-primary transition-all">
-<span class="material-symbols-outlined text-[16px]">terminal</span>
-<span>Consola Musa</span>
-</a>
-<!-- Student Profile -->
-<div class="flex items-center gap-space-sm pl-2 border-l border-outline-variant/30 cursor-pointer">
-<div class="relative">
-<img class="w-8 h-8 rounded-full border border-primary/40 object-cover" data-alt="A cinematic close-up digital portrait of an advanced female AI researcher in dark studio ambient lighting, soft violet edge highlights, highly detailed hyperrealistic skin texture, and sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-rXwWHoEEoSzVaDLbDYfvfORd8cNuKQvPUE_69BePmNmA6Fyn9SuPen_gJjNoBYaAt8Fh65QbUHdBGd8Xg5TwVWpQkSUK1W4qYbM2safxkequ9SPGf25VJTUhVnzYvQMopGzL4qWf0b8p5Fiw0ong8yvPXUJeH8keMCAfHHv5eUq3pPe6s3R_oUyvwxNt76tw6qEQd8co4f-q9gtMweBDQOwLjzSCgff3jUHoOs7v9V1QLT5vGiALPzoT7rHTwJ25Pln9cBEGIME"/>
-<span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-surface-container-lowest"></span>
-</div>
-<div class="hidden xl:flex flex-col">
-<span class="font-label-md text-label-md font-semibold text-on-surface leading-tight">Alex Vance</span>
-<span class="font-label-code text-label-code text-primary leading-tight">Miembro Pro</span>
-</div>
-</div>
-</div>
-</header>
-<!-- MAIN VIEWPORT CONTAINER -->
-<main class="mt-16 w-full max-w-[1920px] mx-auto px-4 lg:px-8 py-6 flex-1 flex flex-col xl:flex-row gap-6">
-<!-- LEFT COLUMN (~70% Width - Lesson Player & Workspace) -->
-<section class="w-full xl:w-[70%] flex flex-col gap-6">
-<!-- CINEMA-RATIO 16:9 VIDEO PLAYER INTERFACE -->
-<div class="w-full rounded-2xl bg-surface-container-low border border-outline-variant/40 overflow-hidden shadow-[0_8px_32px_-4px_rgba(0,0,0,0.8)] relative group">
-<!-- Player Upper Header Bar -->
-<div class="px-5 py-3 bg-surface-container-lowest/90 backdrop-blur border-b border-outline-variant/20 flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-<span class="font-label-code text-label-code text-primary tracking-wider font-bold">MÓDULO 3 • LECCIÓN 2 • 4K HDR</span>
-</div>
-<div class="flex items-center gap-4 text-outline font-label-code text-label-code">
-<span class="flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px]">lock</span>
-              Musa Academy • DRM Protected
-            </span>
-<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface-variant">H.265 / HEVC</span>
-</div>
-</div>
-<!-- Cinema Screen Simulator -->
-<div class="relative aspect-video w-full bg-surface-container-lowest overflow-hidden flex items-center justify-center">
-<img class="w-full h-full object-cover opacity-85 group-hover:scale-[1.01] transition-transform duration-700" data-alt="An ultra-detailed cinema screen simulation exhibiting an advanced AI photorealistic portrait workshop. On the screen, a high-fidelity female face model with photorealistic pore details and dramatic Rembrandt studio lighting is displayed with node-based parameters, LoRA weights, and diffusion latent sliders overlaid in violet UI accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-GrIQ2tFnexQiBrUY1xFAhDDTaLPXqkDJ64NqCp5NB6jzggvOBrJBleg8qS3QuMNzD7eRIcXdQ_BJlbpo9AdjwXGMwX99sPqqjRShLWpRjMM1vA-AejrbZWudSffsqeMISwBjGHHeaV5oNd67WKp-rIbYB6zsCYZzQsGSK1fvbtLFcp1QA9qnGBuvboVp1_eZxIhjB_gk3mJcT9BZ8KA3gWxBujpaCQR2etvsmxf5P8atLvWEY3wDXklfTdVTlticsrVEbpBA5cE"/>
-<!-- Dark Ambient Vignette -->
-<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-surface-container-lowest/40 pointer-events-none"></div>
-<!-- Centered Glowing Play Button Overlay (Simulated Hover/Pause) -->
-<button class="absolute z-10 w-20 h-20 rounded-full bg-surface-container-lowest/80 border border-primary/50 backdrop-blur-md flex items-center justify-center text-primary hover:text-on-surface hover:scale-110 hover:border-primary shadow-[0_0_30px_rgba(160,120,255,0.4)] transition-all duration-300">
-<span class="material-symbols-outlined text-[44px] ml-1" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-</button>
-<!-- Watermark Minimalist -->
-<div class="absolute top-4 right-5 text-on-surface-variant/30 font-label-code text-label-code uppercase tracking-widest select-none pointer-events-none">
-            MUSA-ACADEMY-ID // 9842-88B
+<body class="min-h-screen flex bg-[#050508] text-white selection:bg-pink-500 selection:text-white">
+
+  <!-- ==================== BARRA LATERAL FIJA (ESTILO HYPERMODELS) ==================== -->
+  <aside class="w-[275px] shrink-0 bg-[#08080c] border-r border-white/10 fixed top-0 bottom-0 left-0 z-40 flex flex-col justify-between p-4 select-none">
+    <div class="flex flex-col min-h-0 flex-1">
+      <!-- Logo Superior -->
+      <div class="flex items-center justify-between px-2 pt-1 pb-5">
+        <a href="#catalogo" onclick="mostrarCatalogo(); return false;" class="flex items-baseline gap-1 text-2xl font-extrabold tracking-tight">
+          <span>Musa</span>
+          <span class="brand-script text-[26px] pr-1">Models</span>
+          <span class="text-[10px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-white/10 text-pink-300 ml-1">IA</span>
+        </a>
+      </div>
+
+      <!-- Botón Home / Volver al inicio -->
+      <button id="btnSidebarHome" onclick="mostrarCatalogo()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-colors mb-4">
+        <span class="material-symbols-outlined text-[20px]">home</span>
+        <span id="labelSidebarHome">Home</span>
+      </button>
+
+      <!-- 3 TARJETAS FIJAS DE COMUNIDAD, SOPORTE Y AFILIADOS -->
+      <div class="space-y-2.5 mb-4">
+        <!-- Tarjeta 1: Plan 7 Días & Comunidad -->
+        <a id="cardPlanSidebar" href="/academia.html#bonos" onclick="irABonos(); return false;" class="block p-3 rounded-xl bg-[#0c192c] border border-sky-500/30 hover:border-sky-400/60 transition-colors">
+          <div class="flex items-center gap-2 text-sky-400 font-bold text-xs mb-1">
+            <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+            <span>Plan de Acción 7 Días & Bonos</span>
           </div>
-<!-- Bottom Player Controls Bar -->
-<div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/90 to-transparent flex flex-col gap-2 z-20">
-<!-- Timeline Scrub Bar -->
-<div class="relative w-full h-2 group/scrub cursor-pointer flex items-center">
-<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
-<div class="h-full bg-primary relative" style="width: 42%;"></div>
-</div>
-<!-- Floating Pip -->
-<div class="absolute left-[42%] w-3.5 h-3.5 bg-tertiary rounded-full shadow-[0_0_10px_#a078ff] -translate-x-1/2 transform transition-transform group-hover/scrub:scale-125"></div>
-</div>
-<div class="flex items-center justify-between text-on-surface font-label-md text-label-md pt-1">
-<!-- Left Control Group -->
-<div class="flex items-center gap-4">
-<button class="text-primary hover:text-tertiary transition-colors">
-<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">pause</span>
-</button>
-<button class="text-on-surface-variant hover:text-on-surface transition-colors">
-<span class="material-symbols-outlined text-[20px]">replay_10</span>
-</button>
-<button class="text-on-surface-variant hover:text-on-surface transition-colors">
-<span class="material-symbols-outlined text-[20px]">forward_10</span>
-</button>
-<div class="flex items-center gap-1.5 text-on-surface-variant">
-<span class="material-symbols-outlined text-[18px]">volume_up</span>
-<div class="w-16 h-1 bg-surface-container-high rounded-full">
-<div class="w-3/4 h-full bg-on-surface-variant rounded-full"></div>
-</div>
-</div>
-<span class="font-label-code text-label-code text-on-surface-variant ml-2">10:08 / 24:00</span>
-</div>
-<!-- Right Control Group -->
-<div class="flex items-center gap-3">
-<button class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-code text-label-code border border-outline-variant/40 hover:border-primary/50 transition-colors">
-                  1.5x
-                </button>
-<button class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-code text-label-code border border-outline-variant/40 hover:text-primary transition-colors">
-                  4K UHD
-                </button>
-<button class="text-on-surface-variant hover:text-on-surface transition-colors" title="Subtítulos">
-<span class="material-symbols-outlined text-[20px]">closed_caption</span>
-</button>
-<button class="text-on-surface-variant hover:text-on-surface transition-colors" title="Ajustes de Render">
-<span class="material-symbols-outlined text-[20px]">tune</span>
-</button>
-<button class="text-on-surface-variant hover:text-on-surface transition-colors" title="Pantalla Completa">
-<span class="material-symbols-outlined text-[20px]">fullscreen</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- LESSON METADATA & TITLE BLOCK -->
-<div class="flex flex-col gap-3 p-6 rounded-2xl bg-surface-container-low border border-outline-variant/30">
-<!-- Breadcrumb -->
-<nav class="flex items-center gap-2 text-outline font-label-md text-label-md">
-<span>Modelos IA</span>
-<span class="material-symbols-outlined text-[14px]">chevron_right</span>
-<span>Fase 2: Generación Avanzada</span>
-<span class="material-symbols-outlined text-[14px]">chevron_right</span>
-<span class="text-primary font-medium">Módulo 3</span>
-</nav>
-<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-          Módulo 3: Generación de rostros hiperrealistas y consistencia facial
-        </h1>
-<!-- Badges Cluster -->
-<div class="flex flex-wrap items-center gap-2 py-1">
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant font-label-code text-label-code">
-<span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
-<span>Duración: 24 min</span>
-</div>
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant font-label-code text-label-code">
-<span class="material-symbols-outlined text-[14px] text-tertiary">signal_cellular_alt</span>
-<span>Nivel: Intermedio-Avanzado</span>
-</div>
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant font-label-code text-label-code">
-<span class="material-symbols-outlined text-[14px] text-emerald-400">update</span>
-<span>Actualizado: Esta semana</span>
-</div>
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container border border-primary/20 text-primary font-label-code text-label-code">
-<span class="material-symbols-outlined text-[14px]">hardware</span>
-<span>Herramientas: Midjourney v6 + Fooocus + FaceID LoRA</span>
-</div>
-</div>
-<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mt-1">
-          Aprende a dominar las técnicas de latentes y semillas fijas para mantener la coherencia anatómica y rasgos faciales idénticos a través de múltiples ángulos, expresiones e iluminaciones dramáticas de estudio. En este taller desglosamos las directivas de denoise y matrices de tensores.
-        </p>
-</div>
-<!-- RESOURCE DOWNLOADS & PROMPT PACKS -->
-<div class="flex flex-col gap-4 p-6 rounded-2xl bg-surface-container-low border border-outline-variant/30" id="lab-prompts">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[22px]">terminal</span>
-<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Material de Laboratorio &amp; Prompt Matrix</h2>
-</div>
-<span class="font-label-code text-label-code px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary border border-outline-variant/40">3 Recursos Verificados</span>
-</div>
-<!-- Bento Grid for Downloads -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-<!-- Resource 1 -->
-<div class="p-4 rounded-xl bg-surface-container border border-outline-variant/30 hover:border-primary/50 transition-all group flex flex-col justify-between">
-<div>
-<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary mb-3">
-<span class="material-symbols-outlined text-[18px]">data_object</span>
-</div>
-<h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Prompt Templates &amp; Seed Matrix</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Archivos `.JSON` y `.TXT` con los pesos de denoise probados en producción.</p>
-</div>
-<button class="mt-4 w-full py-2 px-3 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary font-label-md text-label-md text-primary font-medium flex items-center justify-center gap-1.5 transition-colors">
-<span class="material-symbols-outlined text-[16px]">download</span>
-<span>Descargar .JSON</span>
-</button>
-</div>
-<!-- Resource 2 -->
-<div class="p-4 rounded-xl bg-surface-container border border-outline-variant/30 hover:border-primary/50 transition-all group flex flex-col justify-between">
-<div>
-<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary mb-3">
-<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-</div>
-<h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Guía Rápida de Consistencia Facial</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Cheatsheet descargable de 12 páginas con tablas de correlación anatómica.</p>
-</div>
-<button class="mt-4 w-full py-2 px-3 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary font-label-md text-label-md text-primary font-medium flex items-center justify-center gap-1.5 transition-colors">
-<span class="material-symbols-outlined text-[16px]">download</span>
-<span>Descargar PDF (4.2 MB)</span>
-</button>
-</div>
-<!-- Resource 3 -->
-<div class="p-4 rounded-xl bg-surface-container border border-outline-variant/30 hover:border-primary/50 transition-all group flex flex-col justify-between">
-<div>
-<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary mb-3">
-<span class="material-symbols-outlined text-[18px]">memory</span>
-</div>
-<h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Parámetros LoRA recomendados</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Configuración recomendada de FaceID y checkpoints (.safetensors config).</p>
-</div>
-<button class="mt-4 w-full py-2 px-3 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary font-label-md text-label-md text-primary font-medium flex items-center justify-center gap-1.5 transition-colors">
-<span class="material-symbols-outlined text-[16px]">download</span>
-<span>Obtener Config (.safetensors)</span>
-</button>
-</div>
-</div>
-<!-- 1-Click Interactive Copyable Prompt Card -->
-<div class="mt-2 p-4 rounded-xl bg-surface-container-lowest border border-primary/30 relative overflow-hidden group shadow-[0_0_20px_-4px_rgba(160,120,255,0.15)]">
-<div class="flex items-center justify-between mb-2">
-<span class="font-label-code text-label-code text-primary uppercase font-bold flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
-              Prompt base optimizado
-            </span>
-<button class="px-3 py-1 rounded bg-primary-container/20 hover:bg-primary-container text-primary hover:text-on-primary-container border border-primary/30 font-label-md text-label-md transition-all flex items-center gap-1 active:scale-95" id="copyPromptBtn" onclick="copyPromptText()">
-<span class="material-symbols-outlined text-[16px]" id="copyIcon">content_copy</span>
-<span id="copyLabel">Copiar Prompt</span>
-</button>
-</div>
-<div class="p-3 rounded-lg bg-surface-container-low border border-outline-variant/20 font-label-code text-label-code text-tertiary select-all leading-relaxed" id="promptContent">
-            /imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0
+          <p class="text-[11.5px] text-sky-100/80 leading-snug">
+            Accede a las 22 clases del Megapack Master IA y tu hoja de ruta diaria.
+          </p>
+        </a>
+
+        <!-- Tarjeta 2: Soporte Directo WhatsApp (En todas las pantallas) -->
+        <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Academy%20y%20tengo%20una%20duda" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-xl bg-[#380921] border border-pink-500/30 hover:border-pink-400/60 transition-colors">
+          <div class="flex items-center gap-2 text-pink-300 font-bold text-xs mb-1">
+            <span class="material-symbols-outlined text-[16px]">chat</span>
+            <span>¿Preguntas, dudas?</span>
           </div>
-</div>
-</div>
-<!-- INTERACTIVE LESSON ACTION BAR -->
-<div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30">
-<button class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-outline-variant/40 hover:border-primary/50 text-on-surface-variant hover:text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 transition-colors">
-<span class="material-symbols-outlined text-[18px]">arrow_back</span>
-<span>Clase Anterior (Mód. 2: ControlNet)</span>
-</button>
-<button class="w-full sm:w-auto px-6 py-3 rounded-lg bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(160,120,255,0.4)] hover:shadow-[0_0_30px_rgba(160,120,255,0.6)] transition-all active:scale-95">
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span>✓ Marcar Completada y Continuar</span>
-</button>
-<button class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-outline-variant/40 hover:border-primary/50 text-on-surface-variant hover:text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 transition-colors">
-<span>Siguiente Clase (Mód. 4: Poses)</span>
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-</button>
-</div>
-<!-- EMBEDDED SUPPORT BANNER -->
-<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low border border-outline-variant/30 p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.6)]">
-<div class="flex items-start gap-4">
-<div class="w-12 h-12 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center text-emerald-400 flex-shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-<span class="material-symbols-outlined text-[28px]">support_agent</span>
-</div>
-<div class="flex flex-col">
-<div class="flex items-center gap-2">
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">¿Atascado en esta lección? Asistencia inmediata por WhatsApp con Musa</h3>
-<span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-label-code text-label-code">Online</span>
-</div>
-<p class="font-body-md text-body-md text-on-surface-variant mt-1">
-              Respuesta promedio en menos de 15 minutos de lunes a sábado con nuestros mentores de IA especializados en arquitecturas latentes.
-            </p>
-</div>
-</div>
-<a class="flex-shrink-0 px-5 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-label-lg text-label-lg font-semibold flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] transition-all active:scale-95" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Academy%20y%20tengo%20una%20consulta" rel="noopener noreferrer" target="_blank">
-<span class="material-symbols-outlined text-[20px]">chat</span>
-<span>Abrir WhatsApp Mentor</span>
-</a>
-</div>
-</section>
-<!-- RIGHT COLUMN (~30% Width - Sticky Curriculum Rail & Sidebar) -->
-<aside class="w-full xl:w-[30%] flex flex-col gap-6" id="curriculum">
-<!-- CURRICULUM PANEL -->
-<div class="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col shadow-[0_8px_24px_-4px_rgba(0,0,0,0.6)]">
-<!-- Curriculum Header -->
-<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">
-<div>
-<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Plan de Estudios</h2>
-<p class="font-body-sm text-body-sm text-on-surface-variant">13 Módulos de Especialización</p>
-</div>
-<div class="px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/30 font-label-code text-label-code text-primary font-bold">
-            5 / 13 Hechos
+          <p class="text-[11.5px] text-pink-100/85 leading-snug mb-1.5">
+            Estamos aquí para ayudarte a sacar el máximo partido a Modelos IA.
+          </p>
+          <span class="text-[11.5px] font-bold text-white underline decoration-pink-400">Escríbenos por WhatsApp →</span>
+        </a>
+
+        <!-- Tarjeta 3: Programa de Afiliados 50% -->
+        <div onclick="copiarEnlaceAfiliado()" class="cursor-pointer p-3 rounded-xl bg-[#072617] border border-emerald-500/30 hover:border-emerald-400/60 transition-colors">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs mb-1">
+            <span class="material-symbols-outlined text-[16px]">payments</span>
+            <span>Gana recomendando Modelos IA</span>
           </div>
-</div>
-<!-- Filter Chips -->
-<div class="flex items-center gap-2 py-3">
-<button class="px-3 py-1 rounded-full bg-surface-container-high text-primary font-label-md text-label-md border border-primary/30">Todos (13)</button>
-<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md border border-outline-variant/30 transition-colors">Completados (5)</button>
-<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md border border-outline-variant/30 transition-colors">Pendientes (8)</button>
-</div>
-<!-- MODULE LIST (13 MODULES) -->
-<div class="flex flex-col gap-2.5 mt-1 max-h-[580px] overflow-y-auto pr-1 custom-scrollbar">
-<!-- Module 1: Done -->
-<div class="p-3.5 rounded-xl bg-surface-container/50 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mt-0.5 flex-shrink-0">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="flex-1">
-<div class="flex items-center justify-between">
-<span class="font-label-lg text-label-lg font-medium text-on-surface group-hover:text-primary transition-colors">Módulo 1: Fundamentos y Configuración del Entorno IA</span>
-</div>
-<span class="font-label-code text-label-code text-outline">18 min • Completado</span>
-</div>
-</div>
-<!-- Module 2: Done -->
-<div class="p-3.5 rounded-xl bg-surface-container/50 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mt-0.5 flex-shrink-0">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="flex-1">
-<div class="flex items-center justify-between">
-<span class="font-label-lg text-label-lg font-medium text-on-surface group-hover:text-primary transition-colors">Módulo 2: Prompt Engineering Quirúrgico para Rostros</span>
-</div>
-<span class="font-label-code text-label-code text-outline">22 min • Completado</span>
-</div>
-</div>
-<!-- Module 3: Active Playing -->
-<div class="p-3.5 rounded-xl bg-surface-container-high border-2 border-primary shadow-[0_0_20px_-3px_rgba(160,120,255,0.3)] flex items-start gap-3 relative overflow-hidden cursor-pointer">
-<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"></div>
-<div class="w-6 h-6 rounded-full bg-primary/20 border border-primary flex items-center justify-center text-primary mt-0.5 flex-shrink-0 animate-pulse">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-</div>
-<div class="flex-1">
-<div class="flex items-center justify-between gap-1">
-<span class="font-label-lg text-label-lg font-bold text-primary">Módulo 3: Generación de rostros hiperrealistas y consistencia facial</span>
-</div>
-<div class="flex items-center gap-2 mt-1">
-<span class="font-label-code text-label-code text-tertiary">24 min</span>
-<span class="px-1.5 py-0.5 rounded bg-primary-container text-on-primary-container font-label-code text-label-code font-bold uppercase text-[10px]">EN REPRODUCCIÓN</span>
-</div>
-</div>
-</div>
-<!-- Module 4 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">4</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 4: Anatomía precisa: Manos, Miradas y Piel natural</span>
-<p class="font-label-code text-label-code text-outline">29 min • Próximo</p>
-</div>
-</div>
-<!-- Module 5 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">5</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 5: Creación de Identidades Virtuales Únicas</span>
-<p class="font-label-code text-label-code text-outline">35 min • Próximo</p>
-</div>
-</div>
-<!-- Module 6 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">6</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 6: Workflow con Inpainting y Outpainting de Alta Fidelidad</span>
-<p class="font-label-code text-label-code text-outline">31 min • Próximo</p>
-</div>
-</div>
-<!-- Module 7 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">7</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 7: Entrenamiento de LoRA personalizado de rostros</span>
-<p class="font-label-code text-label-code text-outline">45 min • Próximo</p>
-</div>
-</div>
-<!-- Module 8 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">8</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 8: Iluminación cinematográfica y setups fotográficos</span>
-<p class="font-label-code text-label-code text-outline">26 min • Próximo</p>
-</div>
-</div>
-<!-- Module 9 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">9</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 9: Escalado 4K/8K sin pérdida de textura (Topaz &amp; SUPIR)</span>
-<p class="font-label-code text-label-code text-outline">20 min • Próximo</p>
-</div>
-</div>
-<!-- Module 10 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">10</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 10: Animación de rostros y Lipsync con IA (Runway &amp; LivePortrait)</span>
-<p class="font-label-code text-label-code text-outline">38 min • Próximo</p>
-</div>
-</div>
-<!-- Module 11 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">11</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 11: Monetización: Creación de Modelos e Influencers IA</span>
-<p class="font-label-code text-label-code text-outline">42 min • Próximo</p>
-</div>
-</div>
-<!-- Module 12 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">12</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 12: Contratos, derechos de autor y ética comercial</span>
-<p class="font-label-code text-label-code text-outline">19 min • Próximo</p>
-</div>
-</div>
-<!-- Module 13 -->
-<div class="p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group">
-<div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-<span class="font-label-code text-label-code">13</span>
-</div>
-<div class="flex-1">
-<span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Módulo 13: Proyecto Final: Lanzamiento de tu Primera Campaña de Marca</span>
-<p class="font-label-code text-label-code text-outline">55 min • Próximo</p>
-</div>
-</div>
-</div>
-</div>
-<!-- SPECIAL BONUS SECTION -->
-<div class="p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 relative overflow-hidden shadow-[0_8px_24px_-4px_rgba(0,0,0,0.6)]">
-<div class="flex items-center justify-between mb-4">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-amber-300 text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Bonos Exclusivos</h3>
-</div>
-<span class="px-2.5 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/30 font-label-code text-label-code font-bold">
-            4 Desbloqueados
+          <p class="text-[11.5px] text-emerald-100/80 leading-snug mb-1.5">
+            Nos repartimos el beneficio de cada venta al 50%. Consigue tu enlace.
+          </p>
+          <span id="affLinkLabel" class="text-[11.5px] font-bold text-emerald-300 flex items-center gap-1">
+            Copiar mi enlace →
           </span>
-</div>
-<div class="grid grid-cols-1 gap-2.5">
-<!-- Bonus 1 -->
-<div class="p-3 rounded-xl bg-surface-container border border-outline-variant/20 hover:border-amber-400/30 transition-all flex items-center gap-3">
-<span class="material-symbols-outlined text-amber-300 text-[18px]">person_check</span>
-<div class="flex-1">
-<p class="font-label-md text-label-md font-semibold text-on-surface">1. Colección 20 Modelos IA Listos para Usar</p>
-<p class="font-label-code text-label-code text-outline">Checkpoints pre-entrenados</p>
-</div>
-<span class="material-symbols-outlined text-outline text-[16px]">file_download</span>
-</div>
-<!-- Bonus 2 -->
-<div class="p-3 rounded-xl bg-surface-container border border-outline-variant/20 hover:border-amber-400/30 transition-all flex items-center gap-3">
-<span class="material-symbols-outlined text-amber-300 text-[18px]">graphic_eq</span>
-<div class="flex-1">
-<p class="font-label-md text-label-md font-semibold text-on-surface">2. Audios FemPro: Guiones de voz y clonación</p>
-<p class="font-label-code text-label-code text-outline">ElevenLabs Voice Presets</p>
-</div>
-<span class="material-symbols-outlined text-outline text-[16px]">file_download</span>
-</div>
-<!-- Bonus 3 -->
-<div class="p-3 rounded-xl bg-surface-container border border-outline-variant/20 hover:border-amber-400/30 transition-all flex items-center gap-3">
-<span class="material-symbols-outlined text-amber-300 text-[18px]">smart_display</span>
-<div class="flex-1">
-<p class="font-label-md text-label-md font-semibold text-on-surface">3. YouTube Money Machine</p>
-<p class="font-label-code text-label-code text-outline">Automatización de canales con shorts</p>
-</div>
-<span class="material-symbols-outlined text-outline text-[16px]">file_download</span>
-</div>
-<!-- Bonus 4 -->
-<div class="p-3 rounded-xl bg-surface-container border border-outline-variant/20 hover:border-amber-400/30 transition-all flex items-center gap-3">
-<span class="material-symbols-outlined text-amber-300 text-[18px]">rocket_launch</span>
-<div class="flex-1">
-<p class="font-label-md text-label-md font-semibold text-on-surface">4. Plan de Acción Acelerado 7 Días</p>
-<p class="font-label-code text-label-code text-outline">Roadmap de ejecución diaria</p>
-</div>
-<span class="material-symbols-outlined text-outline text-[16px]">file_download</span>
-</div>
-</div>
-</div>
-<!-- SIDEBAR AFFILIATE CARD -->
-<div class="p-5 rounded-2xl bg-gradient-to-br from-surface-container to-surface-container-high border border-primary/30 relative overflow-hidden shadow-[0_8px_30px_-4px_rgba(160,120,255,0.2)]">
-<div class="flex items-center gap-2 mb-2">
-<div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-[18px]">share</span>
-</div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Programa de Afiliados Musa</h3>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
-          Gana el 50% de comisión compartiendo tu enlace único con otros creadores.
-        </p>
-<!-- Affiliate Link Box -->
-<div class="p-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-between gap-2 mb-3">
-<span class="font-label-code text-label-code text-primary truncate" id="affiliateUrl">musa.academy/ref/alexpro</span>
-<button class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary border border-outline-variant/30 font-label-md text-label-md flex items-center gap-1 flex-shrink-0 transition-colors" onclick="copyAffiliateLink()">
-<span class="material-symbols-outlined text-[14px]">content_copy</span>
-<span id="copyAffLabel">Copiar</span>
-</button>
-</div>
-<!-- Earnings Counter Metric -->
-<div class="flex items-center justify-between pt-2 border-t border-outline-variant/20 font-label-md text-label-md">
-<span class="text-on-surface-variant">Tus ganancias:</span>
-<span class="font-headline-sm text-headline-sm font-bold text-emerald-400">$420.00 USD</span>
-</div>
-</div>
-</aside>
-</main>
-<!-- Interactive JavaScript Logic -->
-<script>
-    function copyPromptText() {
-      const promptText = document.getElementById("promptContent").innerText;
-      navigator.clipboard.writeText(promptText).then(() => {
-        const copyLabel = document.getElementById("copyLabel");
-        const copyIcon = document.getElementById("copyIcon");
-        copyLabel.innerText = "¡Copiado!";
-        copyIcon.innerText = "check";
-        setTimeout(() => {
-          copyLabel.innerText = "Copiar Prompt";
-          copyIcon.innerText = "content_copy";
-        }, 2200);
+        </div>
+      </div>
+
+      <!-- Lista de Módulos navegable -->
+      <div class="text-xs font-bold uppercase tracking-wider text-zinc-400 px-2 mb-2 flex items-center justify-between">
+        <span>Módulos (13)</span>
+        <span id="sidebarProgressCount" class="text-pink-400 font-mono text-[11px]">2/13</span>
+      </div>
+      <div id="sidebarModuleList" class="flex-1 overflow-y-auto space-y-0.5 pr-1 text-xs">
+        <!-- Se llena dinámicamente desde /api/academia/catalogo -->
+      </div>
+    </div>
+
+    <!-- Pie de Sidebar: Perfil del Alumno & Consola -->
+    <div class="pt-3 mt-2 border-t border-white/10 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white shrink-0" id="avatarInitials">
+          M
+        </div>
+        <div class="min-w-0">
+          <p id="studentNameSidebar" class="text-xs font-bold text-white truncate">Mauricio Bonilla</p>
+          <p id="studentStatusSidebar" class="text-[10.5px] text-zinc-400 truncate">museialab@gmail.com</p>
+        </div>
+      </div>
+      <a href="/consola.html" title="Abrir Consola Agéntica Musa" class="p-1.5 rounded-lg bg-white/5 hover:bg-pink-500/20 text-zinc-400 hover:text-pink-300 transition-colors shrink-0">
+        <span class="material-symbols-outlined text-[18px]">terminal</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ==================== CONTENIDO PRINCIPAL (DERECHA) ==================== -->
+  <div class="ml-[275px] flex-1 min-h-screen flex flex-col">
+
+    <!-- ==================== VISTA 1: CATÁLOGO DE MÓDULOS (DASHBOARD HYPERMODELS) ==================== -->
+    <main id="vistaCatalogo" class="flex-1 px-6 lg:px-12 py-7 max-w-[1440px] w-full mx-auto space-y-8">
+
+      <!-- Banners Superiores Descartables -->
+      <div class="space-y-3" id="bannersContainer">
+        <!-- Banner Rosa: Presentación / Plan de Acción 7 Días -->
+        <div id="bannerRosa" class="rounded-2xl bg-gradient-to-r from-[#ff007a] via-[#e6006e] to-[#b80058] px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-pink-600/20">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-white text-[22px]">calendar_month</span>
+            <p class="text-xs sm:text-sm text-white font-medium">
+              <strong class="font-extrabold uppercase">HOJA DE RUTA DE 7 DÍAS:</strong> Cómo crear, publicar en serie y monetizar tu primera modelo IA desde cero esta misma semana.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="seleccionarModulo(0, true)" class="px-4 py-1.5 rounded-full bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors">
+              Empezar Módulo 1
+            </button>
+            <button onclick="document.getElementById('bannerRosa').remove()" class="text-white/80 hover:text-white">
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner Azul: Soporte y Estado de Acceso -->
+        <div id="bannerAzul" class="rounded-2xl bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] px-5 py-3 flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-sky-600/15">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-white text-[20px]">verified</span>
+            <p id="bannerAccesoTexto" class="text-xs sm:text-sm text-white font-medium">
+              <strong>IMPORTANTE:</strong> Todos los 13 módulos y los 4 bonos (incluyendo las 22 clases del Megapack Master IA) están disponibles en tu cuenta.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20necesito%20mi%20enlace%20personal%20de%20acceso" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 rounded-full bg-white text-slate-950 font-bold text-xs hover:bg-zinc-100 transition-colors">
+              Soporte WhatsApp
+            </a>
+            <button onclick="document.getElementById('bannerAzul').remove()" class="text-white/80 hover:text-white">
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Central del Catálogo -->
+      <div class="pt-2 text-center">
+        <div class="inline-flex items-baseline gap-1.5 text-3xl font-extrabold tracking-tight">
+          <span>Musa</span>
+          <span class="brand-script text-4xl pr-1">Models</span>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 1: PRESENTACIÓN (MÓDULOS 1 Y 2) -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-extrabold tracking-tight text-white">Presentación</h2>
+          <span id="badgeModoAcceso" class="text-xs font-semibold px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300">
+            Cargando catálogo...
+          </span>
+        </div>
+        <div id="gridPresentacion" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Módulos 1 y 2 se renderizan aquí -->
+        </div>
+      </section>
+
+      <!-- SECCIÓN 2: EL MÉTODO MODELOS IA (MÓDULOS 3 AL 13) -->
+      <section class="space-y-4 pt-4">
+        <h2 class="text-2xl font-extrabold tracking-tight text-white">Modelos IA — El Recorrido Completo</h2>
+        <div id="gridMetodo" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Módulos 3 al 13 se renderizan aquí -->
+        </div>
+      </section>
+
+      <!-- SECCIÓN 3: BONOS EXCLUSIVOS & MEGAPACKS (4 BONOS + PLAN 7 DÍAS) -->
+      <section id="seccionBonos" class="space-y-4 pt-6 border-t border-white/10">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-extrabold tracking-tight text-white">Bonus & Herramientas VIP</h2>
+            <p class="text-sm text-zinc-400">Incluidos en tu acceso: haz clic en cualquier bono para ver sus videos o descargar sus archivos</p>
+          </div>
+          <span class="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
+            ★ 4 Bonos Desbloqueados
+          </span>
+        </div>
+        <div id="gridBonos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <!-- Bonos se renderizan aquí -->
+        </div>
+      </section>
+    </main>
+
+    <!-- ==================== VISTA 2: AULA DE LECCIÓN ENFOCADA (ESTILO HYPERMODELS LESSON VIEW) ==================== -->
+    <section id="vistaLeccion" class="hidden flex-1 flex flex-col">
+      <!-- Barra Superior de Navegación de Lección -->
+      <header class="h-14 px-6 border-b border-white/10 bg-[#08080c] flex items-center justify-between gap-4 sticky top-0 z-30">
+        <div class="flex items-center gap-2 text-sm">
+          <button onclick="mostrarCatalogo()" class="text-zinc-400 hover:text-white transition-colors font-medium">Módulos</button>
+          <span class="text-zinc-600">/</span>
+          <span id="lessonBreadcrumbTitle" class="text-white font-semibold truncate max-w-[360px]">Módulo 1: Bienvenida y estrategia</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <button onclick="navegarModulo(-1)" class="text-xs sm:text-sm text-zinc-400 hover:text-white flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+            <span>Anterior</span>
+          </button>
+          <button onclick="navegarModulo(1)" class="text-xs sm:text-sm text-white font-semibold hover:text-pink-400 flex items-center gap-1 transition-colors">
+            <span>Finalizar</span>
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+          </button>
+          <button id="btnTopCompletado" onclick="marcarLeccionCompletada()" class="px-3.5 py-1.5 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-pink-600/25 transition-all">
+            <span class="material-symbols-outlined text-[16px]">check_circle</span>
+            <span id="labelTopCompletado">Completado</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Cuerpo Dividido: Reproductor Grande (Izquierda) + Riel de Lecciones (Derecha) -->
+      <div class="flex-1 grid grid-cols-1 xl:grid-cols-12 min-h-[calc(100vh-3.5rem)]">
+        <!-- Columna Central del Video / Documento (8 cols) -->
+        <div class="xl:col-span-8 p-6 lg:p-10 flex flex-col justify-between border-b xl:border-b-0 xl:border-r border-white/10">
+          <div class="space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <span id="lessonActiveTag" class="text-xs font-bold uppercase tracking-wider text-pink-400">MÓDULO 1 • LECCIÓN 1</span>
+                <h1 id="lessonMainHeading" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Empieza aquí: introducción</h1>
+              </div>
+              <span id="lessonOutcomeBadge" class="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300">
+                Entiende el mercado y lo que vas a construir
+              </span>
+            </div>
+
+            <!-- Contenedor 16:9 de Video Real HTML5 o Visor de Recurso PDF/ZIP -->
+            <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl flex items-center justify-center">
+              <video id="realVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="/assets/demo.jpg">
+                <source id="realVideoSource" src="/assets/demo.mp4" type="video/mp4"/>
+                Tu navegador no soporta reproducción de video HTML5.
+              </video>
+
+              <!-- Overlay cuando la lección seleccionada es un PDF o Paquete ZIP -->
+              <div id="nonVideoOverlay" class="hidden absolute inset-0 bg-[#0b0b12] flex flex-col items-center justify-center p-8 text-center space-y-4">
+                <div class="w-16 h-16 rounded-2xl bg-pink-500/15 border border-pink-500/40 flex items-center justify-center text-pink-400">
+                  <span id="nonVideoIcon" class="material-symbols-outlined text-[36px]">description</span>
+                </div>
+                <div class="max-w-md space-y-1">
+                  <h3 id="nonVideoTitle" class="text-xl font-bold text-white">Guía Descargable del Módulo</h3>
+                  <p id="nonVideoDesc" class="text-sm text-zinc-400">Este recurso es un archivo descargable (PDF / Paquete) listo para abrir.</p>
+                </div>
+                <a id="nonVideoDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-pink-600/30 transition-all">
+                  <span class="material-symbols-outlined text-[18px]">download</span>
+                  <span>Abrir / Descargar Recurso</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Tarjeta de Prompt Base Copiable en 1 Clic -->
+            <div class="p-4 rounded-2xl bg-[#0e0e16] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="space-y-1 min-w-0">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                  Prompt de Laboratorio de este Módulo
+                </span>
+                <p id="lessonPromptText" class="text-xs font-mono text-zinc-300 truncate">/imagine prompt: editorial lifestyle portrait, instagram aesthetic, golden hour lighting, 35mm lens --v 6.0</p>
+              </div>
+              <button onclick="copiarPromptActivo()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-pink-500 text-white text-xs font-bold shrink-0 flex items-center gap-1.5 transition-colors">
+                <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                <span id="btnCopyPromptLabel">Copiar Prompt</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pie del Reproductor: Botón Completar → (Idéntico a HyperModels) -->
+          <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between">
+            <button onclick="mostrarCatalogo()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <span class="material-symbols-outlined text-[16px]">grid_view</span>
+              <span>Volver al Catálogo</span>
+            </button>
+            <button onclick="marcarLeccionCompletada()" class="px-6 py-3 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-pink-600/30 transition-all active:scale-95">
+              <span>Completar</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Riel Derecho: Lista de Lecciones del Módulo (4 cols) -->
+        <div class="xl:col-span-4 p-6 bg-[#07070b] flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-zinc-300">Lecciones del Módulo</h3>
+              <span id="railLessonCounter" class="text-xs font-mono text-zinc-400">1 / 3</span>
+            </div>
+            <div id="railLessonList" class="space-y-2.5">
+              <!-- Sub-lecciones del módulo activo -->
+            </div>
+          </div>
+
+          <!-- Nota de Acceso Personal -->
+          <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 mt-6">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-zinc-400 font-medium">Progreso Total del Curso</span>
+              <span id="railTotalPct" class="text-pink-400 font-bold">15%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div id="railTotalBar" class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-300" style="width: 15%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== MODAL DE DESBLOQUEO CON COSTE (INSPIRADO EN HYPERMODELS REA) ==================== -->
+  <div id="unlockModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#11111a] border border-white/15 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center gap-3 text-pink-400">
+        <span class="material-symbols-outlined text-[28px]">lock_open</span>
+        <h3 class="text-lg font-extrabold text-white">¿Quieres saltar a este módulo ahora?</h3>
+      </div>
+      <p class="text-sm text-zinc-300 leading-relaxed">
+        Recomendamos avanzar en orden para construir la base de tu modelo paso a paso. Sin embargo, en <strong>Musa Academy</strong> tú tienes el control total de tu aprendizaje.
+      </p>
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button onclick="cerrarModalDesbloqueo()" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold">
+          Seguir en orden
+        </button>
+        <button id="btnConfirmUnlock" class="px-5 py-2.5 rounded-xl bg-[#ff007a] hover:bg-[#e6006e] text-white text-xs font-bold shadow-lg shadow-pink-600/30">
+          Sí, desbloquear y abrir →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Portadas visuales de alta estética para los 13 módulos y 4 bonos
+    const PORTADAS_MODULOS = [
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80"
+    ];
+
+    let catalogoData = null;
+    let moduloActualIdx = 0;
+    let leccionActualIdx = 0;
+    let modoBonoActivo = null; // Si el usuario abrió un bono en el aula
+
+    // Persistencia de progreso en localStorage
+    const STORAGE_KEY = "musa_academy_progress_v5";
+    let completados = {};
+    try {
+      completados = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"1":true,"2":true}');
+    } catch (_) {
+      completados = { "1": true, "2": true };
+    }
+
+    function guardarProgreso() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(completados)); } catch (_) {}
+    }
+
+    async function cargarCatalogo() {
+      const params = new URLSearchParams(window.location.search);
+      const tokenUrl = params.get("t") || "";
+      const endpoint = tokenUrl ? `/api/academia/catalogo?t=${encodeURIComponent(tokenUrl)}` : "/api/academia/catalogo";
+      try {
+        const res = await fetch(endpoint);
+        catalogoData = await res.json();
+      } catch (e) {
+        console.error("Error cargando catálogo:", e);
+      }
+      if (!catalogoData || !catalogoData.modulos) return;
+
+      // Actualizar datos del alumno
+      const nombre = catalogoData.alumno?.nombre || "Mauricio Bonilla";
+      document.getElementById("studentNameSidebar").textContent = nombre;
+      document.getElementById("avatarInitials").textContent = nombre.slice(0, 1).toUpperCase();
+      document.getElementById("studentStatusSidebar").textContent = catalogoData.autenticado
+        ? "Acceso Vitalicio Verificado ✓"
+        : "museialab@gmail.com";
+
+      const badge = document.getElementById("badgeModoAcceso");
+      if (catalogoData.autenticado) {
+        badge.textContent = "✓ Acceso Personal Activo · Videos R2 Desbloqueados";
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300";
+      } else {
+        badge.textContent = "✦ Vista de Catálogo · 13 Módulos + 4 Bonos";
+      }
+
+      renderizarTodo();
+    }
+
+    function renderizarTodo() {
+      if (!catalogoData) return;
+      const modulos = catalogoData.modulos;
+      const totalHechos = modulos.filter(m => completados[String(m.numero)]).length;
+      const pct = Math.round((totalHechos / modulos.length) * 100);
+
+      document.getElementById("sidebarProgressCount").textContent = `${totalHechos}/${modulos.length}`;
+      document.getElementById("railTotalPct").textContent = `${pct}%`;
+      document.getElementById("railTotalBar").style.width = `${pct}%`;
+
+      // 1. Renderizar Sidebar
+      const sideList = document.getElementById("sidebarModuleList");
+      sideList.innerHTML = "";
+      modulos.forEach((m, idx) => {
+        const done = !!completados[String(m.numero)];
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left px-2.5 py-2 rounded-lg hover:bg-white/5 flex items-center justify-between gap-2 transition-colors group";
+        btn.innerHTML = `
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="material-symbols-outlined text-[15px] ${done ? 'text-pink-400' : 'text-zinc-500'}">${done ? 'check_circle' : 'menu_book'}</span>
+            <span class="truncate ${done ? 'text-white font-medium' : 'text-zinc-400 group-hover:text-white'}">${m.numero}. ${m.titulo}</span>
+          </div>
+        `;
+        btn.onclick = () => seleccionarModulo(idx, true);
+        sideList.appendChild(btn);
+      });
+
+      // 2. Renderizar Grid Presentación (Módulos 1 y 2) y Grid Método (Módulos 3 al 13)
+      const gridPres = document.getElementById("gridPresentacion");
+      const gridMet = document.getElementById("gridMetodo");
+      gridPres.innerHTML = "";
+      gridMet.innerHTML = "";
+
+      // Encontrar el primer módulo aún no completado para dejarlo nítido como "Siguiente paso"
+      const primerPendienteIdx = modulos.findIndex(m => !completados[String(m.numero)]);
+
+      modulos.forEach((m, idx) => {
+        const done = !!completados[String(m.numero)];
+        const esSiguiente = idx === primerPendienteIdx || idx <= 2;
+        const softLocked = !done && !esSiguiente;
+        const imgUrl = PORTADAS_MODULOS[idx % PORTADAS_MODULOS.length];
+
+        const card = document.createElement("div");
+        card.className = `poster-card ${softLocked ? 'soft-locked' : ''}`;
+        card.innerHTML = `
+          <img class="poster-bg" src="${imgUrl}" alt="Módulo ${m.numero}" loading="lazy"/>
+          <div class="poster-gradient"></div>
+          ${done ? `
+            <div class="completed-ribbon">
+              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">check_circle</span>
+              <span>Completado</span>
+            </div>
+          ` : `
+            <div class="progress-ring-badge">0%</div>
+          `}
+          <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
+            <span class="module-pill">Módulo ${m.numero}</span>
+            <h3 class="text-lg sm:text-xl font-extrabold text-white leading-snug mb-1">${m.titulo}</h3>
+            <p class="text-xs sm:text-sm text-zinc-300/90 leading-relaxed">${m.resultado}</p>
+            <p class="text-[11px] font-mono text-pink-300/80 mt-2">${m.totalLecciones} ${m.totalLecciones === 1 ? 'lección' : 'lecciones'} →</p>
+          </div>
+        `;
+
+        card.onclick = () => {
+          if (softLocked) {
+            abrirModalDesbloqueo(idx);
+          } else {
+            seleccionarModulo(idx, true);
+          }
+        };
+
+        if (idx < 2) {
+          gridPres.appendChild(card);
+        } else {
+          gridMet.appendChild(card);
+        }
+      });
+
+      // 3. Renderizar Bonos Exclusivos
+      const gridBonos = document.getElementById("gridBonos");
+      gridBonos.innerHTML = "";
+      (catalogoData.bonos || []).forEach((b, bIdx) => {
+        const card = document.createElement("div");
+        card.className = "p-5 rounded-2xl bg-[#101018] border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between gap-4 group";
+        card.innerHTML = `
+          <div>
+            <span class="bonus-pill">Bonus #${bIdx + 1}</span>
+            <h3 class="text-base font-extrabold text-white group-hover:text-pink-300 transition-colors">${b.titulo}</h3>
+            <p class="text-xs text-zinc-400 mt-1">${b.totalArchivos} ${b.totalArchivos === 1 ? 'archivo incluido' : 'archivos desbloqueados'}</p>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-white/10 text-xs font-bold text-pink-400">
+            <span>Abrir contenido del bono</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </div>
+        `;
+        card.onclick = () => abrirBonoEnAula(b);
+        gridBonos.appendChild(card);
       });
     }
 
-    function copyAffiliateLink() {
-      const urlText = document.getElementById("affiliateUrl").innerText;
-      navigator.clipboard.writeText(urlText).then(() => {
-        const copyAffLabel = document.getElementById("copyAffLabel");
-        copyAffLabel.innerText = "Listo";
-        setTimeout(() => {
-          copyAffLabel.innerText = "Copiar";
-        }, 2000);
+    function abrirModalDesbloqueo(idx) {
+      const modal = document.getElementById("unlockModal");
+      const btn = document.getElementById("btnConfirmUnlock");
+      modal.classList.remove("hidden");
+      btn.onclick = () => {
+        completados[String(catalogoData.modulos[idx].numero)] = false; // Desbloquea
+        cerrarModalDesbloqueo();
+        seleccionarModulo(idx, true);
+      };
+    }
+
+    function cerrarModalDesbloqueo() {
+      document.getElementById("unlockModal").classList.add("hidden");
+    }
+
+    function mostrarCatalogo() {
+      document.getElementById("vistaLeccion").classList.add("hidden");
+      document.getElementById("vistaCatalogo").classList.remove("hidden");
+      document.getElementById("labelSidebarHome").textContent = "Home";
+      const video = document.getElementById("realVideoPlayer");
+      if (video) video.pause();
+      renderizarTodo();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function irABonos() {
+      mostrarCatalogo();
+      setTimeout(() => {
+        document.getElementById("seccionBonos")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+
+    function seleccionarModulo(idx, abrirVista = true) {
+      if (!catalogoData || !catalogoData.modulos[idx]) return;
+      modoBonoActivo = null;
+      moduloActualIdx = idx;
+      leccionActualIdx = 0;
+      if (abrirVista) {
+        document.getElementById("vistaCatalogo").classList.add("hidden");
+        document.getElementById("vistaLeccion").classList.remove("hidden");
+        document.getElementById("labelSidebarHome").textContent = "Volver al inicio";
+      }
+      renderizarAulaActiva();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function abrirBonoEnAula(bono) {
+      modoBonoActivo = {
+        numero: "★",
+        titulo: bono.titulo,
+        resultado: "Bono exclusivo desbloqueado en tu cuenta",
+        prompt: "Recurso extra incluido en tu acceso a Modelos IA.",
+        lecciones: bono.archivos.map((a, i) => ({
+          id: `b-${i}`,
+          titulo: a.titulo,
+          etiqueta: a.etiqueta,
+          icono: a.icono,
+          esVideo: a.etiqueta === "Video",
+          url: a.url
+        }))
+      };
+      leccionActualIdx = 0;
+      document.getElementById("vistaCatalogo").classList.add("hidden");
+      document.getElementById("vistaLeccion").classList.remove("hidden");
+      document.getElementById("labelSidebarHome").textContent = "Volver al inicio";
+      renderizarAulaActiva();
+    }
+
+    function renderizarAulaActiva() {
+      const m = modoBonoActivo || catalogoData.modulos[moduloActualIdx];
+      if (!m) return;
+      const lecciones = m.lecciones || [];
+      const lec = lecciones[leccionActualIdx] || lecciones[0];
+
+      document.getElementById("lessonBreadcrumbTitle").textContent = `Módulo ${m.numero}: ${m.titulo}`;
+      document.getElementById("lessonActiveTag").textContent = `MÓDULO ${m.numero} • LECCIÓN ${leccionActualIdx + 1} DE ${lecciones.length}`;
+      document.getElementById("lessonMainHeading").textContent = lec ? lec.titulo : m.titulo;
+      document.getElementById("lessonOutcomeBadge").textContent = m.resultado || "";
+      document.getElementById("lessonPromptText").textContent = m.prompt || "";
+      document.getElementById("railLessonCounter").textContent = `${leccionActualIdx + 1} / ${lecciones.length}`;
+
+      const done = !modoBonoActivo && !!completados[String(m.numero)];
+      document.getElementById("labelTopCompletado").textContent = done ? "Completado ✓" : "Marcar Completado";
+
+      // Configurar reproductor de video o tarjeta de descarga PDF/ZIP
+      const videoEl = document.getElementById("realVideoPlayer");
+      const sourceEl = document.getElementById("realVideoSource");
+      const overlayEl = document.getElementById("nonVideoOverlay");
+
+      if (lec && lec.esVideo) {
+        overlayEl.classList.add("hidden");
+        videoEl.classList.remove("hidden");
+        if (sourceEl.getAttribute("src") !== lec.url) {
+          sourceEl.setAttribute("src", lec.url);
+          videoEl.load();
+        }
+      } else if (lec) {
+        videoEl.pause();
+        videoEl.classList.add("hidden");
+        overlayEl.classList.remove("hidden");
+        document.getElementById("nonVideoTitle").textContent = lec.titulo;
+        document.getElementById("nonVideoDesc").textContent = `Archivo ${lec.etiqueta} listo para abrir o descargar desde el almacén seguro.`;
+        const dlBtn = document.getElementById("nonVideoDownloadBtn");
+        dlBtn.href = lec.url;
+      }
+
+      // Renderizar lista derecha de lecciones
+      const railList = document.getElementById("railLessonList");
+      railList.innerHTML = "";
+      lecciones.forEach((item, i) => {
+        const active = i === leccionActualIdx;
+        const btn = document.createElement("button");
+        btn.className = active
+          ? "w-full text-left p-3.5 rounded-xl bg-[#ff007a] text-white font-bold flex items-center justify-between gap-3 shadow-lg shadow-pink-600/25 transition-all"
+          : "w-full text-left p-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 font-medium flex items-center justify-between gap-3 border border-white/5 transition-all";
+        btn.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-7 h-7 rounded-lg ${active ? 'bg-white/20 text-white' : 'bg-white/5 text-pink-400'} flex items-center justify-center text-xs shrink-0">
+              ${item.icono || '▶'}
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs sm:text-sm truncate">${item.titulo}</p>
+              <p class="text-[10.5px] ${active ? 'text-pink-100' : 'text-zinc-500'} font-mono">${item.etiqueta}</p>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[18px] ${active ? 'text-white' : 'text-zinc-600'}" style="font-variation-settings:'FILL' 1">check_circle</span>
+        `;
+        btn.onclick = () => {
+          leccionActualIdx = i;
+          renderizarAulaActiva();
+        };
+        railList.appendChild(btn);
       });
     }
+
+    function marcarLeccionCompletada() {
+      if (!catalogoData) return;
+      const m = modoBonoActivo || catalogoData.modulos[moduloActualIdx];
+      if (!m) return;
+      const lecciones = m.lecciones || [];
+
+      if (leccionActualIdx + 1 < lecciones.length) {
+        leccionActualIdx++;
+        renderizarAulaActiva();
+        return;
+      }
+
+      if (!modoBonoActivo) {
+        completados[String(m.numero)] = true;
+        guardarProgreso();
+        if (moduloActualIdx + 1 < catalogoData.modulos.length) {
+          seleccionarModulo(moduloActualIdx + 1, true);
+          return;
+        }
+      }
+      mostrarCatalogo();
+    }
+
+    function navegarModulo(delta) {
+      if (!catalogoData) return;
+      const next = moduloActualIdx + delta;
+      if (next >= 0 && next < catalogoData.modulos.length) {
+        seleccionarModulo(next, true);
+      } else {
+        mostrarCatalogo();
+      }
+    }
+
+    function copiarPromptActivo() {
+      const txt = document.getElementById("lessonPromptText").textContent;
+      navigator.clipboard.writeText(txt).then(() => {
+        const lbl = document.getElementById("btnCopyPromptLabel");
+        lbl.textContent = "¡Copiado!";
+        setTimeout(() => { lbl.textContent = "Copiar Prompt"; }, 2000);
+      });
+    }
+
+    function copiarEnlaceAfiliado() {
+      const url = catalogoData?.alumno?.enlaceReferido || "https://server-production-3709.up.railway.app/?ref=musa-vip";
+      navigator.clipboard.writeText(url).then(() => {
+        const el = document.getElementById("affLinkLabel");
+        el.textContent = "✓ Enlace copiado al portapapeles";
+        setTimeout(() => { el.textContent = "Copiar mi enlace →"; }, 2500);
+      });
+    }
+
+    cargarCatalogo();
   </script>
-
-<script>
-(function() {
-  const modulesData = [
-    { num: 1, title: "Módulo 1: Bienvenida y estrategia en Instagram", duration: "18 min", phase: "Fase 1: Fundamentos", desc: "Domina la estrategia base de posicionamiento en Instagram y entiende cómo funciona el mercado real de creadores y Modelos IA.", prompt: "/imagine prompt: editorial lifestyle portrait, instagram aesthetic, golden hour lighting, 35mm lens --v 6.0", done: true },
-    { num: 2, title: "Módulo 2: Tu primer modelo con IA", duration: "22 min", phase: "Fase 1: Creación", desc: "Paso a paso para diseñar y dar vida a tus primeros modelos hiperrealistas desde cero con identidad visual propia.", prompt: "/imagine prompt: photorealistic studio portrait of latina model, soft skin texture, catchlights in eyes, 85mm f/1.8 --v 6.0", done: true },
-    { num: 3, title: "Módulo 3: Las herramientas: ChatGPT, Leonardo, SeaArt y DeepSeek", duration: "24 min", phase: "Fase 2: Stack IA", desc: "Domina el ecosistema completo: generación de prompts en ChatGPT y DeepSeek, renderizado en Leonardo AI y flujos avanzados en SeaArt y Pollo AI.", prompt: "/imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0", done: false },
-    { num: 4, title: "Módulo 4: Crear contenido en serie", duration: "29 min", phase: "Fase 2: Producción", desc: "Flujo en Leonardo AI para producir contenido infinito manteniendo el mismo rostro, vestuario e iluminación coherente.", prompt: "/imagine prompt: consistent character sheet, multiple angles, front, profile, 3/4 view, neutral studio background --cref URL --cw 100 --v 6.0", done: false },
-    { num: 5, title: "Módulo 5: Monetización: los primeros pasos", duration: "35 min", phase: "Fase 3: Negocio", desc: "Cómo estructurar tus primeros embudos de conversión y transformar seguidores en suscriptores de pago recurrentes.", prompt: "Actúa como estratega de monetización para una influencer virtual en Instagram y diseña un calendario de 7 historias de conversión.", done: false },
-    { num: 6, title: "Módulo 6: Telegram: tu grupo y tu bot", duration: "31 min", phase: "Fase 3: Automatización", desc: "Creación del canal VIP de Telegram y configuración del bot automatizado para atención y cobros.", prompt: "Configura un mensaje de bienvenida persuasivo para el bot de Telegram con 3 niveles de acceso VIP.", done: false },
-    { num: 7, title: "Módulo 7: Herramientas para potenciar tu IA", duration: "45 min", phase: "Fase 3: Escalamiento", desc: "Catálogo curado de utilidades de mejora de resolución, cambio de rostro, clonación de voz y post-producción.", prompt: "/imagine prompt: ultra high resolution skin texture upscale, cinematic color grading, Kodachrome 64 aesthetic --v 6.0", done: false },
-    { num: 8, title: "Módulo 8: Hazte viral en TikTok", duration: "26 min", phase: "Fase 4: Tráfico Orgánico", desc: "Fórmulas de retención en los primeros 3 segundos, hooks visuales y tendencias para viralizar reels y TikToks.", prompt: "Escribe 5 ganchos visuales de 3 segundos para TikTok mostrando la rutina diaria de una modelo creada con IA.", done: false },
-    { num: 9, title: "Módulo 9: Mente de empresario", duration: "20 min", phase: "Fase 4: Mentalidad", desc: "Gestión de múltiples cuentas, reinversión de utilidades y visión de agencia de modelos digitales.", prompt: "Diseña un cuadro de mando de KPIs semanales para medir alcance, clics al enlace y tasa de cierre.", done: false },
-    { num: 10, title: "Módulo 10: Fanvue: cómo funciona", duration: "38 min", phase: "Fase 5: Plataformas", desc: "Configuración completa de perfil en Fanvue, verificación para creadores IA, precios de suscripción y PPV.", prompt: "Redacta la biografía optimizada de Fanvue y el primer mensaje automático para nuevos suscriptores.", done: false },
-    { num: 11, title: "Módulo 11: Crea videos 100 % realistas", duration: "42 min", phase: "Fase 5: Video IA", desc: "Animación de fotografías estáticas en videos fluidos con expresiones naturales y movimiento hiperrealista.", prompt: "Motion prompt: subtle natural head turn, soft smile, gentle hair movement in breeze, 4k 60fps photorealistic.", done: false },
-    { num: 12, title: "Módulo 12: ManyChat desde cero", duration: "19 min", phase: "Fase 6: Automatización IG", desc: "Automatiza respuestas a comentarios e historias en Instagram con ManyChat para enviar tráfico directo a tu embudo.", prompt: "Flujo ManyChat: Cuando comenten 'MUSA', responder en comentario y enviar DM con acceso exclusivo.", done: false },
-    { num: 13, title: "Módulo 13: Biblioteca de prompts", duration: "55 min", phase: "Fase 6: Recursos Pro", desc: "Compendio maestro de prompts parte 1 y parte 2 listos para copiar y pegar en tus sesiones de generación.", prompt: "/imagine prompt: luxury rooftop dusk portrait, city lights bokeh, silk evening dress, flash photography aesthetic --v 6.0", done: false }
-  ];
-
-  let activeIdx = 2; // Módulo 3
-
-  const playerBadge = document.querySelector('.font-label-code.text-primary.tracking-wider.font-bold');
-  const breadcrumbPhase = document.querySelector('nav.flex.items-center.gap-2.text-outline span:nth-child(3)');
-  const breadcrumbMod = document.querySelector('nav.flex.items-center.gap-2.text-outline span:nth-child(5)');
-  const mainTitle = document.querySelector('h1.font-headline-lg');
-  const durationBadge = document.querySelector('.material-symbols-outlined.text-primary')?.nextElementSibling;
-  const mainDesc = document.querySelector('p.font-body-lg.text-on-surface-variant');
-  const promptBox = document.getElementById('promptContent');
-  const progressText = document.querySelector('header .font-label-code.text-primary.font-bold');
-  const progressBar = document.querySelector('header .bg-gradient-to-r.from-primary-container');
-  const railCounter = document.querySelector('#curriculum .px-2\\.5.py-1.rounded-full');
-  const moduleListContainer = document.querySelector('#curriculum .custom-scrollbar');
-
-  function renderCurriculum(filter = 'all') {
-    if (!moduleListContainer) return;
-    const doneCount = modulesData.filter(m => m.done).length;
-    const pct = Math.round((doneCount / modulesData.length) * 100);
-    if (progressText) progressText.innerHTML = pct + '% <span class="text-outline font-normal">(' + doneCount + '/13 Mód.)</span>';
-    if (progressBar) progressBar.style.width = pct + '%';
-    if (railCounter) railCounter.textContent = doneCount + ' / 13 Hechos';
-
-    moduleListContainer.innerHTML = '';
-    modulesData.forEach((m, idx) => {
-      if (filter === 'done' && !m.done) return;
-      if (filter === 'pending' && m.done) return;
-
-      const isActive = idx === activeIdx;
-      const div = document.createElement('div');
-      if (isActive) {
-        div.className = 'p-3.5 rounded-xl bg-surface-container-high border-2 border-primary shadow-[0_0_20px_-3px_rgba(160,120,255,0.3)] flex items-start gap-3 relative overflow-hidden cursor-pointer';
-        div.innerHTML = `
-          <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"></div>
-          <div class="w-6 h-6 rounded-full bg-primary/20 border border-primary flex items-center justify-center text-primary mt-0.5 flex-shrink-0 animate-pulse">
-            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center justify-between gap-1">
-              <span class="font-label-lg text-label-lg font-bold text-primary">${m.title}</span>
-            </div>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="font-label-code text-label-code text-tertiary">${m.duration}</span>
-              <span class="px-1.5 py-0.5 rounded bg-primary-container text-on-primary-container font-label-code text-label-code font-bold uppercase text-[10px]">EN REPRODUCCIÓN</span>
-            </div>
-          </div>`;
-      } else if (m.done) {
-        div.className = 'p-3.5 rounded-xl bg-surface-container/50 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group';
-        div.innerHTML = `
-          <div class="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mt-0.5 flex-shrink-0">
-            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-          </div>
-          <div class="flex-1">
-            <span class="font-label-lg text-label-lg font-medium text-on-surface group-hover:text-primary transition-colors">${m.title}</span>
-            <p class="font-label-code text-label-code text-outline">${m.duration} • Completado</p>
-          </div>`;
-      } else {
-        div.className = 'p-3.5 rounded-xl bg-surface-container/30 border border-outline-variant/20 hover:border-outline-variant/40 flex items-start gap-3 transition-colors cursor-pointer group';
-        div.innerHTML = `
-          <div class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-outline mt-0.5 flex-shrink-0">
-            <span class="font-label-code text-label-code">${m.num}</span>
-          </div>
-          <div class="flex-1">
-            <span class="font-label-lg text-label-lg font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">${m.title}</span>
-            <p class="font-label-code text-label-code text-outline">${m.duration} • Disponible</p>
-          </div>`;
-      }
-      div.addEventListener('click', () => selectModule(idx));
-      moduleListContainer.appendChild(div);
-    });
-  }
-
-  function selectModule(idx) {
-    if (idx < 0 || idx >= modulesData.length) return;
-    activeIdx = idx;
-    const m = modulesData[idx];
-    if (playerBadge) playerBadge.textContent = 'MÓDULO ' + m.num + ' • CLASE ACTIVA • 4K HDR';
-    if (breadcrumbPhase) breadcrumbPhase.textContent = m.phase;
-    if (breadcrumbMod) breadcrumbMod.textContent = 'Módulo ' + m.num;
-    if (mainTitle) mainTitle.textContent = m.title;
-    if (durationBadge) durationBadge.textContent = 'Duración: ' + m.duration;
-    if (mainDesc) mainDesc.textContent = m.desc;
-    if (promptBox) promptBox.textContent = m.prompt;
-    renderCurriculum();
-  }
-
-  // Wire Lesson Action Bar Buttons (Prev, Mark Complete, Next)
-  const actionButtons = document.querySelectorAll('section .flex.flex-col.sm\\:flex-row button');
-  if (actionButtons.length === 3) {
-    actionButtons[0].addEventListener('click', () => selectModule(Math.max(0, activeIdx - 1)));
-    actionButtons[1].addEventListener('click', () => {
-      modulesData[activeIdx].done = true;
-      if (activeIdx + 1 < modulesData.length) {
-        selectModule(activeIdx + 1);
-      } else {
-        renderCurriculum();
-      }
-    });
-    actionButtons[2].addEventListener('click', () => selectModule(Math.min(modulesData.length - 1, activeIdx + 1)));
-  }
-
-  // Filter chips
-  const filterBtns = document.querySelectorAll('#curriculum .flex.items-center.gap-2.py-3 button');
-  if (filterBtns.length === 3) {
-    filterBtns[0].addEventListener('click', () => renderCurriculum('all'));
-    filterBtns[1].addEventListener('click', () => renderCurriculum('done'));
-    filterBtns[2].addEventListener('click', () => renderCurriculum('pending'));
-  }
-
-  selectModule(activeIdx);
-})();
-</script>
-
-</body></html>
+</body>
+</html>

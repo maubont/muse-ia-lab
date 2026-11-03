@@ -92,6 +92,12 @@ export interface OpcionesServidor {
      */
     desplazar?: (clave: string) => Promise<string | null>;
   };
+  /** API para Musa Academy LMS (/api/academia/catalogo). */
+  academiaCatalogo?: (token?: string) => Promise<unknown>;
+  /** API de telemetría y cola real para Consola Musa (/api/consola/estado). */
+  consolaEstado?: () => Promise<unknown>;
+  /** API de ejecución de comandos agénticos desde Consola Musa (/api/consola/comando). */
+  consolaComando?: (comandoTexto: string) => Promise<unknown>;
 }
 
 export interface Servidor {
@@ -274,6 +280,53 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       }
       // El token va a la página: sin él los enlaces `media:` no se pueden construir.
       return html(res, 200, await opts.acceso.pagina(v.phone, token));
+    }
+
+    // ---- API Musa Academy LMS: /api/academia/catalogo ----
+    if (url === "/api/academia/catalogo" || url.startsWith("/api/academia/catalogo?")) {
+      if (!opts.academiaCatalogo) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
+      const cookies = String(req.headers.cookie ?? "");
+      const m = cookies.match(/(?:^|;\s*)musa_acceso=([^;]+)/);
+      const deUrl = new URL(url, "http://x").searchParams.get("t") ?? "";
+      const token = deUrl || (m ? decodeURIComponent(m[1]) : "");
+      try {
+        const datos = await opts.academiaCatalogo(token);
+        return json(res, 200, datos);
+      } catch (e) {
+        return json(res, 500, { ok: false, error: String(e).slice(0, 150) });
+      }
+    }
+
+    // ---- API Consola Musa: GET /api/consola/estado & POST /api/consola/comando ----
+    if (url === "/api/consola/estado" || url.startsWith("/api/consola/estado?")) {
+      if (!opts.consolaEstado) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });
+      try {
+        const datos = await opts.consolaEstado();
+        return json(res, 200, datos);
+      } catch (e) {
+        return json(res, 500, { ok: false, error: String(e).slice(0, 150) });
+      }
+    }
+
+    if (url === "/api/consola/comando") {
+      if (!opts.consolaComando) return json(res, 404, { error: "no_encontrado" });
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      const cuerpo = await leerCuerpo(req, 64 * 1024);
+      if (cuerpo === null) return json(res, 413, { error: "cuerpo_demasiado_grande" });
+      let payload: { comando?: string } = {};
+      try {
+        payload = cuerpo ? JSON.parse(cuerpo) : {};
+      } catch {
+        return json(res, 400, { ok: false, error: "json_invalido" });
+      }
+      try {
+        const r = await opts.consolaComando(String(payload.comando ?? ""));
+        return json(res, 200, r);
+      } catch (e) {
+        return json(res, 500, { ok: false, error: String(e).slice(0, 150) });
+      }
     }
 
     // ---- estado REAL de la sesión de WhatsApp ----
