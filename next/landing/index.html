@@ -270,7 +270,7 @@ p.fuerte{color:var(--texto);font-weight:500}
   width:100%;aspect-ratio:16/11;object-fit:cover;border-radius:12px;border:1px solid var(--borde);display:block;
 }
 /* Simulación del "acabado plástico": piel planchada, saturación artificial y contraste aplanado */
-.efecto-plastico{filter:blur(1.6px) saturate(1.55) contrast(.82) brightness(1.12)}
+.efecto-plastico{filter:none}
 .dupla-iphone{
   display:grid;grid-template-columns:1fr 1fr;gap:10px;
 }
@@ -629,7 +629,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     <div class="card-plastico">
       <div>
         <span class="badge-malo">✕ Prompt Básico · Efecto Plástico</span>
-        <img class="foto-comparativa efecto-plastico" src="assets/mod-elevator-flash.jpg" alt="Simulación del acabado plástico típico de un prompt básico" loading="lazy">
+        <img class="foto-comparativa" src="assets/ia-plastico-basica.jpg" alt="Modelo generado con IA básica: piel de cera planchada, brillo plástico y mirada artificial" loading="lazy">
         <h3 style="margin-top:14px">Lo que genera la mayoría sin método</h3>
         <p style="font-size:14px">Piel planchada sin poros, mirada artificial de estudio, fondo falso desenfocado y simetría robótica. El algoritmo lo detecta y el público lo ignora en 1 segundo.</p>
       </div>
