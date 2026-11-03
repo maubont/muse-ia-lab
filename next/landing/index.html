@@ -8,32 +8,39 @@
 <meta property="og:title" content="Modelos IA — crea modelos virtuales hiperrealistas con IA">
 <meta property="og:description" content="Del personaje al cobro: crea el modelo, produce el contenido y publícalo donde se paga. 13 módulos y 4 bonos.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0A0A0B">
+<meta name="theme-color" content="#FAF7F5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ==========================================================================
-   MUSE IA LAB — DESIGN SYSTEM v8.5 (ZERO-PURPLE EDITORIAL + HYPER-OFFER ARCHITECTURE)
-   Inspiración estructural: hypermodels.io/offer elevada a Alta Costura Digital 2026
-   Paleta: Obsidian Carbon (#0A0A0B), Espresso Graphite (#121211),
-           Warm Alabaster (#F5F2EB), Brushed Champagne Bronze (#C8A97E)
+   MUSE IA LAB — DESIGN SYSTEM v9.0 (LUMINOUS CHAMPAGNE GOLD & SOFT PASTEL ROSE)
+   Arquitectura inspirada en hypermodels.io/offer elevada a Alta Costura Luminosa 2026
+   Paleta No-Oscura (Zero-Purple):
+   - Silk Alabaster (#FAF7F5) & Gallery White (#FFFFFF)
+   - Champagne Gold (#C8A97E / #9A7240)
+   - Soft Pastel Rose & Dusty Blush (#F9EBEE / #EBCAD0 / #D89AA2 / #B86B77)
+   - Deep Espresso Ink (#181415) para contraste editorial nítido
    ========================================================================== */
 :root{
-  --fondo:#0A0A0B;
-  --panel:#121211;
-  --panel-alt:#171614;
-  --texto:#F5F2EB;
-  --tenue:#A39E93;
+  --fondo:#FAF7F5;
+  --panel:#FFFFFF;
+  --panel-alt:#F6EFEF;
+  --rosa-suave:#F9EBEE;
+  --rosa-borde:#EBCAD0;
+  --rosa-pastel:#D89AA2;
+  --rosa-editorial:#B86B77;
+  --texto:#181415;
+  --tenue:#5C5352;
   --acento:#C8A97E;
-  --acento2:#E5CCA4;
-  --borde:#262420;
-  --borde2:rgba(245,242,235,.09);
-  --ok:#10B981;
+  --acento2:#9A7240;
+  --borde:#E8DFDC;
+  --borde2:rgba(24,20,21,.08);
+  --ok:#059669;
   --oro:#C8A97E;
-  --oro2:#E8D3B0;
-  --r:16px;
-  --max:880px;
+  --oro2:#9A7240;
+  --r:18px;
+  --max:920px;
   --ease-out:cubic-bezier(0.22, 1, 0.36, 1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -47,55 +54,52 @@ body{
   position:relative;
   overflow-x:hidden;
 }
-::selection{background:rgba(200,169,126,.25);color:#F5F2EB}
+::selection{background:var(--rosa-suave);color:var(--texto)}
 
+/* Atmósfera luminosa con velos sutiles en Champagne Dorado y Rosa Pastel */
 body::before{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(820px 460px at 50% -10%, rgba(200,169,126,.14), transparent 72%),
-    radial-gradient(560px 380px at 88% 18%, rgba(229,204,164,.05), transparent 70%),
-    radial-gradient(700px 500px at 12% 96%, rgba(200,169,126,.04), transparent 70%);
-}
-body::after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.028;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+    radial-gradient(880px 480px at 50% -8%, rgba(216,154,162,.18), transparent 72%),
+    radial-gradient(640px 420px at 88% 16%, rgba(200,169,126,.16), transparent 70%),
+    radial-gradient(740px 520px at 10% 85%, rgba(216,154,162,.12), transparent 70%);
 }
 header,main,section,footer,.cinta-marquee{position:relative;z-index:1}
 
 body>.hilo{
-  position:fixed;top:0;left:0;right:0;height:2px;z-index:50;
-  background:linear-gradient(90deg,transparent,rgba(200,169,126,.35),var(--acento2),rgba(200,169,126,.35),transparent);
-  opacity:.85;
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+  background:linear-gradient(90deg,#E5CCA4,var(--rosa-pastel),var(--oro),var(--rosa-pastel),#E5CCA4);
 }
 
 .contenedor{width:100%;max-width:var(--max);margin:0 auto;padding:0 22px}
-section{padding:68px 0;border-bottom:1px solid rgba(245,242,235,.06)}
+section{padding:68px 0;border-bottom:1px solid var(--borde)}
 section:last-of-type{border-bottom:0}
 
 /* Barra editorial superior */
 .barra-editorial{
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
-  padding:16px 0;border-bottom:1px solid var(--borde2);
+  padding:16px 0;border-bottom:1px solid var(--borde);
   font-family:"JetBrains Mono",ui-monospace,monospace;
   font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
 }
 .barra-editorial .marca{
-  display:inline-flex;align-items:center;gap:8px;color:var(--texto);font-weight:600;
+  display:inline-flex;align-items:center;gap:8px;color:var(--texto);font-weight:700;
 }
 .barra-editorial .punto-vivo{
-  width:6px;height:6px;border-radius:50%;background:var(--ok);
-  box-shadow:0 0 8px rgba(16,185,129,.65);
+  width:7px;height:7px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 8px rgba(5,150,105,.45);
 }
 .barra-editorial .pill-oferta{
-  padding:4px 10px;border-radius:999px;background:rgba(200,169,126,.12);
-  border:1px solid rgba(200,169,126,.3);color:var(--oro2);font-weight:600;
+  padding:5px 12px;border-radius:999px;
+  background:linear-gradient(90deg,var(--rosa-suave),#F7EFE2);
+  border:1px solid var(--rosa-borde);color:var(--texto);font-weight:700;
 }
 
-/* Cinta Marquee Cinética (Inspirada en hypermodels.io/offer pero con estética Champagne & Obsidian) */
+/* Cinta Marquee Cinética en Champagne & Blush Pastel */
 .cinta-marquee{
   overflow:hidden;white-space:nowrap;
-  border-top:1px solid var(--borde2);border-bottom:1px solid var(--borde2);
-  background:rgba(18,18,17,.85);padding:11px 0;
+  border-top:1px solid var(--borde);border-bottom:1px solid var(--borde);
+  background:linear-gradient(90deg,#FAF3F4,#F9F3EB,#FAF3F4);padding:12px 0;
 }
 .cinta-track{
   display:inline-flex;align-items:center;gap:28px;
@@ -103,99 +107,100 @@ section:last-of-type{border-bottom:0}
   font-family:"JetBrains Mono",ui-monospace,monospace;
   font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
 }
-.cinta-track strong{color:var(--oro2);font-weight:600}
-.cinta-track .sep{color:rgba(200,169,126,.45)}
+.cinta-track strong{color:var(--texto);font-weight:700}
+.cinta-track .sep{color:var(--rosa-editorial)}
 @keyframes desplazarCinta{
   0%{transform:translateX(0)}
   100%{transform:translateX(-50%)}
 }
 
-/* Kicker / Eyebrow de sección estilo Offer Page */
+/* Kicker / Eyebrow de sección en Rosa Pastel & Oro Champagne */
 .kicker-seccion{
   display:inline-flex;align-items:center;gap:6px;
-  margin-bottom:12px;padding:4px 11px;border-radius:999px;
-  background:rgba(200,169,126,.08);border:1px solid rgba(200,169,126,.24);
+  margin-bottom:12px;padding:5px 13px;border-radius:999px;
+  background:linear-gradient(90deg,var(--rosa-suave),#FBF4E9);
+  border:1px solid var(--rosa-borde);
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--oro2);
+  font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--rosa-editorial);
 }
 
-h1,h2,h3{line-height:1.14;letter-spacing:-.025em;font-weight:700;text-wrap:balance}
-h1{font-size:clamp(32px,6vw,54px);font-weight:800}
-h2{font-size:clamp(25px,4.5vw,36px);margin-bottom:14px;position:relative;padding-bottom:14px}
+h1,h2,h3{line-height:1.14;letter-spacing:-.025em;font-weight:800;color:var(--texto);text-wrap:balance}
+h1{font-size:clamp(32px,5.8vw,54px)}
+h2{font-size:clamp(25px,4.4vw,36px);margin-bottom:14px;position:relative;padding-bottom:14px}
 h2::after{
-  content:"";position:absolute;left:0;bottom:0;width:48px;height:1.5px;
-  background:linear-gradient(90deg,var(--acento2),transparent);
+  content:"";position:absolute;left:0;bottom:0;width:56px;height:2px;
+  background:linear-gradient(90deg,var(--oro),var(--rosa-pastel),transparent);
 }
 h3{font-size:18px;margin-bottom:8px;letter-spacing:-.01em}
 p{color:var(--tenue)}
-p.fuerte{color:var(--texto)}
+p.fuerte{color:var(--texto);font-weight:500}
 .fino{font-size:13.5px;color:var(--tenue)}
 .acento{
   font-family:"Playfair Display",Georgia,serif;
   font-style:italic;
-  font-weight:600;
-  color:var(--acento2);
+  font-weight:700;
+  background:linear-gradient(135deg,#9A7240 0%,#B86B77 55%,#C8A97E 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-/* ---- Botón CTA Táctil en Champagne & Bronce Cepillado ---- */
+/* ---- Botón CTA Táctil en Champagne Dorado & Rosa Pastel ---- */
 .cta{
   display:flex;align-items:center;justify-content:center;gap:10px;
   width:100%;max-width:520px;margin-left:auto;margin-right:auto;
   min-height:60px;padding:16px 26px;margin-top:24px;
-  background:linear-gradient(180deg,#E8D2AE 0%,var(--acento) 52%,#A88453 100%);
-  color:#0A0A0B;font:800 17px/1.2 inherit;text-decoration:none;letter-spacing:-.01em;
-  border:1px solid rgba(255,255,255,.25);border-radius:14px;cursor:pointer;
+  background:linear-gradient(135deg,#EAD4B0 0%,#E8C2C8 50%,#C8A97E 100%);
+  color:#181415;font:800 17px/1.2 inherit;text-decoration:none;letter-spacing:-.01em;
+  border:1px solid rgba(200,169,126,.55);border-radius:14px;cursor:pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    inset 0 -1px 0 rgba(0,0,0,.25),
-    0 16px 40px -12px rgba(200,169,126,.42);
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 16px 36px -12px rgba(184,107,119,.28),
+    0 6px 16px -6px rgba(200,169,126,.25);
   transition:transform .24s var(--ease-out),box-shadow .24s var(--ease-out),filter .24s ease;
 }
 .cta:hover{
-  transform:translateY(-2px);filter:brightness(1.05);
+  transform:translateY(-2px);filter:brightness(1.03);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.7),
-    inset 0 -1px 0 rgba(0,0,0,.25),
-    0 22px 48px -12px rgba(200,169,126,.55);
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 22px 44px -12px rgba(184,107,119,.36),
+    0 8px 20px -6px rgba(200,169,126,.32);
 }
 .cta:active{transform:translateY(0)}
-.cta:focus-visible{outline:2px solid var(--acento2);outline-offset:3px}
+.cta:focus-visible{outline:2px solid var(--rosa-editorial);outline-offset:3px}
 
-/* ---- Hero de Alta Conversión (Inspirado en hypermodels.io/offer) ---- */
-.hero{padding-top:44px;padding-bottom:56px;text-align:center;border-bottom:0}
+/* ---- Hero Luminoso de Alta Conversión ---- */
+.hero{padding-top:42px;padding-bottom:54px;text-align:center;border-bottom:0}
 .hero .etiqueta{
-  display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;padding:6px 14px;border-radius:999px;
-  background:rgba(200,169,126,.1);
-  border:1px solid rgba(200,169,126,.32);color:var(--acento2);
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;padding:6px 16px;border-radius:999px;
+  background:linear-gradient(90deg,var(--rosa-suave),#FBF4E8);
+  border:1px solid var(--rosa-borde);color:var(--rosa-editorial);
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
 }
-.hero p{margin-top:16px;font-size:clamp(17px,2.2vw,19.5px);max-width:650px;margin-left:auto;margin-right:auto}
+.hero p{margin-top:16px;font-size:clamp(17px,2.2vw,19.5px);max-width:660px;margin-left:auto;margin-right:auto}
 .precio-linea{
   margin-top:26px;display:inline-flex;align-items:baseline;justify-content:center;gap:12px;
-  padding:8px 20px;border-radius:999px;background:rgba(200,169,126,.07);border:1px solid rgba(200,169,126,.22);
+  padding:8px 22px;border-radius:999px;background:#FFFFFF;border:1px solid var(--rosa-borde);
+  box-shadow:0 8px 24px -12px rgba(184,107,119,.18);
 }
 .precio-linea strong{
   font-family:"Playfair Display",Georgia,serif;
-  font-size:36px;letter-spacing:-.02em;
-  background:linear-gradient(180deg,#FFFFFF 0%,var(--oro2) 65%,var(--oro) 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-size:36px;letter-spacing:-.02em;color:var(--texto);
 }
 .precio-linea .antes{color:var(--tenue);text-decoration:line-through;font-size:15px}
 .precio-linea .ahorro{
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:11px;font-weight:600;color:var(--ok);padding:2px 8px;border-radius:999px;
-  background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);
+  font-size:11px;font-weight:700;color:var(--ok);padding:3px 9px;border-radius:999px;
+  background:rgba(5,150,105,.1);border:1px solid rgba(5,150,105,.25);
 }
 .hero .fino{margin-top:12px}
 
 /* ---- Visor Hiperrealista de Musa en el Primer Viewport ---- */
 .musa-showcase{
-  margin-top:28px;border-radius:20px;overflow:hidden;
-  background:var(--panel);border:1px solid rgba(200,169,126,.28);
-  box-shadow:0 36px 80px -36px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.07);
-  padding:16px;text-align:left;
+  margin-top:28px;border-radius:22px;overflow:hidden;
+  background:#FFFFFF;border:1px solid var(--rosa-borde);
+  box-shadow:0 28px 64px -28px rgba(24,20,21,.12), 0 4px 16px rgba(200,169,126,.1);
+  padding:18px;text-align:left;
 }
 .musa-badge-bar{
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
@@ -204,13 +209,14 @@ p.fuerte{color:var(--texto)}
   font-size:11px;letter-spacing:.04em;color:var(--tenue);
 }
 .musa-pill{
-  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;
-  background:rgba(200,169,126,.12);border:1px solid rgba(200,169,126,.32);
-  color:var(--oro2);font-weight:600;font-size:11px;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;
+  background:linear-gradient(90deg,var(--rosa-suave),#FBF4E8);
+  border:1px solid var(--rosa-borde);
+  color:var(--texto);font-weight:700;font-size:11px;
 }
 .musa-main-frame{
-  position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:#0D0D0C;
-  border:1px solid rgba(245,242,235,.08);
+  position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/10;background:#F3ECEA;
+  border:1px solid var(--borde);
 }
 .musa-main-frame img{
   width:100%;height:100%;object-fit:cover;display:block;
@@ -220,33 +226,95 @@ p.fuerte{color:var(--texto)}
   display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;
 }
 .musa-thumb{
-  border-radius:10px;overflow:hidden;border:1px solid var(--borde);background:#0D0D0C;
+  border-radius:12px;overflow:hidden;border:1px solid var(--borde);background:var(--fondo);
   cursor:pointer;text-align:left;padding:0;color:var(--texto);
   transition:border-color .22s var(--ease-out),transform .22s var(--ease-out),background .22s ease;
 }
 .musa-thumb:hover,.musa-thumb.activa{
-  border-color:var(--oro);background:var(--panel-alt);transform:translateY(-2px);
+  border-color:var(--rosa-editorial);background:var(--rosa-suave);transform:translateY(-2px);
 }
 .musa-thumb img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
 .musa-thumb span{
   display:block;padding:8px 10px;
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:10.5px;color:var(--tenue);font-weight:500;letter-spacing:.02em;
+  font-size:10.5px;color:var(--tenue);font-weight:600;letter-spacing:.02em;
 }
-.musa-thumb.activa span{color:var(--oro2)}
+.musa-thumb.activa span{color:var(--texto)}
+
+/* ---- Comparativa Visual: IA de Plástico vs Hiperrealismo Cotidiano iPhone (Inspirado en hypermodels.io/offer) ---- */
+.realismo-grid{
+  display:grid;gap:18px;margin-top:26px;
+}
+@media(min-width:680px){.realismo-grid{grid-template-columns:1fr 1.25fr}}
+.card-plastico,.card-iphone{
+  border-radius:20px;padding:18px;background:#FFFFFF;border:1px solid var(--borde);
+  box-shadow:0 12px 32px -18px rgba(24,20,21,.08);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.card-plastico{
+  background:#FBF7F7;border-color:#E8D6D8;
+}
+.card-iphone{
+  background:linear-gradient(180deg,#FFFFFF 0%,#FDF6F7 100%);
+  border:1.5px solid var(--rosa-pastel);
+  box-shadow:0 20px 44px -20px rgba(184,107,119,.2);
+}
+.badge-malo,.badge-bueno{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:8px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;font-weight:700;text-transform:uppercase;
+  margin-bottom:12px;align-self:flex-start;
+}
+.badge-malo{background:#FDECEC;color:#B91C1C;border:1px solid #F8CACA}
+.badge-bueno{background:linear-gradient(90deg,var(--rosa-suave),#FBF4E8);color:var(--texto);border:1px solid var(--rosa-borde)}
+.foto-comparativa{
+  width:100%;aspect-ratio:16/11;object-fit:cover;border-radius:12px;border:1px solid var(--borde);display:block;
+}
+/* Simulación del "acabado plástico": piel planchada, saturación artificial y contraste aplanado */
+.efecto-plastico{filter:blur(1.6px) saturate(1.55) contrast(.82) brightness(1.12)}
+.dupla-iphone{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.dupla-iphone img{
+  width:100%;aspect-ratio:4/4.3;object-fit:cover;border-radius:12px;border:1px solid var(--rosa-borde);display:block;
+}
+.lista-claves-optica{
+  list-style:none;display:grid;gap:7px;margin-top:14px;font-size:13.5px;color:var(--texto);
+}
+.lista-claves-optica li{display:flex;align-items:center;gap:8px}
+
+/* ---- Galería Multi-Modelo de Estilo iPhone Cotidiano (Diversidad de Perfiles del Curso) ---- */
+.galeria-modelos{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:26px;
+}
+@media(min-width:720px){.galeria-modelos{grid-template-columns:repeat(3,1fr)}}
+.modelo-card{
+  border-radius:16px;overflow:hidden;background:#FFFFFF;border:1px solid var(--borde);
+  box-shadow:0 10px 26px -16px rgba(24,20,21,.08);
+  transition:transform .24s var(--ease-out),border-color .24s var(--ease-out);
+}
+.modelo-card:hover{transform:translateY(-3px);border-color:var(--rosa-pastel)}
+.modelo-card img{width:100%;aspect-ratio:16/11;object-fit:cover;display:block}
+.modelo-info{padding:12px 14px}
+.modelo-info .tag-m{
+  display:inline-block;font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--rosa-editorial);background:var(--rosa-suave);padding:2px 8px;border-radius:999px;margin-bottom:5px;
+}
+.modelo-info strong{display:block;font-size:14.5px;color:var(--texto)}
+.modelo-info p{font-size:12.5px;color:var(--tenue);margin-top:2px;line-height:1.4}
 
 /* ---- Las 3 Fases Visuales (01 Creación · 02 Viralización · 03 Monetización) ---- */
 .fases-tabs{
   display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0 20px;
 }
 .fase-pill{
-  padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--borde2);
-  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:12px;background:#FFFFFF;border:1px solid var(--borde);
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(24,20,21,.03);
 }
 .fase-pill .num-f{
   font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;font-weight:700;
-  padding:4px 8px;border-radius:6px;background:rgba(200,169,126,.14);color:var(--oro2);
-  border:1px solid rgba(200,169,126,.3);
+  padding:4px 8px;border-radius:6px;background:var(--rosa-suave);color:var(--rosa-editorial);
+  border:1px solid var(--rosa-borde);
 }
 .fase-pill strong{font-size:14px;color:var(--texto)}
 
@@ -259,38 +327,39 @@ p.fuerte{color:var(--texto)}
   content:"0" counter(lin);position:absolute;left:0;top:0;
   width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-weight:600;font-size:12.5px;color:#0A0A0B;z-index:1;
-  background:linear-gradient(180deg,var(--oro2),var(--oro));
-  box-shadow:0 0 0 4px rgba(200,169,126,.08), inset 0 1px 0 rgba(255,255,255,.4);
+  font-weight:700;font-size:12.5px;color:#181415;z-index:1;
+  background:linear-gradient(135deg,#EAD4B0,var(--rosa-pastel));
+  box-shadow:0 0 0 4px var(--rosa-suave);
 }
 .pipeline li::after{
-  content:"";position:absolute;left:17px;top:36px;bottom:0;width:1px;
-  background:linear-gradient(180deg,rgba(200,169,126,.45),rgba(200,169,126,.1));
+  content:"";position:absolute;left:17px;top:36px;bottom:0;width:1.5px;
+  background:linear-gradient(180deg,var(--rosa-pastel),var(--oro));
 }
 .pipeline li:last-child{padding-bottom:0}
 .pipeline li:last-child::after{display:none}
 .pipeline strong{display:block;font-size:17px;letter-spacing:-.01em;margin-bottom:4px;color:var(--texto)}
 .pipeline p{font-size:15px;margin:0}
 
-/* Sub-grid de 4 Pilares de Conversión (Inspirado en "Perfil que convierte / Link seguro / Plataforma de fans / Contenido premium") */
+/* Sub-grid de 4 Pilares de Conversión */
 .pilares-mini{
   display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:24px;
 }
 @media(min-width:680px){.pilares-mini{grid-template-columns:repeat(4,1fr)}}
 .pilar-box{
-  padding:14px;border-radius:12px;background:var(--panel-alt);border:1px solid var(--borde2);
+  padding:14px;border-radius:14px;background:#FFFFFF;border:1px solid var(--borde);
+  box-shadow:0 6px 18px -12px rgba(24,20,21,.06);
 }
 .pilar-box span{
   display:block;font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:10px;color:var(--oro2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;
+  font-size:10px;color:var(--rosa-editorial);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;
 }
 .pilar-box strong{display:block;font-size:13.5px;color:var(--texto);margin-bottom:3px}
 .pilar-box p{font-size:12.5px;line-height:1.45}
 
 .nota-proceso{
-  margin-top:24px;padding:12px 16px;
-  border-left:2px solid var(--acento);
-  background:rgba(200,169,126,.04);border-radius:0 10px 10px 0;
+  margin-top:24px;padding:13px 16px;
+  border-left:3px solid var(--rosa-pastel);
+  background:var(--rosa-suave);border-radius:0 10px 10px 0;color:var(--texto);
 }
 
 /* ---- Swiss Architectural Bento Grid ---- */
@@ -298,156 +367,148 @@ p.fuerte{color:var(--texto)}
 @media(min-width:580px){.grid{grid-template-columns:1fr 1fr}}
 .tarjeta{
   position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60%),var(--panel);
-  border:1px solid var(--borde2);border-radius:var(--r);
+  background:#FFFFFF;
+  border:1px solid var(--borde);border-radius:var(--r);
   padding:22px 20px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -22px #000;
+  box-shadow:0 10px 28px -18px rgba(24,20,21,.07);
   transition:border-color .22s var(--ease-out), transform .22s var(--ease-out);
 }
-.tarjeta:hover{border-color:rgba(200,169,126,.34);transform:translateY(-2px)}
-.tarjeta::after{
-  content:"";position:absolute;top:-45%;right:-35%;width:130px;height:130px;
-  background:radial-gradient(circle,rgba(200,169,126,.12),transparent 70%);pointer-events:none;
-}
+.tarjeta:hover{border-color:var(--rosa-pastel);transform:translateY(-2px)}
 .tarjeta h3{font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;color:var(--texto)}
 .tarjeta h3::before{
-  content:"";flex:0 0 6px;height:6px;border-radius:50%;
-  background:var(--acento);box-shadow:0 0 6px rgba(200,169,126,.5);
+  content:"";flex:0 0 7px;height:7px;border-radius:50%;
+  background:linear-gradient(135deg,var(--oro),var(--rosa-editorial));
 }
 .tarjeta p{font-size:14.5px;margin-top:6px;line-height:1.55}
 .tarjeta:nth-child(4){
-  border-color:rgba(200,169,126,.36);
-  background:linear-gradient(180deg,rgba(200,169,126,.08),rgba(200,169,126,.01) 65%),var(--panel);
+  border-color:var(--rosa-borde);
+  background:linear-gradient(180deg,var(--rosa-suave),#FFFFFF 75%);
 }
-.tarjeta:nth-child(4) h3{color:var(--oro2)}
 
-/* ---- Vista Previa del Área de Miembros (Inspirado en Sección 4 de hypermodels.io/offer) ---- */
+/* ---- Vista Previa del Área de Miembros ---- */
 .preview-studio{
-  margin-top:24px;padding:24px;border-radius:20px;
-  background:linear-gradient(180deg,rgba(246,244,240,.05),rgba(18,18,17,.95));
-  border:1px solid rgba(200,169,126,.28);
+  margin-top:24px;padding:24px;border-radius:22px;
+  background:linear-gradient(135deg,#FFFFFF 0%,var(--rosa-suave) 55%,#FBF3E6 100%);
+  border:1px solid var(--rosa-borde);
   display:grid;gap:20px;
+  box-shadow:0 20px 48px -24px rgba(184,107,119,.18);
 }
 @media(min-width:680px){.preview-studio{grid-template-columns:1.1fr .9fr;align-items:center}}
 .preview-badges{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .preview-badge{
-  padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);
-  border:1px solid var(--borde2);font-size:13px;color:var(--texto);font-weight:600;
+  padding:10px 12px;border-radius:10px;background:#FFFFFF;
+  border:1px solid var(--borde);font-size:13px;color:var(--texto);font-weight:600;
   display:flex;align-items:center;gap:8px;
 }
-.preview-badge i{color:var(--oro2);font-style:normal}
+.preview-badge i{color:var(--rosa-editorial);font-style:normal;font-weight:700}
 .preview-mockup{
-  border-radius:14px;overflow:hidden;border:1px solid rgba(200,169,126,.3);
-  background:#141413;padding:12px;
+  border-radius:16px;overflow:hidden;border:1px solid var(--rosa-borde);
+  background:#FFFFFF;padding:12px;box-shadow:0 12px 28px -16px rgba(24,20,21,.12);
 }
 .preview-mockup-bar{
   display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;margin-bottom:8px;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:var(--oro2);
+  border-bottom:1px solid var(--borde);
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:var(--rosa-editorial);font-weight:700;
 }
-.preview-mockup img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;display:block}
+.preview-mockup img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;display:block}
 
 /* ---- Perfiles / Pasos ---- */
 .pasos{counter-reset:paso;display:grid;gap:14px;margin-top:24px}
 .paso{
   display:flex;gap:14px;align-items:flex-start;
-  padding:16px 18px;border-radius:12px;background:var(--panel);border:1px solid var(--borde2);
+  padding:16px 18px;border-radius:14px;background:#FFFFFF;border:1px solid var(--borde);
 }
 .paso::before{
   counter-increment:paso;content:"0" counter(paso);
   flex:0 0 32px;height:32px;border-radius:8px;
-  background:rgba(200,169,126,.1);
-  border:1px solid rgba(200,169,126,.32);
-  color:var(--oro2);
+  background:var(--rosa-suave);
+  border:1px solid var(--rosa-borde);
+  color:var(--rosa-editorial);
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-weight:600;font-size:12px;
+  font-weight:700;font-size:12px;
   display:grid;place-items:center;margin-top:1px;
 }
 .paso p{color:var(--texto);font-size:15px}
 
-/* ---- Tabla Comparativa de Contraste (Inspirada en Sección 11 de hypermodels.io/offer) ---- */
+/* ---- Tabla Comparativa de Contraste ---- */
 .contraste-grid{
   display:grid;gap:16px;margin-top:24px;
 }
 @media(min-width:640px){.contraste-grid{grid-template-columns:1fr 1fr}}
 .columna-no,.columna-si{
-  padding:22px 20px;border-radius:16px;background:var(--panel);border:1px solid var(--borde2);
+  padding:22px 20px;border-radius:18px;background:#FFFFFF;border:1px solid var(--borde);
 }
 .columna-si{
-  border-color:rgba(200,169,126,.38);
-  background:linear-gradient(180deg,rgba(200,169,126,.08),rgba(18,18,17,.98));
+  border-color:var(--rosa-pastel);
+  background:linear-gradient(180deg,var(--rosa-suave),#FFFFFF 45%);
+  box-shadow:0 16px 36px -22px rgba(184,107,119,.22);
 }
 .tag-contraste{
   display:inline-block;margin-bottom:14px;padding:4px 10px;border-radius:6px;
-  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;font-weight:600;text-transform:uppercase;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;font-weight:700;text-transform:uppercase;
 }
-.columna-no .tag-contraste{background:rgba(255,255,255,.05);color:var(--tenue)}
-.columna-si .tag-contraste{background:rgba(200,169,126,.15);color:var(--oro2);border:1px solid rgba(200,169,126,.3)}
+.columna-no .tag-contraste{background:#F4ECEB;color:var(--tenue)}
+.columna-si .tag-contraste{background:#FFFFFF;color:var(--rosa-editorial);border:1px solid var(--rosa-borde)}
 
 /* ---- Objeciones ---- */
 .obj{display:grid;gap:12px;margin-top:20px}
 .obj div{
   position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--panel);
-  border:1px solid var(--borde2);border-radius:12px;padding:16px 18px 16px 20px;
+  background:#FFFFFF;
+  border:1px solid var(--borde);border-radius:12px;padding:16px 18px 16px 20px;
 }
 .obj div::before{
-  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
-  background:linear-gradient(180deg,var(--oro2),rgba(200,169,126,.2));
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--oro),var(--rosa-pastel));
 }
 .obj strong{display:block;color:var(--texto);margin-bottom:4px;font-size:15px}
 
-/* ---- Stack de Valor & Caja de Precio (Inspirado en Sección 5 de hypermodels.io/offer) ---- */
+/* ---- Stack de Valor & Caja de Precio ---- */
 .caja-precio{
   position:relative;overflow:hidden;
   margin-top:24px;padding:36px 24px;text-align:center;
   background:
-    radial-gradient(520px 240px at 50% 0%, rgba(200,169,126,.16), transparent 72%),
-    linear-gradient(180deg,rgba(200,169,126,.07),rgba(18,18,17,.98));
-  border:1px solid rgba(200,169,126,.38);border-radius:22px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 32px 72px -36px rgba(0,0,0,.95);
-}
-.caja-precio::after{
-  content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(229,204,164,.7),transparent);
+    radial-gradient(520px 240px at 50% 0%, rgba(216,154,162,.22), transparent 72%),
+    linear-gradient(180deg,#FFFFFF 0%,#FDF7F8 100%);
+  border:1.5px solid var(--rosa-borde);border-radius:24px;
+  box-shadow:0 28px 64px -28px rgba(184,107,119,.22);
 }
 .stack-valor{
   max-width:540px;margin:0 auto 24px;text-align:left;
-  border:1px solid var(--borde2);border-radius:14px;background:rgba(10,10,11,.65);padding:16px 18px;
+  border:1px solid var(--borde);border-radius:14px;background:#FAF7F5;padding:16px 18px;
 }
 .stack-fila{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:9px 0;border-bottom:1px solid rgba(245,242,235,.06);font-size:14px;
+  padding:9px 0;border-bottom:1px solid var(--borde);font-size:14px;
 }
 .stack-fila:last-child{border-bottom:0}
-.stack-fila span:first-child{color:var(--texto);font-weight:500}
+.stack-fila span:first-child{color:var(--texto);font-weight:600}
 .stack-fila .val-tachado{
   font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--tenue);text-decoration:line-through;
 }
 .caja-precio .grande{
   font-family:"Playfair Display",Georgia,serif;
-  font-size:52px;font-weight:700;letter-spacing:-.02em;line-height:1.1;
-  background:linear-gradient(180deg,#FFFFFF 10%,var(--oro2) 55%,var(--oro) 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-size:54px;font-weight:800;letter-spacing:-.02em;line-height:1.1;
+  color:var(--texto);
 }
 .caja-precio ul{list-style:none;text-align:left;margin:20px auto 0;max-width:400px;display:grid;gap:9px}
-.caja-precio li{position:relative;padding-left:26px;font-size:15px;color:var(--texto)}
+.caja-precio li{position:relative;padding-left:26px;font-size:15px;color:var(--texto);font-weight:500}
 .caja-precio li::before{
   content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800;
 }
 
 /* ---- FAQ ---- */
 details{border-bottom:1px solid var(--borde);padding:18px 0}
-summary{cursor:pointer;font-weight:600;color:var(--texto);list-style:none;font-size:15.5px}
+summary{cursor:pointer;font-weight:700;color:var(--texto);list-style:none;font-size:15.5px}
 summary::-webkit-details-marker{display:none}
 summary::after{
   content:"+";float:right;width:26px;height:26px;border-radius:50%;
   display:grid;place-items:center;line-height:1;
-  background:rgba(200,169,126,.1);border:1px solid rgba(200,169,126,.28);
-  color:var(--acento2);font-weight:600;font-size:15px;
+  background:var(--rosa-suave);border:1px solid var(--rosa-borde);
+  color:var(--rosa-editorial);font-weight:700;font-size:15px;
   transition:background .2s ease,border-color .2s ease;
 }
-summary:hover::after{background:rgba(200,169,126,.2);border-color:var(--acento2)}
+summary:hover::after{background:#F3DFE3;border-color:var(--rosa-pastel)}
 details[open] summary::after{content:"–"}
 details p{margin-top:10px;font-size:15px;line-height:1.6}
 
@@ -455,31 +516,31 @@ details p{margin-top:10px;font-size:15px;line-height:1.6}
 footer{padding:40px 0 64px;text-align:center;margin-top:12px;position:relative}
 footer::before{
   content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,169,126,.35),transparent);
+  background:linear-gradient(90deg,transparent,var(--rosa-borde),transparent);
 }
 footer p{font-size:13px}
 footer a{
-  color:var(--tenue);text-decoration:none;
-  border-bottom:1px solid rgba(200,169,126,.28);
+  color:var(--texto);font-weight:600;text-decoration:none;
+  border-bottom:1px solid var(--rosa-pastel);
   transition:color .15s ease,border-color .15s ease;
 }
-footer a:hover{color:var(--oro2);border-color:var(--oro2)}
+footer a:hover{color:var(--rosa-editorial);border-color:var(--rosa-editorial)}
 .aviso-ia{
   margin-top:20px;padding:14px 16px;border-radius:12px;font-size:13px;color:var(--tenue);
-  background:var(--panel);border:1px solid var(--borde);text-align:left;
+  background:#FFFFFF;border:1px solid var(--borde);text-align:left;
 }
 
 /* ---- Modal 18+ ---- */
 dialog{
-  border:1px solid rgba(200,169,126,.3);border-radius:18px;background:var(--panel);color:var(--texto);
+  border:1px solid var(--rosa-borde);border-radius:20px;background:#FFFFFF;color:var(--texto);
   max-width:430px;width:calc(100% - 32px);padding:28px 24px;
-  box-shadow:0 32px 80px rgba(0,0,0,.85);
+  box-shadow:0 32px 80px rgba(24,20,21,.22);
 }
-dialog::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(4px)}
+dialog::backdrop{background:rgba(24,20,21,.45);backdrop-filter:blur(4px)}
 dialog h3{font-size:20px;margin-bottom:10px}
 dialog p{font-size:14.5px}
 dialog label{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14px;color:var(--texto);cursor:pointer}
-dialog input{margin-top:3px;width:18px;height:18px;accent-color:var(--acento)}
+dialog input{margin-top:3px;width:18px;height:18px;accent-color:var(--rosa-editorial)}
 dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 
 @media (prefers-reduced-motion: reduce){
@@ -519,11 +580,11 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <!-- VISOR ÓPTICO HIPERREALISTA DE MUSA INTEGRADO EN EL PRIMER VIEWPORT -->
   <div class="musa-showcase">
     <div class="musa-badge-bar">
-      <span class="musa-pill">✦ CASO REAL DEL ESTUDIO: MUSA · CONSISTENCIA FACIAL 100 %</span>
+      <span class="musa-pill">✦ ANFITRIONA OFICIAL DEL SISTEMA: MUSA · CONSISTENCIA FACIAL 100 %</span>
       <span id="musaEscenaLabel">01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)</span>
     </div>
     <div class="musa-main-frame">
-      <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista en estudio arquitectónico" fetchpriority="high" loading="eager">
+      <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista y anfitriona de Muse IA Lab" fetchpriority="high" loading="eager">
     </div>
     <div class="musa-thumbs" role="group" aria-label="Ángulos y escenarios consistentes del mismo personaje Musa">
       <button type="button" class="musa-thumb activa" onclick="document.getElementById('musaMainImg').src='assets/musa-hero.jpg';document.getElementById('musaEscenaLabel').textContent='01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
@@ -540,22 +601,123 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
       </button>
     </div>
   </div>
-  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Conoce a Musa: el mismo rostro exacto en 3 ángulos e iluminaciones distintas. Sin cámara, sin modelo real, sin estudio.</p>
+  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Conoce a Musa, nuestra anfitriona oficial: el mismo rostro exacto en 3 ángulos e iluminaciones distintas. Y abajo verás los distintos perfiles cotidianos tipo iPhone que tú aprenderás a crear.</p>
 </header>
 
-<!-- CINTA MARQUEE CINÉTICA (ESTILO OFFER PAGE) -->
+<!-- CINTA MARQUEE CINÉTICA -->
 <div class="cinta-marquee" aria-hidden="true">
   <div class="cinta-track">
     <span><strong>SOLO $9 USD</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
-    <span><strong>13 CLASES PRÁCTICAS</strong> · PASO A PASO</span><span class="sep">✦</span>
+    <span><strong>CERO EFECTO PLÁSTICO</strong> · ÓPTICA IPHONE REALISTA</span><span class="sep">✦</span>
     <span><strong>CONSISTENCIA FACIAL 100%</strong> · SIN MOSTRAR TU CARA</span><span class="sep">✦</span>
-    <span><strong>4 BONOS INCLUIDOS</strong> · ACCESO DE POR VIDA</span><span class="sep">✦</span>
+    <span><strong>13 CLASES + 4 BONOS</strong> · ACCESO DE POR VIDA</span><span class="sep">✦</span>
     <span><strong>SOLO $9 USD</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
-    <span><strong>13 CLASES PRÁCTICAS</strong> · PASO A PASO</span><span class="sep">✦</span>
+    <span><strong>CERO EFECTO PLÁSTICO</strong> · ÓPTICA IPHONE REALISTA</span><span class="sep">✦</span>
     <span><strong>CONSISTENCIA FACIAL 100%</strong> · SIN MOSTRAR TU CARA</span><span class="sep">✦</span>
-    <span><strong>4 BONOS INCLUIDOS</strong> · ACCESO DE POR VIDA</span>
+    <span><strong>13 CLASES + 4 BONOS</strong> · ACCESO DE POR VIDA</span>
   </div>
 </div>
+
+<!-- ====================== NUEVA SECCIÓN: CERO PLÁSTICO VS ÓPTICA IPHONE REAL ====================== -->
+<section class="contenedor" aria-labelledby="realismo-t">
+  <span class="kicker-seccion">La Diferencia entre 0 Ventas y un Perfil que Monetiza</span>
+  <h2 id="realismo-t">Por qué el 99% falla: imágenes de plástico vs. realismo cotidiano iPhone</h2>
+  <p class="fuerte">Hoy nadie compra ni sigue a un avatar que parece un muñeco de cera generado con un comando básico. Los modelos que viralizan en Instagram, TikTok y Fanvue parecen <span class="acento">fotos espontáneas tomadas con un iPhone</span>.</p>
+
+  <div class="realismo-grid">
+    <!-- Izquierda: Lo que hace todo el mundo (IA de plástico) -->
+    <div class="card-plastico">
+      <div>
+        <span class="badge-malo">✕ Prompt Básico · Efecto Plástico</span>
+        <img class="foto-comparativa efecto-plastico" src="assets/mod-elevator-flash.jpg" alt="Simulación del acabado plástico típico de un prompt básico" loading="lazy">
+        <h3 style="margin-top:14px">Lo que genera la mayoría sin método</h3>
+        <p style="font-size:14px">Piel planchada sin poros, mirada artificial de estudio, fondo falso desenfocado y simetría robótica. El algoritmo lo detecta y el público lo ignora en 1 segundo.</p>
+      </div>
+      <p class="fino" style="margin-top:12px;color:#B91C1C;font-weight:600">Resultado: Se nota que es IA a simple vista · 0 credibilidad.</p>
+    </div>
+
+    <!-- Derecha: Lo que aprendes en el Estudio (Óptica iPhone 24mm espontánea) -->
+    <div class="card-iphone">
+      <div>
+        <span class="badge-bueno">✓ Método Musa Studio · Hiperrealismo Cotidiano iPhone</span>
+        <div class="dupla-iphone">
+          <img src="assets/mod-mirror-selfie.jpg" alt="Selfie de espejo hiperrealista con flash de iPhone y habitación real enfocada" loading="lazy">
+          <img src="assets/mod-gamer-cozy.jpg" alt="Chica gamer hiperrealista en su cuarto con cascos y mando tomada con cámara frontal" loading="lazy">
+        </div>
+        <h3 style="margin-top:14px">Fotografía espontánea que parece salida del carrete del móvil</h3>
+        <ul class="lista-claves-optica">
+          <li><span>✦</span> <strong>Piel real sin filtro:</strong> poros, pecas sutiles, rubor natural y mechones sueltos.</li>
+          <li><span>✦</span> <strong>Óptica iPhone 24mm:</strong> selfies de espejo con destello de flash, cámara frontal y luz de ventana.</li>
+          <li><span>✦</span> <strong>Fondo cotidiano enfocado:</strong> habitaciones reales, cafeterías, gimnasios y autos sin desenfoque falso.</li>
+        </ul>
+      </div>
+      <p class="fino" style="margin-top:12px;color:var(--ok);font-weight:700">Resultado: Indistinguible de una creadora real en Instagram, TikTok y Fanvue.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== CATÁLOGO MULTI-MODELO DEL ESTUDIO ====================== -->
+<section class="contenedor" aria-labelledby="catalogo-modelos-t">
+  <span class="kicker-seccion">Diversidad de Perfiles Comerciales</span>
+  <h2 id="catalogo-modelos-t">No te limitas a un solo rostro: crea el estilo de modelo que mejor monetice</h2>
+  <p class="fuerte">Mientras <strong>Musa</strong> es nuestra anfitriona consistente en toda la plataforma, dentro del estudio aprendes a diseñar y sostener <strong class="fuerte">múltiples perfiles de creadoras hiperrealistas</strong> en los nichos más rentables hoy:</p>
+
+  <div class="galeria-modelos">
+    <article class="modelo-card">
+      <img src="assets/mod-mirror-selfie.jpg" alt="Valeria — Selfie de espejo con flash de iPhone" loading="lazy">
+      <div class="modelo-info">
+        <span class="tag-m">Nicho 01 · Lifestyle & Mirror Selfie</span>
+        <strong>Perfil espontáneo en casa</strong>
+        <p>Selfies de espejo con flash de iPhone, ropa cotidiana y máxima cercanía para historias y Telegram.</p>
+      </div>
+    </article>
+
+    <article class="modelo-card">
+      <img src="assets/mod-cafe-sunlight.jpg" alt="Sofía — Terraza europea al sol" loading="lazy">
+      <div class="modelo-info">
+        <span class="tag-m">Nicho 02 · Travel & Café Europeo</span>
+        <strong>Estética aspiracional diurna</strong>
+        <p>Luz directa de mediodía, cafeterías reales y estética limpia ideal para viralizar en Reels de Instagram.</p>
+      </div>
+    </article>
+
+    <article class="modelo-card">
+      <img src="assets/mod-gamer-cozy.jpg" alt="Nora — Chica gamer con cascos y mando" loading="lazy">
+      <div class="modelo-info">
+        <span class="tag-m">Nicho 03 · Cozy Gamer & Streaming</span>
+        <strong>Uno de los nichos más fieles</strong>
+        <p>Cámara frontal 24mm, auriculares, mando y setup gamer de fondo. Altísima conversión a suscripción.</p>
+      </div>
+    </article>
+
+    <article class="modelo-card">
+      <img src="assets/mod-gym-pilates.jpg" alt="Elena — Estudio de Pilates y Fitness" loading="lazy">
+      <div class="modelo-info">
+        <span class="tag-m">Nicho 04 · Pilates & Wellness</span>
+        <strong>Fitness y rutina saludable</strong>
+        <p>Textura de piel post-entreno real, luz natural de estudio de pilates y gran retención en TikTok.</p>
+      </div>
+    </article>
+
+    <article class="modelo-card">
+      <img src="assets/mod-car-goldenhour.jpg" alt="Lucía — Golden hour en el asiento del auto" loading="lazy">
+      <div class="modelo-info">
+        <span class="tag-m">Nicho 05 · Golden Hour Cotidiano</span>
+        <strong>Contraluz cálido de atardecer</strong>
+        <p>Fotos en el auto, paseos al atardecer y estética espontánea que genera miles de comentarios orgánicos.</p>
+      </div>
+    </article>
+
+    <article class="modelo-card">
+      <img src="assets/mod-rooftop-dinner.jpg" alt="Camila — Cena nocturna en terraza rooftop" loading="lazy">
+      <div class="modelo-info">
+        <span class="tag-m">Nicho 06 · Night Out & Contenido VIP</span>
+        <strong>Cenas, terrazas y sets exclusivos</strong>
+        <p>Iluminación cálida de velas en modo noche de iPhone para paquetes premium en Fanvue.</p>
+      </div>
+    </article>
+  </div>
+</section>
 
 <!-- ====================== DE LA IMAGEN AL COBRO (EL SISTEMA COMPLETO) ====================== -->
 <section class="contenedor" aria-labelledby="proceso-t">
@@ -564,7 +726,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <p class="fuerte">El curso no termina en una imagen bonita. Termina con un personaje publicado y un
   sistema para vender su contenido en plataformas que ya cobran por esto.</p>
 
-  <!-- 3 Pilares Visuales estilo HyperModels Offer -->
+  <!-- 3 Pilares Visuales -->
   <div class="fases-tabs">
     <div class="fase-pill"><span class="num-f">01</span><strong>Creación</strong></div>
     <div class="fase-pill"><span class="num-f">02</span><strong>Viralización</strong></div>
@@ -590,7 +752,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     </li>
   </ol>
 
-  <!-- 4 Activos del Ecosistema (Inspirado en las 4 sub-tarjetas de conversión de la oferta) -->
+  <!-- 4 Activos del Ecosistema -->
   <div class="pilares-mini">
     <div class="pilar-box">
       <span>Activo 01</span>
@@ -599,8 +761,8 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     </div>
     <div class="pilar-box">
       <span>Activo 02</span>
-      <strong>Videos 100% realistas</strong>
-      <p>Reels en movimiento y audio realista con voz consistente que multiplican el alcance.</p>
+      <strong>Videos y voz realistas</strong>
+      <p>Reels en movimiento y notas de voz consistentes que multiplican la confianza y el alcance.</p>
     </div>
     <div class="pilar-box">
       <span>Activo 03</span>
@@ -636,7 +798,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     </div>
     <div class="tarjeta">
       <h3>Lo que sí resuelve el método</h3>
-      <p>El flujo para producir en serie: prompts probados, consistencia de rostro y estructura lista para publicar.</p>
+      <p>El flujo para producir en serie: prompts de óptica iPhone, consistencia de rostro y estructura lista para publicar.</p>
     </div>
     <div class="tarjeta">
       <h3>Lo que no resuelve</h3>
@@ -649,7 +811,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 <section class="contenedor" aria-labelledby="incluye-t">
   <span class="kicker-seccion">Área de Miembros Exclusiva</span>
   <h2 id="incluye-t">Qué incluye tu acceso a Musa Studio</h2>
-  <p class="fuerte">No es teoría sobre IA ni una carpeta desordenada. Entras a un estudio interactivo minimalista con las 13 clases y los 4 packs listos para reproducir o descargar.</p>
+  <p class="fuerte">No es teoría sobre IA ni una carpeta desordenada. Entras a un estudio interactivo luminoso y minimalista con las 13 clases (cada una con un caso visual distinto) y los 4 packs listos para reproducir o descargar.</p>
 
   <div class="preview-studio">
     <div>
@@ -667,7 +829,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
         <span>MUSA STUDIO · ATELIER INTERACTIVO</span>
         <span>ACCESO VITALICIO</span>
       </div>
-      <img src="assets/musa-closeup.jpg" alt="Vista previa de Musa Studio" loading="lazy">
+      <img src="assets/mod-kitchen-morning.jpg" alt="Vista previa de modelos hiperrealistas en Musa Studio" loading="lazy">
     </div>
   </div>
 
@@ -711,9 +873,9 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     <div class="columna-si">
       <span class="tag-contraste">✓ Lo que SÍ te llevas hoy</span>
       <div class="obj" style="margin-top:0">
-        <div><strong>01 · Identidad y consistencia facial</strong><p>El método para que tu avatar conserve exactamente el mismo rostro en cualquier pose, luz o escenario.</p></div>
-        <div><strong>02 · Producción de fotos y video realista</strong><p>Flujo práctico con ChatGPT, SeaArt, DeepSeek y herramientas de video para crear contenido en serie.</p></div>
-        <div><strong>03 · Tracción en TikTok, Instagram y Bots</strong><p>Cómo atraer tráfico orgánico y automatizar el filtro hacia tu grupo con ManyChat y Telegram.</p></div>
+        <div><strong>01 · Hiperrealismo cotidiano sin efecto plástico</strong><p>Cómo generar fotos estilo iPhone (selfies de espejo con flash, terrazas, gimnasios y habitaciones reales) con consistencia facial.</p></div>
+        <div><strong>02 · Producción de fotos, voz y video realista</strong><p>Flujo práctico con herramientas gratuitas o de bajo costo para crear Reels y notas de voz creíbles.</p></div>
+        <div><strong>03 · Tracción en TikTok, Instagram y Bots</strong><p>Cómo entrenar el algoritmo desde cero y automatizar el embudo con ManyChat y Telegram.</p></div>
         <div><strong>04 · Monetización en Fanvue + 4 Packs</strong><p>Configuración de cobros, estrategia de suscripción y biblioteca de 30 recursos descargables.</p></div>
       </div>
     </div>
@@ -736,11 +898,11 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <span class="kicker-seccion">Tu Inversión Hoy</span>
   <h2 id="precio-t">Entra hoy con acceso completo de por vida</h2>
   <div class="caja-precio">
-    <p class="fino" style="margin-bottom:14px;color:var(--oro2);font-weight:600;text-transform:uppercase;letter-spacing:.08em">Al acceder hoy recibes todo el ecosistema:</p>
+    <p class="fino" style="margin-bottom:14px;color:var(--rosa-editorial);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Al acceder hoy recibes todo el ecosistema:</p>
 
     <div class="stack-valor">
       <div class="stack-fila"><span>✦ Sistema Completo en Musa Studio (13 Módulos)</span><span class="val-tachado">$47 USD</span></div>
-      <div class="stack-fila"><span>✦ Flujo de Consistencia Facial y Video 100% Realista</span><span class="val-tachado">$27 USD</span></div>
+      <div class="stack-fila"><span>✦ Flujo Hiperrealista iPhone & Video 100% Realista</span><span class="val-tachado">$27 USD</span></div>
       <div class="stack-fila"><span>✦ Embudo de Monetización (Fanvue, Telegram & ManyChat)</span><span class="val-tachado">$27 USD</span></div>
       <div class="stack-fila"><span>✦ Bono 1: Colección de Modelos IA Listas</span><span class="val-tachado">$19 USD</span></div>
       <div class="stack-fila"><span>✦ Bono 2: Megapack Master IA (22 sesiones)</span><span class="val-tachado">$29 USD</span></div>

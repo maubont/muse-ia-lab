@@ -70,10 +70,28 @@ for (const [ruta, nombre] of [
 for (const [ruta, tipo] of [
   ["/assets/demo.jpg", "image/jpeg"],
   ["/assets/demo.mp4", "video/mp4"],
+  ["/assets/musa-hero.jpg", "image/jpeg"],
+  ["/assets/mod-mirror-selfie.jpg", "image/jpeg"],
+  ["/assets/mod-cafe-sunlight.jpg", "image/jpeg"],
+  ["/assets/mod-gamer-cozy.jpg", "image/jpeg"],
+  ["/assets/mod-gym-pilates.jpg", "image/jpeg"],
+  ["/assets/mod-car-goldenhour.jpg", "image/jpeg"],
+  ["/assets/mod-beach-sunset.jpg", "image/jpeg"],
+  ["/assets/mod-kitchen-morning.jpg", "image/jpeg"],
+  ["/assets/mod-elevator-flash.jpg", "image/jpeg"],
+  ["/assets/mod-rooftop-dinner.jpg", "image/jpeg"],
 ]) {
   const r = await pedir(ruta);
   t(`${ruta}: 200`, r.status, 200);
   t(`${ruta}: tipo ${tipo}`, (r.headers.get("content-type") ?? "").includes(tipo), true);
+}
+
+// --- multi-modelo en academia.html (13 portadas únicas, sin repetir el mismo archivo en las 13 clases) ---
+{
+  const htmlAcad = await (await pedir("/academia.html")).text();
+  const srcs = [...htmlAcad.matchAll(/\{\s*src:\s*"([^"]+)"/g)].map((m) => m[1]);
+  t("academia: 13 portadas definidas", srcs.length, 13);
+  t("academia: 13 portadas 100% distintas", new Set(srcs).size, 13);
 }
 
 // --- seguridad: no se sale de la carpeta ---
