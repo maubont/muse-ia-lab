@@ -85,7 +85,7 @@ export function normalizarModulo(entrada: EntradaModulo): ModuloConfig {
 export const TITULOS_MODULOS = [
   "Bienvenida y estrategia",
   "Tu primer modelo con IA",
-  "Las herramientas: ChatGPT, Leonardo, SeaArt y DeepSeek",
+  "Las herramientas: ChatGPT, SeaArt y DeepSeek",
   "Crear contenido en serie",
   "Monetización: los primeros pasos",
   "Telegram: tu grupo y tu bot",
@@ -119,13 +119,13 @@ export const NOMBRES_CURSO: Record<string, string> = {
   "curso/02/2.5-Enlaces-Dandole-vida-a-tu-modelo-_18_.pdf": "Enlaces: dale vida a tu modelo (+18)",
 
   "curso/03/3.1-Chatgpt-en-su-maximo-esplendor": "ChatGPT al máximo",
-  "curso/03/3.2-Leonardo-AI-para-capos": "Leonardo AI",
+  "curso/03/3.2-Leonardo-AI-para-capos": "Generador de imágenes IA",
   "curso/03/3.3-Seaairt.ai-lo-mas-secreto-de-la-IA": "SeaArt AI",
   "curso/03/3.4-Deepseek-_-Opensource-_-Pollo-AI": "DeepSeek, OpenSource y Pollo AI",
   "curso/03/3.5-Enlaces-Deepseek-_-Opensource-_-Pollo-AI.pdf": "Enlaces: DeepSeek, OpenSource y Pollo AI",
   "curso/03/3.6-Reve-_-Nudify": "Reve y Nudify",
 
-  "curso/04/4.1-Creando-em-Leonardo-AI": "Crear en Leonardo AI",
+  "curso/04/4.1-Creando-em-Leonardo-AI": "Creación de personajes en la práctica",
   "curso/04/4.2-Creando-Contenidos-Infinitos": "Contenido infinito",
   "curso/04/4.3-Llamada-de-Mentoria-Secreta-2.0.mp4": "Mentoría: llamada 2.0",
 
@@ -347,22 +347,6 @@ export function paginaCurso(entrega: EntregaConfig, nombre?: string | null, opci
     })
     .join("");
 
-  const enlacePlan = resolverEnlace(entrega.plan_accion_7dias, token);
-  const plan = enlacePlan
-    ? `<a class="tarjeta" href="${escapar(enlacePlan)}" target="_blank" rel="noopener noreferrer">
-        <span class="num">⚡</span>
-        <span><strong>Guía Rápida de Implementación</strong><span>Plantillas y pasos a tu ritmo</span></span>
-      </a>`
-    : "";
-
-  const enlaceGrupo = resolverEnlace(entrega.link_grupo, token);
-  const grupo = enlaceGrupo
-    ? `<a class="tarjeta" href="${escapar(enlaceGrupo)}" target="_blank" rel="noopener noreferrer">
-        <span class="num">◎</span>
-        <span><strong>Grupo de la comunidad</strong><span>Preguntas y avances</span></span>
-      </a>`
-    : "";
-
   return `${cabecera("Tu curso — Modelos IA")}
 <h1>${saludo} 👋</h1>
 <p>Este es tu acceso personal. Guárdalo: es tuyo y no caduca.</p>
@@ -373,9 +357,6 @@ ${listaModulos}
 
 <h2>Tus bonos</h2>
 ${listaBonos || "<p>—</p>"}
-
-${plan ? `<h2>Guía de Arranque Rápido</h2>${plan}` : ""}
-${grupo ? `<h2>Comunidad</h2>${grupo}` : ""}
 
 ${enlaceSoporte ? `<div class="soporte">
   <strong>¿Te atascaste?</strong>

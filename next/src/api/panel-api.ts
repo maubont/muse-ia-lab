@@ -24,7 +24,7 @@ import { crearRepositorio } from "../db/repositorio.ts";
 const RESULTADOS_POR_DEFECTO: readonly string[] = [
   "Entiende el mercado y lo que vas a construir",
   "Tu primer personaje generado con IA",
-  "Domina las cuatro herramientas que importan",
+  "Domina las herramientas que importan",
   "Un flujo para producir sin quedarte sin ideas",
   "Cómo se convierte una imagen en un cobro",
   "Tu grupo y tu bot funcionando",
@@ -38,19 +38,19 @@ const RESULTADOS_POR_DEFECTO: readonly string[] = [
 ];
 
 const PROMPTS_POR_MODULO: readonly string[] = [
-  "/imagine prompt: editorial lifestyle portrait, instagram aesthetic, golden hour lighting, 35mm lens --v 6.0",
-  "/imagine prompt: photorealistic studio portrait of latina model, natural skin texture, catchlights in eyes, 85mm f/1.8 --v 6.0",
-  "/imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0",
-  "/imagine prompt: consistent character sheet, multiple angles, front, profile, 3/4 view, neutral studio background --cref URL --cw 100 --v 6.0",
-  "Actúa como estratega de monetización para una creadora virtual en Instagram y diseña una secuencia de 5 historias orientadas a conversión.",
-  "Configura el mensaje de bienvenida de tu bot de Telegram con acceso al catálogo y respuesta automática 24/7.",
-  "/imagine prompt: ultra high resolution skin texture upscale, cinematic color grading, Kodachrome 64 aesthetic --v 6.0",
-  "5 ganchos visuales de 3 segundos para Reels y TikTok mostrando el detrás de cámaras de una modelo creada con IA.",
+  "Retrato editorial de Musa en estudio arquitectónico cálido, luz natural suave de ventana, lente 85mm f/1.8, textura de piel real con poros visibles y expresión serena.",
+  "Primer plano hiperrealista de modelo virtual (ADN Musa), piel oliva cálida sin retoque plástico, ojos color avellana-ámbar con reflejo natural, iluminación suave lateral.",
+  "Retrato de estudio de alta resolución, textura dérmica realista, iluminación Rembrandt cálida, cabello castaño con ondas naturales, fotografía RAW de formato medio.",
+  "Hoja de consistencia facial del mismo personaje (Musa) en 3 ángulos: frente, tres cuartos y perfil, manteniendo exactamente la misma estructura ósea y rasgos.",
+  "Secuencia estratégica de 5 historias para Instagram orientadas a presentar el estilo de vida de tu avatar y dirigir tráfico cualificado al enlace del perfil.",
+  "Mensaje automático de bienvenida en Telegram con presentación de tu modelo virtual, catálogo organizado y respuesta 24/7.",
+  "Mejora de micro-textura dérmica e iluminación cinematográfica: poros naturales, grano orgánico fino y balance de color cálido editorial.",
+  "Estructura de gancho visual de 3 segundos para Reels y TikTok mostrando la evolución y realismo de tu personaje virtual.",
   "Plantilla de publicación flexible: estructura de Reels e historias listas para copiar y adaptar a tu propio ritmo.",
   "Biografía optimizada para perfil de creadora virtual en Fanvue + mensaje automático de bienvenida para nuevos suscriptores.",
-  "Motion prompt: subtle natural head turn, soft smile, gentle hair movement in breeze, 4k 60fps photorealistic.",
-  "Flujo ManyChat: Cuando un usuario comente la palabra clave en un Reel, responder al comentario y enviar DM con el enlace.",
-  "/imagine prompt: luxury rooftop dusk portrait, city lights bokeh, silk evening dress, flash photography aesthetic --v 6.0",
+  "Secuencia de movimiento natural en video 4K: giro sutil de cabeza, parpadeo orgánico, sonrisa suave y movimiento realista del cabello con la brisa.",
+  "Automatización ManyChat: al recibir comentario con palabra clave en un Reel, responder públicamente y enviar mensaje directo con tu enlace.",
+  "Fotografía editorial nocturna de Musa en terraza urbana al atardecer, luces de ciudad en bokeh suave, estética de lujo minimalista y piel realista.",
 ];
 
 const MOTIVOS_ESPANOL: Record<string, string> = {
@@ -126,8 +126,10 @@ export async function obtenerCatalogoAcademia(
 
   const modulos = entradasModulos.map((entrada, idx) => {
     const norm = normalizarModulo(entrada);
-    const titulo = norm.titulo ?? TITULOS_MODULOS[idx] ?? `Módulo ${idx + 1}`;
-    const resultado = norm.resultado ?? RESULTADOS_POR_DEFECTO[idx] ?? "Paso práctico del método";
+    const tituloRaw = norm.titulo ?? TITULOS_MODULOS[idx] ?? `Módulo ${idx + 1}`;
+    const titulo = tituloRaw.replace(/,\s*Leonardo/gi, "").replace(/Leonardo\s*(AI)?/gi, "Generador IA");
+    const resultadoRaw = norm.resultado ?? RESULTADOS_POR_DEFECTO[idx] ?? "Paso práctico del método";
+    const resultado = resultadoRaw.replace(/cuatro herramientas/gi, "herramientas");
     const prompt = PROMPTS_POR_MODULO[idx] ?? PROMPTS_POR_MODULO[0];
 
     const lecciones = norm.archivos.map((archivo, lIdx) => {
@@ -190,10 +192,7 @@ export async function obtenerCatalogoAcademia(
       refCode,
       enlaceReferido: `https://server-production-3709.up.railway.app/?ref=${refCode}`,
     },
-    soporteWa: "https://wa.me/573227462629?text=" + encodeURIComponent("Hola Musa, estoy dentro de Musa Academy y tengo una consulta"),
-    planAccionUrl: autenticado && entrega.plan_accion_7dias
-      ? resolverEnlace(entrega.plan_accion_7dias, token)
-      : "#guia-rapida",
+    soporteWa: "https://wa.me/573227462629?text=" + encodeURIComponent("Hola Musa, estoy dentro de Musa Studio y tengo una consulta"),
     modulos,
     bonos,
   };
@@ -329,8 +328,17 @@ export async function ejecutarComandoConsola(deps: {
     };
   }
 
-  // 1. ¿Es un comando de pago (ok <id>, no <id>, ver <id>)?
-  const cmdOperador = interpretarComando(limpio);
+  // 1. ¿Es un comando de pago (ok <id>, no <id>, ver <id>, o "aprobar" directo)?
+  let comandoAInterpretar = limpio;
+  if (/^aprobar$/i.test(limpio)) {
+    const { rows: revRows } = await consultar(
+      "select id from public.musa_payments where status = 'revision' order by created_at desc limit 1",
+    ).catch(() => ({ rows: [] }));
+    if (revRows[0]?.id) {
+      comandoAInterpretar = `ok ${revRows[0].id}`;
+    }
+  }
+  const cmdOperador = interpretarComando(comandoAInterpretar);
   if (cmdOperador) {
     const respuestasCapturadas: string[] = [];
     const canalCapturador = {
@@ -398,6 +406,25 @@ export async function ejecutarComandoConsola(deps: {
       ok: true,
       accion: "reiniciar_lead",
       respuesta: `He reiniciado el lead ${tel} a la etapa inicial S00_LLEGADA en PostgreSQL.`,
+    };
+  }
+
+  // 2c. Comando: escalar <telefono>
+  const mEscalar = /^escalar\s+(\+?\d[\d\s-]{7,16})$/i.exec(limpio);
+  if (mEscalar) {
+    const tel = "+" + mEscalar[1].replace(/\D/g, "");
+    await consultar(
+      "update public.musa_leads set escalado_humano = true, updated_at = now() where phone = $1",
+      [tel],
+    ).catch(() => ({ rows: [] }));
+    await consultar(
+      "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'escalado_desde_consola', '{}'::jsonb)",
+      [tel],
+    ).catch(() => ({ rows: [] }));
+    return {
+      ok: true,
+      accion: "escalar_humano",
+      respuesta: `Lead ${tel} marcado en modo atención humana directa (escalado_humano = true).`,
     };
   }
 

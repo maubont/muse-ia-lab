@@ -1,38 +1,32 @@
 <!DOCTYPE html>
-<html class="dark" lang="es">
+<html lang="es">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Musa Atelier IA — Estudio Creativo & Biblioteca Práctica</title>
+<title>Musa Studio — Plataforma de Estudio Minimalista · Modelos IA</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --bg-canvas: #15121F;
-    --bg-elevated: #1E1A2D;
-    --bg-card: #252038;
-    --bg-card-hover: #2E2846;
-    --accent-champagne: #F0C98A;
-    --accent-champagne-light: #FBE7BF;
-    --accent-rose: #F472B6;
-    --accent-blush: #FDA4AF;
-    --accent-lavender: #C084FC;
-    --accent-mint: #6EE7B7;
-    --text-primary: #FAF7F5;
-    --text-secondary: #D0C9E0;
-    --text-muted: #968EB0;
+    --bg-canvas: #F6F4F0;
+    --bg-surface: #FFFFFF;
+    --bg-subtle: #EFECE6;
+    --bg-hover: #E7E2DA;
+    --text-primary: #18181B;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
+    --accent-ink: #18181B;
+    --accent-violet: #6D28D9;
+    --accent-emerald: #059669;
+    --border-hairline: #E4E0D8;
   }
 
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-canvas);
-    background-image:
-      radial-gradient(950px 520px at 15% -5%, rgba(244, 114, 182, 0.16), transparent 70%),
-      radial-gradient(850px 480px at 88% 4%, rgba(240, 201, 138, 0.15), transparent 70%),
-      radial-gradient(900px 600px at 50% 100%, rgba(192, 132, 252, 0.12), transparent 70%);
-    background-attachment: fixed;
     color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 
@@ -40,141 +34,95 @@
     font-family: 'Playfair Display', Georgia, serif;
   }
 
-  .font-mono-code {
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .text-gradient-atelier {
-    background: linear-gradient(95deg, #FBE7BF 0%, #FDA4AF 52%, #C084FC 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .btn-atelier-primary {
-    background: linear-gradient(135deg, #F472B6 0%, #C084FC 55%, #F0C98A 100%);
-    background-size: 160% 160%;
-    color: #15121F;
-    font-weight: 800;
-    box-shadow: 0 10px 28px -8px rgba(244, 114, 182, 0.45);
-    transition: all 0.25s ease;
-  }
-  .btn-atelier-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 34px -6px rgba(240, 201, 138, 0.5);
-    filter: brightness(1.05);
-  }
-
-  /* Lookbook Card (16:10 Sharp Editorial Split Card — Zero Blur, Zero 0% Guilt) */
-  .lookbook-card {
-    background: linear-gradient(180deg, rgba(42, 36, 64, 0.92) 0%, rgba(33, 28, 50, 0.96) 100%);
-    border: 1px solid rgba(255, 248, 240, 0.10);
-    border-radius: 22px;
+  /* Minimalist Warm Studio Card */
+  .studio-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 18px;
     overflow: hidden;
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
-    box-shadow: 0 14px 34px -12px rgba(9, 7, 16, 0.55);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    box-shadow: 0 2px 10px rgba(24, 24, 27, 0.03);
   }
-  .lookbook-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(240, 201, 138, 0.42);
-    box-shadow: 0 22px 44px -12px rgba(244, 114, 182, 0.22), 0 0 0 1px rgba(240, 201, 138, 0.20);
+  .studio-card:hover {
+    transform: translateY(-3px);
+    border-color: #C8C1B4;
+    box-shadow: 0 16px 32px -10px rgba(24, 24, 27, 0.08);
   }
-  .lookbook-card .card-media {
+  .studio-card .card-media {
     position: relative;
     aspect-ratio: 16 / 10;
     overflow: hidden;
-    background: #1B1729;
+    background: #EAE6DF;
   }
-  .lookbook-card .card-media img {
+  .studio-card .card-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+    transition: transform 0.45s ease;
   }
-  .lookbook-card:hover .card-media img {
-    transform: scale(1.05);
-  }
-  .lookbook-card .card-media::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(21,18,31,0.10) 0%, rgba(21,18,31,0.0) 45%, rgba(33,28,50,0.88) 100%);
-    pointer-events: none;
+  .studio-card:hover .card-media img {
+    transform: scale(1.03);
   }
 
-  /* Custom subtle scrollbars */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #15121F; }
-  ::-webkit-scrollbar-thumb { background: #352E4F; border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #F0C98A; }
+  ::-webkit-scrollbar-track { background: #F6F4F0; }
+  ::-webkit-scrollbar-thumb { background: #D1CBC0; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #A19B8E; }
 </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-pink-400/30 selection:text-amber-100">
+<body class="min-h-screen flex flex-col selection:bg-violet-100 selection:text-violet-900">
 
-<!-- ==================== TOP GLASS ATELIER BAR (ZERO SIDEBAR CLONE) ==================== -->
-<header class="sticky top-0 z-40 backdrop-blur-2xl bg-[#1A1628]/85 border-b border-white/[0.09]">
-  <div class="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+<!-- ==================== HEADER MINIMALISTA LUMINOSO ==================== -->
+<header class="sticky top-0 z-40 backdrop-blur-md bg-[#F6F4F0]/90 border-b border-[#E4E0D8]">
+  <div class="max-w-[1360px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
 
-    <!-- Brand Identity: MUSA · ATELIER IA -->
+    <!-- Marca Unificada con el Rostro Hiperrealista de Musa -->
     <div class="flex items-center gap-3">
-      <a href="#atelier" onclick="volverAlCurso(); cambiarModoAtelier('estudio'); return false;" class="flex items-center gap-2.5 group">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F472B6] via-[#C084FC] to-[#F0C98A] p-[1px] shadow-lg shadow-pink-500/15">
-          <div class="w-full h-full rounded-[11px] bg-[#181425] flex items-center justify-center">
-            <span class="font-serif-editorial italic font-bold text-lg text-gradient-atelier">M</span>
-          </div>
-        </div>
-        <div class="flex flex-col">
-          <div class="flex items-center gap-2">
-            <span class="font-serif-editorial font-bold text-lg sm:text-xl tracking-wide text-[#FAF7F5]">MUSA</span>
-            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] px-2 py-0.5 rounded-md bg-[#F0C98A]/15 text-[#F0C98A] border border-[#F0C98A]/30">Atelier IA</span>
-          </div>
-          <span class="text-[11px] text-[#968EB0] hidden sm:inline">Estudio Práctico · Sin horarios ni carga escolar</span>
+      <a href="#studio" onclick="volverAlCurso(); cambiarModoStudio('clases'); return false;" class="flex items-center gap-2.5 group">
+        <img src="/assets/musa-avatar.jpg" alt="Musa" class="w-9 h-9 rounded-full object-cover border border-[#D1CBC0] shadow-sm"/>
+        <div class="flex items-baseline gap-2">
+          <span class="font-serif-editorial font-bold text-lg tracking-tight text-[#18181B]">Musa Studio</span>
+          <span class="hidden sm:inline text-xs font-medium text-[#71717A]">· Modelos IA</span>
         </div>
       </a>
 
-      <span id="badgeModoAcceso" class="hidden xl:inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full bg-emerald-500/12 border border-emerald-400/30 text-emerald-300 ml-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span id="badgeModoAcceso" class="hidden lg:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 ml-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         Acceso Vitalicio Activo
       </span>
     </div>
 
-    <!-- Center Workspace Mode Switcher (3 Instant Views) -->
-    <nav class="flex items-center p-1 rounded-2xl bg-[#13101C]/90 border border-white/[0.08] shadow-inner">
-      <button id="tabBtn-estudio" onclick="volverAlCurso(); cambiarModoAtelier('estudio')" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-[#F472B6]/25 via-[#C084FC]/25 to-[#F0C98A]/25 text-[#FAF7F5] border border-[#F0C98A]/35 shadow-sm flex items-center gap-1.5">
-        <span class="material-symbols-outlined text-[17px] text-[#F0C98A]">auto_awesome_mosaic</span>
-        <span>Cápsulas & Estudio</span>
+    <!-- Selector Central Minimalista (2 Vistas Limpias: Clases y Bonos) -->
+    <nav class="flex items-center p-1 rounded-xl bg-[#EFECE6] border border-[#E4E0D8]">
+      <button id="tabBtn-clases" onclick="volverAlCurso(); cambiarModoStudio('clases')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#18181B] shadow-sm flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px]">grid_view</span>
+        <span>Clases (13)</span>
       </button>
-      <button id="tabBtn-prompts" onclick="volverAlCurso(); cambiarModoAtelier('prompts')" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#D0C9E0] hover:text-white transition-all flex items-center gap-1.5">
-        <span class="material-symbols-outlined text-[17px] text-[#F472B6]">terminal</span>
-        <span>Bóveda de Prompts</span>
-      </button>
-      <button id="tabBtn-bonos" onclick="volverAlCurso(); cambiarModoAtelier('bonos')" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#D0C9E0] hover:text-white transition-all flex items-center gap-1.5">
-        <span class="material-symbols-outlined text-[17px] text-[#F0C98A]">workspace_premium</span>
-        <span>Packs & Bonos VIP</span>
+      <button id="tabBtn-bonos" onclick="volverAlCurso(); cambiarModoStudio('bonos')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-[#52525B] hover:text-[#18181B] transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+        <span>Bonos & Packs (4)</span>
       </button>
     </nav>
 
-    <!-- Right Utilities: Afiliados 50%, Concierge WhatsApp, Consola & Alumno -->
+    <!-- Utilidades Discretas: Afiliados, Soporte con Musa, Consola y Perfil -->
     <div class="flex items-center gap-2">
-      <button onclick="copiarEnlaceAfiliado()" title="Comparte tu enlace y recibe 50% por cada venta" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F0C98A]/10 hover:bg-[#F0C98A]/20 border border-[#F0C98A]/30 text-[#FBE7BF] text-xs font-bold transition-all">
-        <span class="material-symbols-outlined text-[16px] text-[#F0C98A]">redeem</span>
-        <span id="affLinkLabel">Socio 50%</span>
+      <button onclick="copiarEnlaceAfiliado()" title="Recomienda el estudio y recibe el 50%" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs font-semibold transition-colors">
+        <span class="material-symbols-outlined text-[15px] text-[#6D28D9]">share</span>
+        <span id="affLinkLabel">Afiliados 50%</span>
       </button>
 
-      <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Atelier%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-pink-500/15 border border-white/10 hover:border-pink-400/40 text-[#FAF7F5] text-xs font-semibold transition-all">
-        <span class="material-symbols-outlined text-[16px] text-[#F472B6]">support_agent</span>
-        <span class="hidden md:inline">Concierge WhatsApp</span>
+      <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Studio%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs font-semibold transition-colors">
+        <span class="material-symbols-outlined text-[15px] text-emerald-600">chat</span>
+        <span class="hidden sm:inline">Soporte WhatsApp</span>
       </a>
 
-      <a href="/consola.html" title="Abrir Consola Agéntica" class="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 text-[#D0C9E0] hover:text-[#F0C98A] transition-colors">
-        <span class="material-symbols-outlined text-[18px]">monitoring</span>
+      <a href="/consola.html" title="Abrir Consola Operativa" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#52525B] hover:text-[#18181B] transition-colors">
+        <span class="material-symbols-outlined text-[17px]">monitoring</span>
       </a>
 
-      <div class="pl-2 border-l border-white/10 flex items-center gap-2">
-        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#F472B6] to-[#F0C98A] flex items-center justify-center font-extrabold text-xs text-[#15121F] shadow">MB</div>
-        <div class="hidden xl:flex flex-col">
-          <span id="studentNameSidebar" class="text-xs font-bold text-[#FAF7F5] leading-tight max-w-[130px] truncate">Mauricio Bonilla</span>
-          <span id="studentRankSidebar" class="text-[10px] text-[#F0C98A] font-medium">Miembro Vitalicio</span>
-        </div>
+      <div class="pl-2 border-l border-[#E4E0D8] flex items-center gap-2">
+        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#18181B] text-white flex items-center justify-center font-bold text-xs">MB</div>
+        <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#18181B] max-w-[120px] truncate">Mauricio Bonilla</span>
       </div>
     </div>
 
@@ -182,132 +130,126 @@
 </header>
 
 <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
-<main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-6 sm:py-9">
+<main class="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-8 py-7 sm:py-10">
 
-  <!-- ==================== VISTA 1: CATÁLOGO DEL ATELIER ==================== -->
-  <div id="vistaCurso" class="space-y-9">
+  <!-- ==================== VISTA 1: ESTUDIO PRINCIPAL ==================== -->
+  <div id="vistaCurso" class="space-y-8">
 
-    <!-- HERO SPOTLIGHT DEL ATELIER (REEMPLAZA LOS BANNERS DE 7 DÍAS) -->
-    <section class="relative rounded-3xl overflow-hidden border border-[#F0C98A]/25 bg-gradient-to-br from-[#26203A] via-[#211C32] to-[#1A1628] p-6 sm:p-8 lg:p-10 shadow-2xl">
-      <div class="absolute -top-28 -right-24 w-96 h-96 rounded-full bg-[#F472B6]/15 blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-28 left-1/3 w-96 h-96 rounded-full bg-[#F0C98A]/10 blur-3xl pointer-events-none"></div>
+    <!-- HERO DE INICIATIVA INTELIGENTE + CASO BASE DE MUSA (CERO RUIDO, CERO LEONARDO, CERO PDF 7 DÍAS) -->
+    <section class="rounded-2xl bg-white border border-[#E4E0D8] p-6 sm:p-8 shadow-sm">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
 
-      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
-        <!-- Columna Izquierda: Mensaje Sin Fricción + Acciones Rápidas -->
+        <!-- Izquierda (7 cols): Bienvenida Serena + Continuidad en 1 Clic -->
         <div class="lg:col-span-7 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F0C98A]/12 border border-[#F0C98A]/30 text-[#FBE7BF] text-xs font-bold tracking-wide">
-            <span class="material-symbols-outlined text-[15px] text-[#F0C98A]">bolt</span>
-            <span>CERO CARGA DE ESTUDIO · COPIAR, PEGAR Y CREAR A TU RITMO</span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F6F4F0] border border-[#E4E0D8] text-[#52525B] text-xs font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#6D28D9]"></span>
+            <span>Estudio abierto · A tu propio ritmo, sin horarios</span>
           </div>
 
-          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#FAF7F5] leading-[1.15]">
-            Tu <span class="font-serif-editorial italic font-normal text-gradient-atelier">Atelier de Modelos IA</span> está abierto
+          <h1 class="text-2xl sm:text-3xl font-bold text-[#18181B] tracking-tight leading-snug">
+            Hola, <span id="heroStudentName">Mauricio</span>. Continúa donde lo dejaste o explora cualquier estación.
           </h1>
 
-          <p class="text-sm sm:text-base text-[#D0C9E0] max-w-2xl leading-relaxed">
-            Olvídate de horarios rígidos o retos agotadores. Todas las cápsulas, prompts verificados y packs están <strong class="text-[#FAF7F5] font-semibold">100% desbloqueados desde hoy</strong>: entra directo a lo que quieras construir o copia el comando listo en un clic.
+          <p class="text-sm text-[#52525B] leading-relaxed max-w-xl">
+            Todo el método gira en torno a un objetivo práctico: crear un <strong class="text-[#18181B] font-semibold">avatar hiperrealista con identidad consistente</strong> —como Musa— y monetizar su contenido paso a paso.
           </p>
 
-          <div class="flex flex-wrap items-center gap-3 pt-2">
-            <button onclick="continuarUltimaCapsula()" class="btn-atelier-primary px-6 py-3 rounded-2xl text-sm flex items-center gap-2">
-              <span class="material-symbols-outlined text-[20px]">play_circle</span>
-              <span id="labelHeroResume">Abrir Cápsula 1 en el Estudio</span>
+          <!-- Barra de Iniciativa: Siguiente Clase Sugerida -->
+          <div class="pt-1 flex flex-col sm:flex-row sm:items-center gap-3">
+            <button onclick="continuarUltimaCapsula()" class="px-5 py-3 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors shadow-sm">
+              <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+              <span id="labelHeroResume">Continuar Clase 3: Las herramientas</span>
             </button>
 
-            <button onclick="cambiarModoAtelier('prompts')" class="px-5 py-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.11] border border-white/15 text-[#FAF7F5] font-semibold text-sm flex items-center gap-2 transition-all">
-              <span class="material-symbols-outlined text-[18px] text-[#F0C98A]">content_copy</span>
-              <span>Explorar Bóveda de Prompts (13)</span>
+            <button onclick="cambiarModoStudio('bonos')" class="px-4 py-3 rounded-xl bg-[#F6F4F0] hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[17px] text-[#6D28D9]">folder_special</span>
+              <span>Abrir Bonos & Packs (30 archivos)</span>
             </button>
-
-            <a id="btnHeroGuiaRapida" href="#bonos" onclick="abrirGuiaRapida(); return false;" class="px-4 py-3 rounded-2xl bg-[#F472B6]/10 hover:bg-[#F472B6]/20 border border-[#F472B6]/30 text-[#FDA4AF] font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all">
-              <span class="material-symbols-outlined text-[18px]">description</span>
-              <span>Guía Rápida (PDF)</span>
-            </a>
           </div>
         </div>
 
-        <!-- Columna Derecha: Instant Prompt Studio Widget ("Valor en 5 segundos") -->
+        <!-- Derecha (5 cols): Caso de Estudio Visual Unificado — Consistencia Facial de Musa -->
         <div class="lg:col-span-5">
-          <div class="rounded-2xl bg-[#161322]/90 border border-[#F0C98A]/25 p-5 shadow-xl space-y-3.5">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[#6EE7B7]"></span>
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#F0C98A]">Prompt Listo para Probar Hoy</span>
-              </div>
-              <button onclick="rotarPromptDestacado()" class="text-xs font-semibold text-[#D0C9E0] hover:text-[#F0C98A] flex items-center gap-1 transition-colors">
-                <span class="material-symbols-outlined text-[15px]">refresh</span>
-                <span>Otro prompt</span>
+          <div class="rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold text-[#18181B] flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Caso Base del Estudio: Musa (Mismo Rostro)
+              </span>
+              <span id="musaHeroAngleLabel" class="text-[#71717A] font-medium">Estudio 85mm</span>
+            </div>
+
+            <div class="relative aspect-[16/9] rounded-lg overflow-hidden bg-[#EAE6DF]">
+              <img id="musaHeroPreviewImg" src="/assets/musa-hero.jpg" alt="Musa — Consistencia de Personaje Hiperrealista" class="w-full h-full object-cover"/>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-hero.jpg', 'Estudio 85mm')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#18181B] text-center transition-colors">
+                1. Estudio 85mm
               </button>
-            </div>
-
-            <p id="heroPromptTitulo" class="text-xs font-bold text-[#FDA4AF]">Cápsula 03 · Retrato Hiperrealista de Estudio</p>
-
-            <div class="p-3.5 rounded-xl bg-[#100D19] border border-white/[0.07] font-mono-code text-xs text-[#FBE7BF] leading-relaxed select-all" id="heroPromptTexto">
-              /imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0
-            </div>
-
-            <div class="flex items-center justify-between gap-2 pt-1">
-              <span class="text-[11px] text-[#968EB0]">Pégalo en SeaArt, Leonardo o Midjourney</span>
-              <button id="btnCopyHeroPrompt" onclick="copiarPromptHero()" class="px-3.5 py-2 rounded-xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs flex items-center gap-1.5 transition-all shadow">
-                <span class="material-symbols-outlined text-[15px]">content_copy</span>
-                <span>Copiar Prompt</span>
+              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-closeup.jpg', 'Textura de Piel 3/4')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#18181B] text-center transition-colors">
+                2. Piel Real 3/4
+              </button>
+              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-rooftop.jpg', 'Terraza Nocturna')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#18181B] text-center transition-colors">
+                3. Exterior Noche
               </button>
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- ==================== SUB-MODO 1A: CÁPSULAS & ESTUDIO ==================== -->
-    <div id="panelModo-estudio" class="space-y-7">
+    <!-- ==================== PANEL A: LAS 13 CLASES POR ESTACIÓN ==================== -->
+    <div id="panelModo-clases" class="space-y-6">
 
-      <!-- Barra de Estaciones Creativas (Filtros sin recarga + Buscador) -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-white/[0.08]">
-        <div class="flex items-center gap-2 overflow-x-auto pb-1">
-          <button onclick="filtrarEstacion('todas')" id="filtroEst-todas" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#F0C98A] text-[#15121F] shadow transition-all whitespace-nowrap">
-            ✦ Todo el Estudio (13)
+      <!-- Filtros Minimalistas por Estación + Buscador + Contador -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[#E4E0D8]">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <button onclick="filtrarEstacion('todas')" id="filtroEst-todas" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#18181B] text-white transition-all whitespace-nowrap">
+            Todas (13)
           </button>
-          <button onclick="filtrarEstacion('identidad')" id="filtroEst-identidad" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('identidad')" id="filtroEst-identidad" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
             01 · Identidad & Rostro IA
           </button>
-          <button onclick="filtrarEstacion('produccion')" id="filtroEst-produccion" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('produccion')" id="filtroEst-produccion" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
             02 · Consistencia & Video Realista
           </button>
-          <button onclick="filtrarEstacion('viralidad')" id="filtroEst-viralidad" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('viralidad')" id="filtroEst-viralidad" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
             03 · Tracción Viral & Bots
           </button>
-          <button onclick="filtrarEstacion('monetizacion')" id="filtroEst-monetizacion" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('monetizacion')" id="filtroEst-monetizacion" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
             04 · Monetización & Fanvue
           </button>
         </div>
 
         <div class="flex items-center gap-3">
           <div class="relative flex-1 sm:w-64">
-            <span class="material-symbols-outlined text-[18px] text-[#968EB0] absolute left-3 top-1/2 -translate-y-1/2">search</span>
-            <input id="inputBuscarCapsula" oninput="renderizarCatalogo()" type="search" placeholder="Buscar herramienta, tema o prompt..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-[#1E1A2D] border border-white/10 text-xs text-[#FAF7F5] placeholder-[#968EB0] focus:outline-none focus:border-[#F0C98A]/50"/>
+            <span class="material-symbols-outlined text-[17px] text-[#71717A] absolute left-3 top-1/2 -translate-y-1/2">search</span>
+            <input id="inputBuscarCapsula" oninput="renderizarCatalogo()" type="search" placeholder="Buscar clase o tema..." class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white border border-[#E4E0D8] text-xs text-[#18181B] placeholder-[#71717A] focus:outline-none focus:border-[#18181B]"/>
           </div>
-          <span id="contadorExplorado" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#D0C9E0] bg-[#1E1A2D] px-3 py-2 rounded-xl border border-white/[0.07]">
-            <span class="material-symbols-outlined text-[15px] text-[#6EE7B7]">check_circle</span>
-            <span id="progresoTexto">2 exploradas</span>
+          <span class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#52525B] bg-white px-3 py-1.5 rounded-lg border border-[#E4E0D8]">
+            <span class="material-symbols-outlined text-[15px] text-emerald-600">check_circle</span>
+            <span id="progresoTexto">2 de 13 vistas</span>
           </span>
         </div>
       </div>
 
-      <!-- Grid Lookbook de las 13 Cápsulas (16:10 Nítidas, Cero Blur, Cero 0%) -->
+      <!-- Grid de las 13 Clases (Tarjetas Limpias, 1 Sola Acción) -->
       <div id="gridCapsulasAtelier" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Inyectado dinámicamente -->
       </div>
 
-      <!-- Acceso Rápido a la Bóveda VIP al pie del Estudio -->
-      <div class="pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <!-- Resumen de Bonos al pie -->
+      <div class="pt-8 border-t border-[#E4E0D8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#F0C98A]">★ Vault VIP Incluido en tu Acceso</span>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-[#FAF7F5] mt-0.5">Packs de Producción & Bonos Especiales</h2>
-          <p class="text-xs sm:text-sm text-[#D0C9E0]">Catálogo de modelos listas, pack de audios, automatización de YouTube y 22 sesiones del Megapack Master IA.</p>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#6D28D9]">Incluidos en tu cuenta</span>
+          <h2 class="text-xl font-bold text-[#18181B] mt-0.5">Bonos & Packs de Producción</h2>
+          <p class="text-xs sm:text-sm text-[#52525B]">Catálogo de modelos listas, pack de voces, automatización de YouTube y Megapack Master IA (22 sesiones).</p>
         </div>
-        <button onclick="cambiarModoAtelier('bonos')" class="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-[#F0C98A]/15 hover:bg-[#F0C98A]/25 border border-[#F0C98A]/35 text-[#FBE7BF] text-xs font-bold flex items-center gap-1.5 transition-all">
-          <span>Ver Bóveda Completa</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        <button onclick="cambiarModoStudio('bonos')" class="self-start sm:self-auto px-4 py-2 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs font-semibold flex items-center gap-1.5 transition-colors">
+          <span>Ver los 4 Packs</span>
+          <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
         </button>
       </div>
 
@@ -316,119 +258,96 @@
       </div>
     </div>
 
-    <!-- ==================== SUB-MODO 1B: BÓVEDA DE PROMPTS COPIABLES ==================== -->
-    <div id="panelModo-prompts" style="display: none;" class="space-y-6">
-      <div class="rounded-2xl bg-[#1E1A2D] border border-[#F0C98A]/25 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <span class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#F472B6]">✦ Bóveda Interactiva de Comandos</span>
-          <h2 class="text-2xl font-extrabold text-[#FAF7F5] mt-1">Prompts & Plantillas de Copiar y Pegar</h2>
-          <p class="text-sm text-[#D0C9E0] mt-1">Copia cualquiera de las 13 plantillas verificadas del método en un clic o abre directamente su cápsula en video.</p>
-        </div>
-        <div class="relative w-full md:w-72">
-          <span class="material-symbols-outlined text-[18px] text-[#968EB0] absolute left-3 top-1/2 -translate-y-1/2">search</span>
-          <input id="inputBuscarPromptVault" oninput="renderizarBovedaPrompts()" type="search" placeholder="Filtrar prompts (ej. piel, Fanvue, Reel)..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-[#15121F] border border-white/15 text-xs text-[#FAF7F5] placeholder-[#968EB0] focus:outline-none focus:border-[#F0C98A]/60"/>
-        </div>
-      </div>
-
-      <div id="gridBovedaPrompts" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <!-- Inyectado dinámicamente -->
-      </div>
-    </div>
-
-    <!-- ==================== SUB-MODO 1C: PACKS & BONOS VIP ==================== -->
+    <!-- ==================== PANEL B: BONOS & PACKS VIP ==================== -->
     <div id="panelModo-bonos" style="display: none;" class="space-y-6">
-      <div class="rounded-2xl bg-gradient-to-r from-[#28213D] via-[#221C35] to-[#1E1A2D] border border-[#F0C98A]/30 p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="rounded-2xl bg-white border border-[#E4E0D8] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#F0C98A]">★ Arsenal Complementario Desbloqueado</span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-[#FAF7F5] mt-1">Packs & Bonos VIP (30 Recursos)</h2>
-          <p class="text-sm text-[#D0C9E0] mt-1 max-w-2xl">Explora y reproduce directamente las 22 sesiones del Megapack Master IA, las 6 clases de YouTube Money Machine, el catálogo de modelos y el pack de voces.</p>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#6D28D9]">Biblioteca Complementaria</span>
+          <h2 class="text-2xl font-bold text-[#18181B] mt-0.5">Bonos & Packs Incluidos (30 Recursos)</h2>
+          <p class="text-sm text-[#52525B] mt-1">Haz clic en cualquier pack para abrir el reproductor y acceder a todos sus videos, guías PDF y archivos descargables.</p>
         </div>
-        <a id="btnBonoGuiaPdf" href="#guia" onclick="abrirGuiaRapida(); return false;" class="px-5 py-3 rounded-2xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all self-start md:self-auto">
-          <span class="material-symbols-outlined text-[18px]">download</span>
-          <span>Abrir Guía Rápida de Implementación (PDF)</span>
-        </a>
       </div>
 
       <div id="gridBonosCompleto" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Inyectado dinámicamente con desglose de archivos -->
+        <!-- Inyectado dinámicamente -->
       </div>
     </div>
 
   </div>
 
-  <!-- ==================== VISTA 2: MODO TEATRO / STUDIO PLAYER (12 COLUMNAS SIN ENCIERRO) ==================== -->
+  <!-- ==================== VISTA 2: REPRODUCTOR DE ESTUDIO MINIMALISTA ==================== -->
   <div id="vistaLeccion" style="display: none;" class="space-y-6">
 
     <!-- Barra Superior de Navegación del Reproductor -->
-    <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
-      <div class="flex items-center gap-3">
-        <button onclick="volverAlCurso()" class="px-3.5 py-2 rounded-xl bg-[#252038] hover:bg-[#2E2846] border border-white/10 text-xs font-bold text-[#FAF7F5] flex items-center gap-1.5 transition-all">
-          <span class="material-symbols-outlined text-[16px] text-[#F0C98A]">arrow_back</span>
-          <span>Volver al Atelier</span>
+    <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#E4E0D8]">
+      <div class="flex items-center gap-2.5">
+        <button onclick="volverAlCurso()" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-xs font-semibold text-[#18181B] flex items-center gap-1.5 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span>Volver a las clases</span>
         </button>
-        <span class="text-white/20">/</span>
-        <span id="breadcrumbEstacion" class="text-xs font-semibold text-[#F0C98A]">Estación 01</span>
-        <span class="text-white/20">/</span>
-        <span id="breadcrumbModulo" class="text-xs sm:text-sm font-bold text-[#FAF7F5] truncate max-w-[240px] sm:max-w-md">Cápsula 1</span>
+        <span class="text-[#D1CBC0]">/</span>
+        <span id="breadcrumbEstacion" class="text-xs font-semibold text-[#6D28D9]">Estación 01</span>
+        <span class="text-[#D1CBC0]">/</span>
+        <span id="breadcrumbModulo" class="text-xs sm:text-sm font-bold text-[#18181B] truncate max-w-[220px] sm:max-w-md">Clase 1</span>
       </div>
 
-      <div class="flex items-center gap-2.5">
-        <button id="btnTopComplete" onclick="marcarCompletadoActual()" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/15">
-          <span class="material-symbols-outlined text-[16px]" id="iconTopComplete">check_circle</span>
-          <span id="labelTopComplete">Marcar como explorada</span>
+      <div class="flex items-center gap-2">
+        <button id="btnTopComplete" onclick="marcarCompletadoActual()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8]">
+          <span class="material-symbols-outlined text-[16px]">check_circle</span>
+          <span id="labelTopComplete">Marcar como vista</span>
         </button>
 
-        <button onclick="irSiguienteCapsula()" class="btn-atelier-primary px-4 py-2 rounded-xl text-xs flex items-center gap-1.5">
-          <span>Siguiente Cápsula</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        <button onclick="irSiguienteCapsula()" class="px-4 py-1.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
+          <span>Siguiente Clase</span>
+          <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
         </button>
       </div>
     </div>
 
-    <!-- Layout Teatro 12 Columnas: Video (8) + Laboratorio de Prompt y Recursos (4) -->
+    <!-- Layout 12 Columnas: Video (8) + Playlist y Notas (4) -->
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
 
-      <!-- Columna Izquierda (8 cols): Reproductor 16:9 + Ficha de la Cápsula -->
-      <div class="xl:col-span-8 space-y-5">
+      <!-- Columna Izquierda (8 cols): Reproductor 16:9 + Ficha Limpia -->
+      <div class="xl:col-span-8 space-y-4">
 
-        <div class="relative aspect-video rounded-3xl overflow-hidden bg-[#0D0B14] border border-[#F0C98A]/25 shadow-2xl">
-          <video id="mainVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&auto=format&fit=crop&q=80">
+        <div class="relative aspect-video rounded-2xl overflow-hidden bg-[#111115] border border-[#E4E0D8] shadow-lg">
+          <video id="mainVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="/assets/musa-hero.jpg">
             <source id="mainVideoSource" src="/assets/demo.mp4" type="video/mp4"/>
             Tu navegador no soporta reproducción de video HTML5.
           </video>
 
-          <!-- Overlay cuando el recurso activo es un PDF o Enlace externo -->
-          <div id="nonVideoOverlay" style="display: none;" class="absolute inset-0 bg-[#15121F]/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
-            <div class="w-16 h-16 rounded-2xl bg-[#F0C98A]/15 border border-[#F0C98A]/35 flex items-center justify-center text-[#F0C98A] mb-4">
-              <span class="material-symbols-outlined text-4xl" id="nonVideoIcon">description</span>
+          <!-- Overlay cuando el archivo seleccionado es un PDF o Paquete Descargable -->
+          <div id="nonVideoOverlay" style="display: none;" class="absolute inset-0 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#18181B] mb-4">
+              <span class="material-symbols-outlined text-3xl" id="nonVideoIcon">description</span>
             </div>
-            <span class="text-[11px] font-extrabold uppercase tracking-widest text-[#F0C98A] mb-1">Recurso Descargable / Interactivo</span>
-            <h3 id="nonVideoTitle" class="text-xl sm:text-2xl font-bold text-[#FAF7F5] mb-2">Guía en PDF</h3>
-            <p class="text-sm text-[#D0C9E0] max-w-md mb-6">Este archivo forma parte de tu biblioteca práctica y se abre directamente en una pestaña segura desde el almacén privado.</p>
-            <a id="nonVideoLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-atelier-primary px-6 py-3 rounded-2xl text-sm inline-flex items-center gap-2">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-[#6D28D9] mb-1">Recurso de la Clase</span>
+            <h3 id="nonVideoTitle" class="text-xl font-bold text-[#18181B] mb-2">Guía en PDF</h3>
+            <p class="text-sm text-[#52525B] max-w-md mb-6">Haz clic abajo para abrir o descargar este recurso directamente en una pestaña nueva.</p>
+            <a id="nonVideoLink" href="#" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-colors">
               <span class="material-symbols-outlined text-[18px]">open_in_new</span>
               <span>Abrir Recurso Ahora</span>
             </a>
           </div>
         </div>
 
-        <!-- Ficha de Título y Navegación Rápida debajo del Video -->
-        <div class="p-6 rounded-2xl bg-[#1E1A2D] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Ficha de la Clase bajo el Reproductor -->
+        <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="space-y-1">
             <div class="flex items-center gap-2">
-              <span id="badgeModuloPlayer" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#F472B6]/15 text-[#FDA4AF] border border-[#F472B6]/30">CÁPSULA 1</span>
-              <span id="tagTipoArchivo" class="text-xs font-semibold text-[#F0C98A]">🎬 Video HD</span>
+              <span id="badgeModuloPlayer" class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[#F6F4F0] text-[#18181B] border border-[#E4E0D8]">CLASE 01</span>
+              <span id="tagTipoArchivo" class="text-xs font-medium text-[#6D28D9]">▶ Video</span>
             </div>
-            <h1 id="tituloModuloPlayer" class="text-xl sm:text-2xl font-extrabold text-[#FAF7F5]">1. Bienvenida y mentalidad</h1>
-            <p id="subtituloResultadoPlayer" class="text-xs sm:text-sm text-[#D0C9E0]">Entiende el mercado y lo que vas a construir</p>
+            <h1 id="tituloModuloPlayer" class="text-lg sm:text-xl font-bold text-[#18181B]">1. Bienvenida y estrategia</h1>
+            <p id="subtituloResultadoPlayer" class="text-xs sm:text-sm text-[#52525B]">Entiende el mercado y lo que vas a construir</p>
           </div>
 
           <div class="flex items-center gap-2 self-start sm:self-center">
-            <button onclick="irAnteriorCapsula()" class="px-3.5 py-2 rounded-xl bg-[#252038] hover:bg-[#2E2846] border border-white/10 text-xs font-semibold text-[#D0C9E0] flex items-center gap-1 transition-all">
+            <button onclick="irAnteriorCapsula()" class="px-3 py-1.5 rounded-lg bg-[#F6F4F0] hover:bg-[#EFECE6] border border-[#E4E0D8] text-xs font-semibold text-[#18181B] flex items-center gap-1 transition-colors">
               <span class="material-symbols-outlined text-[16px]">chevron_left</span>
               <span>Anterior</span>
             </button>
-            <button onclick="irSiguienteCapsula()" class="px-4 py-2 rounded-xl bg-[#F0C98A]/15 hover:bg-[#F0C98A]/25 border border-[#F0C98A]/35 text-xs font-bold text-[#FBE7BF] flex items-center gap-1 transition-all">
+            <button onclick="irSiguienteCapsula()" class="px-3.5 py-1.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center gap-1 transition-colors">
               <span>Siguiente</span>
               <span class="material-symbols-outlined text-[16px]">chevron_right</span>
             </button>
@@ -437,47 +356,45 @@
 
       </div>
 
-      <!-- Columna Derecha (4 cols): Laboratorio de Prompt Completo + Playlist del Bloque -->
+      <!-- Columna Derecha (4 cols): Archivos de la Clase + Notas Personales + Índice -->
       <div class="xl:col-span-4 space-y-5">
 
-        <!-- Panel 1: Terminal de Prompt & Plantilla (100% visible, sin truncar) -->
-        <div class="p-5 rounded-2xl bg-gradient-to-b from-[#252038] to-[#1E1A2D] border border-[#F0C98A]/30 shadow-xl space-y-3.5">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-[#F0C98A] text-[19px]">terminal</span>
-              <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#FAF7F5]">Prompt & Plantilla del Bloque</h3>
-            </div>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#6EE7B7]/15 text-[#6EE7B7]">Copiar y pegar</span>
-          </div>
-
-          <div id="promptText" class="p-3.5 rounded-xl bg-[#120F1D] border border-white/10 font-mono-code text-xs text-[#FBE7BF] leading-relaxed whitespace-pre-wrap break-words select-all">
-            /imagine prompt: hyper-realistic portrait of 24yo woman, natural skin pores, studio Rembrandt lighting, 85mm lens f/1.4, raw photo --c 3 --s 250 --v 6.0
-          </div>
-
-          <button id="btnCopyPrompt" onclick="copiarPromptActual()" class="w-full py-2.5 px-4 rounded-xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow">
-            <span class="material-symbols-outlined text-[16px]">content_copy</span>
-            <span>Copiar Prompt al Portapapeles</span>
-          </button>
-        </div>
-
-        <!-- Panel 2: Archivos y Recursos de esta Cápsula -->
-        <div class="p-5 rounded-2xl bg-[#1E1A2D] border border-white/[0.08] space-y-3">
+        <!-- Panel 1: Archivos de esta Clase -->
+        <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#D0C9E0]">Archivos de esta Cápsula</h3>
-            <span id="leccionesCountBadge" class="text-[11px] font-bold text-[#F0C98A]">1 archivo</span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#18181B]">Contenido de esta Clase</h3>
+            <span id="leccionesCountBadge" class="text-[11px] font-semibold text-[#71717A]">1 archivo</span>
           </div>
-          <div id="listaArchivosModulo" class="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+          <div id="listaArchivosModulo" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
             <!-- Inyectado dinámicamente -->
           </div>
         </div>
 
-        <!-- Panel 3: Selector Rápido de Todas las Cápsulas -->
-        <div class="p-5 rounded-2xl bg-[#1E1A2D] border border-white/[0.08] space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#D0C9E0]">Cambiar de Cápsula (13)</h3>
-            <button onclick="volverAlCurso()" class="text-[11px] font-semibold text-[#F0C98A] hover:underline">Ver catálogo</button>
+        <!-- Panel 2: Guía de Enfoque & Mis Notas de la Clase -->
+        <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] space-y-3">
+          <div class="flex items-center justify-between border-b border-[#EFECE6] pb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#18181B]">Apoyo Práctico</span>
+            <button onclick="copiarPromptActual()" class="text-[11px] font-semibold text-[#6D28D9] hover:underline flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">content_copy</span>
+              <span>Copiar guía</span>
+            </button>
           </div>
-          <div id="navModulosSidebar" class="space-y-1.5 max-h-[260px] overflow-y-auto pr-1">
+          <p id="promptText" class="text-xs text-[#52525B] leading-relaxed bg-[#F6F4F0] p-3 rounded-xl border border-[#E4E0D8]">
+            Enfoque práctico de la clase.
+          </p>
+          <div class="pt-1 space-y-1.5">
+            <label for="notasClaseInput" class="block text-[11px] font-semibold text-[#71717A]">Mis notas personales de esta clase (se guardan solas):</label>
+            <textarea id="notasClaseInput" oninput="guardarNotaClaseActual()" rows="2" placeholder="Escribe aquí tus ideas, cuentas o enlaces de esta clase..." class="w-full rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] p-2.5 text-xs text-[#18181B] placeholder-[#71717A] focus:outline-none focus:border-[#18181B]"></textarea>
+          </div>
+        </div>
+
+        <!-- Panel 3: Índice Rápido de las 13 Clases -->
+        <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#18181B]">Todas las Clases (13)</h3>
+            <button onclick="volverAlCurso()" class="text-[11px] font-semibold text-[#6D28D9] hover:underline">Ver cuadrícula</button>
+          </div>
+          <div id="navModulosSidebar" class="space-y-1 max-h-[240px] overflow-y-auto pr-1">
             <!-- Inyectado dinámicamente -->
           </div>
         </div>
@@ -489,56 +406,62 @@
 
 </main>
 
-<!-- Widget Flotante de Concierge WhatsApp -->
-<a id="floatingWaBtn" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Atelier%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" title="Hablar con Musa por WhatsApp" class="fixed bottom-5 right-5 z-40 w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#251F38] to-[#32294B] hover:border-[#F0C98A]/50 border border-white/15 shadow-2xl flex items-center justify-center text-[#FAF7F5] hover:scale-105 transition-all">
-  <span class="material-symbols-outlined text-[22px] text-[#F0C98A]">chat</span>
+<!-- Botón Flotante Discreto con el Avatar de Musa -->
+<a id="floatingWaBtn" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Studio%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" title="Hablar con Musa por WhatsApp" class="fixed bottom-5 right-5 z-40 pl-2 pr-3.5 py-2 rounded-full bg-white hover:bg-[#EFECE6] border border-[#D1CBC0] shadow-lg flex items-center gap-2 text-[#18181B] hover:scale-[1.02] transition-all">
+  <img src="/assets/musa-avatar.jpg" alt="Musa" class="w-7 h-7 rounded-full object-cover"/>
+  <span class="text-xs font-semibold">Consultar a Musa</span>
 </a>
 
-<!-- Toast de Notificación Elegante -->
-<div id="atelierToast" style="display: none;" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-[#1E1A2D]/95 border border-[#F0C98A]/40 text-[#FAF7F5] text-xs font-bold shadow-2xl flex items-center gap-2 backdrop-blur-xl">
-  <span class="material-symbols-outlined text-[16px] text-[#6EE7B7]">check_circle</span>
-  <span id="atelierToastText">Prompt copiado al portapapeles</span>
+<!-- Toast Minimalista -->
+<div id="atelierToast" style="display: none;" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-[#18181B] text-white text-xs font-semibold shadow-xl flex items-center gap-2">
+  <span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+  <span id="atelierToastText">Copiado al portapapeles</span>
 </div>
 
 <script>
-// Fotografías Editoriales Luminosas (Lookbook 16:10 — 100% Nítidas, sin blur)
-const IMAGENES_MODULOS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900&auto=format&fit=crop&q=80", // 01
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900&auto=format&fit=crop&q=80", // 02
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900&auto=format&fit=crop&q=80", // 03
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900&auto=format&fit=crop&q=80", // 04
-  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=900&auto=format&fit=crop&q=80", // 05
-  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=900&auto=format&fit=crop&q=80", // 06
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=900&auto=format&fit=crop&q=80", // 07
-  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=900&auto=format&fit=crop&q=80", // 08
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&auto=format&fit=crop&q=80", // 09
-  "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=900&auto=format&fit=crop&q=80", // 10
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=900&auto=format&fit=crop&q=80", // 11
-  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop&q=80", // 12
-  "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&auto=format&fit=crop&q=80"  // 13
+// Sanitizador estricto para garantizar que NUNCA aparezca la palabra "Leonardo"
+function limpiarTextoUI(texto) {
+  return String(texto || "")
+    .replace(/,\s*Leonardo/gi, "")
+    .replace(/Leonardo\s*(AI)?/gi, "Generador IA")
+    .replace(/cuatro herramientas/gi, "herramientas");
+}
+
+// Lookbook Consistente de MUSA (Un solo personaje hiperrealista en las 13 clases, con encuadres variados)
+const PORTADAS_MUSA = [
+  { src: "/assets/musa-hero.jpg", pos: "center 20%" },     // 01: Estudio Arquitectónico
+  { src: "/assets/musa-closeup.jpg", pos: "center 25%" },  // 02: Primer modelo / Rostro
+  { src: "/assets/musa-avatar.jpg", pos: "center 18%" },   // 03: Las herramientas
+  { src: "/assets/musa-closeup.jpg", pos: "center 40%" },  // 04: Contenido en serie / Consistencia
+  { src: "/assets/musa-rooftop.jpg", pos: "center 25%" },  // 05: Monetización primeros pasos
+  { src: "/assets/musa-hero.jpg", pos: "center 35%" },     // 06: Telegram grupo y bot
+  { src: "/assets/musa-closeup.jpg", pos: "center 15%" },  // 07: Herramientas para potenciar tu IA
+  { src: "/assets/musa-rooftop.jpg", pos: "center 40%" },  // 08: Hazte viral en TikTok
+  { src: "/assets/musa-hero.jpg", pos: "center 15%" },     // 09: Mente de empresario
+  { src: "/assets/musa-rooftop.jpg", pos: "center 20%" },  // 10: Fanvue cómo funciona
+  { src: "/assets/musa-closeup.jpg", pos: "center 30%" },  // 11: Crea videos 100% realistas
+  { src: "/assets/musa-avatar.jpg", pos: "center 25%" },   // 12: ManyChat desde cero
+  { src: "/assets/musa-rooftop.jpg", pos: "center 30%" }   // 13: Biblioteca de prompts
 ];
 
-// Estaciones Creativas (En lugar de bloques escolares o retos de 7 días)
 function obtenerEstacionDeModulo(numero) {
   if ([1, 2, 3].includes(numero)) {
-    return { id: "identidad", nombre: "Estación 01 · Identidad & Rostro IA", corto: "Identidad IA", color: "text-[#F0C98A]" };
+    return { id: "identidad", nombre: "Estación 01 · Identidad & Rostro IA", corto: "01 · Identidad IA" };
   }
   if ([4, 7, 11, 13].includes(numero)) {
-    return { id: "produccion", nombre: "Estación 02 · Consistencia & Video Realista", corto: "Producción & Video", color: "text-[#FDA4AF]" };
+    return { id: "produccion", nombre: "Estación 02 · Consistencia & Video Realista", corto: "02 · Producción & Video" };
   }
   if ([6, 8, 12].includes(numero)) {
-    return { id: "viralidad", nombre: "Estación 03 · Tracción Viral & Bots", corto: "Viralidad & Bots", color: "text-[#C084FC]" };
+    return { id: "viralidad", nombre: "Estación 03 · Tracción Viral & Bots", corto: "03 · Viralidad & Bots" };
   }
-  return { id: "monetizacion", nombre: "Estación 04 · Monetización & Fanvue", corto: "Monetización", color: "text-[#6EE7B7]" };
+  return { id: "monetizacion", nombre: "Estación 04 · Monetización & Fanvue", corto: "04 · Monetización" };
 }
 
 let catalogoData = null;
 let moduloActivoIdx = 0;
 let leccionActivaIdx = 0;
 let bonoActivoIdx = -1;
-let modoAtelierActual = "estudio"; // 'estudio' | 'prompts' | 'bonos'
 let estacionFiltroActual = "todas";
-let heroPromptIdx = 2;
 
 let modulosCompletados = JSON.parse(localStorage.getItem("musa_modulos_completados_v5") || "[1, 2]");
 
@@ -555,7 +478,14 @@ function mostrarToast(mensaje) {
   clearTimeout(window.__musaToastTimer);
   window.__musaToastTimer = setTimeout(() => {
     toast.style.display = "none";
-  }, 2400);
+  }, 2200);
+}
+
+function cambiarFotoMusaHero(src, label) {
+  const img = document.getElementById("musaHeroPreviewImg");
+  const lbl = document.getElementById("musaHeroAngleLabel");
+  if (img) img.src = src;
+  if (lbl) lbl.textContent = label;
 }
 
 function obtenerTokenUrl() {
@@ -576,7 +506,10 @@ async function cargarCatalogo() {
 
   if (catalogoData?.alumno) {
     const nombre = catalogoData.alumno.nombre || "Mauricio Bonilla";
+    const primerNombre = nombre.split(" ")[0] || "Mauricio";
     document.getElementById("studentNameSidebar").textContent = nombre;
+    const heroName = document.getElementById("heroStudentName");
+    if (heroName) heroName.textContent = primerNombre;
     const iniciales = nombre.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "MB";
     document.getElementById("avatarInitials").textContent = iniciales;
   }
@@ -586,31 +519,21 @@ async function cargarCatalogo() {
     document.getElementById("floatingWaBtn").href = catalogoData.soporteWa;
   }
 
-  const badgeAcceso = document.getElementById("badgeModoAcceso");
-  if (catalogoData?.autenticado) {
-    badgeAcceso.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Acceso Vitalicio Activo';
-  } else {
-    badgeAcceso.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Vista Previa Activa';
-  }
-
   renderizarCatalogo();
-  renderizarBovedaPrompts();
   renderizarBonos();
-  actualizarPromptHero();
 }
 
-function cambiarModoAtelier(modo) {
-  modoAtelierActual = modo;
-  const modos = ["estudio", "prompts", "bonos"];
+function cambiarModoStudio(modo) {
+  const modos = ["clases", "bonos"];
   modos.forEach((m) => {
     const panel = document.getElementById("panelModo-" + m);
     const btn = document.getElementById("tabBtn-" + m);
     if (panel) panel.style.display = m === modo ? "block" : "none";
     if (btn) {
       if (m === modo) {
-        btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-[#F472B6]/25 via-[#C084FC]/25 to-[#F0C98A]/25 text-[#FAF7F5] border border-[#F0C98A]/35 shadow-sm flex items-center gap-1.5";
+        btn.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#18181B] shadow-sm flex items-center gap-1.5";
       } else {
-        btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#D0C9E0] hover:text-white transition-all flex items-center gap-1.5";
+        btn.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-[#52525B] hover:text-[#18181B] transition-all flex items-center gap-1.5";
       }
     }
   });
@@ -623,124 +546,64 @@ function filtrarEstacion(estacionId) {
     const btn = document.getElementById("filtroEst-" + id);
     if (!btn) return;
     if (id === estacionId) {
-      btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-[#F0C98A] text-[#15121F] shadow transition-all whitespace-nowrap";
+      btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#18181B] text-white transition-all whitespace-nowrap";
     } else {
-      btn.className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/10 transition-all whitespace-nowrap";
+      btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap";
     }
   });
   renderizarCatalogo();
 }
 
-function actualizarPromptHero() {
-  if (!catalogoData?.modulos?.length) return;
-  const m = catalogoData.modulos[heroPromptIdx % catalogoData.modulos.length];
-  if (!m) return;
-  const tEl = document.getElementById("heroPromptTitulo");
-  const pEl = document.getElementById("heroPromptTexto");
-  if (tEl) tEl.textContent = "Cápsula " + String(m.numero).padStart(2, "0") + " · " + m.titulo;
-  if (pEl) pEl.textContent = m.prompt || "";
-}
-
-function rotarPromptDestacado() {
-  if (!catalogoData?.modulos?.length) return;
-  heroPromptIdx = (heroPromptIdx + 1) % catalogoData.modulos.length;
-  actualizarPromptHero();
-}
-
-function copiarPromptHero() {
-  const texto = document.getElementById("heroPromptTexto")?.textContent || "";
-  navigator.clipboard.writeText(texto);
-  mostrarToast("✦ Prompt copiado — listo para pegar en tu generador IA");
-}
-
-function copiarPromptDeModulo(idx, ev) {
-  if (ev) ev.stopPropagation();
-  const m = catalogoData?.modulos?.[idx];
-  if (!m) return;
-  navigator.clipboard.writeText(m.prompt || "");
-  mostrarToast("✦ Prompt de la Cápsula " + m.numero + " copiado al portapapeles");
-}
-
-function abrirGuiaRapida() {
-  if (catalogoData?.planAccionUrl && catalogoData.planAccionUrl !== "#guia-rapida") {
-    window.open(catalogoData.planAccionUrl, "_blank", "noopener,noreferrer");
-  } else {
-    cambiarModoAtelier("prompts");
-    mostrarToast("✦ Aquí tienes las plantillas de implementación rápida");
-  }
-}
-
 function continuarUltimaCapsula() {
   if (!catalogoData?.modulos?.length) return;
-  // Buscar la primera cápsula no explorada o abrir la 1
   const siguienteIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
   seleccionarModulo(siguienteIdx >= 0 ? siguienteIdx : 0, true);
 }
 
-function crearTarjetaLookbook(m, idx) {
-  const imgUrl = IMAGENES_MODULOS[idx] || IMAGENES_MODULOS[0];
+function crearTarjetaMinimalista(m, idx) {
+  const portada = PORTADAS_MUSA[idx % PORTADAS_MUSA.length];
   const isCompleted = modulosCompletados.includes(m.numero);
   const est = obtenerEstacionDeModulo(m.numero);
   const numStr = String(m.numero).padStart(2, "0");
   const totalRec = m.totalLecciones || (m.lecciones ? m.lecciones.length : 1);
+  const tituloLimpio = limpiarTextoUI(m.titulo);
+  const resultadoLimpio = limpiarTextoUI(m.resultado);
 
   const estadoBadge = isCompleted
-    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#6EE7B7]/20 border border-[#6EE7B7]/40 text-[#6EE7B7] text-[11px] font-bold backdrop-blur-md">
-         <span class="material-symbols-outlined text-[13px]">check_circle</span> Explorada
+    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold shadow-sm">
+         <span class="material-symbols-outlined text-[13px]">check_circle</span> Vista
        </span>`
-    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#15121F]/75 border border-white/15 text-[#FAF7F5] text-[11px] font-semibold backdrop-blur-md">
-         🎬 ${totalRec} ${totalRec === 1 ? "recurso" : "recursos"}
-       </span>`;
+    : "";
 
   return `
-    <article class="lookbook-card flex flex-col justify-between cursor-pointer group" onclick="seleccionarModulo(${idx}, true)">
+    <article class="studio-card flex flex-col justify-between cursor-pointer group" onclick="seleccionarModulo(${idx}, true)">
       <div>
-        <!-- Fotografía 16:10 Nítida (Cero Blur, Cero 0%) -->
         <div class="card-media">
-          <img src="${imgUrl}" alt="Cápsula ${m.numero} — ${m.titulo}" loading="lazy"/>
-          <div class="absolute top-3.5 left-3.5 right-3.5 z-10 flex items-center justify-between gap-2">
-            <span class="px-2.5 py-1 rounded-lg bg-[#15121F]/80 backdrop-blur-md border border-[#F0C98A]/35 text-[11px] font-extrabold text-[#F0C98A] tracking-wide">
-              CÁPSULA ${numStr}
+          <img src="${portada.src}" style="object-position: ${portada.pos};" alt="Clase ${m.numero} — ${tituloLimpio}" loading="lazy"/>
+          <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+            <span class="px-2.5 py-1 rounded-md bg-white/95 text-[#18181B] text-[11px] font-bold shadow-sm">
+              Clase ${numStr}
             </span>
             ${estadoBadge}
           </div>
-          <div class="absolute bottom-3 left-3.5 right-3.5 z-10 flex items-center justify-between">
-            <span class="text-[11px] font-bold ${est.color} drop-shadow">${est.corto}</span>
-            <span class="px-3 py-1 rounded-xl bg-[#F0C98A] text-[#15121F] font-extrabold text-[11px] opacity-0 group-hover:opacity-100 transition-opacity shadow-lg flex items-center gap-1">
-              <span class="material-symbols-outlined text-[14px]">play_arrow</span> Abrir
-            </span>
-          </div>
         </div>
 
-        <!-- Ficha Editorial Inferior -->
-        <div class="p-5 space-y-3">
-          <div>
-            <h3 class="text-base sm:text-lg font-extrabold text-[#FAF7F5] group-hover:text-[#FBE7BF] transition-colors leading-snug">
-              ${m.titulo}
-            </h3>
-            <p class="text-xs text-[#D0C9E0] mt-1 leading-relaxed line-clamp-2">
-              ${m.resultado}
-            </p>
-          </div>
-
-          <!-- Preview del Prompt Incluido -->
-          <div class="p-2.5 rounded-xl bg-[#161322] border border-white/[0.06] flex items-center justify-between gap-2">
-            <p class="font-mono-code text-[11px] text-[#FBE7BF]/90 truncate flex-1">${m.prompt || ""}</p>
-          </div>
+        <div class="p-5 space-y-1.5">
+          <span class="text-[11px] font-semibold text-[#6D28D9]">${est.corto}</span>
+          <h3 class="text-base font-bold text-[#18181B] group-hover:text-[#6D28D9] transition-colors leading-snug">
+            ${tituloLimpio}
+          </h3>
+          <p class="text-xs text-[#52525B] leading-relaxed line-clamp-2">
+            ${resultadoLimpio}
+          </p>
         </div>
       </div>
 
-      <!-- Barra de Acciones Directas (Ver Cápsula o Copiar Prompt sin entrar) -->
-      <div class="px-5 pb-4 pt-2 border-t border-white/[0.06] flex items-center justify-between gap-2">
-        <button type="button" onclick="seleccionarModulo(${idx}, true); event.stopPropagation();" class="text-xs font-extrabold text-[#F0C98A] hover:text-[#FBE7BF] flex items-center gap-1 transition-colors">
-          <span class="material-symbols-outlined text-[16px]">play_circle</span>
-          <span>Entrar a la cápsula</span>
-        </button>
-
-        <button type="button" onclick="copiarPromptDeModulo(${idx}, event)" class="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-[#F0C98A]/20 border border-white/10 hover:border-[#F0C98A]/40 text-[11px] font-bold text-[#FAF7F5] flex items-center gap-1 transition-all">
-          <span class="material-symbols-outlined text-[14px] text-[#F0C98A]">content_copy</span>
-          <span>Copiar Prompt</span>
-        </button>
+      <div class="px-5 py-3.5 border-t border-[#EFECE6] flex items-center justify-between text-xs text-[#52525B]">
+        <span>${totalRec} ${totalRec === 1 ? "archivo en esta clase" : "archivos en esta clase"}</span>
+        <span class="font-semibold text-[#18181B] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+          Abrir clase <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+        </span>
       </div>
     </article>
   `;
@@ -751,14 +614,15 @@ function renderizarCatalogo() {
   const total = catalogoData.modulos.length;
   const completadosCount = modulosCompletados.length;
   const progEl = document.getElementById("progresoTexto");
-  if (progEl) progEl.textContent = `${completadosCount} de ${total} exploradas`;
+  if (progEl) progEl.textContent = `${completadosCount} de ${total} vistas`;
 
-  // Actualizar etiqueta del botón principal del Hero
   const sigIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
   const labelHero = document.getElementById("labelHeroResume");
   if (labelHero) {
     const targetMod = catalogoData.modulos[sigIdx >= 0 ? sigIdx : 0];
-    labelHero.textContent = targetMod ? `Abrir Cápsula ${targetMod.numero}: ${targetMod.titulo}` : "Abrir Estudio";
+    labelHero.textContent = targetMod
+      ? `Continuar Clase ${targetMod.numero}: ${limpiarTextoUI(targetMod.titulo)}`
+      : "Continuar en el Estudio";
   }
 
   const busqueda = (document.getElementById("inputBuscarCapsula")?.value || "").trim().toLowerCase();
@@ -768,89 +632,42 @@ function renderizarCatalogo() {
     .filter(({ m, est }) => {
       if (estacionFiltroActual !== "todas" && est.id !== estacionFiltroActual) return false;
       if (!busqueda) return true;
-      return (
-        m.titulo.toLowerCase().includes(busqueda) ||
-        (m.resultado || "").toLowerCase().includes(busqueda) ||
-        (m.prompt || "").toLowerCase().includes(busqueda)
-      );
+      const t = limpiarTextoUI(m.titulo).toLowerCase();
+      const r = limpiarTextoUI(m.resultado).toLowerCase();
+      return t.includes(busqueda) || r.includes(busqueda);
     });
 
   const gridEl = document.getElementById("gridCapsulasAtelier");
   if (gridEl) {
     if (filtrados.length === 0) {
       gridEl.innerHTML = `
-        <div class="col-span-full p-10 rounded-2xl bg-[#1E1A2D] border border-white/10 text-center space-y-2">
-          <p class="text-sm font-bold text-[#FAF7F5]">No encontramos cápsulas con ese filtro</p>
-          <button onclick="document.getElementById('inputBuscarCapsula').value=''; filtrarEstacion('todas');" class="text-xs font-bold text-[#F0C98A] underline">Mostrar las 13 cápsulas</button>
+        <div class="col-span-full p-10 rounded-2xl bg-white border border-[#E4E0D8] text-center space-y-2">
+          <p class="text-sm font-bold text-[#18181B]">No encontramos clases con ese filtro</p>
+          <button onclick="document.getElementById('inputBuscarCapsula').value=''; filtrarEstacion('todas');" class="text-xs font-semibold text-[#6D28D9] underline">Mostrar las 13 clases</button>
         </div>
       `;
     } else {
-      gridEl.innerHTML = filtrados.map(({ m, idx }) => crearTarjetaLookbook(m, idx)).join("");
+      gridEl.innerHTML = filtrados.map(({ m, idx }) => crearTarjetaMinimalista(m, idx)).join("");
     }
   }
 
-  // Renderizar también la lista lateral del modo Teatro
   const navSidebar = document.getElementById("navModulosSidebar");
   if (navSidebar) {
     navSidebar.innerHTML = catalogoData.modulos.map((m, idx) => {
       const done = modulosCompletados.includes(m.numero);
       const isAct = bonoActivoIdx === -1 && idx === moduloActivoIdx;
+      const tLimpio = limpiarTextoUI(m.titulo);
       return `
-        <button onclick="seleccionarModulo(${idx}, true)" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-left text-xs transition-all ${isAct ? "bg-[#F0C98A]/20 text-[#FBE7BF] font-bold border border-[#F0C98A]/40" : "text-[#D0C9E0] hover:bg-white/[0.05]"}">
+        <button onclick="seleccionarModulo(${idx}, true)" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left text-xs transition-all ${isAct ? "bg-[#18181B] text-white font-semibold" : "text-[#52525B] hover:bg-[#F6F4F0]"}">
           <div class="flex items-center gap-2 truncate">
-            <span class="text-[11px] font-mono-code text-[#F0C98A]">${String(m.numero).padStart(2, "0")}</span>
-            <span class="truncate">${m.titulo}</span>
+            <span class="text-[11px] font-semibold ${isAct ? "text-white/80" : "text-[#71717A]"}">${String(m.numero).padStart(2, "0")}</span>
+            <span class="truncate">${tLimpio}</span>
           </div>
-          ${done ? '<span class="material-symbols-outlined text-[15px] text-[#6EE7B7] shrink-0">check_circle</span>' : ''}
+          ${done ? `<span class="material-symbols-outlined text-[15px] ${isAct ? "text-emerald-300" : "text-emerald-600"} shrink-0">check_circle</span>` : ""}
         </button>
       `;
     }).join("");
   }
-}
-
-function renderizarBovedaPrompts() {
-  if (!catalogoData?.modulos) return;
-  const q = (document.getElementById("inputBuscarPromptVault")?.value || "").trim().toLowerCase();
-  const contenedor = document.getElementById("gridBovedaPrompts");
-  if (!contenedor) return;
-
-  const items = catalogoData.modulos
-    .map((m, idx) => ({ m, idx, est: obtenerEstacionDeModulo(m.numero) }))
-    .filter(({ m, est }) => {
-      if (!q) return true;
-      return (
-        m.titulo.toLowerCase().includes(q) ||
-        (m.prompt || "").toLowerCase().includes(q) ||
-        est.nombre.toLowerCase().includes(q)
-      );
-    });
-
-  contenedor.innerHTML = items.map(({ m, idx, est }) => `
-    <div class="p-5 rounded-2xl bg-[#252038] border border-white/10 hover:border-[#F0C98A]/40 transition-all flex flex-col justify-between gap-4 shadow-lg">
-      <div class="space-y-2.5">
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#15121F] text-[#F0C98A] border border-[#F0C98A]/30">
-            Cápsula ${String(m.numero).padStart(2, "0")} · ${est.corto}
-          </span>
-          <button onclick="seleccionarModulo(${idx}, true)" class="text-xs font-bold text-[#FDA4AF] hover:underline flex items-center gap-1">
-            <span class="material-symbols-outlined text-[15px]">play_circle</span>
-            <span>Ver video</span>
-          </button>
-        </div>
-        <h3 class="text-base font-extrabold text-[#FAF7F5]">${m.titulo}</h3>
-        <div class="p-3.5 rounded-xl bg-[#14111E] border border-white/[0.07] font-mono-code text-xs text-[#FBE7BF] leading-relaxed select-all">
-          ${m.prompt || ""}
-        </div>
-      </div>
-      <div class="flex items-center justify-between gap-2 pt-1">
-        <span class="text-[11px] text-[#968EB0]">${m.resultado}</span>
-        <button onclick="copiarPromptDeModulo(${idx}, event)" class="px-4 py-2 rounded-xl bg-[#F0C98A] hover:bg-[#FBE7BF] text-[#15121F] font-extrabold text-xs flex items-center gap-1.5 shrink-0 transition-all">
-          <span class="material-symbols-outlined text-[15px]">content_copy</span>
-          <span>Copiar</span>
-        </button>
-      </div>
-    </div>
-  `).join("");
 }
 
 function renderizarBonos() {
@@ -862,72 +679,70 @@ function renderizarBonos() {
     megapack_master_ia: "auto_awesome_motion"
   };
 
-  // Preview de 4 tarjetas en la vista principal
   const previewEl = document.getElementById("gridBonosPreview");
   if (previewEl) {
     previewEl.innerHTML = catalogoData.bonos.map((b, bIdx) => {
       const icono = iconosBono[b.clave] || "redeem";
       return `
-        <div onclick="abrirBono(${bIdx})" class="cursor-pointer group p-5 rounded-2xl bg-gradient-to-b from-[#26203A] to-[#1E1A2D] border border-[#F0C98A]/25 hover:border-[#F0C98A]/60 transition-all flex flex-col justify-between shadow-lg">
+        <div onclick="abrirBono(${bIdx})" class="studio-card cursor-pointer group p-5 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between gap-2 mb-3">
-              <div class="w-10 h-10 rounded-xl bg-[#F0C98A]/15 border border-[#F0C98A]/35 flex items-center justify-center text-[#F0C98A]">
-                <span class="material-symbols-outlined text-[22px]">${icono}</span>
+              <div class="w-9 h-9 rounded-lg bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#18181B]">
+                <span class="material-symbols-outlined text-[20px]">${icono}</span>
               </div>
-              <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F0C98A]/15 text-[#FBE7BF] border border-[#F0C98A]/30">
-                ${b.totalArchivos} ${b.totalArchivos === 1 ? "recurso" : "recursos"}
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#F6F4F0] text-[#52525B] border border-[#E4E0D8]">
+                ${b.totalArchivos} ${b.totalArchivos === 1 ? "archivo" : "archivos"}
               </span>
             </div>
-            <h4 class="font-extrabold text-sm sm:text-base text-[#FAF7F5] group-hover:text-[#FBE7BF] transition-colors mb-1">${b.titulo}</h4>
-            <p class="text-xs text-[#D0C9E0] leading-relaxed">Incluido en tu Vault VIP para abrir o reproducir cuando quieras.</p>
+            <h4 class="font-bold text-sm sm:text-base text-[#18181B] group-hover:text-[#6D28D9] transition-colors mb-1">${b.titulo}</h4>
+            <p class="text-xs text-[#52525B] leading-relaxed">Disponible en tu cuenta para reproducir o descargar cuando quieras.</p>
           </div>
-          <div class="mt-4 pt-3 border-t border-white/[0.07] flex items-center justify-between text-xs font-bold text-[#F0C98A]">
-            <span>Abrir Pack VIP</span>
-            <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          <div class="mt-4 pt-3 border-t border-[#EFECE6] flex items-center justify-between text-xs font-semibold text-[#18181B]">
+            <span>Abrir Pack</span>
+            <span class="material-symbols-outlined text-[15px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
           </div>
         </div>
       `;
     }).join("");
   }
 
-  // Vista completa en la pestaña "Packs & Bonos VIP"
   const fullEl = document.getElementById("gridBonosCompleto");
   if (fullEl) {
     fullEl.innerHTML = catalogoData.bonos.map((b, bIdx) => {
       const icono = iconosBono[b.clave] || "redeem";
       const primeros = (b.archivos || []).slice(0, 4);
       return `
-        <div class="p-6 rounded-2xl bg-[#252038] border border-[#F0C98A]/30 flex flex-col justify-between gap-4 shadow-xl">
+        <div class="p-6 rounded-2xl bg-white border border-[#E4E0D8] flex flex-col justify-between gap-4 shadow-sm">
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-[#F0C98A]/15 border border-[#F0C98A]/35 flex items-center justify-center text-[#F0C98A]">
-                  <span class="material-symbols-outlined text-[24px]">${icono}</span>
+                <div class="w-10 h-10 rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#18181B]">
+                  <span class="material-symbols-outlined text-[22px]">${icono}</span>
                 </div>
                 <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#F0C98A]">Bono Exclusivo #${bIdx + 1}</span>
-                  <h3 class="text-lg font-extrabold text-[#FAF7F5]">${b.titulo}</h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-[#6D28D9]">Pack Incluido #${bIdx + 1}</span>
+                  <h3 class="text-base sm:text-lg font-bold text-[#18181B]">${b.titulo}</h3>
                 </div>
               </div>
-              <span class="text-xs font-bold px-3 py-1 rounded-full bg-[#15121F] text-[#FBE7BF] border border-white/10">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-[#F6F4F0] text-[#52525B] border border-[#E4E0D8]">
                 ${b.totalArchivos} archivos
               </span>
             </div>
 
             <div class="space-y-1.5 pt-1">
               ${primeros.map((a) => `
-                <div class="px-3 py-2 rounded-xl bg-[#181425] border border-white/[0.06] flex items-center justify-between text-xs text-[#D0C9E0]">
-                  <span class="truncate">${a.icono} ${a.titulo}</span>
-                  <span class="text-[10px] uppercase font-bold text-[#F0C98A] ml-2 shrink-0">${a.etiqueta}</span>
+                <div class="px-3 py-2 rounded-lg bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-between text-xs text-[#52525B]">
+                  <span class="truncate">${a.icono} ${limpiarTextoUI(a.titulo)}</span>
+                  <span class="text-[10px] uppercase font-bold text-[#18181B] ml-2 shrink-0">${a.etiqueta}</span>
                 </div>
               `).join("")}
-              ${b.totalArchivos > 4 ? `<p class="text-[11px] text-[#968EB0] pl-1">+ ${b.totalArchivos - 4} archivos adicionales dentro del reproductor</p>` : ""}
+              ${b.totalArchivos > 4 ? `<p class="text-[11px] text-[#71717A] pl-1">+ ${b.totalArchivos - 4} archivos adicionales dentro del reproductor</p>` : ""}
             </div>
           </div>
 
-          <button onclick="abrirBono(${bIdx})" class="btn-atelier-primary w-full py-3 rounded-xl text-xs flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined text-[18px]">folder_open</span>
-            <span>Abrir los ${b.totalArchivos} recursos en el Estudio</span>
+          <button onclick="abrirBono(${bIdx})" class="w-full py-2.5 px-4 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
+            <span class="material-symbols-outlined text-[17px]">folder_open</span>
+            <span>Abrir los ${b.totalArchivos} recursos</span>
           </button>
         </div>
       `;
@@ -955,11 +770,11 @@ function actualizarBotonesCompletado(numeroModulo) {
   const labelTop = document.getElementById("labelTopComplete");
 
   if (isCompleted) {
-    topBtn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all bg-[#6EE7B7]/20 text-[#6EE7B7] border border-[#6EE7B7]/40";
-    labelTop.textContent = "Explorada ✓";
+    topBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-emerald-50 text-emerald-700 border border-emerald-200";
+    labelTop.textContent = "Clase vista ✓";
   } else {
-    topBtn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all bg-[#252038] hover:bg-[#2E2846] text-[#D0C9E0] border border-white/15";
-    labelTop.textContent = "Marcar como explorada";
+    topBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8]";
+    labelTop.textContent = "Marcar como vista";
   }
 }
 
@@ -970,7 +785,7 @@ function marcarCompletadoActual() {
 
   if (!modulosCompletados.includes(m.numero)) {
     modulosCompletados.push(m.numero);
-    mostrarToast("✦ Cápsula " + m.numero + " marcada como explorada");
+    mostrarToast("Clase " + m.numero + " marcada como vista");
   } else {
     modulosCompletados = modulosCompletados.filter((n) => n !== m.numero);
   }
@@ -1002,6 +817,20 @@ function irAnteriorCapsula() {
   }
 }
 
+function cargarNotaClaseActual() {
+  const input = document.getElementById("notasClaseInput");
+  if (!input) return;
+  const key = bonoActivoIdx !== -1 ? "musa_nota_bono_" + bonoActivoIdx : "musa_nota_mod_" + moduloActivoIdx;
+  input.value = localStorage.getItem(key) || "";
+}
+
+function guardarNotaClaseActual() {
+  const input = document.getElementById("notasClaseInput");
+  if (!input) return;
+  const key = bonoActivoIdx !== -1 ? "musa_nota_bono_" + bonoActivoIdx : "musa_nota_mod_" + moduloActivoIdx;
+  localStorage.setItem(key, input.value);
+}
+
 function seleccionarModulo(idx, abrirVista = true) {
   if (!catalogoData?.modulos?.[idx]) return;
   bonoActivoIdx = -1;
@@ -1012,15 +841,18 @@ function seleccionarModulo(idx, abrirVista = true) {
 
   const m = catalogoData.modulos[idx];
   const est = obtenerEstacionDeModulo(m.numero);
+  const tituloLimpio = limpiarTextoUI(m.titulo);
+  const resultadoLimpio = limpiarTextoUI(m.resultado);
 
   document.getElementById("breadcrumbEstacion").textContent = est.corto;
-  document.getElementById("breadcrumbModulo").textContent = `Cápsula ${m.numero}: ${m.titulo}`;
-  document.getElementById("badgeModuloPlayer").textContent = `CÁPSULA ${String(m.numero).padStart(2, "0")} DE 13`;
-  document.getElementById("tituloModuloPlayer").textContent = `${m.numero}. ${m.titulo}`;
-  document.getElementById("subtituloResultadoPlayer").textContent = m.resultado;
-  document.getElementById("promptText").textContent = m.prompt;
+  document.getElementById("breadcrumbModulo").textContent = `Clase ${m.numero}: ${tituloLimpio}`;
+  document.getElementById("badgeModuloPlayer").textContent = `CLASE ${String(m.numero).padStart(2, "0")} DE 13`;
+  document.getElementById("tituloModuloPlayer").textContent = `${m.numero}. ${tituloLimpio}`;
+  document.getElementById("subtituloResultadoPlayer").textContent = resultadoLimpio;
+  document.getElementById("promptText").textContent = limpiarTextoUI(m.prompt);
   document.getElementById("leccionesCountBadge").textContent = `${m.totalLecciones} ${m.totalLecciones === 1 ? "archivo" : "archivos"}`;
 
+  cargarNotaClaseActual();
   actualizarBotonesCompletado(m.numero);
   renderizarCatalogo();
   renderizarArchivosModulo(m.lecciones, false);
@@ -1034,14 +866,15 @@ function abrirBono(bIdx) {
   mostrarVistaLeccion();
 
   const b = catalogoData.bonos[bIdx];
-  document.getElementById("breadcrumbEstacion").textContent = "Vault VIP";
-  document.getElementById("breadcrumbModulo").textContent = `Bono: ${b.titulo}`;
-  document.getElementById("badgeModuloPlayer").textContent = `BONO VIP #${bIdx + 1}`;
-  document.getElementById("tituloModuloPlayer").textContent = `★ ${b.titulo}`;
-  document.getElementById("subtituloResultadoPlayer").textContent = `Pack exclusivo desbloqueado con ${b.totalArchivos} recursos listos para usar`;
-  document.getElementById("promptText").textContent = `Recurso VIP desbloqueado: selecciona cualquiera de los ${b.totalArchivos} archivos en el panel derecho para reproducirlo o abrirlo.`;
+  document.getElementById("breadcrumbEstacion").textContent = "Bonos & Packs";
+  document.getElementById("breadcrumbModulo").textContent = b.titulo;
+  document.getElementById("badgeModuloPlayer").textContent = `PACK INCLUIDO #${bIdx + 1}`;
+  document.getElementById("tituloModuloPlayer").textContent = b.titulo;
+  document.getElementById("subtituloResultadoPlayer").textContent = `${b.totalArchivos} recursos disponibles en este paquete`;
+  document.getElementById("promptText").textContent = `Selecciona cualquiera de los ${b.totalArchivos} archivos en la lista superior para reproducirlo o abrirlo.`;
   document.getElementById("leccionesCountBadge").textContent = `${b.totalArchivos} archivos`;
 
+  cargarNotaClaseActual();
   renderizarArchivosModulo(b.archivos, true);
   reproducirLeccion(0, true);
 }
@@ -1050,12 +883,13 @@ function renderizarArchivosModulo(archivos, esBono) {
   const lista = document.getElementById("listaArchivosModulo");
   lista.innerHTML = archivos.map((l, lIdx) => {
     const activo = lIdx === leccionActivaIdx;
+    const tLimpio = limpiarTextoUI(l.titulo);
     return `
-      <button onclick="reproducirLeccion(${lIdx}, ${esBono})" class="w-full p-3 rounded-xl flex items-center gap-3 text-left transition-all ${activo ? "bg-gradient-to-r from-[#F0C98A] to-[#FDA4AF] text-[#15121F] font-extrabold shadow-md" : "bg-[#15121F]/70 hover:bg-white/[0.06] text-[#D0C9E0] border border-white/[0.06]"}">
-        <span class="material-symbols-outlined text-[18px] ${activo ? "text-[#15121F]" : "text-[#F0C98A]"}">${l.esVideo ? "play_circle" : (l.esPdf ? "description" : "link")}</span>
+      <button onclick="reproducirLeccion(${lIdx}, ${esBono})" class="w-full p-2.5 rounded-xl flex items-center gap-3 text-left transition-all ${activo ? "bg-[#18181B] text-white font-semibold shadow-sm" : "bg-[#F6F4F0] hover:bg-[#EFECE6] text-[#18181B] border border-[#E4E0D8]"}">
+        <span class="material-symbols-outlined text-[18px] ${activo ? "text-white" : "text-[#6D28D9]"}">${l.esVideo ? "play_circle" : (l.esPdf ? "description" : "folder_zip")}</span>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-bold truncate">${l.titulo}</p>
-          <span class="text-[10px] ${activo ? "text-[#15121F]/80" : "text-[#968EB0]"}">${l.icono} ${l.etiqueta}</span>
+          <p class="text-xs font-semibold truncate">${tLimpio}</p>
+          <span class="text-[10px] ${activo ? "text-white/75" : "text-[#71717A]"}">${l.icono} ${l.etiqueta}</span>
         </div>
       </button>
     `;
@@ -1085,7 +919,7 @@ function reproducirLeccion(lIdx, esBono) {
     video.pause();
     overlay.style.display = "flex";
     document.getElementById("nonVideoIcon").textContent = item.esPdf ? "picture_as_pdf" : "folder_zip";
-    document.getElementById("nonVideoTitle").textContent = item.titulo;
+    document.getElementById("nonVideoTitle").textContent = limpiarTextoUI(item.titulo);
     document.getElementById("nonVideoLink").href = item.url;
   }
 }
@@ -1093,7 +927,7 @@ function reproducirLeccion(lIdx, esBono) {
 function copiarPromptActual() {
   const texto = document.getElementById("promptText").textContent;
   navigator.clipboard.writeText(texto);
-  mostrarToast("✦ Prompt copiado al portapapeles");
+  mostrarToast("Guía copiada al portapapeles");
 }
 
 function copiarEnlaceAfiliado() {
@@ -1102,13 +936,27 @@ function copiarEnlaceAfiliado() {
   const label = document.getElementById("affLinkLabel");
   if (label) {
     const prev = label.textContent;
-    label.textContent = "¡Link copiado!";
+    label.textContent = "¡Copiado!";
     setTimeout(() => { label.textContent = prev; }, 2000);
   }
-  mostrarToast("✦ Enlace de socio (50% comisión) copiado");
+  mostrarToast("Enlace de afiliado (50%) copiado");
 }
 
-window.addEventListener("DOMContentLoaded", cargarCatalogo);
+// Auto-avance inteligente al terminar un video de la clase
+window.addEventListener("DOMContentLoaded", () => {
+  cargarCatalogo();
+  const video = document.getElementById("mainVideoPlayer");
+  if (video) {
+    video.addEventListener("ended", () => {
+      const esBono = bonoActivoIdx !== -1;
+      const contenedor = esBono ? catalogoData?.bonos?.[bonoActivoIdx] : catalogoData?.modulos?.[moduloActivoIdx];
+      const lista = esBono ? contenedor?.archivos : contenedor?.lecciones;
+      if (lista && leccionActivaIdx + 1 < lista.length) {
+        reproducirLeccion(leccionActivaIdx + 1, esBono);
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>

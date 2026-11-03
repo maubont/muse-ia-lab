@@ -187,12 +187,10 @@
 <!-- Header Brand Monogram -->
 <div>
 <div class="flex items-center gap-3 px-2 py-2 mb-6">
-<div class="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shadow-[0_0_16px_rgba(160,120,255,0.18)]">
-<span class="material-symbols-outlined" data-icon="terminal" data-weight="fill" style="font-variation-settings: 'FILL' 1;">terminal</span>
-</div>
+<img src="/assets/musa-avatar.jpg" alt="Musa Avatar" class="w-10 h-10 rounded-lg object-cover border border-primary/50 shadow-[0_0_16px_rgba(160,120,255,0.28)]"/>
 <div class="flex flex-col">
 <span class="text-headline-md font-headline-md text-primary tracking-tight font-bold">Consola Musa</span>
-<span class="text-label-md font-label-md text-on-surface-variant font-medium">Muse IA Lab v4.2</span>
+<span class="text-label-md font-label-md text-on-surface-variant font-medium">Muse IA Lab · Avatar Unificado</span>
 </div>
 </div>
 <!-- Quick Action / CTA -->
@@ -260,7 +258,7 @@
 <a class="text-primary border-b-2 border-primary pb-1 font-semibold transition-colors" href="#operations-live">Operations Live</a>
 <a class="text-on-surface-variant hover:text-on-surface transition-colors pb-1" href="#dual-comm-hub">Dual Comm Hub</a>
 <a class="text-on-surface-variant hover:text-on-surface transition-colors pb-1" href="#ocr-approvals">OCR Approvals</a>
-<a class="text-emerald-400 hover:text-emerald-300 transition-colors pb-1 font-semibold flex items-center gap-1" href="/academia.html"><span class="material-symbols-outlined text-sm">school</span> Musa Academy</a>
+<a class="text-emerald-400 hover:text-emerald-300 transition-colors pb-1 font-semibold flex items-center gap-1" href="/academia.html"><span class="material-symbols-outlined text-sm">school</span> Musa Studio</a>
 <a class="text-on-surface-variant hover:text-on-surface transition-colors pb-1 flex items-center gap-1" href="/"><span class="material-symbols-outlined text-sm">public</span> Landing</a>
 </nav>
 </div>
@@ -371,8 +369,8 @@
 </div>
 <!-- Voice Model Selector Pill -->
 <div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/30">
-<span class="material-symbols-outlined text-sm text-primary" data-icon="record_voice_over">record_voice_over</span>
-<span class="text-label-md font-label-md text-on-surface font-medium">Voz: <strong class="text-secondary">Sage (Neural Latent)</strong></span>
+<img src="/assets/musa-avatar.jpg" alt="Musa" class="w-5 h-5 rounded-full object-cover"/>
+<span class="text-label-md font-label-md text-on-surface font-medium">Voz: <strong class="text-secondary">Musa Neural v2 (es-CO)</strong></span>
 <span class="text-label-code font-label-code text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-500/30">98.4% natural</span>
 </div>
 </div>
@@ -516,9 +514,7 @@
 </div>
 <!-- Message: Agent Musa Autonomous Action Card -->
 <div class="flex items-start gap-3">
-<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5 shadow-[0_0_10px_rgba(160,120,255,0.4)]">
-<span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
-</div>
+<img src="/assets/musa-avatar.jpg" alt="Musa IA" class="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5 border border-primary/50 shadow-[0_0_10px_rgba(160,120,255,0.4)]"/>
 <div class="space-y-1.5 flex-1">
 <div class="flex items-center gap-2">
 <span class="text-label-md font-label-md font-semibold text-primary">Musa IA</span>
@@ -537,7 +533,7 @@
 </button>
 <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-colors border border-outline-variant/30">
 <span class="material-symbols-outlined text-sm" data-icon="edit_note">edit_note</span>
-<span>Modificar Mensaje Sage</span>
+<span>Modificar Mensaje de Musa</span>
 </button>
 </div>
 </div>
@@ -886,9 +882,7 @@
         </div>`;
     } else {
       wrapper.innerHTML = `
-        <div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5 shadow-[0_0_10px_rgba(160,120,255,0.4)]">
-          <span class="material-symbols-outlined text-sm">smart_toy</span>
-        </div>
+        <img src="/assets/musa-avatar.jpg" alt="Musa IA" class="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5 border border-primary/50 shadow-[0_0_10px_rgba(160,120,255,0.4)]"/>
         <div class="space-y-1.5 flex-1">
           <div class="flex items-center gap-2">
             <span class="text-label-md font-label-md font-semibold text-primary">Musa IA (PostgreSQL Live)</span>
@@ -930,10 +924,12 @@
     });
   }
 
+  let ultimoPagoEnRevision = null;
+
   document.querySelectorAll('button').forEach(btn => {
     const txt = btn.textContent.trim();
     if (txt.includes('+ Aprobar pago #402') || txt === '/aprobar' || txt.includes('Aprobar y Despachar Curso') || txt.includes('Ejecutar Despacho Inmediato')) {
-      btn.addEventListener('click', () => handleCommand('acceso +573223565761'));
+      btn.addEventListener('click', () => handleCommand(ultimoPagoEnRevision?.short_id ? ('ok ' + ultimoPagoEnRevision.short_id) : 'aprobar'));
     } else if (txt.includes('+ Seguimiento a María')) {
       btn.addEventListener('click', () => handleCommand('reporte'));
     } else if (txt.includes('+ Reporte diario')) {
@@ -941,7 +937,7 @@
     } else if (txt === '/mensaje') {
       btn.addEventListener('click', () => { if (chatInput) { chatInput.value = 'mensaje +573223565761 Hola!'; chatInput.focus(); } });
     } else if (txt === '/escalar' || txt.includes('Escalar a Humano')) {
-      btn.addEventListener('click', () => handleCommand('reiniciar +573223565761'));
+      btn.addEventListener('click', () => handleCommand('escalar ' + (ultimoPagoEnRevision?.lead_phone || '+573223565761')));
     }
   });
 
@@ -950,6 +946,9 @@
     try {
       const res = await fetch('/api/consola/estado');
       const data = await res.json();
+      if (Array.isArray(data.pagos) && data.pagos.length > 0) {
+        ultimoPagoEnRevision = data.pagos.find(p => p.status === 'revision') || data.pagos[0];
+      }
       const dt = Math.round(performance.now() - t0);
       if (latencyBadge) latencyBadge.textContent = dt + 'ms';
       if (statusPill && data.sesion) {

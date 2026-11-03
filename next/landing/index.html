@@ -98,15 +98,36 @@ p.fuerte{color:var(--texto)}
 .precio-linea span{color:var(--tenue);text-decoration:line-through;font-size:16px}
 .hero .fino{margin-top:12px}
 
-/* ---- demo ---- */
-.demo{
-  margin-top:8px;margin-inline:auto;max-width:390px;border-radius:var(--r);overflow:hidden;
-  background:var(--panel);border:1px solid rgba(196,181,253,.22);aspect-ratio:3/4;max-height:520px;
-  box-shadow:0 30px 70px -40px rgba(139,92,246,.9), inset 0 1px 0 rgba(255,255,255,.06);
-  display:flex;align-items:center;justify-content:center;text-align:center;padding:0;
+/* ---- demo (Showcase Hiperrealista de Musa) ---- */
+.musa-showcase{
+  margin-top:16px;border-radius:var(--r);overflow:hidden;
+  background:var(--panel);border:1px solid rgba(240,201,138,.28);
+  box-shadow:0 30px 70px -40px rgba(139,92,246,.75), inset 0 1px 0 rgba(255,255,255,.06);
+  padding:14px;
 }
-.demo .nota{font-size:14px;color:var(--tenue);max-width:38ch;padding:24px}
-.demo video,.demo img{width:100%;height:100%;object-fit:cover;display:block}
+.musa-main-frame{
+  position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:#0f0e15;
+}
+.musa-main-frame img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .25s ease}
+.musa-badge-bar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
+  padding:2px 4px 12px;font-size:12px;color:var(--tenue);
+}
+.musa-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+  background:rgba(240,201,138,.12);border:1px solid rgba(240,201,138,.35);
+  color:var(--oro2);font-weight:600;font-size:11.5px;
+}
+.musa-thumbs{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;
+}
+.musa-thumb{
+  border-radius:10px;overflow:hidden;border:1px solid var(--borde);background:#0f0e15;
+  cursor:pointer;text-align:left;padding:0;color:var(--texto);transition:border-color .2s,transform .2s;
+}
+.musa-thumb:hover,.musa-thumb.activa{border-color:var(--oro);transform:translateY(-1px)}
+.musa-thumb img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.musa-thumb span{display:block;padding:6px 8px;font-size:11px;color:var(--tenue);font-weight:600}
 
 /* ---- listas ---- */
 .grid{display:grid;gap:12px;margin-top:22px}
@@ -305,22 +326,35 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   <p class="fino" style="margin-top:10px">Te llega al instante por WhatsApp</p>
 </header>
 
-<!-- ============================ DEMO ============================ -->
+<!-- ============================ DEMO: MUSA HIPERREALISTA ============================ -->
 <section class="contenedor" aria-labelledby="demo-t">
-  <h2 id="demo-t">Esto lo vas a crear tú</h2>
-  <p class="fuerte">Esa persona no existe. Su cara, su voz y sus gestos son generados. En el curso aprendes a producir piezas así, desde cero.</p>
+  <h2 id="demo-t">Conoce a Musa: una sola identidad hiperrealista</h2>
+  <p class="fuerte">Ella no existe en el mundo físico. Su rostro, la textura real de sus poros y su consistencia en distintos escenarios están generados 100 % con inteligencia artificial. En el estudio aprendes a crear personajes con este nivel de realismo y coherencia.</p>
 
-  <div class="demo">
-    <!-- Video recortado a 9 s, sin audio, 720 px, 408 KB. Poster de 38 KB:
-         la sección no bloquea la carga de la página. -->
-    <video
-      src="assets/demo.mp4"
-      poster="assets/demo.jpg"
-      autoplay muted loop playsinline preload="metadata"
-      width="720" height="960"
-      aria-label="Modelo virtual hiperrealista generada con inteligencia artificial"></video>
+  <div class="musa-showcase">
+    <div class="musa-badge-bar">
+      <span class="musa-pill">✦ Avatar Oficial: Musa · Consistencia Facial 100 %</span>
+      <span id="musaEscenaLabel">01 · Estudio Arquitectónico (85mm)</span>
+    </div>
+    <div class="musa-main-frame">
+      <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista en estudio arquitectónico" loading="eager">
+    </div>
+    <div class="musa-thumbs" role="group" aria-label="Ángulos y escenarios consistentes del mismo personaje Musa">
+      <button type="button" class="musa-thumb activa" onclick="document.getElementById('musaMainImg').src='assets/musa-hero.jpg';document.getElementById('musaEscenaLabel').textContent='01 · Estudio Arquitectónico (85mm)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+        <img src="assets/musa-hero.jpg" alt="Musa en estudio cálido" loading="lazy">
+        <span>01 · Estudio 85mm</span>
+      </button>
+      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-closeup.jpg';document.getElementById('musaEscenaLabel').textContent='02 · Textura Dérmica y Poros Reales (Perfil 3/4)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+        <img src="assets/musa-closeup.jpg" alt="Close-up hiperrealista de Musa mostrando textura real de piel" loading="lazy">
+        <span>02 · Textura de Piel 3/4</span>
+      </button>
+      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-rooftop.jpg';document.getElementById('musaEscenaLabel').textContent='03 · Exterior Nocturno Editorial (Mismo Rostro)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+        <img src="assets/musa-rooftop.jpg" alt="Musa en terraza al anochecer con el mismo rostro" loading="lazy">
+        <span>03 · Terraza Nocturna</span>
+      </button>
+    </div>
   </div>
-  <p class="fino" style="margin-top:10px;text-align:center">Generada 100 % con IA. Sin cámara, sin modelo real, sin estudio.</p>
+  <p class="fino" style="margin-top:10px;text-align:center">El mismo rostro exacto en 3 ángulos e iluminaciones distintas. Sin cámara, sin modelo real, sin estudio.</p>
 </section>
 
 <!-- ====================== DE LA IMAGEN AL COBRO ====================== -->

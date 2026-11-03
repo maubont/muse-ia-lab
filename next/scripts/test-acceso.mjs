@@ -153,8 +153,8 @@ function db() {
   // megapack_master_ia (22) se agrupan.
   t("página: bonos de un enlace", (html.match(/Bono incluido/g) ?? []).length, 2);
   t("página: el bono de varios archivos se agrupa", html.includes("YouTube Money Machine") && html.includes("6 archivos"), true);
-  t("página: la guía rápida de implementación", html.includes("Guía Rápida de Implementación"), true);
-  t("página: el plan se sirve con el token", html.includes("/media/TOK/bonos/plan-accion-7-dias.pdf"), true);
+  t("página: sin PDF del reto de 7 días", html.includes("plan-accion-7-dias.pdf"), false);
+  t("página: sin menciones a Leonardo", /leonardo/i.test(html), false);
   t("página: marco de titulares", TITULOS_MODULOS.length, 13);
   t("página: no se indexa", html.includes("noindex"), true);
 }

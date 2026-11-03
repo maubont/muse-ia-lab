@@ -76,13 +76,31 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
     ).catch(() => {});
   }
 
+  let entregaObj = (mapa.entrega ?? {}) as CfgFunnel["entrega"];
+  if (mapa.entrega && /ChatGPT,\s*Leonardo/i.test(JSON.stringify(mapa.entrega))) {
+    try {
+      const entregaLimpia = JSON.parse(
+        JSON.stringify(mapa.entrega)
+          .replace(/ChatGPT,\s*Leonardo,\s*SeaArt/gi, "ChatGPT, SeaArt")
+          .replace(/Domina las cuatro herramientas que importan/gi, "Domina las herramientas que importan"),
+      );
+      entregaObj = entregaLimpia;
+      consultar(
+        "update public.musa_settings set value = $1::jsonb, updated_at = now() where key = 'entrega'",
+        [JSON.stringify(entregaLimpia)],
+      ).catch(() => {});
+    } catch {
+      // mantener entrega original si falla parseo
+    }
+  }
+
   return {
     funnelCopy,
     precio: (mapa.precio ?? { usd: 9, cop: 33000 }) as CfgFunnel["precio"],
     precioBsHoy: (mapa.precio_bs_hoy ?? { bs: 7400 }) as CfgFunnel["precioBsHoy"],
     cuentasVe: (mapa.cuentas_ve ?? {}) as Record<string, unknown>,
     cuentasCo: (mapa.cuentas_co ?? {}) as Record<string, unknown>,
-    entrega: (mapa.entrega ?? {}) as CfgFunnel["entrega"],
+    entrega: entregaObj,
     marca: (mapa.marca ?? {}) as CfgFunnel["marca"],
     paisesHabilitados: (Array.isArray(mapa.paises_habilitados) && mapa.paises_habilitados.length > 0
       ? (mapa.paises_habilitados as string[])
