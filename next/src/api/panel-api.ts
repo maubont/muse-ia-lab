@@ -81,10 +81,20 @@ export async function obtenerCatalogoAcademia(
   consultar?: Consultar,
   tokenBruto?: string,
 ): Promise<Record<string, unknown>> {
-  const token = (tokenBruto ?? "").trim();
+  let token = (tokenBruto ?? "").trim();
   let autenticado = false;
   let phone: string | undefined;
-  let nombreAlumno = "Estudiante Invitado";
+  let nombreAlumno = "Mauricio Bonilla";
+
+  if (consultar && !token) {
+    // Si se abre /academia.html directamente sin ?t=, recuperar el token activo más reciente
+    const { rows } = await consultar(
+      "select token, lead_phone from public.musa_accesos where revocado_en is null and expira_en > now() order by created_at desc limit 1",
+    ).catch(() => ({ rows: [] }));
+    if (rows[0]?.token) {
+      token = String(rows[0].token);
+    }
+  }
 
   if (consultar && token) {
     const val = await validarToken(consultar, token, false).catch(() => ({ ok: false as const }));
