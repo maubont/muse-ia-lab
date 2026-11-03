@@ -3,301 +3,370 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Modelos IA — crea modelos virtuales hiperrealistas con IA</title>
+<title>Modelos IA — crea modelos virtuales hiperrealistas con IA | Muse IA Lab</title>
 <meta name="description" content="Aprende a crear modelos virtuales con IA y a vender su contenido en plataformas que monetizan. 13 módulos prácticos, 4 bonos y guía rápida de implementación.">
 <meta property="og:title" content="Modelos IA — crea modelos virtuales hiperrealistas con IA">
 <meta property="og:description" content="Del personaje al cobro: crea el modelo, produce el contenido y publícalo donde se paga. 13 módulos y 4 bonos.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0b0b10">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* Minimalista y rápido: CSS embebido, sin frameworks, sin fuentes externas.
-   Todo lo que se carga de más cuesta conversión en móvil. */
+/* ==========================================================================
+   MUSE IA LAB — DESIGN SYSTEM v8.0 (POST-2025 ZERO-PURPLE EDITORIAL LUXURY)
+   Estética: Architectural Haute-Couture & Swiss Editorial Minimalism
+   Paleta: Obsidian Carbon (#0A0A0B), Espresso Graphite (#121211),
+           Warm Alabaster (#F5F2EB), Brushed Champagne Bronze (#C8A97E)
+   ========================================================================== */
 :root{
-  --fondo:#0b0b10; --panel:#14141c; --texto:#f4f4f7; --tenue:#a5a5b8;
-  --acento:#8b5cf6; --acento2:#c4b5fd; --borde:#262632; --ok:#34d399;
-  /* Acentos nuevos: el oro da calor al precio, el cian sólo aparece en hilos
-     de 1px. Sin ellos la página era violeta sobre negro, sin contraste de color. */
-  --oro:#f0c98a; --oro2:#fbe7bf; --cian:#5eead4;
-  --borde2:rgba(255,255,255,.07);
-  --r:16px; --max:720px;
+  --fondo:#0A0A0B;
+  --panel:#121211;
+  --panel-alt:#171614;
+  --texto:#F5F2EB;
+  --tenue:#A39E93;
+  --acento:#C8A97E;
+  --acento2:#E5CCA4;
+  --borde:#262420;
+  --borde2:rgba(245,242,235,.09);
+  --ok:#10B981;
+  --oro:#C8A97E;
+  --oro2:#E8D3B0;
+  --r:14px;
+  --max:780px;
+  --ease-out:cubic-bezier(0.22, 1, 0.36, 1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
-  background:var(--fondo);color:var(--texto);
-  font:400 17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--fondo);
+  color:var(--texto);
+  font:400 17px/1.65 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased;
-  position:relative;overflow-x:hidden;
+  font-variant-numeric:tabular-nums;
+  position:relative;
+  overflow-x:hidden;
 }
-/* Halos: dos luces muy tenues que dan profundidad al fondo plano.
-   Van en un pseudo-elemento fijo para no afectar al layout ni al scroll. */
+::selection{background:rgba(200,169,126,.25);color:#F5F2EB}
+
+/* Iluminación cenital cálida de estudio fotográfico (cero neón, cero tonos sintéticos) */
 body::before{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(680px 420px at 50% -8%, rgba(139,92,246,.22), transparent 70%),
-    radial-gradient(520px 380px at 88% 18%, rgba(94,234,212,.06), transparent 70%),
-    radial-gradient(700px 500px at 12% 96%, rgba(240,201,138,.05), transparent 70%);
+    radial-gradient(760px 440px at 50% -10%, rgba(200,169,126,.13), transparent 72%),
+    radial-gradient(560px 380px at 88% 18%, rgba(229,204,164,.05), transparent 70%),
+    radial-gradient(700px 500px at 12% 96%, rgba(200,169,126,.04), transparent 70%);
 }
-/* Grano: 3,5 % de opacidad. Es lo que quita el aspecto de «caja negra lisa»
-   y no pesa nada: un SVG embebido de 300 bytes, sin peticiones. */
+/* Micro-grano óptico de película analógica 35mm (2.8 % de opacidad) */
 body::after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.028;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
 }
-header,main,footer{position:relative;z-index:1}
-/* Hilo superior: 2px de degradado que enmarca la página. */
-body>.hilo{position:fixed;top:0;left:0;right:0;height:2px;z-index:50;
-  background:linear-gradient(90deg,transparent,var(--acento),var(--cian),var(--oro),transparent);opacity:.75}
-.contenedor{width:100%;max-width:var(--max);margin:0 auto;padding:0 20px}
-section{padding:58px 0}
-h1,h2,h3{line-height:1.2;letter-spacing:-.02em;font-weight:700}
-h1{font-size:clamp(30px,7vw,46px)}
-h2{font-size:clamp(24px,5vw,32px);margin-bottom:14px;position:relative;padding-bottom:14px}
-/* Regla corta bajo cada título: guía la vista y da detalle sin recargar. */
-h2::after{content:"";position:absolute;left:0;bottom:0;width:44px;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,var(--acento),var(--oro))}
-h3{font-size:18px;margin-bottom:8px}
+header,main,section,footer{position:relative;z-index:1}
+
+/* Hilo arquitectónico superior en bronce cepillado */
+body>.hilo{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:50;
+  background:linear-gradient(90deg,transparent,rgba(200,169,126,.35),var(--acento2),rgba(200,169,126,.35),transparent);
+  opacity:.85;
+}
+
+.contenedor{width:100%;max-width:var(--max);margin:0 auto;padding:0 22px}
+section{padding:64px 0;border-bottom:1px solid rgba(245,242,235,.05)}
+section:last-of-type{border-bottom:0}
+
+/* Barra editorial superior minimalista */
+.barra-editorial{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 0;border-bottom:1px solid var(--borde2);
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
+}
+.barra-editorial .marca{
+  display:inline-flex;align-items:center;gap:8px;color:var(--texto);font-weight:600;
+}
+.barra-editorial .punto-vivo{
+  width:6px;height:6px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 8px rgba(16,185,129,.6);
+}
+
+h1,h2,h3{line-height:1.15;letter-spacing:-.025em;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(32px,6.5vw,52px);font-weight:700}
+h2{font-size:clamp(24px,4.5vw,34px);margin-bottom:16px;position:relative;padding-bottom:16px}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;width:48px;height:1.5px;
+  background:linear-gradient(90deg,var(--acento2),transparent);
+}
+h3{font-size:17px;margin-bottom:8px;letter-spacing:-.01em}
 p{color:var(--tenue)}
 p.fuerte{color:var(--texto)}
-.fino{font-size:14px;color:var(--tenue)}
-.acento{color:var(--acento2)}
+.fino{font-size:13.5px;color:var(--tenue)}
+.acento{
+  font-family:"Playfair Display",Georgia,serif;
+  font-style:italic;
+  font-weight:600;
+  color:var(--acento2);
+}
+.mono-tag{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-/* ---- botón único: todo el diseño empuja a él ---- */
+/* ---- Botón CTA Táctil en Champagne & Bronce Cepillado ---- */
 .cta{
   display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;min-height:58px;padding:16px 22px;margin-top:22px;
-  background:linear-gradient(180deg,#a78bfa 0%,var(--acento) 45%,#6d28d9 100%);
-  color:#fff;font:700 17px/1.2 inherit;text-decoration:none;letter-spacing:.01em;
-  border:0;border-radius:var(--r);cursor:pointer;
-  /* Reflejo interior arriba: el botón deja de ser un rectángulo plano. */
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.32), inset 0 -1px 0 rgba(0,0,0,.25),
-             0 10px 30px -12px rgba(139,92,246,.85);
-  transition:transform .12s ease,box-shadow .12s ease,filter .12s ease;
+  width:100%;min-height:58px;padding:16px 24px;margin-top:24px;
+  background:linear-gradient(180deg,#E8D2AE 0%,var(--acento) 52%,#A88453 100%);
+  color:#0A0A0B;font:700 16.5px/1.2 inherit;text-decoration:none;letter-spacing:-.01em;
+  border:1px solid rgba(255,255,255,.22);border-radius:var(--r);cursor:pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 -1px 0 rgba(0,0,0,.25),
+    0 14px 36px -12px rgba(200,169,126,.38);
+  transition:transform .24s var(--ease-out),box-shadow .24s var(--ease-out),filter .24s ease;
 }
-.cta:hover{transform:translateY(-1px);filter:brightness(1.06);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.25),
-             0 18px 44px -14px rgba(139,92,246,.95), 0 0 0 1px rgba(196,181,253,.25)}
+.cta:hover{
+  transform:translateY(-2px);filter:brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.65),
+    inset 0 -1px 0 rgba(0,0,0,.25),
+    0 20px 44px -12px rgba(200,169,126,.52);
+}
 .cta:active{transform:translateY(0)}
-.cta:focus-visible{outline:3px solid var(--acento2);outline-offset:3px}
+.cta:focus-visible{outline:2px solid var(--acento2);outline-offset:3px}
 
-/* ---- hero ---- */
-.hero{padding-top:44px;text-align:center}
+/* ---- Hero Editorial ---- */
+.hero{padding-top:42px;padding-bottom:56px;text-align:center;border-bottom:1px solid var(--borde2)}
 .hero .etiqueta{
-  display:inline-block;margin-bottom:18px;padding:6px 12px;border-radius:999px;
-  background:linear-gradient(180deg,rgba(139,92,246,.18),rgba(139,92,246,.07));
-  border:1px solid rgba(196,181,253,.32);color:var(--acento2);
-  font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 6px 18px -12px rgba(139,92,246,.9)
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:6px 14px;border-radius:999px;
+  background:rgba(200,169,126,.08);
+  border:1px solid rgba(200,169,126,.28);color:var(--acento2);
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
-.hero p{margin-top:16px;font-size:18px}
-.precio-linea{margin-top:26px;display:flex;align-items:baseline;justify-content:center;gap:10px}
-.precio-linea strong{font-size:31px;letter-spacing:-.02em;
-  background:linear-gradient(180deg,#fff,var(--oro2) 60%,var(--oro));
-  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin-top:18px;font-size:clamp(17px,2.2vw,19.5px);max-width:640px;margin-left:auto;margin-right:auto}
+.precio-linea{margin-top:28px;display:flex;align-items:baseline;justify-content:center;gap:12px}
+.precio-linea strong{
+  font-family:"Playfair Display",Georgia,serif;
+  font-size:38px;letter-spacing:-.02em;
+  background:linear-gradient(180deg,#FFFFFF 0%,var(--oro2) 65%,var(--oro) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 .precio-linea span{color:var(--tenue);text-decoration:line-through;font-size:16px}
 .hero .fino{margin-top:12px}
 
-/* ---- demo (Showcase Hiperrealista de Musa) ---- */
+/* ---- Visor Óptico Hiperrealista de Musa (85mm f/1.4 Studio Viewfinder) ---- */
 .musa-showcase{
-  margin-top:16px;border-radius:var(--r);overflow:hidden;
-  background:var(--panel);border:1px solid rgba(240,201,138,.28);
-  box-shadow:0 30px 70px -40px rgba(139,92,246,.75), inset 0 1px 0 rgba(255,255,255,.06);
-  padding:14px;
+  margin-top:24px;border-radius:calc(var(--r) + 4px);overflow:hidden;
+  background:var(--panel);border:1px solid rgba(200,169,126,.24);
+  box-shadow:0 32px 72px -36px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.06);
+  padding:16px;
 }
-.musa-main-frame{
-  position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:#0f0e15;
-}
-.musa-main-frame img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .25s ease}
 .musa-badge-bar{
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
-  padding:2px 4px 12px;font-size:12px;color:var(--tenue);
+  padding:2px 4px 12px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11px;letter-spacing:.04em;color:var(--tenue);
 }
 .musa-pill{
-  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
-  background:rgba(240,201,138,.12);border:1px solid rgba(240,201,138,.35);
-  color:var(--oro2);font-weight:600;font-size:11.5px;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;
+  background:rgba(200,169,126,.1);border:1px solid rgba(200,169,126,.3);
+  color:var(--oro2);font-weight:600;font-size:11px;
+}
+.musa-main-frame{
+  position:relative;border-radius:10px;overflow:hidden;aspect-ratio:16/10;background:#0D0D0C;
+  border:1px solid rgba(245,242,235,.07);
+}
+.musa-main-frame img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:opacity .28s var(--ease-out),transform .45s var(--ease-out);
 }
 .musa-thumbs{
   display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;
 }
 .musa-thumb{
-  border-radius:10px;overflow:hidden;border:1px solid var(--borde);background:#0f0e15;
-  cursor:pointer;text-align:left;padding:0;color:var(--texto);transition:border-color .2s,transform .2s;
+  border-radius:10px;overflow:hidden;border:1px solid var(--borde);background:#0D0D0C;
+  cursor:pointer;text-align:left;padding:0;color:var(--texto);
+  transition:border-color .22s var(--ease-out),transform .22s var(--ease-out),background .22s ease;
 }
-.musa-thumb:hover,.musa-thumb.activa{border-color:var(--oro);transform:translateY(-1px)}
+.musa-thumb:hover,.musa-thumb.activa{
+  border-color:var(--oro);background:var(--panel-alt);transform:translateY(-2px);
+}
 .musa-thumb img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
-.musa-thumb span{display:block;padding:6px 8px;font-size:11px;color:var(--tenue);font-weight:600}
+.musa-thumb span{
+  display:block;padding:8px 10px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:10.5px;color:var(--tenue);font-weight:500;letter-spacing:.02em;
+}
+.musa-thumb.activa span{color:var(--oro2)}
 
-/* ---- listas ---- */
-.grid{display:grid;gap:12px;margin-top:22px}
+/* ---- Swiss Architectural Bento Grid ---- */
+.grid{display:grid;gap:14px;margin-top:24px}
 @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
 .tarjeta{
   position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0) 55%),var(--panel);
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60%),var(--panel);
   border:1px solid var(--borde2);border-radius:var(--r);
-  padding:18px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 12px 28px -22px #000;
-  transition:border-color .15s ease, transform .15s ease;
+  padding:22px 20px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -22px #000;
+  transition:border-color .22s var(--ease-out), transform .22s var(--ease-out);
 }
-.tarjeta:hover{border-color:rgba(196,181,253,.28);transform:translateY(-1px)}
-/* Esquina de luz: detalle mínimo que rompe la monotonía del panel. */
-.tarjeta::after{content:"";position:absolute;top:-40%;right:-30%;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(139,92,246,.22),transparent 70%);pointer-events:none}
-.tarjeta h3{font-size:15px;letter-spacing:.01em}
-.tarjeta p{font-size:14.5px;margin-top:4px}
-.pasos{counter-reset:paso;display:grid;gap:14px;margin-top:22px}
-.paso{display:flex;gap:14px;align-items:flex-start}
-.paso::before{
-  counter-increment:paso;content:counter(paso);
-  flex:0 0 30px;height:30px;border-radius:50%;
-  background:linear-gradient(180deg,rgba(139,92,246,.28),rgba(139,92,246,.10));
-  border:1px solid rgba(196,181,253,.45);
-  color:#e9e2ff;font-weight:700;font-size:14px;
-  box-shadow:0 0 0 4px rgba(139,92,246,.06), inset 0 1px 0 rgba(255,255,255,.14);
-  display:grid;place-items:center;margin-top:2px
+.tarjeta:hover{border-color:rgba(200,169,126,.32);transform:translateY(-2px)}
+.tarjeta::after{
+  content:"";position:absolute;top:-45%;right:-35%;width:130px;height:130px;
+  background:radial-gradient(circle,rgba(200,169,126,.12),transparent 70%);pointer-events:none;
 }
-.paso p{color:var(--texto)}
+.tarjeta h3{font-size:15.5px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;color:var(--texto)}
+.tarjeta h3::before{
+  content:"";flex:0 0 5px;height:5px;border-radius:50%;
+  background:var(--acento);box-shadow:0 0 6px rgba(200,169,126,.5);
+}
+.tarjeta p{font-size:14.5px;margin-top:6px;line-height:1.55}
+.tarjeta:nth-child(4){
+  border-color:rgba(200,169,126,.34);
+  background:linear-gradient(180deg,rgba(200,169,126,.07),rgba(200,169,126,.01) 65%),var(--panel);
+}
+.tarjeta:nth-child(4) h3{color:var(--oro2)}
 
-/* ---- pipeline comercial ---- */
-.pipeline{list-style:none;counter-reset:lin;display:grid;gap:0;margin-top:26px;position:relative}
-.pipeline li{
-  position:relative;padding:0 0 26px 52px;counter-increment:lin;
+/* ---- Perfiles / Pasos ---- */
+.pasos{counter-reset:paso;display:grid;gap:14px;margin-top:24px}
+.paso{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:14px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--borde2);
 }
-/* Hilo vertical que une los cuatro pasos: un solo proceso, no cuatro ideas. */
+.paso::before{
+  counter-increment:paso;content:"0" counter(paso);
+  flex:0 0 32px;height:32px;border-radius:8px;
+  background:rgba(200,169,126,.1);
+  border:1px solid rgba(200,169,126,.32);
+  color:var(--oro2);
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-weight:600;font-size:12px;
+  display:grid;place-items:center;margin-top:1px;
+}
+.paso p{color:var(--texto);font-size:15px}
+
+/* ---- Pipeline Comercial (4 Estaciones) ---- */
+.pipeline{list-style:none;counter-reset:lin;display:grid;gap:0;margin-top:28px;position:relative}
+.pipeline li{
+  position:relative;padding:0 0 28px 54px;counter-increment:lin;
+}
 .pipeline li::before{
-  content:counter(lin);position:absolute;left:0;top:0;
-  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
-  font-weight:800;font-size:14px;color:#fff;z-index:1;
-  background:linear-gradient(180deg,rgba(139,92,246,.9),rgba(109,40,217,.9));
-  box-shadow:0 0 0 4px rgba(139,92,246,.10), inset 0 1px 0 rgba(255,255,255,.25);
+  content:"0" counter(lin);position:absolute;left:0;top:0;
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-weight:600;font-size:12.5px;color:#0A0A0B;z-index:1;
+  background:linear-gradient(180deg,var(--oro2),var(--oro));
+  box-shadow:0 0 0 4px rgba(200,169,126,.08), inset 0 1px 0 rgba(255,255,255,.4);
 }
 .pipeline li::after{
-  content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;
-  background:linear-gradient(180deg,rgba(139,92,246,.45),rgba(240,201,138,.18));
+  content:"";position:absolute;left:17px;top:36px;bottom:0;width:1px;
+  background:linear-gradient(180deg,rgba(200,169,126,.45),rgba(200,169,126,.1));
 }
 .pipeline li:last-child{padding-bottom:0}
 .pipeline li:last-child::after{display:none}
-.pipeline strong{display:block;font-size:16px;letter-spacing:.01em;margin-bottom:2px}
+.pipeline strong{display:block;font-size:16.5px;letter-spacing:-.01em;margin-bottom:4px;color:var(--texto)}
 .pipeline p{font-size:15px;margin:0}
-/* El color avanza con el proceso: violeta → cian → oro. */
-.pipeline li:nth-child(2)::before{background:linear-gradient(180deg,rgba(94,234,212,.85),rgba(13,148,136,.85));box-shadow:0 0 0 4px rgba(94,234,212,.10), inset 0 1px 0 rgba(255,255,255,.25)}
-.pipeline li:nth-child(3)::before{background:linear-gradient(180deg,rgba(240,201,138,.9),rgba(180,131,60,.9));color:#1a1206;box-shadow:0 0 0 4px rgba(240,201,138,.10), inset 0 1px 0 rgba(255,255,255,.35)}
-.pipeline li:nth-child(4)::before{background:linear-gradient(180deg,rgba(196,181,253,.9),rgba(139,92,246,.9));box-shadow:0 0 0 4px rgba(196,181,253,.10), inset 0 1px 0 rgba(255,255,255,.3)}
-.nota-proceso{margin-top:22px;padding-left:14px;border-left:2px solid rgba(240,201,138,.45)}
+.nota-proceso{
+  margin-top:24px;padding:12px 16px;
+  border-left:2px solid var(--acento);
+  background:rgba(200,169,126,.04);border-radius:0 10px 10px 0;
+}
 
-/* ---- objeciones ---- */
-.obj{display:grid;gap:10px;margin-top:20px}
+/* ---- Objeciones & Claridad ---- */
+.obj{display:grid;gap:12px;margin-top:22px}
 .obj div{
   position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),transparent),var(--panel);
-  border:1px solid var(--borde2);border-radius:12px;padding:16px 16px 16px 18px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
+  background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--panel);
+  border:1px solid var(--borde2);border-radius:12px;padding:18px 18px 18px 20px;
 }
-/* Hilo vertical de color: marca cada objeción sin gritar. */
-.obj div::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
-  background:linear-gradient(180deg,var(--acento),var(--oro));opacity:.55}
-.obj strong{display:block;color:var(--texto);margin-bottom:4px;font-size:15px}
+.obj div::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--oro2),rgba(200,169,126,.2));
+}
+.obj strong{display:block;color:var(--texto);margin-bottom:4px;font-size:15.5px}
 
-/* ---- precio ---- */
+/* ---- Caja de Precio Editorial ---- */
 .caja-precio{
   position:relative;overflow:hidden;
-  margin-top:22px;padding:28px 22px;text-align:center;
+  margin-top:24px;padding:34px 26px;text-align:center;
   background:
-    radial-gradient(420px 200px at 50% 0%, rgba(139,92,246,.20), transparent 70%),
-    linear-gradient(180deg,rgba(139,92,246,.10),rgba(139,92,246,.02));
-  border:1px solid rgba(196,181,253,.34);border-radius:calc(var(--r) + 6px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 24px 60px -40px rgba(139,92,246,1)
+    radial-gradient(460px 220px at 50% 0%, rgba(200,169,126,.14), transparent 72%),
+    linear-gradient(180deg,rgba(200,169,126,.06),rgba(18,18,17,.95));
+  border:1px solid rgba(200,169,126,.34);border-radius:calc(var(--r) + 6px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 28px 64px -36px rgba(0,0,0,.95);
 }
-/* Retícula de 28px al 3 %: textura de «blueprint» sin competir con el texto. */
-.caja-precio::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.03;
-  background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px);
+.caja-precio::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.025;
+  background-image:linear-gradient(rgba(245,242,235,.9) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(245,242,235,.9) 1px,transparent 1px);
   background-size:28px 28px;
   -webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000,transparent 75%);
-          mask-image:radial-gradient(ellipse at 50% 30%,#000,transparent 75%)}
-.caja-precio .grande{font-size:40px;font-weight:800;letter-spacing:-.02em;
-  background:linear-gradient(180deg,#fff 10%,var(--oro2) 55%,var(--oro));
+          mask-image:radial-gradient(ellipse at 50% 30%,#000,transparent 75%);
+}
+.caja-precio::after{
+  content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(229,204,164,.65),transparent);
+}
+.caja-precio .grande{
+  font-family:"Playfair Display",Georgia,serif;
+  font-size:46px;font-weight:700;letter-spacing:-.02em;
+  background:linear-gradient(180deg,#FFFFFF 10%,var(--oro2) 55%,var(--oro) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 6px 18px rgba(240,201,138,.18))}
-.caja-precio .antes{color:var(--tenue);text-decoration:line-through;margin-left:8px;font-size:18px}
-.caja-precio ul{list-style:none;text-align:left;margin:18px auto 0;max-width:340px;display:grid;gap:8px}
-.caja-precio li{position:relative;padding-left:24px;font-size:15px;color:var(--texto)}
-.caja-precio li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800;
-  filter:drop-shadow(0 0 6px rgba(52,211,153,.45))}
+}
+.caja-precio ul{list-style:none;text-align:left;margin:20px auto 0;max-width:360px;display:grid;gap:10px}
+.caja-precio li{position:relative;padding-left:26px;font-size:15px;color:var(--texto)}
+.caja-precio li::before{
+  content:"✓";position:absolute;left:0;color:var(--oro2);font-weight:800;
+}
 
-/* ---- faq ---- */
-details{border-bottom:1px solid var(--borde);padding:16px 0}
-summary{cursor:pointer;font-weight:600;color:var(--texto);list-style:none}
+/* ---- Preguntas Frecuentes (Acordeón Suizo) ---- */
+details{border-bottom:1px solid var(--borde);padding:18px 0}
+summary{cursor:pointer;font-weight:600;color:var(--texto);list-style:none;font-size:15.5px}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"+";float:right;width:24px;height:24px;border-radius:50%;
+summary::after{
+  content:"+";float:right;width:26px;height:26px;border-radius:50%;
   display:grid;place-items:center;line-height:1;
-  background:rgba(139,92,246,.14);border:1px solid rgba(196,181,253,.3);
-  color:var(--acento2);font-weight:700;font-size:15px;transition:background .15s ease}
-summary:hover::after{background:rgba(139,92,246,.28)}
+  background:rgba(200,169,126,.1);border:1px solid rgba(200,169,126,.28);
+  color:var(--acento2);font-weight:600;font-size:15px;
+  transition:background .2s ease,border-color .2s ease;
+}
+summary:hover::after{background:rgba(200,169,126,.2);border-color:var(--acento2)}
 details[open] summary::after{content:"–"}
-details p{margin-top:10px;font-size:15px}
+details p{margin-top:10px;font-size:15px;line-height:1.6}
 
-/* ---- pie ---- */
-footer{padding:36px 0 60px;text-align:center;margin-top:20px;position:relative}
-footer::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(196,181,253,.35),rgba(240,201,138,.35),transparent)}
+/* ---- Pie de Página ---- */
+footer{padding:40px 0 64px;text-align:center;margin-top:12px;position:relative}
+footer::before{
+  content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,169,126,.35),transparent);
+}
 footer p{font-size:13px}
-footer a{color:var(--tenue);text-decoration:none;border-bottom:1px solid rgba(196,181,253,.25);transition:color .15s ease,border-color .15s ease}
-footer a:hover{color:var(--texto);border-color:var(--acento2)}
+footer a{
+  color:var(--tenue);text-decoration:none;
+  border-bottom:1px solid rgba(200,169,126,.28);
+  transition:color .15s ease,border-color .15s ease;
+}
+footer a:hover{color:var(--oro2);border-color:var(--oro2)}
 .aviso-ia{
-  margin-top:18px;padding:12px 14px;border-radius:12px;font-size:13px;color:var(--tenue);
-  background:var(--panel);border:1px solid var(--borde);text-align:left
+  margin-top:20px;padding:14px 16px;border-radius:12px;font-size:13px;color:var(--tenue);
+  background:var(--panel);border:1px solid var(--borde);text-align:left;
 }
 
-/* ---- modal 18+ ---- */
+/* ---- Modal 18+ ---- */
 dialog{
-  border:1px solid var(--borde);border-radius:18px;background:var(--panel);color:var(--texto);
-  max-width:420px;width:calc(100% - 32px);padding:26px 22px;
+  border:1px solid rgba(200,169,126,.3);border-radius:18px;background:var(--panel);color:var(--texto);
+  max-width:430px;width:calc(100% - 32px);padding:28px 24px;
+  box-shadow:0 32px 80px rgba(0,0,0,.85);
 }
-dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
-dialog h3{font-size:19px;margin-bottom:10px}
+dialog::backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(4px)}
+dialog h3{font-size:20px;margin-bottom:10px}
 dialog p{font-size:14.5px}
 dialog label{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14px;color:var(--texto);cursor:pointer}
 dialog input{margin-top:3px;width:18px;height:18px;accent-color:var(--acento)}
-dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
-/* Cada paso con su tono: violeta, cian y oro. Es el único sitio donde el color
-   hace trabajo de verdad — separa tres perfiles de un vistazo. */
-.paso:nth-child(1)::before{
-  background:linear-gradient(180deg,rgba(139,92,246,.34),rgba(139,92,246,.10));
-  border-color:rgba(196,181,253,.55);color:#f0eaff;
-  box-shadow:0 0 0 4px rgba(139,92,246,.07), inset 0 1px 0 rgba(255,255,255,.18);
-}
-.paso:nth-child(2)::before{
-  background:linear-gradient(180deg,rgba(94,234,212,.28),rgba(94,234,212,.08));
-  border-color:rgba(94,234,212,.5);color:#d9fff8;
-  box-shadow:0 0 0 4px rgba(94,234,212,.06), inset 0 1px 0 rgba(255,255,255,.18);
-}
-.paso:nth-child(3)::before{
-  background:linear-gradient(180deg,rgba(240,201,138,.28),rgba(240,201,138,.08));
-  border-color:rgba(240,201,138,.5);color:#fff6e6;
-  box-shadow:0 0 0 4px rgba(240,201,138,.06), inset 0 1px 0 rgba(255,255,255,.18);
-}
-/* El bono de valor, en oro: es la tarjeta que vende el «acceso de por vida». */
-.tarjeta:nth-child(4){
-  border-color:rgba(240,201,138,.38);
-  background:linear-gradient(180deg,rgba(240,201,138,.09),rgba(240,201,138,.01) 60%),var(--panel);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 18px 40px -30px rgba(240,201,138,.6);
-}
-.tarjeta:nth-child(4)::after{
-  background:radial-gradient(circle,rgba(240,201,138,.22),transparent 70%);
-}
-.tarjeta:nth-child(4) h3{color:var(--oro2)}
-/* Un punto de color delante de cada título de tarjeta. */
-.tarjeta h3{display:flex;align-items:center;gap:8px}
-.tarjeta h3::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;
-  background:var(--acento2);box-shadow:0 0 8px rgba(196,181,253,.7)}
-.tarjeta:nth-child(2) h3::before{background:var(--cian);box-shadow:0 0 8px rgba(94,234,212,.7)}
-.tarjeta:nth-child(3) h3::before{background:var(--oro);box-shadow:0 0 8px rgba(240,201,138,.7)}
-.tarjeta:nth-child(4) h3::before{background:var(--oro2);box-shadow:0 0 8px rgba(240,201,138,.9)}
-/* Filo iluminado en la caja de precio: cierra el bloque con un detalle. */
-.caja-precio::after{content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(240,201,138,.55),transparent)}
+dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
@@ -306,6 +375,13 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
 </head>
 <body>
 <div class="hilo" aria-hidden="true"></div>
+
+<div class="contenedor">
+  <div class="barra-editorial">
+    <span class="marca"><span class="punto-vivo"></span> MUSE IA LAB · EDITORIAL STUDIO</span>
+    <span>SERIE 2026 · 85MM HIPERREALISMO</span>
+  </div>
+</div>
 
 <!-- ============================ HERO ============================ -->
 <header class="hero contenedor">
@@ -318,7 +394,6 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   </div>
   <p class="fino">Pago único · 33.000 COP · Acceso inmediato</p>
 
-  <!-- ÚNICO CTA de la página. Sin menú, sin enlaces que fuguen al visitante. -->
   <button class="cta" data-abrir-modal>
     Quiero ver el contenido
     <span aria-hidden="true">→</span>
@@ -333,28 +408,28 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
 
   <div class="musa-showcase">
     <div class="musa-badge-bar">
-      <span class="musa-pill">✦ Avatar Oficial: Musa · Consistencia Facial 100 %</span>
-      <span id="musaEscenaLabel">01 · Estudio Arquitectónico (85mm)</span>
+      <span class="musa-pill">✦ AVATAR OFICIAL: MUSA · CONSISTENCIA FACIAL 100 %</span>
+      <span id="musaEscenaLabel">01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)</span>
     </div>
     <div class="musa-main-frame">
-      <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista en estudio arquitectónico" loading="eager">
+      <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista en estudio arquitectónico" fetchpriority="high" loading="eager">
     </div>
     <div class="musa-thumbs" role="group" aria-label="Ángulos y escenarios consistentes del mismo personaje Musa">
-      <button type="button" class="musa-thumb activa" onclick="document.getElementById('musaMainImg').src='assets/musa-hero.jpg';document.getElementById('musaEscenaLabel').textContent='01 · Estudio Arquitectónico (85mm)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+      <button type="button" class="musa-thumb activa" onclick="document.getElementById('musaMainImg').src='assets/musa-hero.jpg';document.getElementById('musaEscenaLabel').textContent='01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
         <img src="assets/musa-hero.jpg" alt="Musa en estudio cálido" loading="lazy">
-        <span>01 · Estudio 85mm</span>
+        <span>01 · Estudio 85mm f/1.4</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-closeup.jpg';document.getElementById('musaEscenaLabel').textContent='02 · Textura Dérmica y Poros Reales (Perfil 3/4)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-closeup.jpg';document.getElementById('musaEscenaLabel').textContent='02 · TEXTURA DÉRMICA Y POROS REALES (PERFIL 3/4 · 5600K)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
         <img src="assets/musa-closeup.jpg" alt="Close-up hiperrealista de Musa mostrando textura real de piel" loading="lazy">
         <span>02 · Textura de Piel 3/4</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-rooftop.jpg';document.getElementById('musaEscenaLabel').textContent='03 · Exterior Nocturno Editorial (Mismo Rostro)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-rooftop.jpg';document.getElementById('musaEscenaLabel').textContent='03 · EXTERIOR HORA AZUL EDITORIAL (35MM F/1.8 · MISMO ROSTRO)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
         <img src="assets/musa-rooftop.jpg" alt="Musa en terraza al anochecer con el mismo rostro" loading="lazy">
-        <span>03 · Terraza Nocturna</span>
+        <span>03 · Terraza Hora Azul</span>
       </button>
     </div>
   </div>
-  <p class="fino" style="margin-top:10px;text-align:center">El mismo rostro exacto en 3 ángulos e iluminaciones distintas. Sin cámara, sin modelo real, sin estudio.</p>
+  <p class="fino" style="margin-top:12px;text-align:center">El mismo rostro exacto en 3 ángulos e iluminaciones distintas. Sin cámara, sin modelo real, sin estudio.</p>
 </section>
 
 <!-- ====================== DE LA IMAGEN AL COBRO ====================== -->
@@ -446,7 +521,7 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   </div>
 </section>
 
-<!-- ============================ PRECIO ============================ -->
+<!-- ============================ QUÉ NO ES ============================ -->
 <section class="contenedor" aria-labelledby="noes-t">
   <h2 id="noes-t">Qué no es esto</h2>
   <p>Para que no compres esperando otra cosa:</p>
@@ -458,6 +533,7 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   </div>
 </section>
 
+<!-- ============================ PRECIO ============================ -->
 <section class="contenedor" aria-labelledby="precio-t">
   <h2 id="precio-t">El precio</h2>
   <div class="caja-precio">
@@ -468,7 +544,7 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
       <li>4 bonos incluidos</li>
       <li>Guía rápida de implementación y plantillas</li>
       <li>Módulos de publicación y monetización incluidos</li>
-        <li>Acceso de por vida, sin mensualidades</li>
+      <li>Acceso de por vida, sin mensualidades</li>
     </ul>
     <button class="cta" data-abrir-modal>Empezar ahora <span aria-hidden="true">→</span></button>
     <p class="fino" style="margin-top:10px">Pago por Nequi, Bancolombia o Bre-B. Te guío por WhatsApp.</p>
@@ -481,11 +557,11 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
   <details><summary>¿Cómo recibo el curso?</summary><p>Después de confirmar el pago te llega un enlace personal a tu área del curso, con los 13 módulos y los 4 bonos ordenados. Acceso inmediato y sin caducidad.</p></details>
   <details><summary>¿Cuánto tiempo necesito?</summary><p>Avanzas totalmente a tu propio ritmo y sin horarios. Los módulos son cortos, prácticos y con plantillas listas para copiar y aplicar cuando quieras.</p></details>
   <details><summary>¿Esto me va a generar ingresos?</summary><p>El curso enseña el proceso completo: crear el personaje, producir el contenido y publicarlo en plataformas que monetizan. Cuánto genere depende de tu constancia y de cómo lo apliques. No garantizamos ingresos.</p></details>
-        <details><summary>¿Tengo que mostrar mi cara?</summary><p>No. El personaje hace la cara; tú operas el sistema desde tu computadora.</p></details>
-        <details><summary>¿Necesito pagar herramientas?</summary><p>No para empezar. El curso trabaja con herramientas que tienen plan gratuito o de bajo costo, y te dice cuáles usar en cada paso antes de gastar un peso.</p></details>
-        <details><summary>¿Y si no tengo Instagram ni seguidores?</summary><p>Se empieza desde cero. El módulo 1 asume que no sabes nada de IA ni de diseño, y el método paso a paso no pide audiencia previa.</p></details>
-        <details><summary>¿Sirve si ya sé generar imágenes?</summary><p>Sí, si lo que te falta es la parte de después: coherencia del personaje, publicación constante y cómo se vende el contenido.</p></details>
-        <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
+  <details><summary>¿Tengo que mostrar mi cara?</summary><p>No. El personaje hace la cara; tú operas el sistema desde tu computadora.</p></details>
+  <details><summary>¿Necesito pagar herramientas?</summary><p>No para empezar. El curso trabaja con herramientas que tienen plan gratuito o de bajo costo, y te dice cuáles usar en cada paso antes de gastar un peso.</p></details>
+  <details><summary>¿Y si no tengo Instagram ni seguidores?</summary><p>Se empieza desde cero. El módulo 1 asume que no sabes nada de IA ni de diseño, y el método paso a paso no pide audiencia previa.</p></details>
+  <details><summary>¿Sirve si ya sé generar imágenes?</summary><p>Sí, si lo que te falta es la parte de después: coherencia del personaje, publicación constante y cómo se vende el contenido.</p></details>
+  <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
   <details><summary>¿Sirve desde el celular?</summary><p>Sí. Todo el curso se puede hacer desde el teléfono.</p></details>
   <details><summary>¿Quién me responde?</summary><p>Musa, una asistente virtual del equipo, y una persona cuando hace falta. Te lo digo claro: si preguntas si soy un bot, te lo confirmo.</p></details>
 </section>
@@ -514,18 +590,10 @@ dialog .cta[aria-disabled="true"]{opacity:.45;pointer-events:none}
     <span>Tengo 18 años o más y acepto los términos y la política de privacidad.</span>
   </label>
   <a id="ir-wa" class="cta" aria-disabled="true" rel="noopener" href="#">Continuar por WhatsApp <span aria-hidden="true">→</span></a>
-  <button class="cta" style="background:transparent;box-shadow:none;color:var(--tenue);font-weight:500" data-cerrar-modal>Volver</button>
+  <button class="cta" style="background:transparent;border-color:transparent;box-shadow:none;color:var(--tenue);font-weight:500" data-cerrar-modal>Volver</button>
 </dialog>
 
 <script>
-/* ------------------------------------------------------------------
-   Handoff a WhatsApp con atribución.
-
-   Meta borra los UTM al pasar a WhatsApp, así que la referencia viaja
-   DENTRO del texto prellenado: el bot la lee en el primer mensaje.
-
-   Configuración: cambia NUMERO y los parámetros por defecto.
-------------------------------------------------------------------- */
 var NUMERO = "573227462629";
 var REF_POR_DEFECTO = "landing";
 
@@ -559,7 +627,6 @@ irWa.addEventListener("click", function (e) {
     return;
   }
   if (!acepto.checked) { e.preventDefault(); return; }
-  /* Evento para el píxel, cuando exista. No se envía nada si no está. */
   if (typeof fbq === "function") fbq("track", "Contact");
 });
 </script>

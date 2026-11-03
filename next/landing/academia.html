@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Musa Studio — Plataforma de Estudio Minimalista · Modelos IA</title>
+<title>Musa Studio — Atelier de Creación Hiperrealista · Modelos IA</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
   :root {
@@ -13,13 +13,15 @@
     --bg-surface: #FFFFFF;
     --bg-subtle: #EFECE6;
     --bg-hover: #E7E2DA;
-    --text-primary: #18181B;
-    --text-secondary: #52525B;
-    --text-muted: #71717A;
-    --accent-ink: #18181B;
-    --accent-violet: #6D28D9;
+    --text-primary: #141413;
+    --text-secondary: #57534E;
+    --text-muted: #78716C;
+    --accent-ink: #141413;
+    --accent-bronze: #9A7240;
+    --accent-champagne: #C8A97E;
     --accent-emerald: #059669;
     --border-hairline: #E4E0D8;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   body {
@@ -27,6 +29,7 @@
     background-color: var(--bg-canvas);
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
     overflow-x: hidden;
   }
 
@@ -34,19 +37,23 @@
     font-family: 'Playfair Display', Georgia, serif;
   }
 
-  /* Minimalist Warm Studio Card */
+  .font-mono-tech {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* Minimalist Warm Architectural Studio Card */
   .studio-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-hairline);
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-    box-shadow: 0 2px 10px rgba(24, 24, 27, 0.03);
+    transition: transform 0.28s var(--ease-out), box-shadow 0.28s var(--ease-out), border-color 0.28s var(--ease-out);
+    box-shadow: 0 2px 10px rgba(20, 20, 19, 0.025);
   }
   .studio-card:hover {
     transform: translateY(-3px);
-    border-color: #C8C1B4;
-    box-shadow: 0 16px 32px -10px rgba(24, 24, 27, 0.08);
+    border-color: #C8A97E;
+    box-shadow: 0 18px 36px -12px rgba(20, 20, 19, 0.08);
   }
   .studio-card .card-media {
     position: relative;
@@ -58,10 +65,20 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.45s ease;
+    transition: transform 0.55s var(--ease-out);
   }
   .studio-card:hover .card-media img {
-    transform: scale(1.03);
+    transform: scale(1.035);
+  }
+
+  kbd {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #EFECE6;
+    border: 1px solid #D6D0C4;
+    color: #57534E;
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -70,59 +87,64 @@
   ::-webkit-scrollbar-thumb:hover { background: #A19B8E; }
 </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-violet-100 selection:text-violet-900">
+<body class="min-h-screen flex flex-col selection:bg-[#EFECE6] selection:text-[#141413]">
 
-<!-- ==================== HEADER MINIMALISTA LUMINOSO ==================== -->
+<!-- Hilo Superior de Progreso Arquitectónico (2px en Bronce Editorial) -->
+<div class="fixed top-0 left-0 right-0 h-[2px] bg-[#E4E0D8] z-50">
+  <div id="topProgressBar" class="h-full bg-[#9A7240] transition-all duration-500" style="width: 15%;"></div>
+</div>
+
+<!-- ==================== HEADER MINIMALISTA LUMINOSO (ZERO-PURPLE) ==================== -->
 <header class="sticky top-0 z-40 backdrop-blur-md bg-[#F6F4F0]/90 border-b border-[#E4E0D8]">
   <div class="max-w-[1360px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
 
     <!-- Marca Unificada con el Rostro Hiperrealista de Musa -->
     <div class="flex items-center gap-3">
       <a href="#studio" onclick="volverAlCurso(); cambiarModoStudio('clases'); return false;" class="flex items-center gap-2.5 group">
-        <img src="/assets/musa-avatar.jpg" alt="Musa" class="w-9 h-9 rounded-full object-cover border border-[#D1CBC0] shadow-sm"/>
+        <img src="/assets/musa-avatar.jpg" alt="Musa" class="w-9 h-9 rounded-full object-cover border border-[#C8A97E] shadow-sm"/>
         <div class="flex items-baseline gap-2">
-          <span class="font-serif-editorial font-bold text-lg tracking-tight text-[#18181B]">Musa Studio</span>
-          <span class="hidden sm:inline text-xs font-medium text-[#71717A]">· Modelos IA</span>
+          <span class="font-serif-editorial font-bold text-lg tracking-tight text-[#141413]">Musa Studio</span>
+          <span class="hidden sm:inline font-mono-tech text-[10.5px] uppercase tracking-wider text-[#78716C]">· Atelier 85mm</span>
         </div>
       </a>
 
-      <span id="badgeModoAcceso" class="hidden lg:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 ml-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      <span id="badgeModoAcceso" class="hidden lg:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#EFECE6] border border-[#D6D0C4] text-[#141413] ml-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
         Acceso Vitalicio Activo
       </span>
     </div>
 
     <!-- Selector Central Minimalista (2 Vistas Limpias: Clases y Bonos) -->
     <nav class="flex items-center p-1 rounded-xl bg-[#EFECE6] border border-[#E4E0D8]">
-      <button id="tabBtn-clases" onclick="volverAlCurso(); cambiarModoStudio('clases')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#18181B] shadow-sm flex items-center gap-1.5">
+      <button id="tabBtn-clases" onclick="volverAlCurso(); cambiarModoStudio('clases')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#141413] shadow-sm flex items-center gap-1.5">
         <span class="material-symbols-outlined text-[16px]">grid_view</span>
         <span>Clases (13)</span>
       </button>
-      <button id="tabBtn-bonos" onclick="volverAlCurso(); cambiarModoStudio('bonos')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-[#52525B] hover:text-[#18181B] transition-all flex items-center gap-1.5">
-        <span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+      <button id="tabBtn-bonos" onclick="volverAlCurso(); cambiarModoStudio('bonos')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-[#57534E] hover:text-[#141413] transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px] text-[#9A7240]">workspace_premium</span>
         <span>Bonos & Packs (4)</span>
       </button>
     </nav>
 
     <!-- Utilidades Discretas: Afiliados, Soporte con Musa, Consola y Perfil -->
     <div class="flex items-center gap-2">
-      <button onclick="copiarEnlaceAfiliado()" title="Recomienda el estudio y recibe el 50%" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs font-semibold transition-colors">
-        <span class="material-symbols-outlined text-[15px] text-[#6D28D9]">share</span>
+      <button onclick="copiarEnlaceAfiliado()" title="Recomienda el estudio y recibe el 50%" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#141413] text-xs font-semibold transition-colors">
+        <span class="material-symbols-outlined text-[15px] text-[#9A7240]">share</span>
         <span id="affLinkLabel">Afiliados 50%</span>
       </button>
 
-      <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Studio%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs font-semibold transition-colors">
+      <a id="cardSoporteWa" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Studio%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#141413] text-xs font-semibold transition-colors">
         <span class="material-symbols-outlined text-[15px] text-emerald-600">chat</span>
         <span class="hidden sm:inline">Soporte WhatsApp</span>
       </a>
 
-      <a href="/consola.html" title="Abrir Consola Operativa" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#52525B] hover:text-[#18181B] transition-colors">
+      <a href="/consola.html" title="Abrir Consola Operativa" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#57534E] hover:text-[#141413] transition-colors">
         <span class="material-symbols-outlined text-[17px]">monitoring</span>
       </a>
 
       <div class="pl-2 border-l border-[#E4E0D8] flex items-center gap-2">
-        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#18181B] text-white flex items-center justify-center font-bold text-xs">MB</div>
-        <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#18181B] max-w-[120px] truncate">Mauricio Bonilla</span>
+        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#141413] text-[#F6F4F0] flex items-center justify-center font-bold text-xs">MB</div>
+        <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#141413] max-w-[120px] truncate">Mauricio Bonilla</span>
       </div>
     </div>
 
@@ -135,34 +157,34 @@
   <!-- ==================== VISTA 1: ESTUDIO PRINCIPAL ==================== -->
   <div id="vistaCurso" class="space-y-8">
 
-    <!-- HERO DE INICIATIVA INTELIGENTE + CASO BASE DE MUSA (CERO RUIDO, CERO LEONARDO, CERO PDF 7 DÍAS) -->
+    <!-- HERO EDITORIAL DE INICIATIVA INTELIGENTE + CASO BASE DE MUSA -->
     <section class="rounded-2xl bg-white border border-[#E4E0D8] p-6 sm:p-8 shadow-sm">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
 
         <!-- Izquierda (7 cols): Bienvenida Serena + Continuidad en 1 Clic -->
         <div class="lg:col-span-7 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F6F4F0] border border-[#E4E0D8] text-[#52525B] text-xs font-semibold">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#6D28D9]"></span>
-            <span>Estudio abierto · A tu propio ritmo, sin horarios</span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F6F4F0] border border-[#E4E0D8] text-[#57534E] font-mono-tech text-[11px] uppercase tracking-wider font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#9A7240]"></span>
+            <span>Atelier Abierto · A tu propio ritmo, sin horarios</span>
           </div>
 
-          <h1 class="text-2xl sm:text-3xl font-bold text-[#18181B] tracking-tight leading-snug">
-            Hola, <span id="heroStudentName">Mauricio</span>. Continúa donde lo dejaste o explora cualquier estación.
+          <h1 class="text-2xl sm:text-3xl font-bold text-[#141413] tracking-tight leading-snug">
+            Hola, <span id="heroStudentName" class="font-serif-editorial italic font-semibold">Mauricio</span>. Continúa donde lo dejaste o explora cualquier estación.
           </h1>
 
-          <p class="text-sm text-[#52525B] leading-relaxed max-w-xl">
-            Todo el método gira en torno a un objetivo práctico: crear un <strong class="text-[#18181B] font-semibold">avatar hiperrealista con identidad consistente</strong> —como Musa— y monetizar su contenido paso a paso.
+          <p class="text-sm text-[#57534E] leading-relaxed max-w-xl">
+            Todo el método gira en torno a un objetivo práctico: crear un <strong class="text-[#141413] font-semibold">avatar hiperrealista con identidad consistente</strong> —como Musa— y monetizar su contenido paso a paso.
           </p>
 
           <!-- Barra de Iniciativa: Siguiente Clase Sugerida -->
           <div class="pt-1 flex flex-col sm:flex-row sm:items-center gap-3">
-            <button onclick="continuarUltimaCapsula()" class="px-5 py-3 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors shadow-sm">
-              <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+            <button onclick="continuarUltimaCapsula()" class="px-5 py-3 rounded-xl bg-[#141413] hover:bg-[#292524] text-[#F6F4F0] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors shadow-sm">
+              <span class="material-symbols-outlined text-[18px] text-[#C8A97E]">play_arrow</span>
               <span id="labelHeroResume">Continuar Clase 3: Las herramientas</span>
             </button>
 
-            <button onclick="cambiarModoStudio('bonos')" class="px-4 py-3 rounded-xl bg-[#F6F4F0] hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors">
-              <span class="material-symbols-outlined text-[17px] text-[#6D28D9]">folder_special</span>
+            <button onclick="cambiarModoStudio('bonos')" class="px-4 py-3 rounded-xl bg-[#F6F4F0] hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#141413] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[17px] text-[#9A7240]">folder_special</span>
               <span>Abrir Bonos & Packs (30 archivos)</span>
             </button>
           </div>
@@ -172,26 +194,26 @@
         <div class="lg:col-span-5">
           <div class="rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] p-3.5 space-y-2.5">
             <div class="flex items-center justify-between text-[11px]">
-              <span class="font-bold text-[#18181B] flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                Caso Base del Estudio: Musa (Mismo Rostro)
+              <span class="font-bold text-[#141413] flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#9A7240]"></span>
+                Caso Base: Musa (Consistencia 100%)
               </span>
-              <span id="musaHeroAngleLabel" class="text-[#71717A] font-medium">Estudio 85mm</span>
+              <span id="musaHeroAngleLabel" class="font-mono-tech text-[10.5px] text-[#78716C] font-medium">85mm f/1.4 · ISO 100</span>
             </div>
 
-            <div class="relative aspect-[16/9] rounded-lg overflow-hidden bg-[#EAE6DF]">
-              <img id="musaHeroPreviewImg" src="/assets/musa-hero.jpg" alt="Musa — Consistencia de Personaje Hiperrealista" class="w-full h-full object-cover"/>
+            <div class="relative aspect-[16/9] rounded-lg overflow-hidden bg-[#EAE6DF] border border-[#E4E0D8]">
+              <img id="musaHeroPreviewImg" src="/assets/musa-hero.jpg" alt="Musa — Consistencia de Personaje Hiperrealista" class="w-full h-full object-cover transition-opacity duration-300"/>
             </div>
 
             <div class="grid grid-cols-3 gap-2">
-              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-hero.jpg', 'Estudio 85mm')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#18181B] text-center transition-colors">
-                1. Estudio 85mm
+              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-hero.jpg', '85mm f/1.4 · ISO 100')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#141413] text-center transition-colors">
+                01 · Estudio 85mm
               </button>
-              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-closeup.jpg', 'Textura de Piel 3/4')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#18181B] text-center transition-colors">
-                2. Piel Real 3/4
+              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-closeup.jpg', 'Perfil 3/4 · 5600K')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#141413] text-center transition-colors">
+                02 · Piel Real 3/4
               </button>
-              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-rooftop.jpg', 'Terraza Nocturna')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#18181B] text-center transition-colors">
-                3. Exterior Noche
+              <button type="button" onclick="cambiarFotoMusaHero('/assets/musa-rooftop.jpg', 'Hora Azul · 35mm f/1.8')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[11px] font-semibold text-[#141413] text-center transition-colors">
+                03 · Hora Azul
               </button>
             </div>
           </div>
@@ -206,29 +228,29 @@
       <!-- Filtros Minimalistas por Estación + Buscador + Contador -->
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[#E4E0D8]">
         <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
-          <button onclick="filtrarEstacion('todas')" id="filtroEst-todas" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#18181B] text-white transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('todas')" id="filtroEst-todas" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#141413] text-[#F6F4F0] transition-all whitespace-nowrap">
             Todas (13)
           </button>
-          <button onclick="filtrarEstacion('identidad')" id="filtroEst-identidad" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('identidad')" id="filtroEst-identidad" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8] transition-all whitespace-nowrap">
             01 · Identidad & Rostro IA
           </button>
-          <button onclick="filtrarEstacion('produccion')" id="filtroEst-produccion" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('produccion')" id="filtroEst-produccion" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8] transition-all whitespace-nowrap">
             02 · Consistencia & Video Realista
           </button>
-          <button onclick="filtrarEstacion('viralidad')" id="filtroEst-viralidad" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('viralidad')" id="filtroEst-viralidad" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8] transition-all whitespace-nowrap">
             03 · Tracción Viral & Bots
           </button>
-          <button onclick="filtrarEstacion('monetizacion')" id="filtroEst-monetizacion" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap">
+          <button onclick="filtrarEstacion('monetizacion')" id="filtroEst-monetizacion" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8] transition-all whitespace-nowrap">
             04 · Monetización & Fanvue
           </button>
         </div>
 
         <div class="flex items-center gap-3">
           <div class="relative flex-1 sm:w-64">
-            <span class="material-symbols-outlined text-[17px] text-[#71717A] absolute left-3 top-1/2 -translate-y-1/2">search</span>
-            <input id="inputBuscarCapsula" oninput="renderizarCatalogo()" type="search" placeholder="Buscar clase o tema..." class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white border border-[#E4E0D8] text-xs text-[#18181B] placeholder-[#71717A] focus:outline-none focus:border-[#18181B]"/>
+            <span class="material-symbols-outlined text-[17px] text-[#78716C] absolute left-3 top-1/2 -translate-y-1/2">search</span>
+            <input id="inputBuscarCapsula" oninput="renderizarCatalogo()" type="search" placeholder="Buscar clase o tema..." class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white border border-[#E4E0D8] text-xs text-[#141413] placeholder-[#78716C] focus:outline-none focus:border-[#9A7240]"/>
           </div>
-          <span class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#52525B] bg-white px-3 py-1.5 rounded-lg border border-[#E4E0D8]">
+          <span class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] bg-white px-3 py-1.5 rounded-lg border border-[#E4E0D8]">
             <span class="material-symbols-outlined text-[15px] text-emerald-600">check_circle</span>
             <span id="progresoTexto">2 de 13 vistas</span>
           </span>
@@ -243,11 +265,11 @@
       <!-- Resumen de Bonos al pie -->
       <div class="pt-8 border-t border-[#E4E0D8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-[#6D28D9]">Incluidos en tu cuenta</span>
-          <h2 class="text-xl font-bold text-[#18181B] mt-0.5">Bonos & Packs de Producción</h2>
-          <p class="text-xs sm:text-sm text-[#52525B]">Catálogo de modelos listas, pack de voces, automatización de YouTube y Megapack Master IA (22 sesiones).</p>
+          <span class="font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-[#9A7240]">Incluidos en tu cuenta</span>
+          <h2 class="text-xl font-bold text-[#141413] mt-0.5">Bonos & Packs de Producción</h2>
+          <p class="text-xs sm:text-sm text-[#57534E]">Catálogo de modelos listas, pack de voces, automatización de YouTube y Megapack Master IA (22 sesiones).</p>
         </div>
-        <button onclick="cambiarModoStudio('bonos')" class="self-start sm:self-auto px-4 py-2 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#18181B] text-xs font-semibold flex items-center gap-1.5 transition-colors">
+        <button onclick="cambiarModoStudio('bonos')" class="self-start sm:self-auto px-4 py-2 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-[#141413] text-xs font-semibold flex items-center gap-1.5 transition-colors">
           <span>Ver los 4 Packs</span>
           <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
         </button>
@@ -262,9 +284,9 @@
     <div id="panelModo-bonos" style="display: none;" class="space-y-6">
       <div class="rounded-2xl bg-white border border-[#E4E0D8] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-[#6D28D9]">Biblioteca Complementaria</span>
-          <h2 class="text-2xl font-bold text-[#18181B] mt-0.5">Bonos & Packs Incluidos (30 Recursos)</h2>
-          <p class="text-sm text-[#52525B] mt-1">Haz clic en cualquier pack para abrir el reproductor y acceder a todos sus videos, guías PDF y archivos descargables.</p>
+          <span class="font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-[#9A7240]">Biblioteca Complementaria</span>
+          <h2 class="text-2xl font-bold text-[#141413] mt-0.5">Bonos & Packs Incluidos (30 Recursos)</h2>
+          <p class="text-sm text-[#57534E] mt-1">Haz clic en cualquier pack para abrir el reproductor y acceder a todos sus videos, guías PDF y archivos descargables.</p>
         </div>
       </div>
 
@@ -281,36 +303,42 @@
     <!-- Barra Superior de Navegación del Reproductor -->
     <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#E4E0D8]">
       <div class="flex items-center gap-2.5">
-        <button onclick="volverAlCurso()" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-xs font-semibold text-[#18181B] flex items-center gap-1.5 transition-colors">
+        <button onclick="volverAlCurso()" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-[#EFECE6] border border-[#E4E0D8] text-xs font-semibold text-[#141413] flex items-center gap-1.5 transition-colors">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span>
           <span>Volver a las clases</span>
         </button>
         <span class="text-[#D1CBC0]">/</span>
-        <span id="breadcrumbEstacion" class="text-xs font-semibold text-[#6D28D9]">Estación 01</span>
+        <span id="breadcrumbEstacion" class="font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-[#9A7240]">Estación 01</span>
         <span class="text-[#D1CBC0]">/</span>
-        <span id="breadcrumbModulo" class="text-xs sm:text-sm font-bold text-[#18181B] truncate max-w-[220px] sm:max-w-md">Clase 1</span>
+        <span id="breadcrumbModulo" class="text-xs sm:text-sm font-bold text-[#141413] truncate max-w-[220px] sm:max-w-md">Clase 1</span>
       </div>
 
       <div class="flex items-center gap-2">
-        <button id="btnTopComplete" onclick="marcarCompletadoActual()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8]">
+        <button id="btnModoCine" onclick="alternarModoCine()" title="Modo Enfoque / Cine (Tecla T)" class="hidden xl:inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8]">
+          <span class="material-symbols-outlined text-[16px]">open_in_full</span>
+          <span id="labelModoCine">Modo Enfoque</span>
+          <kbd>T</kbd>
+        </button>
+
+        <button id="btnTopComplete" onclick="marcarCompletadoActual()" title="Atajo: Tecla M" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8]">
           <span class="material-symbols-outlined text-[16px]">check_circle</span>
           <span id="labelTopComplete">Marcar como vista</span>
         </button>
 
-        <button onclick="irSiguienteCapsula()" class="px-4 py-1.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
+        <button onclick="irSiguienteCapsula()" title="Atajo: Flecha derecha →" class="px-4 py-1.5 rounded-lg bg-[#141413] hover:bg-[#292524] text-[#F6F4F0] text-xs font-semibold flex items-center gap-1.5 transition-colors">
           <span>Siguiente Clase</span>
-          <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+          <span class="material-symbols-outlined text-[15px] text-[#C8A97E]">arrow_forward</span>
         </button>
       </div>
     </div>
 
-    <!-- Layout 12 Columnas: Video (8) + Playlist y Notas (4) -->
+    <!-- Layout 12 Columnas: Video (8 o 12 en Modo Cine) + Playlist y Notas (4) -->
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
 
-      <!-- Columna Izquierda (8 cols): Reproductor 16:9 + Ficha Limpia -->
-      <div class="xl:col-span-8 space-y-4">
+      <!-- Columna Izquierda (8 cols por defecto): Reproductor 16:9 + Ficha Limpia -->
+      <div id="playerMainCol" class="xl:col-span-8 space-y-4 transition-all duration-300">
 
-        <div class="relative aspect-video rounded-2xl overflow-hidden bg-[#111115] border border-[#E4E0D8] shadow-lg">
+        <div class="relative aspect-video rounded-2xl overflow-hidden bg-[#0E0E0D] border border-[#E4E0D8] shadow-lg">
           <video id="mainVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="/assets/musa-hero.jpg">
             <source id="mainVideoSource" src="/assets/demo.mp4" type="video/mp4"/>
             Tu navegador no soporta reproducción de video HTML5.
@@ -318,14 +346,14 @@
 
           <!-- Overlay cuando el archivo seleccionado es un PDF o Paquete Descargable -->
           <div id="nonVideoOverlay" style="display: none;" class="absolute inset-0 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
-            <div class="w-14 h-14 rounded-2xl bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#18181B] mb-4">
-              <span class="material-symbols-outlined text-3xl" id="nonVideoIcon">description</span>
+            <div class="w-14 h-14 rounded-2xl bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#141413] mb-4">
+              <span class="material-symbols-outlined text-3xl text-[#9A7240]" id="nonVideoIcon">description</span>
             </div>
-            <span class="text-[11px] font-bold uppercase tracking-widest text-[#6D28D9] mb-1">Recurso de la Clase</span>
-            <h3 id="nonVideoTitle" class="text-xl font-bold text-[#18181B] mb-2">Guía en PDF</h3>
-            <p class="text-sm text-[#52525B] max-w-md mb-6">Haz clic abajo para abrir o descargar este recurso directamente en una pestaña nueva.</p>
-            <a id="nonVideoLink" href="#" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-colors">
-              <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+            <span class="font-mono-tech text-[11px] font-semibold uppercase tracking-widest text-[#9A7240] mb-1">Recurso de la Clase</span>
+            <h3 id="nonVideoTitle" class="text-xl font-bold text-[#141413] mb-2">Guía en PDF</h3>
+            <p class="text-sm text-[#57534E] max-w-md mb-6">Haz clic abajo para abrir o descargar este recurso directamente en una pestaña nueva.</p>
+            <a id="nonVideoLink" href="#" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-xl bg-[#141413] hover:bg-[#292524] text-[#F6F4F0] text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[18px] text-[#C8A97E]">open_in_new</span>
               <span>Abrir Recurso Ahora</span>
             </a>
           </div>
@@ -335,21 +363,21 @@
         <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="space-y-1">
             <div class="flex items-center gap-2">
-              <span id="badgeModuloPlayer" class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[#F6F4F0] text-[#18181B] border border-[#E4E0D8]">CLASE 01</span>
-              <span id="tagTipoArchivo" class="text-xs font-medium text-[#6D28D9]">▶ Video</span>
+              <span id="badgeModuloPlayer" class="font-mono-tech text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[#F6F4F0] text-[#141413] border border-[#E4E0D8]">CLASE 01</span>
+              <span id="tagTipoArchivo" class="font-mono-tech text-xs font-medium text-[#9A7240]">▶ Video</span>
             </div>
-            <h1 id="tituloModuloPlayer" class="text-lg sm:text-xl font-bold text-[#18181B]">1. Bienvenida y estrategia</h1>
-            <p id="subtituloResultadoPlayer" class="text-xs sm:text-sm text-[#52525B]">Entiende el mercado y lo que vas a construir</p>
+            <h1 id="tituloModuloPlayer" class="text-lg sm:text-xl font-bold text-[#141413]">1. Bienvenida y estrategia</h1>
+            <p id="subtituloResultadoPlayer" class="text-xs sm:text-sm text-[#57534E]">Entiende el mercado y lo que vas a construir</p>
           </div>
 
           <div class="flex items-center gap-2 self-start sm:self-center">
-            <button onclick="irAnteriorCapsula()" class="px-3 py-1.5 rounded-lg bg-[#F6F4F0] hover:bg-[#EFECE6] border border-[#E4E0D8] text-xs font-semibold text-[#18181B] flex items-center gap-1 transition-colors">
+            <button onclick="irAnteriorCapsula()" title="Atajo: ←" class="px-3 py-1.5 rounded-lg bg-[#F6F4F0] hover:bg-[#EFECE6] border border-[#E4E0D8] text-xs font-semibold text-[#141413] flex items-center gap-1 transition-colors">
               <span class="material-symbols-outlined text-[16px]">chevron_left</span>
               <span>Anterior</span>
             </button>
-            <button onclick="irSiguienteCapsula()" class="px-3.5 py-1.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center gap-1 transition-colors">
+            <button onclick="irSiguienteCapsula()" title="Atajo: →" class="px-3.5 py-1.5 rounded-lg bg-[#141413] hover:bg-[#292524] text-[#F6F4F0] text-xs font-semibold flex items-center gap-1 transition-colors">
               <span>Siguiente</span>
-              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+              <span class="material-symbols-outlined text-[16px] text-[#C8A97E]">chevron_right</span>
             </button>
           </div>
         </div>
@@ -357,13 +385,13 @@
       </div>
 
       <!-- Columna Derecha (4 cols): Archivos de la Clase + Notas Personales + Índice -->
-      <div class="xl:col-span-4 space-y-5">
+      <div id="playerSideCol" class="xl:col-span-4 space-y-5">
 
         <!-- Panel 1: Archivos de esta Clase -->
         <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[#18181B]">Contenido de esta Clase</h3>
-            <span id="leccionesCountBadge" class="text-[11px] font-semibold text-[#71717A]">1 archivo</span>
+            <h3 class="font-mono-tech text-xs font-semibold uppercase tracking-wider text-[#141413]">Contenido de esta Clase</h3>
+            <span id="leccionesCountBadge" class="font-mono-tech text-[11px] font-medium text-[#78716C]">1 archivo</span>
           </div>
           <div id="listaArchivosModulo" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
             <!-- Inyectado dinámicamente -->
@@ -373,26 +401,26 @@
         <!-- Panel 2: Guía de Enfoque & Mis Notas de la Clase -->
         <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] space-y-3">
           <div class="flex items-center justify-between border-b border-[#EFECE6] pb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-[#18181B]">Apoyo Práctico</span>
-            <button onclick="copiarPromptActual()" class="text-[11px] font-semibold text-[#6D28D9] hover:underline flex items-center gap-1">
+            <span class="font-mono-tech text-xs font-semibold uppercase tracking-wider text-[#141413]">Apoyo Práctico</span>
+            <button onclick="copiarPromptActual()" class="text-[11px] font-semibold text-[#9A7240] hover:underline flex items-center gap-1">
               <span class="material-symbols-outlined text-[14px]">content_copy</span>
               <span>Copiar guía</span>
             </button>
           </div>
-          <p id="promptText" class="text-xs text-[#52525B] leading-relaxed bg-[#F6F4F0] p-3 rounded-xl border border-[#E4E0D8]">
+          <p id="promptText" class="text-xs text-[#57534E] leading-relaxed bg-[#F6F4F0] p-3 rounded-xl border border-[#E4E0D8]">
             Enfoque práctico de la clase.
           </p>
           <div class="pt-1 space-y-1.5">
-            <label for="notasClaseInput" class="block text-[11px] font-semibold text-[#71717A]">Mis notas personales de esta clase (se guardan solas):</label>
-            <textarea id="notasClaseInput" oninput="guardarNotaClaseActual()" rows="2" placeholder="Escribe aquí tus ideas, cuentas o enlaces de esta clase..." class="w-full rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] p-2.5 text-xs text-[#18181B] placeholder-[#71717A] focus:outline-none focus:border-[#18181B]"></textarea>
+            <label for="notasClaseInput" class="block text-[11px] font-semibold text-[#78716C]">Mis notas personales de esta clase (se guardan solas):</label>
+            <textarea id="notasClaseInput" oninput="guardarNotaClaseActual()" rows="2" placeholder="Escribe aquí tus ideas, cuentas o enlaces de esta clase..." class="w-full rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] p-2.5 text-xs text-[#141413] placeholder-[#78716C] focus:outline-none focus:border-[#9A7240]"></textarea>
           </div>
         </div>
 
         <!-- Panel 3: Índice Rápido de las 13 Clases -->
         <div class="p-5 rounded-2xl bg-white border border-[#E4E0D8] space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[#18181B]">Todas las Clases (13)</h3>
-            <button onclick="volverAlCurso()" class="text-[11px] font-semibold text-[#6D28D9] hover:underline">Ver cuadrícula</button>
+            <h3 class="font-mono-tech text-xs font-semibold uppercase tracking-wider text-[#141413]">Todas las Clases (13)</h3>
+            <button onclick="volverAlCurso()" class="text-[11px] font-semibold text-[#9A7240] hover:underline">Ver cuadrícula</button>
           </div>
           <div id="navModulosSidebar" class="space-y-1 max-h-[240px] overflow-y-auto pr-1">
             <!-- Inyectado dinámicamente -->
@@ -407,14 +435,14 @@
 </main>
 
 <!-- Botón Flotante Discreto con el Avatar de Musa -->
-<a id="floatingWaBtn" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Studio%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" title="Hablar con Musa por WhatsApp" class="fixed bottom-5 right-5 z-40 pl-2 pr-3.5 py-2 rounded-full bg-white hover:bg-[#EFECE6] border border-[#D1CBC0] shadow-lg flex items-center gap-2 text-[#18181B] hover:scale-[1.02] transition-all">
+<a id="floatingWaBtn" href="https://wa.me/573227462629?text=Hola%20Musa%2C%20estoy%20en%20Musa%20Studio%20y%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer" title="Hablar con Musa por WhatsApp" class="fixed bottom-5 right-5 z-40 pl-2 pr-3.5 py-2 rounded-full bg-white hover:bg-[#EFECE6] border border-[#C8A97E] shadow-lg flex items-center gap-2 text-[#141413] hover:scale-[1.02] transition-all">
   <img src="/assets/musa-avatar.jpg" alt="Musa" class="w-7 h-7 rounded-full object-cover"/>
   <span class="text-xs font-semibold">Consultar a Musa</span>
 </a>
 
 <!-- Toast Minimalista -->
-<div id="atelierToast" style="display: none;" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-[#18181B] text-white text-xs font-semibold shadow-xl flex items-center gap-2">
-  <span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+<div id="atelierToast" style="display: none;" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-[#141413] text-[#F6F4F0] text-xs font-semibold shadow-xl flex items-center gap-2 border border-[#C8A97E]/40">
+  <span class="material-symbols-outlined text-[16px] text-[#C8A97E]">check_circle</span>
   <span id="atelierToastText">Copiado al portapapeles</span>
 </div>
 
@@ -427,21 +455,21 @@ function limpiarTextoUI(texto) {
     .replace(/cuatro herramientas/gi, "herramientas");
 }
 
-// Lookbook Consistente de MUSA (Un solo personaje hiperrealista en las 13 clases, con encuadres variados)
+// Lookbook Consistente de MUSA con Metadatos Técnicos de Cámara
 const PORTADAS_MUSA = [
-  { src: "/assets/musa-hero.jpg", pos: "center 20%" },     // 01: Estudio Arquitectónico
-  { src: "/assets/musa-closeup.jpg", pos: "center 25%" },  // 02: Primer modelo / Rostro
-  { src: "/assets/musa-avatar.jpg", pos: "center 18%" },   // 03: Las herramientas
-  { src: "/assets/musa-closeup.jpg", pos: "center 40%" },  // 04: Contenido en serie / Consistencia
-  { src: "/assets/musa-rooftop.jpg", pos: "center 25%" },  // 05: Monetización primeros pasos
-  { src: "/assets/musa-hero.jpg", pos: "center 35%" },     // 06: Telegram grupo y bot
-  { src: "/assets/musa-closeup.jpg", pos: "center 15%" },  // 07: Herramientas para potenciar tu IA
-  { src: "/assets/musa-rooftop.jpg", pos: "center 40%" },  // 08: Hazte viral en TikTok
-  { src: "/assets/musa-hero.jpg", pos: "center 15%" },     // 09: Mente de empresario
-  { src: "/assets/musa-rooftop.jpg", pos: "center 20%" },  // 10: Fanvue cómo funciona
-  { src: "/assets/musa-closeup.jpg", pos: "center 30%" },  // 11: Crea videos 100% realistas
-  { src: "/assets/musa-avatar.jpg", pos: "center 25%" },   // 12: ManyChat desde cero
-  { src: "/assets/musa-rooftop.jpg", pos: "center 30%" }   // 13: Biblioteca de prompts
+  { src: "/assets/musa-hero.jpg", pos: "center 20%", exif: "85mm f/1.4 · ISO 100" },
+  { src: "/assets/musa-closeup.jpg", pos: "center 25%", exif: "50mm Macro · 5600K" },
+  { src: "/assets/musa-avatar.jpg", pos: "center 18%", exif: "85mm Retrato · RAW" },
+  { src: "/assets/musa-closeup.jpg", pos: "center 40%", exif: "Luz Natural 3/4" },
+  { src: "/assets/musa-rooftop.jpg", pos: "center 25%", exif: "35mm f/1.8 · Hora Azul" },
+  { src: "/assets/musa-hero.jpg", pos: "center 35%", exif: "Estudio Editorial" },
+  { src: "/assets/musa-closeup.jpg", pos: "center 15%", exif: "Textura Dérmica 8K" },
+  { src: "/assets/musa-rooftop.jpg", pos: "center 40%", exif: "Exterior Urbano" },
+  { src: "/assets/musa-hero.jpg", pos: "center 15%", exif: "Dirección Creativa" },
+  { src: "/assets/musa-rooftop.jpg", pos: "center 20%", exif: "Set Nocturno" },
+  { src: "/assets/musa-closeup.jpg", pos: "center 30%", exif: "Motion 24fps · RAW" },
+  { src: "/assets/musa-avatar.jpg", pos: "center 25%", exif: "Flujo Automatizado" },
+  { src: "/assets/musa-rooftop.jpg", pos: "center 30%", exif: "Archivo Master" }
 ];
 
 function obtenerEstacionDeModulo(numero) {
@@ -462,6 +490,7 @@ let moduloActivoIdx = 0;
 let leccionActivaIdx = 0;
 let bonoActivoIdx = -1;
 let estacionFiltroActual = "todas";
+let modoCineActivo = false;
 
 let modulosCompletados = JSON.parse(localStorage.getItem("musa_modulos_completados_v5") || "[1, 2]");
 
@@ -486,6 +515,24 @@ function cambiarFotoMusaHero(src, label) {
   const lbl = document.getElementById("musaHeroAngleLabel");
   if (img) img.src = src;
   if (lbl) lbl.textContent = label;
+}
+
+function alternarModoCine() {
+  modoCineActivo = !modoCineActivo;
+  const mainCol = document.getElementById("playerMainCol");
+  const sideCol = document.getElementById("playerSideCol");
+  const label = document.getElementById("labelModoCine");
+  if (!mainCol || !sideCol) return;
+  if (modoCineActivo) {
+    mainCol.className = "xl:col-span-12 space-y-4 transition-all duration-300";
+    sideCol.className = "xl:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-5";
+    if (label) label.textContent = "Salir Modo Enfoque";
+    mostrarToast("Modo Enfoque activado");
+  } else {
+    mainCol.className = "xl:col-span-8 space-y-4 transition-all duration-300";
+    sideCol.className = "xl:col-span-4 space-y-5";
+    if (label) label.textContent = "Modo Enfoque";
+  }
 }
 
 function obtenerTokenUrl() {
@@ -531,9 +578,9 @@ function cambiarModoStudio(modo) {
     if (panel) panel.style.display = m === modo ? "block" : "none";
     if (btn) {
       if (m === modo) {
-        btn.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#18181B] shadow-sm flex items-center gap-1.5";
+        btn.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#141413] shadow-sm flex items-center gap-1.5";
       } else {
-        btn.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-[#52525B] hover:text-[#18181B] transition-all flex items-center gap-1.5";
+        btn.className = "px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-[#57534E] hover:text-[#141413] transition-all flex items-center gap-1.5";
       }
     }
   });
@@ -546,9 +593,9 @@ function filtrarEstacion(estacionId) {
     const btn = document.getElementById("filtroEst-" + id);
     if (!btn) return;
     if (id === estacionId) {
-      btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#18181B] text-white transition-all whitespace-nowrap";
+      btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#141413] text-[#F6F4F0] transition-all whitespace-nowrap";
     } else {
-      btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8] transition-all whitespace-nowrap";
+      btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8] transition-all whitespace-nowrap";
     }
   });
   renderizarCatalogo();
@@ -573,7 +620,9 @@ function crearTarjetaMinimalista(m, idx) {
     ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold shadow-sm">
          <span class="material-symbols-outlined text-[13px]">check_circle</span> Vista
        </span>`
-    : "";
+    : `<span class="font-mono-tech px-2 py-0.5 rounded bg-black/55 backdrop-blur-sm text-[#F6F4F0] text-[10px]">
+         ${portada.exif}
+       </span>`;
 
   return `
     <article class="studio-card flex flex-col justify-between cursor-pointer group" onclick="seleccionarModulo(${idx}, true)">
@@ -581,28 +630,28 @@ function crearTarjetaMinimalista(m, idx) {
         <div class="card-media">
           <img src="${portada.src}" style="object-position: ${portada.pos};" alt="Clase ${m.numero} — ${tituloLimpio}" loading="lazy"/>
           <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-            <span class="px-2.5 py-1 rounded-md bg-white/95 text-[#18181B] text-[11px] font-bold shadow-sm">
-              Clase ${numStr}
+            <span class="font-mono-tech px-2.5 py-1 rounded-md bg-white/95 text-[#141413] text-[11px] font-semibold shadow-sm">
+              CLASE ${numStr}
             </span>
             ${estadoBadge}
           </div>
         </div>
 
         <div class="p-5 space-y-1.5">
-          <span class="text-[11px] font-semibold text-[#6D28D9]">${est.corto}</span>
-          <h3 class="text-base font-bold text-[#18181B] group-hover:text-[#6D28D9] transition-colors leading-snug">
+          <span class="font-mono-tech text-[10.5px] font-semibold uppercase tracking-wider text-[#9A7240]">${est.corto}</span>
+          <h3 class="text-base font-bold text-[#141413] group-hover:text-[#9A7240] transition-colors leading-snug">
             ${tituloLimpio}
           </h3>
-          <p class="text-xs text-[#52525B] leading-relaxed line-clamp-2">
+          <p class="text-xs text-[#57534E] leading-relaxed line-clamp-2">
             ${resultadoLimpio}
           </p>
         </div>
       </div>
 
-      <div class="px-5 py-3.5 border-t border-[#EFECE6] flex items-center justify-between text-xs text-[#52525B]">
+      <div class="px-5 py-3.5 border-t border-[#EFECE6] flex items-center justify-between text-xs text-[#57534E]">
         <span>${totalRec} ${totalRec === 1 ? "archivo en esta clase" : "archivos en esta clase"}</span>
-        <span class="font-semibold text-[#18181B] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
-          Abrir clase <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+        <span class="font-semibold text-[#141413] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+          Abrir clase <span class="material-symbols-outlined text-[15px] text-[#9A7240]">arrow_forward</span>
         </span>
       </div>
     </article>
@@ -615,6 +664,12 @@ function renderizarCatalogo() {
   const completadosCount = modulosCompletados.length;
   const progEl = document.getElementById("progresoTexto");
   if (progEl) progEl.textContent = `${completadosCount} de ${total} vistas`;
+
+  const topBar = document.getElementById("topProgressBar");
+  if (topBar && total > 0) {
+    const pct = Math.min(100, Math.max(5, Math.round((completadosCount / total) * 100)));
+    topBar.style.width = pct + "%";
+  }
 
   const sigIdx = catalogoData.modulos.findIndex((m) => !modulosCompletados.includes(m.numero));
   const labelHero = document.getElementById("labelHeroResume");
@@ -642,8 +697,8 @@ function renderizarCatalogo() {
     if (filtrados.length === 0) {
       gridEl.innerHTML = `
         <div class="col-span-full p-10 rounded-2xl bg-white border border-[#E4E0D8] text-center space-y-2">
-          <p class="text-sm font-bold text-[#18181B]">No encontramos clases con ese filtro</p>
-          <button onclick="document.getElementById('inputBuscarCapsula').value=''; filtrarEstacion('todas');" class="text-xs font-semibold text-[#6D28D9] underline">Mostrar las 13 clases</button>
+          <p class="text-sm font-bold text-[#141413]">No encontramos clases con ese filtro</p>
+          <button onclick="document.getElementById('inputBuscarCapsula').value=''; filtrarEstacion('todas');" class="text-xs font-semibold text-[#9A7240] underline">Mostrar las 13 clases</button>
         </div>
       `;
     } else {
@@ -658,12 +713,12 @@ function renderizarCatalogo() {
       const isAct = bonoActivoIdx === -1 && idx === moduloActivoIdx;
       const tLimpio = limpiarTextoUI(m.titulo);
       return `
-        <button onclick="seleccionarModulo(${idx}, true)" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left text-xs transition-all ${isAct ? "bg-[#18181B] text-white font-semibold" : "text-[#52525B] hover:bg-[#F6F4F0]"}">
+        <button onclick="seleccionarModulo(${idx}, true)" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left text-xs transition-all ${isAct ? "bg-[#141413] text-[#F6F4F0] font-semibold" : "text-[#57534E] hover:bg-[#F6F4F0]"}">
           <div class="flex items-center gap-2 truncate">
-            <span class="text-[11px] font-semibold ${isAct ? "text-white/80" : "text-[#71717A]"}">${String(m.numero).padStart(2, "0")}</span>
+            <span class="font-mono-tech text-[11px] font-semibold ${isAct ? "text-[#C8A97E]" : "text-[#78716C]"}">${String(m.numero).padStart(2, "0")}</span>
             <span class="truncate">${tLimpio}</span>
           </div>
-          ${done ? `<span class="material-symbols-outlined text-[15px] ${isAct ? "text-emerald-300" : "text-emerald-600"} shrink-0">check_circle</span>` : ""}
+          ${done ? `<span class="material-symbols-outlined text-[15px] ${isAct ? "text-[#C8A97E]" : "text-emerald-600"} shrink-0">check_circle</span>` : ""}
         </button>
       `;
     }).join("");
@@ -687,19 +742,19 @@ function renderizarBonos() {
         <div onclick="abrirBono(${bIdx})" class="studio-card cursor-pointer group p-5 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between gap-2 mb-3">
-              <div class="w-9 h-9 rounded-lg bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#18181B]">
+              <div class="w-9 h-9 rounded-lg bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#9A7240]">
                 <span class="material-symbols-outlined text-[20px]">${icono}</span>
               </div>
-              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#F6F4F0] text-[#52525B] border border-[#E4E0D8]">
+              <span class="font-mono-tech text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#F6F4F0] text-[#57534E] border border-[#E4E0D8]">
                 ${b.totalArchivos} ${b.totalArchivos === 1 ? "archivo" : "archivos"}
               </span>
             </div>
-            <h4 class="font-bold text-sm sm:text-base text-[#18181B] group-hover:text-[#6D28D9] transition-colors mb-1">${b.titulo}</h4>
-            <p class="text-xs text-[#52525B] leading-relaxed">Disponible en tu cuenta para reproducir o descargar cuando quieras.</p>
+            <h4 class="font-bold text-sm sm:text-base text-[#141413] group-hover:text-[#9A7240] transition-colors mb-1">${b.titulo}</h4>
+            <p class="text-xs text-[#57534E] leading-relaxed">Disponible en tu cuenta para reproducir o descargar cuando quieras.</p>
           </div>
-          <div class="mt-4 pt-3 border-t border-[#EFECE6] flex items-center justify-between text-xs font-semibold text-[#18181B]">
+          <div class="mt-4 pt-3 border-t border-[#EFECE6] flex items-center justify-between text-xs font-semibold text-[#141413]">
             <span>Abrir Pack</span>
-            <span class="material-symbols-outlined text-[15px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+            <span class="material-symbols-outlined text-[15px] text-[#9A7240] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
           </div>
         </div>
       `;
@@ -716,32 +771,32 @@ function renderizarBonos() {
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#18181B]">
+                <div class="w-10 h-10 rounded-xl bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-center text-[#9A7240]">
                   <span class="material-symbols-outlined text-[22px]">${icono}</span>
                 </div>
                 <div>
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-[#6D28D9]">Pack Incluido #${bIdx + 1}</span>
-                  <h3 class="text-base sm:text-lg font-bold text-[#18181B]">${b.titulo}</h3>
+                  <span class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-[#9A7240]">Pack Incluido #${bIdx + 1}</span>
+                  <h3 class="text-base sm:text-lg font-bold text-[#141413]">${b.titulo}</h3>
                 </div>
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-[#F6F4F0] text-[#52525B] border border-[#E4E0D8]">
+              <span class="font-mono-tech text-xs font-semibold px-2.5 py-1 rounded-md bg-[#F6F4F0] text-[#57534E] border border-[#E4E0D8]">
                 ${b.totalArchivos} archivos
               </span>
             </div>
 
             <div class="space-y-1.5 pt-1">
               ${primeros.map((a) => `
-                <div class="px-3 py-2 rounded-lg bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-between text-xs text-[#52525B]">
+                <div class="px-3 py-2 rounded-lg bg-[#F6F4F0] border border-[#E4E0D8] flex items-center justify-between text-xs text-[#57534E]">
                   <span class="truncate">${a.icono} ${limpiarTextoUI(a.titulo)}</span>
-                  <span class="text-[10px] uppercase font-bold text-[#18181B] ml-2 shrink-0">${a.etiqueta}</span>
+                  <span class="font-mono-tech text-[10px] uppercase font-bold text-[#141413] ml-2 shrink-0">${a.etiqueta}</span>
                 </div>
               `).join("")}
-              ${b.totalArchivos > 4 ? `<p class="text-[11px] text-[#71717A] pl-1">+ ${b.totalArchivos - 4} archivos adicionales dentro del reproductor</p>` : ""}
+              ${b.totalArchivos > 4 ? `<p class="text-[11px] text-[#78716C] pl-1">+ ${b.totalArchivos - 4} archivos adicionales dentro del reproductor</p>` : ""}
             </div>
           </div>
 
-          <button onclick="abrirBono(${bIdx})" class="w-full py-2.5 px-4 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
-            <span class="material-symbols-outlined text-[17px]">folder_open</span>
+          <button onclick="abrirBono(${bIdx})" class="w-full py-2.5 px-4 rounded-xl bg-[#141413] hover:bg-[#292524] text-[#F6F4F0] text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
+            <span class="material-symbols-outlined text-[17px] text-[#C8A97E]">folder_open</span>
             <span>Abrir los ${b.totalArchivos} recursos</span>
           </button>
         </div>
@@ -773,7 +828,7 @@ function actualizarBotonesCompletado(numeroModulo) {
     topBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-emerald-50 text-emerald-700 border border-emerald-200";
     labelTop.textContent = "Clase vista ✓";
   } else {
-    topBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#52525B] border border-[#E4E0D8]";
+    topBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white hover:bg-[#EFECE6] text-[#57534E] border border-[#E4E0D8]";
     labelTop.textContent = "Marcar como vista";
   }
 }
@@ -885,11 +940,11 @@ function renderizarArchivosModulo(archivos, esBono) {
     const activo = lIdx === leccionActivaIdx;
     const tLimpio = limpiarTextoUI(l.titulo);
     return `
-      <button onclick="reproducirLeccion(${lIdx}, ${esBono})" class="w-full p-2.5 rounded-xl flex items-center gap-3 text-left transition-all ${activo ? "bg-[#18181B] text-white font-semibold shadow-sm" : "bg-[#F6F4F0] hover:bg-[#EFECE6] text-[#18181B] border border-[#E4E0D8]"}">
-        <span class="material-symbols-outlined text-[18px] ${activo ? "text-white" : "text-[#6D28D9]"}">${l.esVideo ? "play_circle" : (l.esPdf ? "description" : "folder_zip")}</span>
+      <button onclick="reproducirLeccion(${lIdx}, ${esBono})" class="w-full p-2.5 rounded-xl flex items-center gap-3 text-left transition-all ${activo ? "bg-[#141413] text-[#F6F4F0] font-semibold shadow-sm" : "bg-[#F6F4F0] hover:bg-[#EFECE6] text-[#141413] border border-[#E4E0D8]"}">
+        <span class="material-symbols-outlined text-[18px] ${activo ? "text-[#C8A97E]" : "text-[#9A7240]"}">${l.esVideo ? "play_circle" : (l.esPdf ? "description" : "folder_zip")}</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-semibold truncate">${tLimpio}</p>
-          <span class="text-[10px] ${activo ? "text-white/75" : "text-[#71717A]"}">${l.icono} ${l.etiqueta}</span>
+          <span class="font-mono-tech text-[10px] ${activo ? "text-[#C8A97E]" : "text-[#78716C]"}">${l.icono} ${l.etiqueta}</span>
         </div>
       </button>
     `;
@@ -942,7 +997,7 @@ function copiarEnlaceAfiliado() {
   mostrarToast("Enlace de afiliado (50%) copiado");
 }
 
-// Auto-avance inteligente al terminar un video de la clase
+// Auto-avance inteligente y atajos de teclado discretos (←, →, M, T)
 window.addEventListener("DOMContentLoaded", () => {
   cargarCatalogo();
   const video = document.getElementById("mainVideoPlayer");
@@ -956,6 +1011,26 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  window.addEventListener("keydown", (e) => {
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+    if (tag === "input" || tag === "textarea" || e.metaKey || e.ctrlKey || e.altKey) return;
+    const enLeccion = document.getElementById("vistaLeccion")?.style.display !== "none";
+    if (!enLeccion) return;
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      irSiguienteCapsula();
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      irAnteriorCapsula();
+    } else if (e.key.toLowerCase() === "m") {
+      e.preventDefault();
+      marcarCompletadoActual();
+    } else if (e.key.toLowerCase() === "t") {
+      e.preventDefault();
+      alternarModoCine();
+    }
+  });
 });
 </script>
 </body>

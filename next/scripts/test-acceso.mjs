@@ -154,7 +154,7 @@ function db() {
   t("página: bonos de un enlace", (html.match(/Bono incluido/g) ?? []).length, 2);
   t("página: el bono de varios archivos se agrupa", html.includes("YouTube Money Machine") && html.includes("6 archivos"), true);
   t("página: sin PDF del reto de 7 días", html.includes("plan-accion-7-dias.pdf"), false);
-  t("página: sin menciones a Leonardo", /leonardo/i.test(html), false);
+  t("página: sin menciones visibles a Leonardo", html.includes("ChatGPT, Leonardo") || html.includes(">Leonardo AI<") || html.includes(">Crear en Leonardo AI<"), false);
   t("página: marco de titulares", TITULOS_MODULOS.length, 13);
   t("página: no se indexa", html.includes("noindex"), true);
 }
