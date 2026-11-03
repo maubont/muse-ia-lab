@@ -14,8 +14,8 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ==========================================================================
-   MUSE IA LAB — DESIGN SYSTEM v8.0 (POST-2025 ZERO-PURPLE EDITORIAL LUXURY)
-   Estética: Architectural Haute-Couture & Swiss Editorial Minimalism
+   MUSE IA LAB — DESIGN SYSTEM v8.5 (ZERO-PURPLE EDITORIAL + HYPER-OFFER ARCHITECTURE)
+   Inspiración estructural: hypermodels.io/offer elevada a Alta Costura Digital 2026
    Paleta: Obsidian Carbon (#0A0A0B), Espresso Graphite (#121211),
            Warm Alabaster (#F5F2EB), Brushed Champagne Bronze (#C8A97E)
    ========================================================================== */
@@ -32,8 +32,8 @@
   --ok:#10B981;
   --oro:#C8A97E;
   --oro2:#E8D3B0;
-  --r:14px;
-  --max:780px;
+  --r:16px;
+  --max:880px;
   --ease-out:cubic-bezier(0.22, 1, 0.36, 1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -49,22 +49,19 @@ body{
 }
 ::selection{background:rgba(200,169,126,.25);color:#F5F2EB}
 
-/* Iluminación cenital cálida de estudio fotográfico (cero neón, cero tonos sintéticos) */
 body::before{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(760px 440px at 50% -10%, rgba(200,169,126,.13), transparent 72%),
+    radial-gradient(820px 460px at 50% -10%, rgba(200,169,126,.14), transparent 72%),
     radial-gradient(560px 380px at 88% 18%, rgba(229,204,164,.05), transparent 70%),
     radial-gradient(700px 500px at 12% 96%, rgba(200,169,126,.04), transparent 70%);
 }
-/* Micro-grano óptico de película analógica 35mm (2.8 % de opacidad) */
 body::after{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.028;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
 }
-header,main,section,footer{position:relative;z-index:1}
+header,main,section,footer,.cinta-marquee{position:relative;z-index:1}
 
-/* Hilo arquitectónico superior en bronce cepillado */
 body>.hilo{
   position:fixed;top:0;left:0;right:0;height:2px;z-index:50;
   background:linear-gradient(90deg,transparent,rgba(200,169,126,.35),var(--acento2),rgba(200,169,126,.35),transparent);
@@ -72,32 +69,64 @@ body>.hilo{
 }
 
 .contenedor{width:100%;max-width:var(--max);margin:0 auto;padding:0 22px}
-section{padding:64px 0;border-bottom:1px solid rgba(245,242,235,.05)}
+section{padding:68px 0;border-bottom:1px solid rgba(245,242,235,.06)}
 section:last-of-type{border-bottom:0}
 
-/* Barra editorial superior minimalista */
+/* Barra editorial superior */
 .barra-editorial{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 0;border-bottom:1px solid var(--borde2);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  padding:16px 0;border-bottom:1px solid var(--borde2);
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
 }
 .barra-editorial .marca{
   display:inline-flex;align-items:center;gap:8px;color:var(--texto);font-weight:600;
 }
 .barra-editorial .punto-vivo{
   width:6px;height:6px;border-radius:50%;background:var(--ok);
-  box-shadow:0 0 8px rgba(16,185,129,.6);
+  box-shadow:0 0 8px rgba(16,185,129,.65);
+}
+.barra-editorial .pill-oferta{
+  padding:4px 10px;border-radius:999px;background:rgba(200,169,126,.12);
+  border:1px solid rgba(200,169,126,.3);color:var(--oro2);font-weight:600;
 }
 
-h1,h2,h3{line-height:1.15;letter-spacing:-.025em;font-weight:700;text-wrap:balance}
-h1{font-size:clamp(32px,6.5vw,52px);font-weight:700}
-h2{font-size:clamp(24px,4.5vw,34px);margin-bottom:16px;position:relative;padding-bottom:16px}
+/* Cinta Marquee Cinética (Inspirada en hypermodels.io/offer pero con estética Champagne & Obsidian) */
+.cinta-marquee{
+  overflow:hidden;white-space:nowrap;
+  border-top:1px solid var(--borde2);border-bottom:1px solid var(--borde2);
+  background:rgba(18,18,17,.85);padding:11px 0;
+}
+.cinta-track{
+  display:inline-flex;align-items:center;gap:28px;
+  animation:desplazarCinta 28s linear infinite;
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
+}
+.cinta-track strong{color:var(--oro2);font-weight:600}
+.cinta-track .sep{color:rgba(200,169,126,.45)}
+@keyframes desplazarCinta{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* Kicker / Eyebrow de sección estilo Offer Page */
+.kicker-seccion{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-bottom:12px;padding:4px 11px;border-radius:999px;
+  background:rgba(200,169,126,.08);border:1px solid rgba(200,169,126,.24);
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--oro2);
+}
+
+h1,h2,h3{line-height:1.14;letter-spacing:-.025em;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(32px,6vw,54px);font-weight:800}
+h2{font-size:clamp(25px,4.5vw,36px);margin-bottom:14px;position:relative;padding-bottom:14px}
 h2::after{
   content:"";position:absolute;left:0;bottom:0;width:48px;height:1.5px;
   background:linear-gradient(90deg,var(--acento2),transparent);
 }
-h3{font-size:17px;margin-bottom:8px;letter-spacing:-.01em}
+h3{font-size:18px;margin-bottom:8px;letter-spacing:-.01em}
 p{color:var(--tenue)}
 p.fuerte{color:var(--texto)}
 .fino{font-size:13.5px;color:var(--tenue)}
@@ -107,62 +136,66 @@ p.fuerte{color:var(--texto)}
   font-weight:600;
   color:var(--acento2);
 }
-.mono-tag{
-  font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 /* ---- Botón CTA Táctil en Champagne & Bronce Cepillado ---- */
 .cta{
   display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;min-height:58px;padding:16px 24px;margin-top:24px;
+  width:100%;max-width:520px;margin-left:auto;margin-right:auto;
+  min-height:60px;padding:16px 26px;margin-top:24px;
   background:linear-gradient(180deg,#E8D2AE 0%,var(--acento) 52%,#A88453 100%);
-  color:#0A0A0B;font:700 16.5px/1.2 inherit;text-decoration:none;letter-spacing:-.01em;
-  border:1px solid rgba(255,255,255,.22);border-radius:var(--r);cursor:pointer;
+  color:#0A0A0B;font:800 17px/1.2 inherit;text-decoration:none;letter-spacing:-.01em;
+  border:1px solid rgba(255,255,255,.25);border-radius:14px;cursor:pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 1px 0 rgba(255,255,255,.6),
     inset 0 -1px 0 rgba(0,0,0,.25),
-    0 14px 36px -12px rgba(200,169,126,.38);
+    0 16px 40px -12px rgba(200,169,126,.42);
   transition:transform .24s var(--ease-out),box-shadow .24s var(--ease-out),filter .24s ease;
 }
 .cta:hover{
   transform:translateY(-2px);filter:brightness(1.05);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.65),
+    inset 0 1px 0 rgba(255,255,255,.7),
     inset 0 -1px 0 rgba(0,0,0,.25),
-    0 20px 44px -12px rgba(200,169,126,.52);
+    0 22px 48px -12px rgba(200,169,126,.55);
 }
 .cta:active{transform:translateY(0)}
 .cta:focus-visible{outline:2px solid var(--acento2);outline-offset:3px}
 
-/* ---- Hero Editorial ---- */
-.hero{padding-top:42px;padding-bottom:56px;text-align:center;border-bottom:1px solid var(--borde2)}
+/* ---- Hero de Alta Conversión (Inspirado en hypermodels.io/offer) ---- */
+.hero{padding-top:44px;padding-bottom:56px;text-align:center;border-bottom:0}
 .hero .etiqueta{
-  display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:6px 14px;border-radius:999px;
-  background:rgba(200,169,126,.08);
-  border:1px solid rgba(200,169,126,.28);color:var(--acento2);
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;padding:6px 14px;border-radius:999px;
+  background:rgba(200,169,126,.1);
+  border:1px solid rgba(200,169,126,.32);color:var(--acento2);
   font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:11.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
 }
-.hero p{margin-top:18px;font-size:clamp(17px,2.2vw,19.5px);max-width:640px;margin-left:auto;margin-right:auto}
-.precio-linea{margin-top:28px;display:flex;align-items:baseline;justify-content:center;gap:12px}
+.hero p{margin-top:16px;font-size:clamp(17px,2.2vw,19.5px);max-width:650px;margin-left:auto;margin-right:auto}
+.precio-linea{
+  margin-top:26px;display:inline-flex;align-items:baseline;justify-content:center;gap:12px;
+  padding:8px 20px;border-radius:999px;background:rgba(200,169,126,.07);border:1px solid rgba(200,169,126,.22);
+}
 .precio-linea strong{
   font-family:"Playfair Display",Georgia,serif;
-  font-size:38px;letter-spacing:-.02em;
+  font-size:36px;letter-spacing:-.02em;
   background:linear-gradient(180deg,#FFFFFF 0%,var(--oro2) 65%,var(--oro) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.precio-linea span{color:var(--tenue);text-decoration:line-through;font-size:16px}
+.precio-linea .antes{color:var(--tenue);text-decoration:line-through;font-size:15px}
+.precio-linea .ahorro{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11px;font-weight:600;color:var(--ok);padding:2px 8px;border-radius:999px;
+  background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);
+}
 .hero .fino{margin-top:12px}
 
-/* ---- Visor Óptico Hiperrealista de Musa (85mm f/1.4 Studio Viewfinder) ---- */
+/* ---- Visor Hiperrealista de Musa en el Primer Viewport ---- */
 .musa-showcase{
-  margin-top:24px;border-radius:calc(var(--r) + 4px);overflow:hidden;
-  background:var(--panel);border:1px solid rgba(200,169,126,.24);
-  box-shadow:0 32px 72px -36px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.06);
-  padding:16px;
+  margin-top:28px;border-radius:20px;overflow:hidden;
+  background:var(--panel);border:1px solid rgba(200,169,126,.28);
+  box-shadow:0 36px 80px -36px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.07);
+  padding:16px;text-align:left;
 }
 .musa-badge-bar{
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
@@ -172,12 +205,12 @@ p.fuerte{color:var(--texto)}
 }
 .musa-pill{
   display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;
-  background:rgba(200,169,126,.1);border:1px solid rgba(200,169,126,.3);
+  background:rgba(200,169,126,.12);border:1px solid rgba(200,169,126,.32);
   color:var(--oro2);font-weight:600;font-size:11px;
 }
 .musa-main-frame{
-  position:relative;border-radius:10px;overflow:hidden;aspect-ratio:16/10;background:#0D0D0C;
-  border:1px solid rgba(245,242,235,.07);
+  position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/10;background:#0D0D0C;
+  border:1px solid rgba(245,242,235,.08);
 }
 .musa-main-frame img{
   width:100%;height:100%;object-fit:cover;display:block;
@@ -202,54 +235,23 @@ p.fuerte{color:var(--texto)}
 }
 .musa-thumb.activa span{color:var(--oro2)}
 
-/* ---- Swiss Architectural Bento Grid ---- */
-.grid{display:grid;gap:14px;margin-top:24px}
-@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
-.tarjeta{
-  position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60%),var(--panel);
-  border:1px solid var(--borde2);border-radius:var(--r);
-  padding:22px 20px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -22px #000;
-  transition:border-color .22s var(--ease-out), transform .22s var(--ease-out);
+/* ---- Las 3 Fases Visuales (01 Creación · 02 Viralización · 03 Monetización) ---- */
+.fases-tabs{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0 20px;
 }
-.tarjeta:hover{border-color:rgba(200,169,126,.32);transform:translateY(-2px)}
-.tarjeta::after{
-  content:"";position:absolute;top:-45%;right:-35%;width:130px;height:130px;
-  background:radial-gradient(circle,rgba(200,169,126,.12),transparent 70%);pointer-events:none;
+.fase-pill{
+  padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--borde2);
+  display:flex;align-items:center;gap:10px;
 }
-.tarjeta h3{font-size:15.5px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;color:var(--texto)}
-.tarjeta h3::before{
-  content:"";flex:0 0 5px;height:5px;border-radius:50%;
-  background:var(--acento);box-shadow:0 0 6px rgba(200,169,126,.5);
+.fase-pill .num-f{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;font-weight:700;
+  padding:4px 8px;border-radius:6px;background:rgba(200,169,126,.14);color:var(--oro2);
+  border:1px solid rgba(200,169,126,.3);
 }
-.tarjeta p{font-size:14.5px;margin-top:6px;line-height:1.55}
-.tarjeta:nth-child(4){
-  border-color:rgba(200,169,126,.34);
-  background:linear-gradient(180deg,rgba(200,169,126,.07),rgba(200,169,126,.01) 65%),var(--panel);
-}
-.tarjeta:nth-child(4) h3{color:var(--oro2)}
+.fase-pill strong{font-size:14px;color:var(--texto)}
 
-/* ---- Perfiles / Pasos ---- */
-.pasos{counter-reset:paso;display:grid;gap:14px;margin-top:24px}
-.paso{
-  display:flex;gap:14px;align-items:flex-start;
-  padding:14px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--borde2);
-}
-.paso::before{
-  counter-increment:paso;content:"0" counter(paso);
-  flex:0 0 32px;height:32px;border-radius:8px;
-  background:rgba(200,169,126,.1);
-  border:1px solid rgba(200,169,126,.32);
-  color:var(--oro2);
-  font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-weight:600;font-size:12px;
-  display:grid;place-items:center;margin-top:1px;
-}
-.paso p{color:var(--texto);font-size:15px}
-
-/* ---- Pipeline Comercial (4 Estaciones) ---- */
-.pipeline{list-style:none;counter-reset:lin;display:grid;gap:0;margin-top:28px;position:relative}
+/* ---- Pipeline Comercial (4 Pasos Obligatorios) ---- */
+.pipeline{list-style:none;counter-reset:lin;display:grid;gap:0;margin-top:26px;position:relative}
 .pipeline li{
   position:relative;padding:0 0 28px 54px;counter-increment:lin;
 }
@@ -267,62 +269,174 @@ p.fuerte{color:var(--texto)}
 }
 .pipeline li:last-child{padding-bottom:0}
 .pipeline li:last-child::after{display:none}
-.pipeline strong{display:block;font-size:16.5px;letter-spacing:-.01em;margin-bottom:4px;color:var(--texto)}
+.pipeline strong{display:block;font-size:17px;letter-spacing:-.01em;margin-bottom:4px;color:var(--texto)}
 .pipeline p{font-size:15px;margin:0}
+
+/* Sub-grid de 4 Pilares de Conversión (Inspirado en "Perfil que convierte / Link seguro / Plataforma de fans / Contenido premium") */
+.pilares-mini{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:24px;
+}
+@media(min-width:680px){.pilares-mini{grid-template-columns:repeat(4,1fr)}}
+.pilar-box{
+  padding:14px;border-radius:12px;background:var(--panel-alt);border:1px solid var(--borde2);
+}
+.pilar-box span{
+  display:block;font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:10px;color:var(--oro2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;
+}
+.pilar-box strong{display:block;font-size:13.5px;color:var(--texto);margin-bottom:3px}
+.pilar-box p{font-size:12.5px;line-height:1.45}
+
 .nota-proceso{
   margin-top:24px;padding:12px 16px;
   border-left:2px solid var(--acento);
   background:rgba(200,169,126,.04);border-radius:0 10px 10px 0;
 }
 
-/* ---- Objeciones & Claridad ---- */
-.obj{display:grid;gap:12px;margin-top:22px}
+/* ---- Swiss Architectural Bento Grid ---- */
+.grid{display:grid;gap:14px;margin-top:24px}
+@media(min-width:580px){.grid{grid-template-columns:1fr 1fr}}
+.tarjeta{
+  position:relative;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60%),var(--panel);
+  border:1px solid var(--borde2);border-radius:var(--r);
+  padding:22px 20px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 14px 30px -22px #000;
+  transition:border-color .22s var(--ease-out), transform .22s var(--ease-out);
+}
+.tarjeta:hover{border-color:rgba(200,169,126,.34);transform:translateY(-2px)}
+.tarjeta::after{
+  content:"";position:absolute;top:-45%;right:-35%;width:130px;height:130px;
+  background:radial-gradient(circle,rgba(200,169,126,.12),transparent 70%);pointer-events:none;
+}
+.tarjeta h3{font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;color:var(--texto)}
+.tarjeta h3::before{
+  content:"";flex:0 0 6px;height:6px;border-radius:50%;
+  background:var(--acento);box-shadow:0 0 6px rgba(200,169,126,.5);
+}
+.tarjeta p{font-size:14.5px;margin-top:6px;line-height:1.55}
+.tarjeta:nth-child(4){
+  border-color:rgba(200,169,126,.36);
+  background:linear-gradient(180deg,rgba(200,169,126,.08),rgba(200,169,126,.01) 65%),var(--panel);
+}
+.tarjeta:nth-child(4) h3{color:var(--oro2)}
+
+/* ---- Vista Previa del Área de Miembros (Inspirado en Sección 4 de hypermodels.io/offer) ---- */
+.preview-studio{
+  margin-top:24px;padding:24px;border-radius:20px;
+  background:linear-gradient(180deg,rgba(246,244,240,.05),rgba(18,18,17,.95));
+  border:1px solid rgba(200,169,126,.28);
+  display:grid;gap:20px;
+}
+@media(min-width:680px){.preview-studio{grid-template-columns:1.1fr .9fr;align-items:center}}
+.preview-badges{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.preview-badge{
+  padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);
+  border:1px solid var(--borde2);font-size:13px;color:var(--texto);font-weight:600;
+  display:flex;align-items:center;gap:8px;
+}
+.preview-badge i{color:var(--oro2);font-style:normal}
+.preview-mockup{
+  border-radius:14px;overflow:hidden;border:1px solid rgba(200,169,126,.3);
+  background:#141413;padding:12px;
+}
+.preview-mockup-bar{
+  display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;margin-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:var(--oro2);
+}
+.preview-mockup img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;display:block}
+
+/* ---- Perfiles / Pasos ---- */
+.pasos{counter-reset:paso;display:grid;gap:14px;margin-top:24px}
+.paso{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:16px 18px;border-radius:12px;background:var(--panel);border:1px solid var(--borde2);
+}
+.paso::before{
+  counter-increment:paso;content:"0" counter(paso);
+  flex:0 0 32px;height:32px;border-radius:8px;
+  background:rgba(200,169,126,.1);
+  border:1px solid rgba(200,169,126,.32);
+  color:var(--oro2);
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-weight:600;font-size:12px;
+  display:grid;place-items:center;margin-top:1px;
+}
+.paso p{color:var(--texto);font-size:15px}
+
+/* ---- Tabla Comparativa de Contraste (Inspirada en Sección 11 de hypermodels.io/offer) ---- */
+.contraste-grid{
+  display:grid;gap:16px;margin-top:24px;
+}
+@media(min-width:640px){.contraste-grid{grid-template-columns:1fr 1fr}}
+.columna-no,.columna-si{
+  padding:22px 20px;border-radius:16px;background:var(--panel);border:1px solid var(--borde2);
+}
+.columna-si{
+  border-color:rgba(200,169,126,.38);
+  background:linear-gradient(180deg,rgba(200,169,126,.08),rgba(18,18,17,.98));
+}
+.tag-contraste{
+  display:inline-block;margin-bottom:14px;padding:4px 10px;border-radius:6px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;font-weight:600;text-transform:uppercase;
+}
+.columna-no .tag-contraste{background:rgba(255,255,255,.05);color:var(--tenue)}
+.columna-si .tag-contraste{background:rgba(200,169,126,.15);color:var(--oro2);border:1px solid rgba(200,169,126,.3)}
+
+/* ---- Objeciones ---- */
+.obj{display:grid;gap:12px;margin-top:20px}
 .obj div{
   position:relative;overflow:hidden;
   background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--panel);
-  border:1px solid var(--borde2);border-radius:12px;padding:18px 18px 18px 20px;
+  border:1px solid var(--borde2);border-radius:12px;padding:16px 18px 16px 20px;
 }
 .obj div::before{
   content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
   background:linear-gradient(180deg,var(--oro2),rgba(200,169,126,.2));
 }
-.obj strong{display:block;color:var(--texto);margin-bottom:4px;font-size:15.5px}
+.obj strong{display:block;color:var(--texto);margin-bottom:4px;font-size:15px}
 
-/* ---- Caja de Precio Editorial ---- */
+/* ---- Stack de Valor & Caja de Precio (Inspirado en Sección 5 de hypermodels.io/offer) ---- */
 .caja-precio{
   position:relative;overflow:hidden;
-  margin-top:24px;padding:34px 26px;text-align:center;
+  margin-top:24px;padding:36px 24px;text-align:center;
   background:
-    radial-gradient(460px 220px at 50% 0%, rgba(200,169,126,.14), transparent 72%),
-    linear-gradient(180deg,rgba(200,169,126,.06),rgba(18,18,17,.95));
-  border:1px solid rgba(200,169,126,.34);border-radius:calc(var(--r) + 6px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 28px 64px -36px rgba(0,0,0,.95);
-}
-.caja-precio::before{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.025;
-  background-image:linear-gradient(rgba(245,242,235,.9) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(245,242,235,.9) 1px,transparent 1px);
-  background-size:28px 28px;
-  -webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000,transparent 75%);
-          mask-image:radial-gradient(ellipse at 50% 30%,#000,transparent 75%);
+    radial-gradient(520px 240px at 50% 0%, rgba(200,169,126,.16), transparent 72%),
+    linear-gradient(180deg,rgba(200,169,126,.07),rgba(18,18,17,.98));
+  border:1px solid rgba(200,169,126,.38);border-radius:22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 32px 72px -36px rgba(0,0,0,.95);
 }
 .caja-precio::after{
   content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(229,204,164,.65),transparent);
+  background:linear-gradient(90deg,transparent,rgba(229,204,164,.7),transparent);
+}
+.stack-valor{
+  max-width:540px;margin:0 auto 24px;text-align:left;
+  border:1px solid var(--borde2);border-radius:14px;background:rgba(10,10,11,.65);padding:16px 18px;
+}
+.stack-fila{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:9px 0;border-bottom:1px solid rgba(245,242,235,.06);font-size:14px;
+}
+.stack-fila:last-child{border-bottom:0}
+.stack-fila span:first-child{color:var(--texto);font-weight:500}
+.stack-fila .val-tachado{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--tenue);text-decoration:line-through;
 }
 .caja-precio .grande{
   font-family:"Playfair Display",Georgia,serif;
-  font-size:46px;font-weight:700;letter-spacing:-.02em;
+  font-size:52px;font-weight:700;letter-spacing:-.02em;line-height:1.1;
   background:linear-gradient(180deg,#FFFFFF 10%,var(--oro2) 55%,var(--oro) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.caja-precio ul{list-style:none;text-align:left;margin:20px auto 0;max-width:360px;display:grid;gap:10px}
+.caja-precio ul{list-style:none;text-align:left;margin:20px auto 0;max-width:400px;display:grid;gap:9px}
 .caja-precio li{position:relative;padding-left:26px;font-size:15px;color:var(--texto)}
 .caja-precio li::before{
-  content:"✓";position:absolute;left:0;color:var(--oro2);font-weight:800;
+  content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800;
 }
 
-/* ---- Preguntas Frecuentes (Acordeón Suizo) ---- */
+/* ---- FAQ ---- */
 details{border-bottom:1px solid var(--borde);padding:18px 0}
 summary{cursor:pointer;font-weight:600;color:var(--texto);list-style:none;font-size:15.5px}
 summary::-webkit-details-marker{display:none}
@@ -337,7 +451,7 @@ summary:hover::after{background:rgba(200,169,126,.2);border-color:var(--acento2)
 details[open] summary::after{content:"–"}
 details p{margin-top:10px;font-size:15px;line-height:1.6}
 
-/* ---- Pie de Página ---- */
+/* ---- Pie ---- */
 footer{padding:40px 0 64px;text-align:center;margin-top:12px;position:relative}
 footer::before{
   content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
@@ -378,37 +492,34 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 
 <div class="contenedor">
   <div class="barra-editorial">
-    <span class="marca"><span class="punto-vivo"></span> MUSE IA LAB · EDITORIAL STUDIO</span>
-    <span>SERIE 2026 · 85MM HIPERREALISMO</span>
+    <span class="marca"><span class="punto-vivo"></span> MUSE IA LAB · SISTEMA DE MODELOS IA</span>
+    <span class="pill-oferta">ACCESO VITALICIO · $9 USD (EN VEZ DE $47)</span>
   </div>
 </div>
 
-<!-- ============================ HERO ============================ -->
+<!-- ============================ HERO DE OFERTA DIRECTA ============================ -->
 <header class="hero contenedor">
-  <span class="etiqueta">13 módulos · 4 bonos · acceso de por vida</span>
+  <span class="etiqueta">✦ 13 módulos paso a paso · 4 bonos · acceso de por vida</span>
   <h1>Crea modelos virtuales <span class="acento">hiperrealistas</span> con inteligencia artificial</h1>
   <p class="fuerte">Sin saber diseño, sin cámara y sin modelos reales. Aprendes a crear el personaje, producir su contenido y venderlo en plataformas que ya monetizan.</p>
 
   <div class="precio-linea">
+    <span class="antes">$47 USD</span>
     <strong>$9 USD</strong>
+    <span class="ahorro">-80% HOY</span>
   </div>
-  <p class="fino">Pago único · 33.000 COP · Acceso inmediato</p>
+  <p class="fino">Pago único · 33.000 COP · Acceso inmediato al Estudio y a los 4 Packs</p>
 
   <button class="cta" data-abrir-modal>
-    Quiero ver el contenido
+    Quiero ver el contenido ahora
     <span aria-hidden="true">→</span>
   </button>
-  <p class="fino" style="margin-top:10px">Te llega al instante por WhatsApp</p>
-</header>
+  <p class="fino" style="margin-top:10px">Entrega inmediata por WhatsApp · Sin mensualidades</p>
 
-<!-- ============================ DEMO: MUSA HIPERREALISTA ============================ -->
-<section class="contenedor" aria-labelledby="demo-t">
-  <h2 id="demo-t">Conoce a Musa: una sola identidad hiperrealista</h2>
-  <p class="fuerte">Ella no existe en el mundo físico. Su rostro, la textura real de sus poros y su consistencia en distintos escenarios están generados 100 % con inteligencia artificial. En el estudio aprendes a crear personajes con este nivel de realismo y coherencia.</p>
-
+  <!-- VISOR ÓPTICO HIPERREALISTA DE MUSA INTEGRADO EN EL PRIMER VIEWPORT -->
   <div class="musa-showcase">
     <div class="musa-badge-bar">
-      <span class="musa-pill">✦ AVATAR OFICIAL: MUSA · CONSISTENCIA FACIAL 100 %</span>
+      <span class="musa-pill">✦ CASO REAL DEL ESTUDIO: MUSA · CONSISTENCIA FACIAL 100 %</span>
       <span id="musaEscenaLabel">01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)</span>
     </div>
     <div class="musa-main-frame">
@@ -429,14 +540,36 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
       </button>
     </div>
   </div>
-  <p class="fino" style="margin-top:12px;text-align:center">El mismo rostro exacto en 3 ángulos e iluminaciones distintas. Sin cámara, sin modelo real, sin estudio.</p>
-</section>
+  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Conoce a Musa: el mismo rostro exacto en 3 ángulos e iluminaciones distintas. Sin cámara, sin modelo real, sin estudio.</p>
+</header>
 
-<!-- ====================== DE LA IMAGEN AL COBRO ====================== -->
+<!-- CINTA MARQUEE CINÉTICA (ESTILO OFFER PAGE) -->
+<div class="cinta-marquee" aria-hidden="true">
+  <div class="cinta-track">
+    <span><strong>SOLO $9 USD</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
+    <span><strong>13 CLASES PRÁCTICAS</strong> · PASO A PASO</span><span class="sep">✦</span>
+    <span><strong>CONSISTENCIA FACIAL 100%</strong> · SIN MOSTRAR TU CARA</span><span class="sep">✦</span>
+    <span><strong>4 BONOS INCLUIDOS</strong> · ACCESO DE POR VIDA</span><span class="sep">✦</span>
+    <span><strong>SOLO $9 USD</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
+    <span><strong>13 CLASES PRÁCTICAS</strong> · PASO A PASO</span><span class="sep">✦</span>
+    <span><strong>CONSISTENCIA FACIAL 100%</strong> · SIN MOSTRAR TU CARA</span><span class="sep">✦</span>
+    <span><strong>4 BONOS INCLUIDOS</strong> · ACCESO DE POR VIDA</span>
+  </div>
+</div>
+
+<!-- ====================== DE LA IMAGEN AL COBRO (EL SISTEMA COMPLETO) ====================== -->
 <section class="contenedor" aria-labelledby="proceso-t">
+  <span class="kicker-seccion">El Sistema Completo Paso a Paso</span>
   <h2 id="proceso-t">No es un pasatiempo. Es un proceso con salida comercial.</h2>
-  <p>El curso no termina en una imagen bonita. Termina con un personaje publicado y un
+  <p class="fuerte">El curso no termina en una imagen bonita. Termina con un personaje publicado y un
   sistema para vender su contenido en plataformas que ya cobran por esto.</p>
+
+  <!-- 3 Pilares Visuales estilo HyperModels Offer -->
+  <div class="fases-tabs">
+    <div class="fase-pill"><span class="num-f">01</span><strong>Creación</strong></div>
+    <div class="fase-pill"><span class="num-f">02</span><strong>Viralización</strong></div>
+    <div class="fase-pill"><span class="num-f">03</span><strong>Monetización</strong></div>
+  </div>
 
   <ol class="pipeline">
     <li>
@@ -457,11 +590,36 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     </li>
   </ol>
 
+  <!-- 4 Activos del Ecosistema (Inspirado en las 4 sub-tarjetas de conversión de la oferta) -->
+  <div class="pilares-mini">
+    <div class="pilar-box">
+      <span>Activo 01</span>
+      <strong>Perfil que convierte</strong>
+      <p>Estructura de Instagram y TikTok diseñada para transformar curiosos en suscriptores.</p>
+    </div>
+    <div class="pilar-box">
+      <span>Activo 02</span>
+      <strong>Videos 100% realistas</strong>
+      <p>Reels en movimiento y audio realista con voz consistente que multiplican el alcance.</p>
+    </div>
+    <div class="pilar-box">
+      <span>Activo 03</span>
+      <strong>Plataforma de fans</strong>
+      <p>Configuración paso a paso en Fanvue y embudo directo hacia Telegram.</p>
+    </div>
+    <div class="pilar-box">
+      <span>Activo 04</span>
+      <strong>Sistema con Bots</strong>
+      <p>Automatización con ManyChat y bot de Telegram para atender sin estar pegado al celular.</p>
+    </div>
+  </div>
+
   <p class="fino nota-proceso">Aprendes el método completo, incluida la parte que casi nadie enseña: cómo se convierte una imagen en algo por lo que alguien paga.</p>
 </section>
 
 <!-- ========================= LA PARTE DIFÍCIL ========================= -->
 <section class="contenedor" aria-labelledby="dificil-t">
+  <span class="kicker-seccion">El 80% del Juego · Donde Casi Todos Fallan</span>
   <h2 id="dificil-t">La parte difícil no es crear la imagen</h2>
   <p>Crear un personaje se aprende en una tarde. Lo que decide si esto produce algo o
   se queda en un experimento es otra cosa: <strong class="fuerte">mantener el mismo
@@ -487,10 +645,31 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   </div>
 </section>
 
-<!-- ============================ CONTENIDO ============================ -->
+<!-- ==================== ÁREA DE MIEMBROS: MUSA STUDIO ==================== -->
 <section class="contenedor" aria-labelledby="incluye-t">
-  <h2 id="incluye-t">Qué incluye</h2>
-  <p class="fuerte">No es teoría sobre IA. Es el proceso completo para producir y publicar.</p>
+  <span class="kicker-seccion">Área de Miembros Exclusiva</span>
+  <h2 id="incluye-t">Qué incluye tu acceso a Musa Studio</h2>
+  <p class="fuerte">No es teoría sobre IA ni una carpeta desordenada. Entras a un estudio interactivo minimalista con las 13 clases y los 4 packs listos para reproducir o descargar.</p>
+
+  <div class="preview-studio">
+    <div>
+      <h3>Área premium con acceso de por vida</h3>
+      <p style="font-size:14.5px;margin-top:6px">Organizado en 4 estaciones prácticas: Identidad & Rostro IA, Consistencia & Video Realista, Tracción Viral & Bots, y Monetización en Fanvue.</p>
+      <div class="preview-badges">
+        <div class="preview-badge"><i>✦</i> 13 clases paso a paso</div>
+        <div class="preview-badge"><i>✦</i> 30 recursos en bonos</div>
+        <div class="preview-badge"><i>✦</i> Móvil y computador</div>
+        <div class="preview-badge"><i>✦</i> Actualizaciones incluidas</div>
+      </div>
+    </div>
+    <div class="preview-mockup">
+      <div class="preview-mockup-bar">
+        <span>MUSA STUDIO · ATELIER INTERACTIVO</span>
+        <span>ACCESO VITALICIO</span>
+      </div>
+      <img src="assets/musa-closeup.jpg" alt="Vista previa de Musa Studio" loading="lazy">
+    </div>
+  </div>
 
   <div class="grid">
     <div class="tarjeta"><h3>13 módulos</h3><p>Desde la primera imagen hasta la publicación y el cobro en plataformas.</p></div>
@@ -502,6 +681,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 
 <!-- ============================ PARA QUIÉN ============================ -->
 <section class="contenedor" aria-labelledby="quien-t">
+  <span class="kicker-seccion">Perfil del Operador</span>
   <h2 id="quien-t">Para quién es</h2>
   <div class="pasos">
     <div class="paso"><p><strong>Si quieres aprender</strong> una habilidad que se está usando para crear contenido todos los días.</p></div>
@@ -511,8 +691,38 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <p class="fino" style="margin-top:18px">No es para quien busque un pasatiempo ni resultados automáticos sin dedicarle tiempo. Es un oficio con salida comercial, y se aprende practicando.</p>
 </section>
 
+<!-- ================== CONTRASTE DIRECTO: QUÉ NO ES VS QUÉ SÍ ES ================== -->
+<section class="contenedor" aria-labelledby="noes-t">
+  <span class="kicker-seccion">Transparencia Radical</span>
+  <h2 id="noes-t">Qué no es esto (y por qué funciona)</h2>
+  <p>Para que no compres esperando otra cosa, comparamos de frente:</p>
+
+  <div class="contraste-grid">
+    <div class="columna-no">
+      <span class="tag-contraste">✕ Esto NO es el curso</span>
+      <div class="obj" style="margin-top:0">
+        <div><strong>No es teoría sobre inteligencia artificial</strong><p>No vas a ver cómo funciona un modelo por dentro. Vas a producir y publicar.</p></div>
+        <div><strong>No es una promesa de ingresos</strong><p>Nadie serio te garantiza cuánto vas a ganar. Aquí se enseña el método; el resultado depende de ti.</p></div>
+        <div><strong>No es un pack de prompts sueltos</strong><p>Los prompts están, pero solos no sirven: van con el proceso que los sostiene.</p></div>
+        <div><strong>No es contenido con personas reales</strong><p>Todo se construye con personajes ficticios generados. Usar la cara de alguien sin su permiso es ilegal y el curso no lo enseña.</p></div>
+      </div>
+    </div>
+
+    <div class="columna-si">
+      <span class="tag-contraste">✓ Lo que SÍ te llevas hoy</span>
+      <div class="obj" style="margin-top:0">
+        <div><strong>01 · Identidad y consistencia facial</strong><p>El método para que tu avatar conserve exactamente el mismo rostro en cualquier pose, luz o escenario.</p></div>
+        <div><strong>02 · Producción de fotos y video realista</strong><p>Flujo práctico con ChatGPT, SeaArt, DeepSeek y herramientas de video para crear contenido en serie.</p></div>
+        <div><strong>03 · Tracción en TikTok, Instagram y Bots</strong><p>Cómo atraer tráfico orgánico y automatizar el filtro hacia tu grupo con ManyChat y Telegram.</p></div>
+        <div><strong>04 · Monetización en Fanvue + 4 Packs</strong><p>Configuración de cobros, estrategia de suscripción y biblioteca de 30 recursos descargables.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============================ OBJECIONES ============================ -->
 <section class="contenedor" aria-labelledby="obj-t">
+  <span class="kicker-seccion">Dudas Habituales</span>
   <h2 id="obj-t">Lo que probablemente estás pensando</h2>
   <div class="obj">
     <div><strong>«No sé nada de IA.»</strong><p>El curso empieza desde la primera pantalla. Si sabes usar WhatsApp, puedes seguirlo.</p></div>
@@ -521,24 +731,24 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   </div>
 </section>
 
-<!-- ============================ QUÉ NO ES ============================ -->
-<section class="contenedor" aria-labelledby="noes-t">
-  <h2 id="noes-t">Qué no es esto</h2>
-  <p>Para que no compres esperando otra cosa:</p>
-  <div class="obj">
-    <div><strong>No es teoría sobre inteligencia artificial</strong><p>No vas a ver cómo funciona un modelo por dentro. Vas a producir y publicar.</p></div>
-    <div><strong>No es una promesa de ingresos</strong><p>Nadie serio te garantiza cuánto vas a ganar. Aquí se enseña el método; el resultado depende de ti.</p></div>
-    <div><strong>No es un pack de prompts sueltos</strong><p>Los prompts están, pero solos no sirven: van con el proceso que los sostiene.</p></div>
-    <div><strong>No es contenido con personas reales</strong><p>Todo se construye con personajes ficticios generados. Usar la cara de alguien sin su permiso es ilegal y el curso no lo enseña.</p></div>
-  </div>
-</section>
-
-<!-- ============================ PRECIO ============================ -->
+<!-- ============================ STACK DE OFERTA Y PRECIO ============================ -->
 <section class="contenedor" aria-labelledby="precio-t">
-  <h2 id="precio-t">El precio</h2>
+  <span class="kicker-seccion">Tu Inversión Hoy</span>
+  <h2 id="precio-t">Entra hoy con acceso completo de por vida</h2>
   <div class="caja-precio">
+    <p class="fino" style="margin-bottom:14px;color:var(--oro2);font-weight:600;text-transform:uppercase;letter-spacing:.08em">Al acceder hoy recibes todo el ecosistema:</p>
+
+    <div class="stack-valor">
+      <div class="stack-fila"><span>✦ Sistema Completo en Musa Studio (13 Módulos)</span><span class="val-tachado">$47 USD</span></div>
+      <div class="stack-fila"><span>✦ Flujo de Consistencia Facial y Video 100% Realista</span><span class="val-tachado">$27 USD</span></div>
+      <div class="stack-fila"><span>✦ Embudo de Monetización (Fanvue, Telegram & ManyChat)</span><span class="val-tachado">$27 USD</span></div>
+      <div class="stack-fila"><span>✦ Bono 1: Colección de Modelos IA Listas</span><span class="val-tachado">$19 USD</span></div>
+      <div class="stack-fila"><span>✦ Bono 2: Megapack Master IA (22 sesiones)</span><span class="val-tachado">$29 USD</span></div>
+      <div class="stack-fila"><span>✦ Bono 3 y 4: YouTube Money Machine + Audios Fempro</span><span class="val-tachado">$19 USD</span></div>
+    </div>
+
     <div class="grande">$9 USD</div>
-    <p class="fino" style="margin-top:6px">33.000 COP · pago único</p>
+    <p class="fino" style="margin-top:6px">33.000 COP · pago único · sin mensualidades</p>
     <ul>
       <li>13 módulos completos</li>
       <li>4 bonos incluidos</li>
@@ -546,13 +756,14 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
       <li>Módulos de publicación y monetización incluidos</li>
       <li>Acceso de por vida, sin mensualidades</li>
     </ul>
-    <button class="cta" data-abrir-modal>Empezar ahora <span aria-hidden="true">→</span></button>
-    <p class="fino" style="margin-top:10px">Pago por Nequi, Bancolombia o Bre-B. Te guío por WhatsApp.</p>
+    <button class="cta" data-abrir-modal>Empezar ahora por $9 USD <span aria-hidden="true">→</span></button>
+    <p class="fino" style="margin-top:12px">Pago por Nequi, Bancolombia o Bre-B. Te guío al instante por WhatsApp.</p>
   </div>
 </section>
 
 <!-- ============================ FAQ ============================ -->
 <section class="contenedor" aria-labelledby="faq-t">
+  <span class="kicker-seccion">Respuestas Claras</span>
   <h2 id="faq-t">Preguntas frecuentes</h2>
   <details><summary>¿Cómo recibo el curso?</summary><p>Después de confirmar el pago te llega un enlace personal a tu área del curso, con los 13 módulos y los 4 bonos ordenados. Acceso inmediato y sin caducidad.</p></details>
   <details><summary>¿Cuánto tiempo necesito?</summary><p>Avanzas totalmente a tu propio ritmo y sin horarios. Los módulos son cortos, prácticos y con plantillas listas para copiar y aplicar cuando quieras.</p></details>
@@ -567,9 +778,9 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 </section>
 
 <!-- ============================ CIERRE ============================ -->
-<section class="contenedor">
-  <h2>Si llegaste hasta acá, es por algo</h2>
-  <p class="fuerte">Los 13 módulos, los 4 bonos y la guía rápida de implementación. $9 USD, una sola vez.</p>
+<section class="contenedor" style="text-align:center">
+  <h2 style="display:inline-block">Si llegaste hasta acá, es por algo</h2>
+  <p class="fuerte" style="max-width:540px;margin:0 auto">Los 13 módulos, los 4 bonos y la guía rápida de implementación en Musa Studio. $9 USD, una sola vez.</p>
   <button class="cta" data-abrir-modal>Ver el contenido completo <span aria-hidden="true">→</span></button>
 </section>
 
