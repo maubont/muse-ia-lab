@@ -39,8 +39,8 @@ export const PREGUNTA_S04 = "¿Me confirmas que ya tienes 18 años o más?";
 
 /** Instrucción que se le da al GPT cuando el lead confirma edad pero además pregunta algo. */
 export const INSTRUCCION_PREGUNTA_JUNTO_A_EDAD =
-  "Si su duda se responde con los HECHOS CERRADOS, respóndela y avísale que ya mismo le pasas el precio y los detalles. " +
-  "Si el dato NO está en los HECHOS CERRADOS, NO lo afirmes (ni con un sí inicial): di SOLO que lo confirmas con el equipo y que le escriben enseguida por aquí, sin prometer pasar el precio en este mismo mensaje.";
+  "Si su duda se responde con los HECHOS CERRADOS, respóndela con calidez y concisión como Musa. " +
+  "Si el dato NO está en los HECHOS CERRADOS, responde con honestidad sin inventar datos y mantén la conversación fluida sin hacer promesas de que alguien le escribirá enseguida.";
 
 // ============================== tipos ==============================
 

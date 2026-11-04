@@ -69,8 +69,10 @@ export function decidirS06(entrada: EntradaS06): Efecto[] {
   if (esAfirmativoCierre(norm)) return cerrarConDatos(lead, cfg, body, norm);
 
   // 3. Consulta de Muestra / Ver Plataforma / Dónde se estudia
-  const PIDE_VER_PLATAFORMA = /\b(ver|muestra|muestrame|mostrar|plataforma|academia|donde estudio|donde se estudia|donde voy a estudiar|como es el curso|como es la plataforma|contenido|dichoso curso|es serio|seriedad|estafa|desconfianza|probar|degustar)\b/i;
-  if (PIDE_VER_PLATAFORMA.test(norm)) {
+  // OJO CRÍTICO: NO confundir preguntas de descuento, precio o presupuesto con pedir ver la plataforma.
+  const ES_PREGUNTA_PRECIO_O_DESCUENTO = /\b(descuento|rebaja|precio|cuanto|cuánto|vale|costo|dolar|dolares|dólar|dólares|pesos|cop|plata|dinero|alcanza|presupuesto|rebajar|menos)\b/i;
+  const PIDE_VER_PLATAFORMA = /\b(ver\s+(?:la\s+)?(?:plataforma|academia|curso|contenido|muestra|clase|estudio)|muestra|muestrame|muéstrame|mostrar\s+(?:la\s+)?(?:plataforma|academia|curso)|plataforma|academia|donde\s+estudio|donde\s+se\s+estudia|donde\s+voy\s+a\s+estudiar|como\s+es\s+el\s+curso|como\s+es\s+la\s+plataforma|dichoso\s+curso|es\s+serio|seriedad|estafa|desconfianza|probar|degustar)\b/i;
+  if (!ES_PREGUNTA_PRECIO_O_DESCUENTO.test(norm) && PIDE_VER_PLATAFORMA.test(norm)) {
     return [{ tipo: "responder_objecion", id: 1, conRecierre: true }];
   }
 

@@ -30,6 +30,7 @@ import type { EntradaS08 } from "./s08.ts";
 import { decidirLeadNuevo } from "./s01.ts";
 import type { AvatarListo } from "./s01.ts";
 import { detectarIntencionEscalado, generarMensajeHandoffCliente } from "./deteccion-escalado.ts";
+import { construirEnlaceRespuestaDirecta } from "./alerta-operador.ts";
 
 /** «Listo, quedas fuera»: el único mensaje que se manda tras un STOP. */
 export const MSG_OPTOUT =
@@ -149,8 +150,17 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
   if ((deteccionEscalado.debeEscalar || (norm && pideHumano(norm))) && !preguntaPorBot(norm)) {
     const nombreLead = (lead as LeadNombre).nombre || (lead as { profile_name?: string }).profile_name || null;
     const textoConfirmacion = generarMensajeHandoffCliente(nombreLead);
-    const numLimpio = lead.phone.replace(/[^\d]/g, "");
     const motivo = deteccionEscalado.motivo ?? "solicitud_explicita";
+
+    // Diagnóstico comercial de temperatura
+    let temperatura = "🟡 TIBIO";
+    if (lead.estado_funnel === "S06_CIERRE" || lead.estado_funnel === "S08_ESPERA_CAPTURA" || /nequi|bancolombia|pago|plata|transferir/i.test(body)) {
+      temperatura = "🔥 CALIENTE (Dinero en mano / Listo para cierre)";
+    } else if (/estafa|esperando|dos minutos|2 minutos|robot|plastico|plástico|adios|adiós/i.test(body)) {
+      temperatura = "❄️ IRRITADO / FRUSTRADO";
+    }
+
+    const enlaceWa = construirEnlaceRespuestaDirecta(lead.phone, nombreLead);
 
     return [
       { tipo: "lead", patch: { escalado_humano: true } },
@@ -158,14 +168,18 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
       {
         tipo: "notificar_operador",
         texto:
-          `🚨 ATENCIÓN REQUERIDA — ESCALADO A HUMANO 🚨\n\n` +
-          `👤 *Lead:* ${nombreLead || lead.phone}\n` +
+          `*🚨 ATENCIÓN REQUERIDA: ESCALADO INTELIGENTE — MUSA v2 🚨*\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `👤 *Lead:* ${nombreLead || "(Sin nombre)"}\n` +
           `📱 *Teléfono:* ${lead.phone}\n` +
           `📍 *Etapa:* ${lead.estado_funnel}\n` +
+          `🌡️ *Temperatura:* ${temperatura}\n` +
           `⚠️ *Motivo:* ${motivo}\n` +
-          `📝 *Mensaje:* "${body.slice(0, 160)}"\n\n` +
-          `👉 *Responder en 1 clic:* https://wa.me/${numLimpio}\n` +
-          `⚡ *Para reactivar el bot cuando termines, responde:* reanudar ${lead.phone}`,
+          (deteccionEscalado.detalle ? `ℹ️ *Detalle:* ${deteccionEscalado.detalle}\n` : "") +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `📝 *Último Mensaje:* "${body.slice(0, 160)}"\n\n` +
+          `👉 *Atender con 1 clic en WhatsApp (con respuesta prellenada):*\n${enlaceWa}\n\n` +
+          `⚡ *Para reactivar el bot cuando termines, responde:* *reanudar ${lead.phone}*`,
       },
       { tipo: "enviar", textos: [textoConfirmacion] },
     ];

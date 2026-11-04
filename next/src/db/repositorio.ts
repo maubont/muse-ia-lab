@@ -375,8 +375,14 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
           [phone],
         ).catch(() => {});
         if (telefonoOperador) {
-          await canal.enviar(telefonoOperador, {
-            texto: `🔔 Musa escaló a humano con ${phone} tras prometer consultar al equipo.`,
+          const { enviarAlertaOperador } = await import("../motor/alerta-operador.ts");
+          await enviarAlertaOperador(canal, telefonoOperador, consultar, {
+            phone,
+            nombre: leadRow?.nombre ?? leadRow?.profile_name ?? null,
+            estadoFunnel: leadRow?.estado_funnel ?? "S06_CIERRE",
+            motivo: "solicitud_explicita",
+            detalle: "Escalado cognitivo desde el modelo",
+            ultimoMensajeCliente: ultimoMensaje,
           }).catch(() => {});
         }
       }
@@ -508,8 +514,14 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
           [phone],
         ).catch(() => {});
         if (telefonoOperador) {
-          await canal.enviar(telefonoOperador, {
-            texto: `🔔 Musa escaló a humano con ${phone} tras prometer consultar al equipo.`,
+          const { enviarAlertaOperador } = await import("../motor/alerta-operador.ts");
+          await enviarAlertaOperador(canal, telefonoOperador, consultar, {
+            phone,
+            nombre: leadRow?.nombre ?? leadRow?.profile_name ?? null,
+            estadoFunnel: leadRow?.estado_funnel ?? "S06_CIERRE",
+            motivo: "solicitud_explicita",
+            detalle: "Escalado cognitivo desde el modelo",
+            ultimoMensajeCliente: ultimoMensaje,
           }).catch(() => {});
         }
       }
@@ -517,8 +529,8 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     async responderObjecion(phone, args) {
       const respuestas: Record<number, string> = {
-        1: "Te entiendo de corazón 🙏 En internet hay que ser precavido y haces bien en dudar. Puedes explorar la plataforma y ver la *Clase 1 gratis* aquí 👇\nhttps://server-production-3709.up.railway.app/academia.html\n\nMírala unos minutos para que juzgues la calidad tú mismo con tus propios ojos ✨ ¿Te abrió bien el enlace? 😊",
-        2: "Te entiendo 🙏 Por eso el acceso es de solo *33.000 COP* (≈ *9 USD*) en un único pago de por vida, sin mensualidades ni cobros ocultos, e incluye los 13 módulos y los 4 bonos completos.",
+        1: "Te entiendo de corazón ✨ En internet hay que ser precavido y haces bien en dudar. Puedes explorar la plataforma y ver la *Clase 1 gratis* aquí 👇\nhttps://server-production-3709.up.railway.app/academia.html\n\nMírala unos minutos para que juzgues la calidad tú mismo con tus propios ojos ✨ ¿Te abrió bien el enlace? 😊",
+        2: "Te entiendo ✨ Por eso el acceso es de solo *33.000 COP* (≈ *9 USD*) en un único pago de por vida, sin mensualidades ni cobros ocultos, e incluye los 13 módulos y los 4 bonos completos.",
         3: "¡Sí! 🚀 Apenas verifico tu comprobante te entrego por este mismo chat tu enlace personal a Musa Academy con los 13 módulos y los 4 bonos listos para ver.",
         4: "Totalmente 💪 El curso arranca desde CERO en el Módulo 1 y te lleva paso a paso hasta crear y monetizar tu primer modelo virtual, sin necesidad de experiencia previa.",
         5: "Sí 🌎 Todo el curso es 100 % online y tanto las herramientas de IA como las plataformas de monetización funcionan desde Colombia y cualquier país.",
@@ -551,6 +563,17 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       void canal.marcarEscribiendo(phone).catch?.(() => {});
 
       let texto = "";
+      let esAudioEntrante = false;
+      try {
+        const { rows: ultMsgIn } = await consultar(
+          "select media_type from public.musa_messages where lead_phone = $1 and direction = 'in' order by id desc limit 1",
+          [phone],
+        );
+        esAudioEntrante = Boolean(ultMsgIn[0]?.media_type && String(ultMsgIn[0].media_type).startsWith("audio/"));
+      } catch {
+        esAudioEntrante = false;
+      }
+
       if (apiKey) {
         try {
           let leadRow: { nombre?: string; profile_name?: string; estado_funnel?: string; mayor_18?: boolean } | undefined;
@@ -612,6 +635,34 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         const base = respuestas[args.id] ?? respuestas[7];
         texto = args.conRecierre ? `${base}\n\n¿Te paso los datos de pago por Nequi o Bre-B para activar tu acceso? 😊` : base;
         await this.registrarEvento(phone, "gpt_no_implementado", { motivo: "objecion", id: args.id });
+      }
+
+      // Sanitización determinista de emojis prohibidos y formato
+      try {
+        const { sanitizarRespuesta } = await import("../ia/anti-repeticion.ts");
+        texto = sanitizarRespuesta(texto);
+      } catch {}
+
+      // Si el lead habló por audio, responder con nota de voz Opus PTT de OpenAI Nova
+      if (esAudioEntrante && texto) {
+        try {
+          const { sintetizarAudioOpenAI } = await import("../motor/sintetizador-voz-openai.ts");
+          const resAudio = await sintetizarAudioOpenAI(texto);
+          if (resAudio.ok && resAudio.audioBase64) {
+            await canal.enviar(phone, {
+              mediaUrl: resAudio.audioBase64,
+              mediaTipo: "audio",
+              texto,
+            }).catch(() => ({ ok: false }));
+            await consultar(
+              "insert into public.musa_messages (lead_phone, direction, body, media_type) values ($1, 'out', $2, 'audio/ogg')",
+              [phone, texto],
+            ).catch(() => ({ rows: [] }));
+            return;
+          }
+        } catch (errAudio) {
+          console.error(`[musa-voz] Error sintetizando nota de voz en objecion:`, errAudio);
+        }
       }
 
       await canal.enviar(phone, { texto }).catch(() => ({ ok: false }));
