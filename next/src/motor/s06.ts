@@ -80,7 +80,7 @@ export function decidirS06(entrada: EntradaS06): Efecto[] {
   }
 
   // 5. Objeciones comunes resueltas directamente con recierre:
-  if (/\b(cuanto|precio|costo|valor|cuanto vale|en dolares|pesos)\b/i.test(norm)) {
+  if (/\b(cuanto\s+(vale|cuesta|es)|que\s+(precio|valor|costo)\s+tiene|cual\s+es\s+el\s+(precio|valor|costo)|precio|costo|cuanto vale|en dolares)\b/i.test(norm) && !/\b(tengo|solo tengo|me alcanza|me faltan|pesos)\b/i.test(norm)) {
     return [{ tipo: "responder_objecion", id: 2, conRecierre: true }];
   }
   if (/\b(computador|computadora|pc|celular|telefono|movil|requisitos|experiencia|cero|tarjeta grafica)\b/i.test(norm)) {

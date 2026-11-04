@@ -382,6 +382,19 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         ultimoMensaje = "";
       }
 
+      // Consciencia de cuentas ya compartidas en el chat
+      const { rows: ultimosOut } = await consultar(
+        "select body from public.musa_messages where lead_phone = $1 and direction = 'out' order by id desc limit 4",
+        [phone],
+      ).catch(() => ({ rows: [] as Array<{ body?: string }> }));
+      const yaDioCuentas = ultimosOut.some(
+        (m) => m.body && (m.body.includes("3223565761") || m.body.includes("Nequi") || m.body.includes("Bancolombia"))
+      );
+
+      const metaRetorno = yaDioCuentas || leadRow?.estado_funnel === "S08_ESPERA_CAPTURA"
+        ? "¿Pudiste completar la transferencia para enviarme la fotico del comprobante? 📸"
+        : "¿Te paso los datos de pago para Nequi o prefieres Bancolombia? 😊";
+
       const { generarRespuestaConversacional } = await import("../ia/conversacion.ts");
       const resp = await generarRespuestaConversacional(
         { consultar, urlPublica, presupuestoDiarioUsd: 1.0, apiKey, modelo: modeloIa, baseUrl: urlIa },
@@ -391,7 +404,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
           estadoFunnel: leadRow?.estado_funnel ?? "S06_CIERRE",
           mayor18: leadRow?.mayor_18 === true,
           ultimoMensaje,
-          metaRetorno: "¿Te comparto los datos de Nequi o prefieres Bancolombia para activar tu acceso hoy? 😊",
+          metaRetorno,
         },
       );
 
@@ -475,6 +488,21 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
           );
           const ultimoMensaje = (msgs[0]?.body as string) || "";
 
+          // Consciencia de cuentas ya compartidas en el chat
+          const { rows: ultimosOut } = await consultar(
+            "select body from public.musa_messages where lead_phone = $1 and direction = 'out' order by id desc limit 4",
+            [phone],
+          ).catch(() => ({ rows: [] as Array<{ body?: string }> }));
+          const yaDioCuentas = ultimosOut.some(
+            (m) => m.body && (m.body.includes("3223565761") || m.body.includes("Nequi") || m.body.includes("Bancolombia"))
+          );
+
+          const metaRetornoObj = args.conRecierre
+            ? yaDioCuentas || leadRow?.estado_funnel === "S08_ESPERA_CAPTURA"
+              ? "¿Pudiste completar la transferencia para enviarme la fotico del comprobante? 📸"
+              : "¿Te paso los datos de pago para Nequi o prefieres Bancolombia? 😊"
+            : undefined;
+
           const { generarRespuestaConversacional } = await import("../ia/conversacion.ts");
           const resp = await generarRespuestaConversacional(
             { consultar, urlPublica, presupuestoDiarioUsd: 1.0, apiKey, modelo: modeloIa, baseUrl: urlIa },
@@ -485,7 +513,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
               mayor18: leadRow?.mayor_18 === true,
               ultimoMensaje,
               instruccionEspecifica: temasObjecion[args.id] ?? "Resuelve la duda con empatía.",
-              metaRetorno: args.conRecierre ? "¿Te paso los datos de pago para Nequi o prefieres Bancolombia? 😊" : undefined,
+              metaRetorno: metaRetornoObj,
             },
           );
 
