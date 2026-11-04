@@ -463,6 +463,39 @@ export async function ejecutarComandoConsola(deps: {
     };
   }
 
+  // 3b. Comando: ver <telefono> / historial <telefono>
+  const mHistorial = /^(?:ver|historial|chat)\s+(\+?\d[\d\s-]{7,16})$/i.exec(limpio);
+  if (mHistorial) {
+    const tel = "+" + mHistorial[1].replace(/\D/g, "");
+    const { rows: msgs } = await consultar(
+      "select direccion, tipo, cuerpo, created_at from public.musa_messages where lead_tel = $1 order by id asc limit 50",
+      [tel],
+    ).catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
+    const { rows: leads } = await consultar(
+      "select phone, profile_name, estado_funnel, mayor_18, pagado, escalado_humano, updated_at from public.musa_leads where phone = $1",
+      [tel],
+    ).catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
+    const l = leads[0];
+    const lineas = msgs.map((m: any) => `[${m.direccion === 'in' ? '👤 Lead' : '✨ Musa'}] ${m.cuerpo}`);
+    return {
+      ok: true,
+      accion: "historial_chat",
+      respuesta: `Historial de ${tel} (${l ? l.estado_funnel : 'no encontrado'}, mayor_18=${l?.mayor_18}):\n\n${lineas.length ? lineas.join("\n\n") : "(Sin mensajes registrados)"}`,
+    };
+  }
+
+  // 3c. Comando: sql <consulta> (solo SELECT para diagnósticos de consola)
+  const mSql = /^sql\s+(select\s+.+)$/is.exec(limpio);
+  if (mSql) {
+    const query = mSql[1];
+    const { rows } = await consultar(query, []).catch((e: Error) => ({ rows: [{ error: e.message }] }));
+    return {
+      ok: true,
+      accion: "sql_diagnostico",
+      respuesta: JSON.stringify(rows, null, 2),
+    };
+  }
+
   // 4. Reporte operativo en tiempo real desde la base de datos
   if (/reporte|resumen|estado|metricas|métricas|cuántos|cuantos/i.test(limpio)) {
     const estado = await obtenerEstadoConsola({ consultar });
