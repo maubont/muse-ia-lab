@@ -32,9 +32,6 @@ const RE_SOLICITUD_HUMANO =
 const RE_INTENCION_CONTACTO =
   /(hablar|comunicar|comuniqueme|comunicame|contactar|atender|atienda|pasame|pasa|conectar|quiero|necesito)\s+(con\s+)?(una?\s+)?(persona|alguien|humano|asesor|agente)/i;
 
-const RE_RECLAMO_RESPUESTA =
-  /alguien\s+(que\s+)?(me\s+)?(responda|ayude|atienda|escuche|de\s+informacion)/i;
-
 // 2. Frustración, robotización e incertidumbre sobre atención (Caso real de Mauricio)
 const RE_INCERTIDUMBRE_HUMANO =
   /\b(el\s+humano\s+(ya\s+)?sabe|saber\s+si\s+(el\s+)?humano|esperar\s+a\s+que\s+(un\s+)?humano|quedar(me)?\s+con\s+la\s+incertidumbre|si\s+me\s+van\s+a\s+atender|por\s+que\s+no\s+me\s+(escribe|responde|llama|envio|dice))\b/i;
@@ -83,7 +80,7 @@ export function detectarIntencionEscalado(textoOriginal: string): ResultadoDetec
   }
 
   // 3. Solicitud explícita de un humano
-  if (RE_SOLICITUD_HUMANO.test(norm) || RE_INTENCION_CONTACTO.test(norm) || RE_RECLAMO_RESPUESTA.test(norm)) {
+  if (RE_SOLICITUD_HUMANO.test(norm) || RE_INTENCION_CONTACTO.test(norm)) {
     return {
       debeEscalar: true,
       motivo: "solicitud_explicita",

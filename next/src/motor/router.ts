@@ -123,7 +123,8 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
   }
 
   // 2.c GUARDA DE ESCALADO A HUMANO ACTIVO:
-  // Si el lead ya está en atención humana, el bot NO interfiere con automatizaciones de venta.
+  // Notificar al operador, PERO jamás dejar al usuario en silencio mortal. Si el usuario escribe
+  // o habla, Musa le responde cálidamente con IA sin interferir con scripts de venta.
   if (lead.escalado_humano === true) {
     const numLimpio = lead.phone.replace(/[^\d]/g, "");
     return [
@@ -131,6 +132,12 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
       {
         tipo: "notificar_operador",
         texto: `💬 Mensaje de ${lead.phone} mientras espera asesor humano:\n"${body.slice(0, 160)}"\n👉 Responder: https://wa.me/${numLimpio}`,
+      },
+      {
+        tipo: "gpt_responder",
+        instruccion:
+          "El lead está en espera de un asesor humano de nuestro equipo, pero te acaba de enviar este mensaje. Responde con empatía, calidez y soltura como Musa. Atiende lo que te acaba de decir de inmediato, responde su consulta con sinceridad y déjale saber que el asesor humano ya está al tanto, pero jamás lo ignores ni lo dejes hablando solo.",
+        abortar_si_escala: false,
       },
     ];
   }

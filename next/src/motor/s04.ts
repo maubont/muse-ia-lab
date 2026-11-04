@@ -122,9 +122,9 @@ export function decidirS04(entrada: EntradaS04): Efecto[] {
     return efectos;
   }
 
-  if (!contienePregunta(body, norm)) {
-    // Ambiguo SIN pregunta real ("jaja ok", "mmm", emojis): el gate NUNCA se da
-    // por pasado ni se delega al GPT libre. Se re-pregunta de forma determinista.
+  const esPalabraCortaOEmoji = norm.split(/\s+/).length <= 2 && !contienePregunta(body, norm);
+  if (esPalabraCortaOEmoji) {
+    // Ambiguo muy corto ("jaja ok", "mmm", emojis): re-preguntar
     efectos.push({ tipo: "reask_gate", motivo: "ambiguo_sin_pregunta" });
     return efectos;
   }
