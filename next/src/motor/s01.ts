@@ -1,4 +1,4 @@
-// next/src/motor/s01.ts — ENTRADA DE UN LEAD NUEVO (S00 → S01 → S02 → S04).
+// next/src/motor/s01.ts — ENTRADA DE UN LEAD NUEVO (S00 → S01 → S02 → S04/S06).
 //
 // Es lo PRIMERO que ve un cliente. Portado POR LECTURA de
 // musa-webhook-twilio.ts:1775-1827 (`flujoLeadNuevo`).
@@ -7,15 +7,13 @@
 //   1. dos mensajes de saludo (S01)
 //   2. si preguntó el precio, respuesta inmediata (no se hace esperar)
 //   3. momento avatar: si hay video, va con su caption y una segunda frase
-//   4. stack + gate 18+ (S04) — se manda aquí, no al entrar a S04
-//   5. el lead queda en S04_GATE18
-//
-// SIN AVATAR disponible se usa el «puente» del copy, que NUNCA promete un video
-// que no se va a enviar (regla 1 del plan: no inventar pruebas).
+//   4. stack + gate 18+ (S04) — o stack + precio/cierre si ya confirmó edad en la landing
+//   5. el lead queda en S04_GATE18 o avanza directo a S06_CIERRE
 
 import { etapa, resolverPlaceholders, sinPrefijo, formatMiles } from "../../../functions/motor/copy.ts";
 import type { CfgCopy, LeadNombre } from "../../../functions/motor/copy.ts";
 import type { Efecto, LeadMotor } from "./efectos.ts";
+import { mensajesPrecioYCierre } from "./s04.ts";
 
 /** Video del avatar ya resuelto (caché de nombres o genérico). */
 export interface AvatarListo {
@@ -30,6 +28,8 @@ export interface EntradaLeadNuevo {
   pidePrecio: boolean;
   /** null = no hay video (pipeline apagado, ya enviado o sin caché) */
   avatar: AvatarListo | null;
+  body?: string;
+  norm?: string;
 }
 
 /** Solo Colombia: precio fijo en COP con el USD como ancla. */
@@ -62,7 +62,21 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
   if (e.pidePrecio) saludo.push(mensajePrecioRapido(cfg));
   efectos.push({ tipo: "enviar", textos: saludo });
 
-  const soporte = mensajesStackYGate(lead, cfg);
+  // Si el usuario ya confirmó su mayoría de edad al hacer clic en el botón de la landing (+18),
+  // se reconoce de inmediato para no hacer preguntas redundantes y pasar al cierre.
+  const yaEsMayor =
+    lead.mayor_18 === true ||
+    /\(\+?18\)|mayor de edad|\b18\s*\+/i.test(e.body ?? "") ||
+    /\(\+?18\)|mayor de edad|\b18\s*\+/i.test(e.norm ?? "");
+
+  const soporte = yaEsMayor
+    ? [
+        resolverPlaceholders(etapa(cfg, "S04_STACK_18").mensajes[0], lead, cfg),
+        ...mensajesPrecioYCierre(lead, cfg),
+      ]
+    : mensajesStackYGate(lead, cfg);
+
+  const nuevoEstado = yaEsMayor ? "S06_CIERRE" : "S04_GATE18";
 
   const urlAcademia = "https://server-production-3709.up.railway.app/academia.html";
   const textoDegustacion = `✨ *Degusta la plataforma antes de decidir:*\nPuedes explorar el estudio y ver la *Clase 1 gratis* aquí 👇\n${urlAcademia}`;
@@ -79,9 +93,9 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
       efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(sinPrefijo(mensajes[1]), lead, cfg)] });
     }
     efectos.push({ tipo: "enviar", textos: [textoDegustacion, ...soporte] });
-    efectos.push({ tipo: "lead", patch: { avatar_enviado: true } });
+    efectos.push({ tipo: "lead", patch: { avatar_enviado: true, ...(yaEsMayor ? { mayor_18: true } : {}) } });
     efectos.push({ tipo: "evento", nombre: "avatar_enviado", detalle: { rama: avatar.rama, media_url: avatar.url } });
-    efectos.push({ tipo: "estado", nuevo: "S04_GATE18" });
+    efectos.push({ tipo: "estado", nuevo: nuevoEstado });
     return efectos;
   }
 
@@ -92,7 +106,7 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
 
   efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(puente, lead, cfg)] });
   efectos.push({ tipo: "enviar", textos: [textoDegustacion, ...soporte] });
-  efectos.push({ tipo: "lead", patch: { avatar_enviado: false } });
-  efectos.push({ tipo: "estado", nuevo: "S04_GATE18" });
+  efectos.push({ tipo: "lead", patch: { avatar_enviado: false, ...(yaEsMayor ? { mayor_18: true } : {}) } });
+  efectos.push({ tipo: "estado", nuevo: nuevoEstado });
   return efectos;
 }

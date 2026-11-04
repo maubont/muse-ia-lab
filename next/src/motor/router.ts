@@ -158,6 +158,8 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
         pidePrecio: !!norm && preguntaPrecio(norm),
         // Sin avatar disponible se usa el puente del copy, que no promete video.
         avatar: e.avatar ?? null,
+        body: e.body,
+        norm,
       });
 
     case "S04_GATE18":
