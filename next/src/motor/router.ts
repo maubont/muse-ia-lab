@@ -94,8 +94,14 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
     ];
   }
 
-  // 2.b RESET / REINICIAR: permite reiniciar la prueba del funnel desde cero.
-  if (norm === "reset" || norm === "reiniciar" || norm === "recomenzar") {
+  // 2.b RESET / REINICIAR / REANUDAR: permite reiniciar o desescalar la conversación.
+  if (
+    norm === "reset" ||
+    norm === "reiniciar" ||
+    norm === "recomenzar" ||
+    norm === "reanudar" ||
+    /^(hola\s+)?musa\b/i.test(norm)
+  ) {
     return [
       {
         tipo: "lead",
@@ -106,7 +112,7 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
           escalado_humano: false,
         },
       },
-      { tipo: "evento", nombre: "lead_reiniciado", detalle: {} },
+      { tipo: "evento", nombre: "lead_reiniciado", detalle: { via: norm } },
       {
         tipo: "enviar",
         textos: [
