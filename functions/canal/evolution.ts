@@ -573,5 +573,17 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
         /* ignorar */
       }
     },
+
+    async marcarGrabando(telefono: string): Promise<void> {
+      try {
+        await post(`/chat/sendPresence/${encodeURIComponent(cfg.instancia)}`, {
+          number: telefono.replace(/^\+/, ""),
+          delay: 1200,
+          presence: "recording",
+        });
+      } catch {
+        /* ignorar */
+      }
+    },
   };
 }

@@ -147,6 +147,13 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
 
       // 1.b Transcripción de audio / notas de voz con IA:
       const esAudioEntrante = !!(mensaje.media && mensaje.media.tipo === "audio");
+      if (esAudioEntrante) {
+        // En cuanto detectamos nota de voz, dar presencia inmediata en WhatsApp
+        void canal.marcarGrabando?.(mensaje.telefono).catch?.(() => {});
+      } else {
+        void canal.marcarEscribiendo?.(mensaje.telefono)?.catch?.(() => {});
+      }
+
       if (esAudioEntrante && (!mensaje.texto || mensaje.texto.trim() === "")) {
         try {
           const bytes = await mensaje.media.obtenerBytes();
