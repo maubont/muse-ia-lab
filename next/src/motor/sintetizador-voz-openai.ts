@@ -74,8 +74,8 @@ export async function sintetizarAudioOpenAI(
 
   const baseUrl = (cfg.baseUrl ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
   const modelo = cfg.modelo ?? "tts-1-hd";
-  const voz = cfg.voz ?? "nova";
-  const velocidad = cfg.velocidad ?? 1.02;
+  const voz = cfg.voz ?? (process.env.MUSA_IA_VOZ ?? "sage");
+  const velocidad = cfg.velocidad ?? 0.98;
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 12000);

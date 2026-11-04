@@ -327,7 +327,8 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
             apiKey,
             baseUrl: urlIa,
             modelo: "tts-1-hd",
-            voz: (process.env.MUSA_IA_VOZ ?? "coral").toLowerCase() === "sol" ? "coral" : (process.env.MUSA_IA_VOZ ?? "coral"),
+            voz: (process.env.MUSA_IA_VOZ ?? "sage").toLowerCase(),
+            velocidad: 0.98,
           });
           if (audioBuffer && audioBuffer.length > 0) {
             const pureBase64 = audioBuffer.toString("base64");
@@ -468,7 +469,8 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
             apiKey,
             baseUrl: urlIa,
             modelo: "tts-1-hd",
-            voz: (process.env.MUSA_IA_VOZ ?? "coral").toLowerCase() === "sol" ? "coral" : (process.env.MUSA_IA_VOZ ?? "coral"),
+            voz: (process.env.MUSA_IA_VOZ ?? "sage").toLowerCase(),
+            velocidad: 0.98,
           });
           if (audioBuffer && audioBuffer.length > 0) {
             const pureBase64 = audioBuffer.toString("base64");
