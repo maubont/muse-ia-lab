@@ -29,7 +29,7 @@ import { efectosEntrega } from "./s10.ts";
 // ============================== textos fijos ==============================
 
 export const MSG_PAGO_REENVIO =
-  "¡Gracias! 🙏 La captura me quedó un poquito incompleta o no se ve clara. ¿Me reenvías el comprobante completo (que se vean el monto, la fecha y el número de referencia)? Así te confirmo el acceso enseguida ✨";
+  "¡Gracias! La captura me quedó un poquito incompleta o no se ve clara. ¿Me reenvías el comprobante completo (que se vean el monto, la fecha y el número de referencia)? Así te confirmo el acceso enseguida ✨";
 
 export const MSG_PAGO_VERIFICANDO_DENTRO =
   "¡Recibido! 🙌 Estoy verificando tu pago ahora mismo y te confirmo el acceso por aquí en unos minutos ✨";
@@ -38,7 +38,7 @@ export const MSG_PAGO_VERIFICANDO_FUERA =
   "¡Recibido! 🙌 Estoy verificando tu pago; en cuanto el equipo lo confirme (a primera hora) te llega aquí mismo todo el acceso ✨";
 
 export const MSG_PAGO_EN_PROCESO =
-  "¡Gracias! 🙏 Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque ✨";
+  "¡Gracias! Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque ✨";
 
 export const MSG_PAGO_YA_TIENE_ACCESO =
   "¡Ya tienes tu acceso activo, no te preocupes! ✨ Tu pago ya quedó confirmado y tienes acceso de por vida a todo. Si no encuentras los enlaces o necesitas algo, me escribes con confianza 😊";

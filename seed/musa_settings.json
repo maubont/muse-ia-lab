@@ -336,7 +336,7 @@
                   "mensajes": [
                     "Mira TODO lo que incluye *Modelos IA* 👇\n\n🤖 *13 módulos prácticos:*\n• Cómo funciona el mercado de modelos IA 📊\n• Crear tu modelo hiperrealista desde cero\n• Generar contenido ilimitado con su rostro y estilo\n• Prompts avanzados de imagen y video\n• Automatizar respuestas y atención (como esta 😉)\n• Monetizar packs, suscripciones y contenido exclusivo\n• Atraer tráfico desde TikTok e Instagram\n\n🎁 *Y además 4 bonos:*\n1️⃣ Colección de +20 modelos IA premium\n2️⃣ Audios FemPro\n3️⃣ YouTube Money Machine\n4️⃣ MegaPack Master IA\n\n🎯 Y el bono *Guía Rápida de Implementación (Copiar y Pegar)* si decides hoy: tus plantillas listas para avanzar a tu propio ritmo y sin carga de estudio.\n\nTodo con *acceso de por vida* y soporte por este mismo chat 💜",
                     "Eso sí, importante ⚠️: parte del material es exclusivo para mayores de edad. ¿Me confirmas que ya tienes 18 años o más?",
-                    "[SI RESPONDE QUE ES MENOR] Te agradezco un montón la sinceridad 🙏 Este programa incluye material exclusivo para mayores de edad, así que solo puedo venderlo a partir de los 18. Cuando los cumplas, aquí estaré. ¡Cuídate mucho! 💜"
+                    "[SI RESPONDE QUE ES MENOR] Te agradezco un montón la sinceridad ✨ Este programa incluye material exclusivo para mayores de edad, así que solo puedo venderlo a partir de los 18. Cuando los cumplas, aquí estaré. ¡Cuídate mucho! ✨"
                   ],
                   "objetivo": "Stack de valor compacto (13 módulos + 4 bonos + bono Guía Rápida de Implementación) y confirmación de mayoría de edad DESPUÉS del stack y ANTES de cualquier detalle del material para adultos.",
                   "disparador": "Transición automática desde S02_AVATAR (tras el momento avatar)."
@@ -411,7 +411,7 @@
                   "mensajes": [
                     "[48H — DENTRO DE VENTANA] Hola {{nombre}} 😊 ¿Cómo vas con el curso? ¿Ya creaste tu primer modelo? Cuéntame, me encanta ver los avances 👀",
                     "[SI RESPONDE POSITIVO] ¡Qué nota! 🙌 ¿Me regalas una mini-reseña por aquí (texto o audio)? Con tu permiso la compartimos para que más personas se animen 💜",
-                    "[SI RESPONDE CON PROBLEMA] Gracias por contarme 🙏 Vamos a resolverlo: dime exactamente en qué módulo o enlace tuviste el detalle y lo arreglo de una."
+                    "[SI RESPONDE CON PROBLEMA] Gracias por contarme 🙌 Vamos a resolverlo: dime exactamente en qué módulo o enlace tuviste el detalle y lo arreglo de una."
                   ],
                   "objetivo": "Retener, generar testimonios reales y sembrar futuras ofertas sin quemar el canal.",
                   "disparador": "48h después de la entrega (tarea programada)."
@@ -429,7 +429,7 @@
                   "id": "S91_HUMANO",
                   "notas": "El bot pausa la automatización en ese chat hasta que el humano marque 'resuelto'.",
                   "mensajes": [
-                    "Dame un momentico, {{nombre}} 🙏 Voy a consultar esto con el equipo para darte una respuesta exacta. Te escribo en un ratico por aquí mismo."
+                    "{{nombre}}, he notificado directamente a nuestro asesor humano para que revise tu caso y te responda por aquí mismo en cuanto esté disponible."
                   ],
                   "objetivo": "Escalar a un humano del equipo sin romper la experiencia.",
                   "disparador": "Solicitud explícita de hablar con una persona, queja fuerte, fraude o baja confianza del fallback."
@@ -439,11 +439,11 @@
               "objeciones": [
                 {
                   "objecion": "¿Es estafa? / no confío",
-                  "respuesta": "Te entiendo perfecto, {{nombre}}, en internet hay que cuidarse 🙏 Por eso te dejo una muestra REAL de lo que hay adentro, para que la pruebes tú mismo gratis antes de pagar 👇\n\n🎨 *Retrato hiperrealista de una mujer joven latina, fotografía profesional, luz natural dorada, piel realista con textura, 85mm f/1.4* — pégalo en cualquier IA de imágenes y me cuentas qué tal 😏 Ese prompt es UNO de los del módulo de creación de modelos.\n\nAdemás la entrega es inmediata: pagas, verifico tu comprobante y recibes TODOS los enlaces por este mismo chat, así puedes comprobarlo todo al instante. ¿Qué otra duda te queda?"
+                  "respuesta": "Te entiendo perfecto, {{nombre}}, en internet hay que cuidarse ✨ Por eso te dejo una muestra REAL de lo que hay adentro, para que la pruebes tú mismo gratis antes de pagar 👇\n\n🎨 *Retrato hiperrealista de una mujer joven latina, fotografía profesional, luz natural dorada, piel realista con textura, 85mm f/1.4* — pégalo en cualquier IA de imágenes y me cuentas qué tal 😏 Ese prompt es UNO de los del módulo de creación de modelos.\n\nAdemás la entrega es inmediata: pagas, verifico tu comprobante y recibes TODOS los enlaces por este mismo chat, así puedes comprobarlo todo al instante. ¿Qué otra duda te queda?"
                 },
                 {
                   "objecion": "Está caro / no tengo plata",
-                  "respuesta": "Tranquilo, te entiendo 🙏 Por eso el precio es el que es: *33.000 COP* (≈ *9 USD*) una sola vez, menos de lo que cuesta una pizza 🍕, por 13 módulos + 4 bonos, con acceso de por vida. No hay mensualidades ni cobros escondidos. Si hoy no puedes, no pasa nada: dime cuándo te queda mejor y te guardo la info actualizada. ¿Te parece?"
+                  "respuesta": "Tranquilo, te entiendo ✨ Por eso el precio es el que es: *33.000 COP* (≈ *9 USD*) una sola vez, menos de lo que cuesta una pizza 🍕, por 13 módulos + 4 bonos, con acceso de por vida. No hay mensualidades ni cobros escondidos. Si hoy no puedes, no pasa nada: dime cuándo te queda mejor y te guardo la info actualizada. ¿Te parece?"
                 },
                 {
                   "objecion": "¿Me llega de inmediato?",

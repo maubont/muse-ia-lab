@@ -52,6 +52,44 @@ export async function atenderComandoOperador(
     await canal.enviar(telefonoOperador, { texto }).catch(() => ({ ok: false }));
   };
 
+  // ── REANUDAR (DESESCALAR) ────────────────────────────────────────────────
+  if (comando.tipo === "reanudar") {
+    const tel = comando.telefono;
+    await consultar(
+      `update public.musa_leads
+          set escalado_humano = false, updated_at = now()
+        where phone = $1`,
+      [tel],
+    );
+    await consultar(
+      `insert into public.musa_funnel_events (lead_phone, evento, detalle)
+       values ($1, 'desescalado_operador', '{"via": "whatsapp_operador"}'::jsonb)`,
+      [tel],
+    ).catch(() => ({ rows: [] }));
+
+    await responder(`✅ Bot reactivado para el lead ${tel}. La automatización vuelve a atender sus próximos mensajes.`);
+    return;
+  }
+
+  // ── PAUSAR (ESCALAR MANUAL) ──────────────────────────────────────────────
+  if (comando.tipo === "pausar") {
+    const tel = comando.telefono;
+    await consultar(
+      `update public.musa_leads
+          set escalado_humano = true, updated_at = now()
+        where phone = $1`,
+      [tel],
+    );
+    await consultar(
+      `insert into public.musa_funnel_events (lead_phone, evento, detalle)
+       values ($1, 'pausado_manualmente_operador', '{"via": "whatsapp_operador"}'::jsonb)`,
+      [tel],
+    ).catch(() => ({ rows: [] }));
+
+    await responder(`⏸️ Bot pausado para ${tel}. No se enviarán mensajes automáticos hasta que escribas «reanudar ${tel}».`);
+    return;
+  }
+
   // ── VER ──────────────────────────────────────────────────────────────────
   if (comando.tipo === "ver") {
     const { rows } = await consultar(

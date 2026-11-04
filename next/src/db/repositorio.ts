@@ -213,8 +213,14 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       return rows.length > 0;
     },
 
-    async notificarOperador(texto) {
+    async notificarOperador(texto, leadPhone) {
       if (!telefonoOperador) return; // sin operador configurado no se inventa un destino
+      const numOperador = telefonoOperador.replace(/\D/g, "");
+      const numLead = (leadPhone || "").replace(/\D/g, "");
+      if (numLead && numOperador === numLead) {
+        console.log(`[repositorio] notificarOperador omitido en WhatsApp: lead es el mismo operador (${numLead})`);
+        return;
+      }
       await canal.enviar(telefonoOperador, { texto });
     },
 

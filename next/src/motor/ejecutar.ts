@@ -28,7 +28,7 @@ export interface Repositorio {
   ): Promise<{ shortId: string } | { dupeRef: true }>;
   /** Claim atómico `pagado: false -> true`. false = no se ganó la carrera. */
   reclamarEntrega(phone: string): Promise<boolean>;
-  notificarOperador(texto: string): Promise<void>;
+  notificarOperador(texto: string, leadPhone?: string): Promise<void>;
   /** Devuelve si TODOS los mensajes salieron. Un fallo parcial se reintenta. */
   enviar(phone: string, textos: string[]): Promise<{ ok: boolean }>;
   /** Adjunto con pie de texto (video del avatar). */
@@ -157,7 +157,7 @@ export async function ejecutar(
 
       case "notificar_operador": {
         const texto = efecto.texto.replaceAll("{{short_id}}", resumen.shortId ?? "?");
-        await repo.notificarOperador(texto);
+        await repo.notificarOperador(texto, phone);
         break;
       }
     }

@@ -1577,18 +1577,18 @@ const MSG_NOTA_VOZ =
   "¡Ay, gracias por tu nota de voz! 🙈 Por ahora solo puedo leer mensajes de texto. ¿Me escribes tu mensajito y seguimos? 💜";
 // FASE 4 (pagos) — acuses al lead tras recibir el comprobante.
 const MSG_PAGO_REENVIO =
-  "¡Gracias! 🙏 La captura me quedó un poquito incompleta o no se ve clara. ¿Me reenvías el comprobante completo (que se vean el monto, la fecha y el número de referencia)? Así te confirmo el acceso enseguida 💜";
+  "¡Gracias! La captura me quedó un poquito incompleta o no se ve clara. ¿Me reenvías el comprobante completo (que se vean el monto, la fecha y el número de referencia)? Así te confirmo el acceso enseguida ✨";
 const MSG_PAGO_VERIFICANDO_DENTRO =
-  "¡Recibido! 🙌 Estoy verificando tu pago ahora mismo y te confirmo el acceso por aquí en unos minutos 💜";
+  "¡Recibido! 🙌 Estoy verificando tu pago ahora mismo y te confirmo el acceso por aquí en unos minutos ✨";
 const MSG_PAGO_VERIFICANDO_FUERA =
-  "¡Recibido! 🙌 Estoy verificando tu pago; en cuanto el equipo lo confirme (a primera hora) te llega aquí mismo todo el acceso 💜";
+  "¡Recibido! 🙌 Estoy verificando tu pago; en cuanto el equipo lo confirme (a primera hora) te llega aquí mismo todo el acceso ✨";
 const MSG_PAGO_EN_PROCESO =
-  "¡Gracias! 🙏 Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque 💜";
+  "¡Gracias! Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque ✨";
 const MSG_PAGO_RECHAZO_SUAVE =
-  "¡Hola! 🙏 Revisamos tu comprobante y no pudimos confirmarlo de momento (puede ser un tema técnico de la imagen o que aún no se refleja). ¿Me reenvías el comprobante completo o me cuentas más para ayudarte? Quiero asegurarme de activarte el acceso 💜";
+  "¡Hola! Revisamos tu comprobante y no pudimos confirmarlo de momento (puede ser un tema técnico de la imagen o que aún no se refleja). ¿Me reenvías el comprobante completo o me cuentas más para ayudarte? Quiero asegurarme de activarte el acceso ✨";
 // Lead que YA pagó (pagado=true) y reenvía otro comprobante: no re-entregamos.
 const MSG_PAGO_YA_TIENE_ACCESO =
-  "¡Ya tienes tu acceso activo, no te preocupes! 💜 Tu pago ya quedó confirmado y tienes acceso de por vida a todo. Si no encuentras los enlaces o necesitas algo, me escribes con confianza 😊";
+  "¡Ya tienes tu acceso activo, no te preocupes! ✨ Tu pago ya quedó confirmado y tienes acceso de por vida a todo. Si no encuentras los enlaces o necesitas algo, me escribes con confianza 😊";
 
 /**
  * Cuántos acuses de escalado se han enviado DESPUÉS del último evento

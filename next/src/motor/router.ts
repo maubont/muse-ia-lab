@@ -29,6 +29,7 @@ import { decidirS08 } from "./s08.ts";
 import type { EntradaS08 } from "./s08.ts";
 import { decidirLeadNuevo } from "./s01.ts";
 import type { AvatarListo } from "./s01.ts";
+import { detectarIntencionEscalado, generarMensajeHandoffCliente } from "./deteccion-escalado.ts";
 
 /** «Listo, quedas fuera»: el único mensaje que se manda tras un STOP. */
 export const MSG_OPTOUT =
@@ -117,11 +118,12 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
   // 2.c GUARDA DE ESCALADO A HUMANO ACTIVO:
   // Si el lead ya está en atención humana, el bot NO interfiere con automatizaciones de venta.
   if (lead.escalado_humano === true) {
+    const numLimpio = lead.phone.replace(/[^\d]/g, "");
     return [
       { tipo: "evento", nombre: "mensaje_durante_escalado", detalle: { body } },
       {
         tipo: "notificar_operador",
-        texto: `💬 Mensaje de ${lead.phone} (escalado a humano): "${body.slice(0, 160)}"`,
+        texto: `💬 Mensaje de ${lead.phone} mientras espera asesor humano:\n"${body.slice(0, 160)}"\n👉 Responder: https://wa.me/${numLimpio}`,
       },
     ];
   }
@@ -142,22 +144,30 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
     // Sin objeción de bot en el copy: no se inventa una respuesta.
   }
 
-  // 4. Pide una persona: se escala y se avisa al operador.
-  if (norm && pideHumano(norm) && !preguntaPorBot(norm)) {
-    let texto: string;
-    try {
-      texto = resolverPlaceholders(etapa(cfg, "S91_HUMANO").mensajes[0], lead as LeadNombre, cfg);
-    } catch {
-      texto = "¡Hola! Con mucho gusto te comunico con un asesor de nuestro equipo. Ya le paso el chat para que te atienda personalmente por aquí mismo ✨";
-    }
+  // 4. Detección multicapa de escalado a humano (solicitud explícita, frustración, incertidumbre, reclamos)
+  const deteccionEscalado = detectarIntencionEscalado(body);
+  if ((deteccionEscalado.debeEscalar || (norm && pideHumano(norm))) && !preguntaPorBot(norm)) {
+    const nombreLead = (lead as LeadNombre).nombre || (lead as { profile_name?: string }).profile_name || null;
+    const textoConfirmacion = generarMensajeHandoffCliente(nombreLead);
+    const numLimpio = lead.phone.replace(/[^\d]/g, "");
+    const motivo = deteccionEscalado.motivo ?? "solicitud_explicita";
+
     return [
       { tipo: "lead", patch: { escalado_humano: true } },
-      { tipo: "evento", nombre: "escalado", detalle: { motivo: "pidio_humano" } },
+      { tipo: "evento", nombre: "escalado", detalle: { motivo, detalle: deteccionEscalado.detalle } },
       {
         tipo: "notificar_operador",
-        texto: `🚨 ATENCIÓN REQUERIDA: El cliente ${lead.phone} pidió hablar con un humano:\n"${body.slice(0, 160)}"`,
+        texto:
+          `🚨 ATENCIÓN REQUERIDA — ESCALADO A HUMANO 🚨\n\n` +
+          `👤 *Lead:* ${nombreLead || lead.phone}\n` +
+          `📱 *Teléfono:* ${lead.phone}\n` +
+          `📍 *Etapa:* ${lead.estado_funnel}\n` +
+          `⚠️ *Motivo:* ${motivo}\n` +
+          `📝 *Mensaje:* "${body.slice(0, 160)}"\n\n` +
+          `👉 *Responder en 1 clic:* https://wa.me/${numLimpio}\n` +
+          `⚡ *Para reactivar el bot cuando termines, responde:* reanudar ${lead.phone}`,
       },
-      { tipo: "enviar", textos: [texto] },
+      { tipo: "enviar", textos: [textoConfirmacion] },
     ];
   }
 

@@ -1,12 +1,13 @@
-// next/src/ia/conversacion.ts — MOTOR CONVERSACIONAL CONTEXTUAL (OPENAI GPT-6-LUNA)
+// next/src/ia/conversacion.ts — MOTOR CONVERSACIONAL COGNITIVO (OPENAI GPT-6-LUNA)
 //
-// Une el modelo de razonamiento gpt-6-luna con la memoria histórica de musa_messages.
-// Diseñado para WhatsApp: respuestas de 2-3 líneas cortas, empáticas, resolutivas
-// y orientadas a cerrar hacia Nequi / Bancolombia, respetando el catálogo cerrado de hechos.
+// Une el modelo de razonamiento gpt-6-luna con memoria de trabajo, guardarraíles de
+// anti-repetición deterministas (< 2ms) y psicología de ventas consultiva para Colombia/LATAM.
+// Respuestas en micro-mensajes de 2-3 líneas, cálidas, sin esnobismos y con cierre guiado.
 
 import type { Consultar } from "../db/repositorio.ts";
 import type { CfgFunnel } from "../db/config-funnel.ts";
 import { consultarPresupuesto, registrarConsumo, costeEstimado } from "../vision/presupuesto.ts";
+import { validarAntiRepeticion, sanitizarRespuesta } from "./anti-repeticion.ts";
 
 export interface ContextoConversacion {
   phone: string;
@@ -37,9 +38,6 @@ export interface ResultadoConversacion {
   tokens?: { prompt: number; completion: number };
 }
 
-/** Expresión para detectar cuando el modelo promete consultar con el equipo humano. */
-const RE_PROMESA_EQUIPO = /(confirm|consult|pregunt|verific|revis|chequ|valid)\w*[^.!?\n]{0,40}\bequipo\b/i;
-
 /** Filtro anti-alucinación de precios y descuentos no autorizados. */
 const RE_DESCUENTO = /\b(te lo dejo en|descuento especial|rebaja|te puedo rebajar|te hago un descuento|te lo rebajo|20\.000|25\.000|15\.000|10\.000)\b/i;
 
@@ -49,6 +47,9 @@ const RE_PROMESAS_INGRESOS = /\b(ingresos garantizados|ganaras seguro|te haras r
 /** Filtro de seguridad: prohíbe captura de claves bancarias o números de tarjeta. */
 const RE_DATOS_PRIVADOS = /\b(clave|contraseña|pin de tu|codigo de seguridad|cvv|cvc|numero de tarjeta|tu tarjeta de credito)\b/i;
 
+/** Detector de quejas o irritación por repetición / robotización. */
+const RE_QUEJA_REPETICION = /\b(otra vez|lo mismo|la misma respuesta|exactamente igual|repetir|repites|manitos|manos|choque|rogar|enredado|no entiendo nada)\b/i;
+
 /** Fallback cálido y orientado a avance cuando la red o el LLM no están disponibles. */
 export function generarFallbackSeguro(ctx: ContextoConversacion, urlPublica: string): string {
   const nombreTxt = ctx.nombre ? ` ${ctx.nombre}` : "";
@@ -57,14 +58,14 @@ export function generarFallbackSeguro(ctx: ContextoConversacion, urlPublica: str
   if (ctx.estadoFunnel === "S04_GATE18" && ctx.mayor18 !== true) {
     return (
       `¡Excelente${nombreTxt}! ✨ Recuerda que por políticas de la plataforma, el acceso es exclusivo para mayores de edad.\n\n` +
-      `¿Me confirmas si ya tienes *18 años o más* para compartirte los detalles y el precio especial? 🙏`
+      `¿Me confirmas si ya tienes *18 años o más* para compartirte los detalles y el precio especial? 😊`
     );
   }
 
   const pregunta = ctx.metaRetorno || "¿Te gustaría que te comparta los datos de Nequi o Bancolombia para activar tu acceso hoy mismo, o tienes alguna duda específica?";
 
   return (
-    `¡Aquí estoy contigo${nombreTxt}! ✨ El curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a Musa Studio) tiene un pago único de *33.000 COP* (≈ *9 USD*).\n\n` +
+    `¡Aquí estoy contigo${nombreTxt}! ✨ El curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a la plataforma) tiene un pago único de *33.000 COP* (≈ *9 USD*).\n\n` +
     `✨ Puedes degustar la plataforma y ver la *Clase 1 gratis* aquí:\n` +
     `${baseAcademia}/academia.html\n\n` +
     `${pregunta}`
@@ -78,7 +79,7 @@ export function armarSystemPrompt(ctx: ContextoConversacion, urlPublica: string,
 
   const promptBase = cfgPrompt && cfgPrompt.length > 50
     ? cfgPrompt
-    : `Eres Musa, la asesora comercial y asistente virtual oficial de "Muse IA Lab" en WhatsApp.`;
+    : `Eres Musa, asesora comercial y asistente digital de "Muse IA Lab" en WhatsApp.`;
 
   return (
 `${promptBase}
@@ -91,35 +92,47 @@ export function armarSystemPrompt(ctx: ContextoConversacion, urlPublica: string,
 ${ctx.metaRetorno ? `- Meta de cierre de este turno: ${ctx.metaRetorno}` : ""}
 ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspecifica}` : ""}
 
-[HECHOS CERRADOS DEL PRODUCTO — TU ÚNICA VERDAD]
-- Oferta: Curso "Modelos IA" (13 módulos prácticos en video y plantillas de copiar y pegar) + 4 bonos exclusivos (Colección +20 modelos, Audios FemPro, YouTube Money Machine, MegaPack Master IA) + Bono de Decisión Rápida "Guía Rápida de Implementación" (primeras 24 horas).
-- Precio: Único pago de 33.000 COP (Colombia: Nequi, Bancolombia o llave Bre-B) o ≈ 9 USD (internacional). Sin mensualidades ni cobros sorpresa.
-- Requisitos técnicos: No requiere PC gamer ni tarjeta gráfica costosa; todo corre en la nube desde cualquier celular o computador básico.
-- Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea personajes 100% ficticios con IA detrás de escena.
-- Plataforma / Demo: Puede ver la Clase 1 gratis en ${baseAcademia}/academia.html.
-- Entrega: Enlace personal al área privada inmediatamente tras validar el comprobante de transferencia bancaria por este chat.
+[HECHOS VERIFICADOS DEL PRODUCTO — TU ÚNICA BASE DE CONOCIMIENTO]
+- Producto: Curso "Modelos IA" (13 módulos prácticos en video y plantillas de copiar y pegar) + 4 bonos de regalo (Colección +20 modelos, Audios FemPro, YouTube Money Machine, MegaPack Master IA) + Bono de arranque rápido "Guía Rápida de Implementación".
+- Precio: Único pago promocional de 33.000 COP (Colombia: Nequi, Bancolombia o Llave Bre-B) o ≈ 9 USD (internacional). Sin mensualidades ni cargos futuros.
+- Requisitos técnicos: CERO computadores costosos ni tarjetas gráficas caras; todo corre en la nube desde cualquier celular o computador básico.
+- Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea personajes 100% ficticios con IA.
+- Plataforma / Demo: Puede ver la Clase 1 gratis en ${baseAcademia}/academia.html sin registrarse ni pagar nada.
+- Entrega: Acceso de por vida inmediato tras validar el comprobante de transferencia bancaria por este chat.
 
-[REGLAS CONVERSACIONALES WHATSAPP (MANDATORIAS)]
-1. LONGITUD: Responde en MÁXIMO 2 A 3 LÍNEAS CORTAS (estilo chat rápido de WhatsApp, 35 a 65 palabras). Prohibidos los muros de texto.
-2. TONO: Cálido, latino (Colombia neutro), empático, tuteo respetuoso. Emojis medidos (✨, 🙌, 🚀, 😊, 📸). ESTÁ ESTRICTAMENTE PROHIBIDO usar corazones morados.
-3. SI TE PREGUNTAN SI ERES UN BOT: Admítelo SIEMPRE con simpatía y orgullo profesional, y conviértelo en demo del producto:
-   "¡Totalmente! 😄 Soy Musa, la asistente digital de Muse IA Lab creada con IA. Y de hecho, automatizar la atención en WhatsApp e Instagram así como lo hago contigo es justamente una de las habilidades que aprenderás en el Módulo 12 😉 Detrás de mí está el equipo humano revisando cada comprobante."
-4. CIERRE GUIADO CONTEXTUAL: Remata SIEMPRE con una pregunta orientada al siguiente paso o a elegir medio de pago, PERO si las cuentas ya fueron dadas en el chat, orienta a la transferencia:
-   - Si aún no tiene las cuentas: "¿Te paso los datos para Nequi o prefieres Bancolombia? 😊"
-   - Si ya tiene las cuentas en el chat: "¿Crees que puedas hacer la transferencia ahorita para activarte el aula de una vez? 🚀"
-5. GATE 18+: Si el usuario AÚN NO confirma ser mayor de edad, responde su duda y termina SIEMPRE preguntando: "¿Me confirmas si ya tienes 18 años o más? 😊". Si declara ser menor de edad, rechaza amablemente la venta.
-6. CERO ALUCINACIÓN FINANCIERA: Jamás inventes precios ni descuentos. Jamás prometas "ingresos garantizados" ni "hacerse rico". Jamás pidas números de tarjeta, claves ni PINs ni generes números de cuenta inventados.
-7. MANEJO DE CONFUSIÓN Y RECLAMOS: Si el usuario dice "¿cuál captura?", "estoy pidiendo info" o nota que te adelantaste, valida de inmediato con gracia:
-   "¡Tienes toda la razón, qué pena contigo! Me adelanté de la emoción 😅 Olvida lo de la captura por un momento." Responde en 2 líneas sin rodeos y sin exigir pagos.
-8. MANEJO DE DESCONFIANZA O TEMOR A ESTAFAS: Si el lead duda o pregunta si es real, valida su prudencia con amabilidad ("En internet hay que ser precavido y haces muy bien en dudar 🙏") e invítalo a ver la Clase 1 gratis en ${baseAcademia}/academia.html sin pagar nada.
-9. CONSCIENCIA HISTÓRICA DEL CHAT: Revisa los mensajes previos. Si el usuario ya dijo que vio la plataforma o el video, jamás le digas que vaya a verlo. Si ya tiene las cuentas bancarias en la pantalla, jamás le preguntes si se las pasas.
-10. ESTRATEGIA CONSULTIVA ANTE FALTA DE DINERO (ej. 'Tengo 29 mil pesos'): Valida con calidez y picardía ("Te entiendo, estás a nada: son solo 4.000 pesitos de diferencia, lo de un café 😊"). Explica con afecto que la plataforma y los 4 bonos se activan con los 33.000 COP exactos, recuérdale que con su primera creación monetizada recupera esa inversión multiplicada, y motívalo a completar el faltante por Nequi para no perder el cupo.
-11. ESPONTANEIDAD TOTAL: Cero respuestas de plantilla o párrafos enlatados. Habla como una experta en ventas humana, fresca, inteligente y empática.`
+[DICCIONARIO CULTURAL OBLIGATORIO — CERO ESNOBISMOS]
+- PROHIBIDO decir: "atelier", "fascinante travesía", "sumérgete", "ecosistema disruptivo", "suite", "proseguir", "estimado".
+- USAR SIEMPRE: "taller", "estudio", "tu aula virtual", "el curso", "las herramientas", "el paso a paso", "pesitos".
+- Si el usuario pregunta qué es "atelier", explica con simpatía: "Atelier es simplemente una palabra francesa para taller o estudio creativo, qué pena el enredo 😅 Aquí nos referimos a tu espacio de trabajo digital."
+
+[REGLAS ESTRICTAS DE COMUNICACIÓN (WHATSAPP 2026)]
+1. LONGITUD: Máximo 2 a 3 líneas cortas (25 a 50 palabras). En WhatsApp nadie lee testamentos.
+2. EMOJIS: Máximo 1 o 2 emojis amables por mensaje (✨, 😊, 🙌, 📸, 🚀, ☕).
+   - ESTÁ ESTRICTAMENTE PROHIBIDO usar corazones morados (💜) ni el emoji 🙏 ("manitos juntas / súplica").
+3. PROTOCOLO V-A-C-O ANTE CONFUSIÓN O RECLAMO ("está enredado", "no entiendo", "otra vez lo mismo", "qué me mandó"):
+   - V (Validar): Dale la razón de frente ("¡Tienes toda la razón, qué pena contigo!").
+   - A (Aceptar culpa): "Me enredé yo solita explicándote 😅 Olvida eso un momento."
+   - C (Clarificar): Explica en 1 oración sencilla qué es el curso (videos cortos para crear modelos virtuales y ganar dinero sin mostrar tu cara).
+   - O (Opción): Ofrece ver la Clase 1 gratis o transferir a un compañero humano. CERO presión de venta.
+4. SI PREGUNTA SI ERES UN BOT: Admítelo con orgullo y simpatía:
+   "¡Totalmente! 😄 Soy Musa, la asistente digital del equipo creada con IA. Y te cuento una cosa: automatizar la atención en WhatsApp tal como lo hago contigo es justamente una de las habilidades que enseñamos dentro del curso (Módulo 12) 😉 Detrás de mí está el equipo humano real."
+5. MANEJO DE FALTA DE DINERO (ej. 'Solo tengo 29 mil / 30 mil pesos'):
+   - Aplica la técnica de la micro-brecha afectiva con cariño:
+   "¡Ay pero estás a nada! 😅 Son solo 3.000 pesitos de diferencia, lo que cuesta un café con empanada. El sistema nos pide los 33.000 exactos para activarte los 13 módulos y los 4 bonos de regalo, pero créeme que con tu primer contenido recuperas eso multiplicado. ¿Alcanzas a completar esos 3 mil hoy en Nequi para no perderte el bono de arranque rápido?"
+6. ANTI-REPETICIÓN: Revisa el historial de mensajes. Si ya dijiste una frase o diste las cuentas bancarias en mensajes recientes, NO las repitas.
+7. CERO ALUCINACIÓN FINANCIERA: Nunca inventes cuentas bancarias en texto libre ni rebajes el precio de 33.000 COP / 9 USD.`
   );
 }
 
 /** Recupera los últimos turnos de musa_messages para darle memoria contextual a Musa. */
-export async function cargarHistorialMusa(consultar: Consultar, phone: string, limite = 8): Promise<Array<{ role: "user" | "assistant"; content: string }>> {
+export async function cargarHistorialMusa(
+  consultar: Consultar,
+  phone: string,
+  limite = 8,
+): Promise<{
+  mensajes: Array<{ role: "user" | "assistant"; content: string }>;
+  ultimosOut: string[];
+}> {
   try {
     const { rows } = await consultar(
       `select direction, body from public.musa_messages
@@ -128,19 +141,28 @@ export async function cargarHistorialMusa(consultar: Consultar, phone: string, l
       [phone, limite],
     );
 
-    const cronologico = rows.reverse();
-    return cronologico.map((r: { direction?: string; body?: string }) => ({
-      role: r.direction === "in" ? ("user" as const) : ("assistant" as const),
-      content: (r.body ?? "").slice(0, 350),
-    }));
+    const cronologico = [...rows].reverse();
+    const ultimosOut: string[] = [];
+
+    const mensajes = cronologico.map((r: { direction?: string; body?: string }) => {
+      const dir = r.direction === "in" ? ("user" as const) : ("assistant" as const);
+      const cuerpo = (r.body ?? "").trim();
+      if (dir === "assistant") {
+        ultimosOut.unshift(cuerpo);
+      }
+      return {
+        role: dir,
+        content: cuerpo.slice(0, 350),
+      };
+    });
+
+    return { mensajes, ultimosOut };
   } catch {
-    return [];
+    return { mensajes: [], ultimosOut: [] };
   }
 }
 
-/**
- * Genera la respuesta conversacional contextual usando gpt-6-luna.
- */
+/** Genera la respuesta conversacional contextual usando gpt-6-luna con guardarraíles cognitivos. */
 export async function generarRespuestaConversacional(
   deps: DepsConversacion,
   ctx: ContextoConversacion,
@@ -152,9 +174,9 @@ export async function generarRespuestaConversacional(
   const urlPublica = deps.urlPublica || "https://server-production-3709.up.railway.app";
   const topePresupuesto = deps.presupuestoDiarioUsd ?? 1.0;
 
-  // Si no hay key configurada (ej. pruebas unitarias sin internet), devolver fallback seguro
+  // Si no hay key configurada (ej. pruebas unitarias sin red), devolver fallback seguro
   if (!apiKey) {
-    const texto = generarFallbackSeguro(ctx, urlPublica);
+    const texto = sanitizarRespuesta(generarFallbackSeguro(ctx, urlPublica), false);
     return {
       ok: false,
       texto,
@@ -164,7 +186,7 @@ export async function generarRespuestaConversacional(
     };
   }
 
-  // 1. Control preventivo de presupuesto diario (fail-open si hay problema transitorio de DB)
+  // 1. Control preventivo de presupuesto diario
   let permitido = true;
   try {
     const costoEstimadoTurno = costeEstimado(600, 350, { entrada: 0.1, salida: 0.5 });
@@ -182,7 +204,7 @@ export async function generarRespuestaConversacional(
   }
 
   if (!permitido) {
-    const texto = generarFallbackSeguro(ctx, urlPublica);
+    const texto = sanitizarRespuesta(generarFallbackSeguro(ctx, urlPublica), false);
     return {
       ok: false,
       texto,
@@ -193,7 +215,8 @@ export async function generarRespuestaConversacional(
   }
 
   // 2. Construir historial de mensajes y system prompt
-  const historial = await cargarHistorialMusa(deps.consultar, ctx.phone, 8);
+  const { mensajes: historial, ultimosOut } = await cargarHistorialMusa(deps.consultar, ctx.phone, 8);
+  const esQueja = RE_QUEJA_REPETICION.test(ctx.ultimoMensaje || "");
   const systemPrompt = armarSystemPrompt(ctx, urlPublica, deps.cfg?.gptSystem?.prompt);
 
   const mensajesPayload: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
@@ -230,7 +253,7 @@ export async function generarRespuestaConversacional(
     if (!res.ok) {
       const errTexto = await res.text().catch(() => "");
       console.warn(`[ia-conversacion] HTTP ${res.status} de OpenAI (${modelo}): ${errTexto.slice(0, 100)}`);
-      const fallbackTexto = generarFallbackSeguro(ctx, urlPublica);
+      const fallbackTexto = sanitizarRespuesta(generarFallbackSeguro(ctx, urlPublica), esQueja);
       return {
         ok: false,
         texto: fallbackTexto,
@@ -249,46 +272,57 @@ export async function generarRespuestaConversacional(
     if (!textoSalida) {
       return {
         ok: false,
-        texto: generarFallbackSeguro(ctx, urlPublica),
+        texto: sanitizarRespuesta(generarFallbackSeguro(ctx, urlPublica), esQueja),
         escalo: false,
         latenciaMs,
         origen: "fallback_seguro",
       };
     }
 
-    // 4. Post-procesamiento y guardarraíles de salida:
-    // a. Limpiar corazones morados
-    textoSalida = textoSalida.replace(/💜/g, "✨");
+    // 4. Guardarraíl Anti-Repetición determinista:
+    const checkRepeticion = validarAntiRepeticion(textoSalida, ultimosOut, 0.65);
+    if (checkRepeticion.repetido) {
+      console.warn(`[ia-conversacion] GUARDARRAÍL ANTI-REPETICIÓN ACTIVADO (similitud: ${checkRepeticion.maxSimilitud.toFixed(2)})`);
+      // Si el modelo repitió lo mismo que en el turno anterior, cambiar a variación fresca
+      if (esQueja) {
+        textoSalida =
+          "¡Tienes toda la razón, qué pena contigo! Me repetí yo solita y entiendo tu molestia 😅 Olvida eso un momento. Aquí estoy lista para responderte claro y sin enredos. ¿Qué duda puntual tienes?";
+      } else {
+        textoSalida =
+          "¡Claro que sí! Para no darte más vueltas: el curso Modelos IA te enseña desde cero a crear modelos virtuales con inteligencia artificial y monetizarlas por internet. ¿Te gustaría ver la Clase 1 gratis o tienes alguna duda específica? 😊";
+      }
+    }
 
-    // b. Detectar si intentó inventar descuentos no autorizados
+    // 5. Sanitización de Emojis y muletillas
+    textoSalida = sanitizarRespuesta(textoSalida, esQueja);
+
+    // 6. Guardarraíles de salida:
+    // a. Descuentos no autorizados
     if (RE_DESCUENTO.test(textoSalida)) {
       console.warn("[ia-conversacion] guardarraíl activado: intento de descuento no autorizado");
       textoSalida =
-        `El acceso completo a Modelos IA tiene un único pago de *33.000 COP* (≈ *9 USD*), sin mensualidades ni cobros adicionales ✨ Incluye los 13 módulos, 4 bonos y la plataforma de por vida. ¿Te paso los datos para Nequi o Bancolombia? 😊`;
+        `El acceso completo a Modelos IA tiene un único pago de *33.000 COP* (≈ *9 USD*), sin mensualidades ni cobros adicionales ✨ Incluye los 13 módulos, 4 bonos y el aula virtual de por vida. ¿Te paso los datos para Nequi o Bancolombia? 😊`;
     }
 
-    // c. Detectar promesas de enriquecimiento rápido
+    // b. Promesas de riqueza rápida
     if (RE_PROMESAS_INGRESOS.test(textoSalida)) {
       console.warn("[ia-conversacion] guardarraíl activado: promesa de riqueza bloqueada");
       textoSalida =
-        `El curso es 100% formativo y práctico: te da el método y las plantillas listas para crear y monetizar tu modelo virtual a tu propio ritmo. Los resultados dependen de tu dedicación y constancia ✨ ¿Te gustaría revisar el temario completo?`;
+        `El curso es 100% práctico: te da el método y las plantillas listas para crear y monetizar tu modelo virtual a tu propio ritmo. Los resultados dependen de tu dedicación ✨ ¿Te gustaría revisar el temario completo?`;
     }
 
-    // d. Detectar solicitud indebida de claves o tarjetas
+    // c. Solicitud indebida de datos bancarios
     if (RE_DATOS_PRIVADOS.test(textoSalida)) {
       console.warn("[ia-conversacion] guardarraíl activado: solicitud de datos privados neutralizada");
       textoSalida =
         `Nosotros NUNCA te pediremos claves ni datos de tarjetas 🔒 El pago se realiza por transferencia directa a Nequi o Bancolombia y solo nos compartes la captura del comprobante por aquí.`;
     }
 
-    // e. Evaluar si escaló al equipo humano
-    const escalo = RE_PROMESA_EQUIPO.test(textoSalida);
-
     const tokensEntrada = json.usage?.prompt_tokens ?? 0;
     const tokensSalida = json.usage?.completion_tokens ?? 0;
     const costeReal = costeEstimado(tokensEntrada, tokensSalida, { entrada: 0.1, salida: 0.5 });
 
-    // 5. Registrar consumo en base de datos de manera asíncrona
+    // 7. Registrar consumo en base de datos de manera asíncrona
     void registrarConsumo(deps.consultar, {
       lead: ctx.phone,
       proveedor: baseUrl,
@@ -303,7 +337,7 @@ export async function generarRespuestaConversacional(
     return {
       ok: true,
       texto: textoSalida,
-      escalo,
+      escalo: false, // La escalada formal ahora la gestiona el enrutador agéntico y deteccion-escalado.ts
       latenciaMs,
       origen: "ia_luna",
       tokens: { prompt: tokensEntrada, completion: tokensSalida },
@@ -311,7 +345,7 @@ export async function generarRespuestaConversacional(
   } catch (err: unknown) {
     const latenciaMs = Date.now() - t0;
     console.warn(`[ia-conversacion] excepción en llamada: ${String(err).slice(0, 100)}`);
-    const fallbackTexto = generarFallbackSeguro(ctx, urlPublica);
+    const fallbackTexto = sanitizarRespuesta(generarFallbackSeguro(ctx, urlPublica), esQueja);
     return {
       ok: false,
       texto: fallbackTexto,

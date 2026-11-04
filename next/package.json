@@ -9,7 +9,7 @@
     "seed": "node scripts/generar-seed.mjs",
     "evo": "node scripts/evo.mjs",
     "guion": "node --experimental-strip-types scripts/generar-guion.mjs",
-    "test": "node scripts/test-servidor.mjs && node scripts/test-evo.mjs && node --experimental-strip-types scripts/test-s04.mjs && node --experimental-strip-types scripts/test-s06.mjs && node --experimental-strip-types scripts/test-s10.mjs && node --experimental-strip-types scripts/test-ia-conversacion.mjs && node --experimental-strip-types scripts/test-incidente-screenshot.mjs",
+    "test": "node scripts/test-servidor.mjs && node scripts/test-evo.mjs && node --experimental-strip-types scripts/test-s04.mjs && node --experimental-strip-types scripts/test-s06.mjs && node --experimental-strip-types scripts/test-s10.mjs && node --experimental-strip-types scripts/test-ia-conversacion.mjs && node --experimental-strip-types scripts/test-incidente-screenshot.mjs && node --experimental-strip-types scripts/test-agente-musa.mjs",
     "verificar": "node scripts/verificar-esquema.mjs && node scripts/verificar-seed.mjs"
   },
   "dependencies": {

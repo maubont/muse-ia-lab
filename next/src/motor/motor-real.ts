@@ -165,6 +165,10 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         } catch (e) {
           console.warn("[musa] error transcribiendo nota de voz:", String(e).slice(0, 100));
         }
+        if (!mensaje.texto || mensaje.texto.trim() === "") {
+          mensaje.texto = "Hola, te envié una nota de voz pero no se pudo escuchar.";
+          mensaje.media = null;
+        }
       }
 
       // 1.c CAPTURA DEL CORREO. No se pide: si el cliente lo escribe, se guarda.
