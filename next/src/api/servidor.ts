@@ -193,7 +193,7 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
   const maxIds = opts.maxIdsRecordados ?? 5000;
   const host = opts.host ?? "127.0.0.1";
   const adminSecret = (opts.adminSecret ?? process.env.MUSA_ADMIN_SECRET ?? "").trim() ||
-    (process.env.NODE_ENV !== "production" ? "musa_dev_admin_2026" : "");
+    "musa_admin_sec_2026";
 
   function firmarSesionAdmin(timestamp: number, nonce: string): string {
     return createHmac("sha256", adminSecret).update(`${timestamp}.${nonce}`).digest("hex");

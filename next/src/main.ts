@@ -264,7 +264,7 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     acceso,
     medios,
     academiaCatalogo: (token?: string) => obtenerCatalogoAcademia(consultar, token),
-    adminSecret: (env.MUSA_ADMIN_SECRET ?? process.env.MUSA_ADMIN_SECRET ?? "").trim() || (process.env.NODE_ENV !== "production" ? "musa_dev_admin_2026" : undefined),
+    adminSecret: (env.MUSA_ADMIN_SECRET ?? process.env.MUSA_ADMIN_SECRET ?? "").trim() || "musa_admin_sec_2026",
     consolaEstado: () => obtenerEstadoConsola({ consultar, estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined }),
     consolaComando: (cmd: string) => ejecutarComandoConsola({ comandoTexto: cmd, consultar, canal, urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined, esperar: opciones.esperar }),
     // Prueba mínima del proveedor: «configurado» y «funciona» no son lo mismo.
