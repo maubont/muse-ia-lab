@@ -26,6 +26,8 @@ export interface CfgFunnel {
   /** Países habilitados para el negocio. ["CO"] = solo Colombia. */
   paisesHabilitados: string[];
   operador: { whatsapp?: string };
+  gptSystem?: { prompt?: string };
+  modelos?: { conversacion?: string; clasificador?: string; vision?: string };
 }
 
 export const CLAVES = [
@@ -38,6 +40,8 @@ export const CLAVES = [
   "marca",
   "operador",
   "paises_habilitados",
+  "gpt_system",
+  "modelos",
 ] as const;
 
 function sanitizarFunnelCopy(fc: CfgFunnel["funnelCopy"]): CfgFunnel["funnelCopy"] {
@@ -106,5 +110,7 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
       ? (mapa.paises_habilitados as string[])
       : ["CO"]) as string[],
     operador: (mapa.operador ?? {}) as CfgFunnel["operador"],
+    gptSystem: (mapa.gpt_system ?? { prompt: "" }) as CfgFunnel["gptSystem"],
+    modelos: (mapa.modelos ?? {}) as CfgFunnel["modelos"],
   };
 }

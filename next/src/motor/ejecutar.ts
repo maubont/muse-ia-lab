@@ -39,7 +39,7 @@ export interface Repositorio {
    * — nunca deja al cliente sin nada.
    */
   entregarCurso(phone: string, entrega: { bienvenida: string; respaldo: string[] }): Promise<void>;
-  gptResponder(args: { instruccion: string; abortarSiEscala: boolean }): Promise<{ escalo: boolean }>;
+  gptResponder(args: { instruccion: string; abortarSiEscala: boolean; phone?: string }): Promise<{ escalo: boolean }>;
   gptFallback(phone: string): Promise<void>;
   responderObjecion(phone: string, args: { id: number; conRecierre: boolean }): Promise<void>;
   reaskGate(phone: string, motivo: string): Promise<void>;
@@ -93,6 +93,7 @@ export async function ejecutar(
         const r = await repo.gptResponder({
           instruccion: efecto.instruccion,
           abortarSiEscala: efecto.abortar_si_escala,
+          phone,
         });
         if (r.escalo && efecto.abortar_si_escala) {
           resumen.abortadoPorEscalado = true;
