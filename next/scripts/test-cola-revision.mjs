@@ -31,8 +31,11 @@ t("rechazar con motivo", interpretarComando("no 4821 comprobante de otra persona
 });
 t("rechazar sin motivo", interpretarComando("no 4821"), { tipo: "rechazar", shortId: "4821", motivo: "sin_motivo" });
 
-// Lo que NO debe interpretarse como comando
-for (const frase of ["hola", "ok", "okey 4821", "no", "ver", "ok 1", "buenas ok 4821", ""]) {
+// Lo que NO debe interpretarse como comando (conversaciones naturales no son comandos)
+for (const frase of [
+  "hola", "ok", "okey 4821", "no", "ver", "ok 1", "buenas ok 4821", "",
+  "ok pero que voy a ver en este curso", "no gracias por la info", "ver modelos"
+]) {
   t(`«${frase}» no es comando`, interpretarComando(frase), null);
 }
 

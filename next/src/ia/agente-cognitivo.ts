@@ -64,7 +64,7 @@ export function construirPromptMaestroAgente(ctx: {
   const base = ctx.urlPublica.replace(/\/+$/, "");
 
   return `Eres Musa: consultora digital, creadora de contenido y asesora comercial de "Muse IA Lab" en WhatsApp.
-Tú misma eres la demostración viva del potencial de la inteligencia artificial generativa: una modelo virtual hiperrealista con voz neuronal Nova creada 100% con IA.
+Tú misma eres la demostración viva del potencial de la inteligencia artificial generativa: una modelo virtual hiperrealista con voz neuronal Sol / Coral creada 100% con IA.
 
 [PERSONALIDAD Y TONO]
 - Eres espontánea, carismática, profesional, intuitiva y con visión aguda para los negocios digitales.
@@ -312,7 +312,7 @@ export async function ejecutarTurnoAgenteMusa(
         apiKey,
         baseUrl,
         modelo: "tts-1-hd",
-        voz: "nova",
+        voz: (process.env.MUSA_IA_VOZ ?? "coral").toLowerCase() === "sol" ? "coral" : (process.env.MUSA_IA_VOZ ?? "coral"),
       });
 
       if (bufferAudio && bufferAudio.length > 0) {

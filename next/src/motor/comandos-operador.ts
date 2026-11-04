@@ -14,23 +14,30 @@ export type ComandoOperador =
  * Reconoce un comando del operador.
  *
  * Soporta:
- * 1. Pagos: `ok 4821`, `no 4821 comprobante falso`, `ver 4821`
+ * 1. Pagos estrictos: `ok 4821`, `no 4821 comprobante falso`, `ver 4821` (un ID de pago siempre contiene dígitos)
  * 2. Desescalado (reanudar bot): `reanudar +573001234567`, `desescalar 57300...`, `bot on 57300...`
  * 3. Pausa (escalar a humano): `pausar +573001234567`, `escalar 57300...`, `bot off 57300...`
  */
 export function interpretarComando(texto: string): ComandoOperador | null {
   const limpio = String(texto ?? "").trim();
+  if (!limpio) return null;
 
-  // 1. Comandos de pago (ok / no / ver)
-  const mPago = /^(ok|no|ver)\s+([A-Za-z0-9][A-Za-z0-9-]{2,11})\b\s*(.*)$/i.exec(limpio);
-  if (mPago) {
-    const verbo = mPago[1].toLowerCase();
-    const shortId = mPago[2].toUpperCase();
-    const resto = mPago[3].trim();
-
+  // 1. Comandos de pago (ok / no / ver) con sintaxis estricta.
+  // Un shortId de pago SIEMPRE contiene al menos un dígito (ej: 4821, 4A2B).
+  // Esto previene que frases naturales ("ok pero...", "ver modelos...", "no gracias...") se confundan con comandos.
+  const mOkVer = /^(ok|ver)\s+((?=.*\d)[A-Za-z0-9]{3,10})$/i.exec(limpio);
+  if (mOkVer) {
+    const verbo = mOkVer[1].toLowerCase();
+    const shortId = mOkVer[2].toUpperCase();
     if (verbo === "ok") return { tipo: "aprobar", shortId };
     if (verbo === "ver") return { tipo: "ver", shortId };
-    return { tipo: "rechazar", shortId, motivo: resto || "sin_motivo" };
+  }
+
+  const mNo = /^no\s+((?=.*\d)[A-Za-z0-9]{3,10})(?:\s+(.+))?$/i.exec(limpio);
+  if (mNo) {
+    const shortId = mNo[1].toUpperCase();
+    const motivo = (mNo[2] ?? "").trim();
+    return { tipo: "rechazar", shortId, motivo: motivo || "sin_motivo" };
   }
 
   // 2. Comandos de reanudación / desescalado del bot

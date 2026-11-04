@@ -276,6 +276,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       // se atiende primero, y solo si viene del número del operador.
       const { interpretarComando, normalizarTelefono } = await import("./comandos-operador.ts");
       const esOperador =
+        !esAudioEntrante &&
         !!cfg.operador?.whatsapp &&
         normalizarTelefono(mensaje.telefono) === normalizarTelefono(cfg.operador.whatsapp);
       const comando = esOperador ? interpretarComando(mensaje.texto) : null;

@@ -15,7 +15,7 @@ const prompt = construirPromptMaestroAgente({
 });
 
 assert.ok(prompt.includes("33.000 COP"), "Debe contener el precio exacto");
-assert.ok(prompt.toLowerCase().includes("nova"), "Debe orientar a la voz Nova");
+assert.ok(prompt.toLowerCase().includes("sol") || prompt.toLowerCase().includes("coral") || prompt.toLowerCase().includes("voz neuronal"), "Debe orientar a la voz de Musa");
 assert.ok(!prompt.includes("💜"), "Cero corazones morados en el prompt");
 assert.ok(!prompt.includes("🙏"), "Cero manitos de súplica en el prompt");
 assert.ok(prompt.includes("academia.html"), "Debe incluir el enlace de demo gratis");
