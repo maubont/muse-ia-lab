@@ -72,10 +72,12 @@ async function ejecutarSimulacion() {
 
   const SIM_TEL = "+573009990011";
 
-  // Reiniciar estado previo del lead de prueba
+  // Reiniciar estado previo del lead de prueba y limpiar mensajes viejos
   console.log(`2. Reiniciando lead de prueba ${SIM_TEL}...`);
   const resetRes = await comandoConsola(`reiniciar ${SIM_TEL}`, cookie, csrfToken);
-  console.log(`   ${resetRes.respuesta}\n`);
+  console.log(`   ${resetRes.respuesta}`);
+  await comandoConsola(`sql delete from public.musa_messages where lead_phone = '${SIM_TEL}'`, cookie, csrfToken);
+  console.log(`   Mensajes previos de prueba limpiados.\n`);
 
   // Definir 4 turnos conversacionales realistas
   const turnos = [
@@ -106,14 +108,21 @@ async function ejecutarSimulacion() {
     const envio = await enviarMensajeWebhook(SIM_TEL, t.texto);
     console.log(`   (Webhook procesado en ${envio.duracionMs}ms - HTTP ${envio.status})`);
 
-    // Esperar 1.5s para que el ciclo de base de datos y ritmo asíncrono asiente
-    await new Promise((r) => setTimeout(r, 1500));
+    // Esperar 2.0s para que el ciclo de base de datos y ritmo asíncrono asiente
+    await new Promise((r) => setTimeout(r, 2000));
 
-    // Consultar historial registrado
-    const hist = await comandoConsola(`ver ${SIM_TEL}`, cookie, csrfToken);
-    console.log(`\n💬 Respuestas de Musa:\n`);
-    console.log(hist.respuesta);
-    console.log("\n");
+    // Consultar mensajes registrados de este turno
+    const hist = await comandoConsola(`sql select direction, body from public.musa_messages where lead_phone = '${SIM_TEL}' order by id asc`, cookie, csrfToken);
+    try {
+      const msgs = JSON.parse(hist.respuesta);
+      console.log(`\n💬 Historial en tiempo real (${msgs.length} mensajes):`);
+      for (const m of msgs.slice(-4)) {
+        const remitente = m.direction === "in" ? "👤 Lead" : "✨ Musa (GPT-6-Luna)";
+        console.log(`[${remitente}] ${m.body}\n`);
+      }
+    } catch {
+      console.log(hist.respuesta);
+    }
   }
 
   console.log("=================================================");
