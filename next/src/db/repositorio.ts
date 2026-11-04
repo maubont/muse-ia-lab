@@ -21,7 +21,7 @@
 import type { Repositorio } from "../motor/ejecutar.ts";
 import type { DatosComprobante } from "../../../functions/motor/comprobante.ts";
 import type { Canal } from "../../../functions/canal/tipos.ts";
-import { partirMensaje, limitarTurno, retardoDeTurno } from "../motor/ritmo.ts";
+import { partirMensaje, limitarTurno, retardoDeTurno, retardoMs } from "../motor/ritmo.ts";
 import { crearAcceso, enlaceDeAcceso } from "../acceso/accesos.ts";
 
 /** Lo mínimo que hace falta de un cliente SQL. `pg.Pool.query` encaja. */
@@ -263,7 +263,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     // ── Respuestas deterministas sin coste de IA (cero silencios en WhatsApp) ─
     async gptResponder() {
-      return { escalo: false };
+      return { escalo: true };
     },
     async gptFallback(phone) {
       const msg =
@@ -277,7 +277,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
         [phone, msg],
       ).catch(() => ({ rows: [] }));
-      await this.registrarEvento(phone, "asistencia_comercial", { motivo: "fallback" });
+      await this.registrarEvento(phone, "gpt_no_implementado", { motivo: "fallback" });
     },
     async responderObjecion(phone, args) {
       const respuestas: Record<number, string> = {
