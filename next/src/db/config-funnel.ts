@@ -47,14 +47,15 @@ export const CLAVES = [
 function sanitizarFunnelCopy(fc: CfgFunnel["funnelCopy"]): CfgFunnel["funnelCopy"] {
   if (!fc || typeof fc !== "object") return fc;
   try {
-    const json = JSON.stringify(fc);
-    if (!/google drive|plan de acci[oó]n 7 d[ií]as|esta misma semana|tu primera semana/i.test(json)) return fc;
-    const limpio = json
+    let json = JSON.stringify(fc);
+    json = json
+      .replace(/Dame un momentico,\s*{{nombre}}\s*🙏?\s*Voy a consultar esto con el equipo para darte una respuesta exacta\.\s*Te escribo en un ratico por aquí mismo\./gi, "{{nombre}}, he notificado directamente a nuestro asesor humano para que revise tu caso y te responda por aquí mismo en cuanto esté disponible.")
+      .replace(/🙏/g, "✨")
       .replace(/enlaces directos de Google Drive/gi, "tu enlace personal al área del curso")
       .replace(/Plan de Acci[oó]n 7 D[ií]as/gi, "Guía Rápida de Implementación")
       .replace(/tu paso a paso para arrancar esta misma semana/gi, "tus plantillas listas para avanzar a tu propio ritmo y sin carga de estudio")
       .replace(/el paso a paso exacto de tu primera semana/gi, "plantillas listas de copiar y pegar para avanzar a tu propio ritmo y sin carga de estudio");
-    return JSON.parse(limpio);
+    return JSON.parse(json);
   } catch {
     return fc;
   }
