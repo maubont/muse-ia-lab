@@ -330,17 +330,19 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
             voz: "nova",
           });
           if (audioBuffer && audioBuffer.length > 0) {
-            const dataUri = `data:audio/ogg;base64,${audioBuffer.toString("base64")}`;
-            await canal.enviar(phone, {
+            const pureBase64 = audioBuffer.toString("base64");
+            const resAudio = await canal.enviar(phone, {
               texto: "",
               media: {
                 tipo: "audio",
                 mime: "audio/ogg; codecs=opus",
-                url: dataUri,
+                url: pureBase64,
                 nombre: "musa-voz.opus",
               },
             });
-            audioEnviado = true;
+            if (resAudio && resAudio.ok) {
+              audioEnviado = true;
+            }
           }
         } catch (e) {
           console.warn("[repositorio] Error sintetizando voz OpenAI:", String(e).slice(0, 100));
@@ -469,17 +471,19 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
             voz: "nova",
           });
           if (audioBuffer && audioBuffer.length > 0) {
-            const dataUri = `data:audio/ogg;base64,${audioBuffer.toString("base64")}`;
-            await canal.enviar(phone, {
+            const pureBase64 = audioBuffer.toString("base64");
+            const resAudio = await canal.enviar(phone, {
               texto: "",
               media: {
                 tipo: "audio",
                 mime: "audio/ogg; codecs=opus",
-                url: dataUri,
+                url: pureBase64,
                 nombre: "musa-voz.opus",
               },
             });
-            audioEnviado = true;
+            if (resAudio && resAudio.ok) {
+              audioEnviado = true;
+            }
           }
         } catch (e) {
           console.warn("[repositorio] Error sintetizando voz OpenAI:", String(e).slice(0, 100));

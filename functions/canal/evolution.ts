@@ -495,11 +495,17 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
       const number = telefono.replace(/^\+/, "");
 
       // Si es una nota de voz (audio), intentar primero la ruta nativa sendWhatsAppAudio (PTT con waveform)
+      let mediaPayload = mensaje.media?.url ?? "";
+      if (mediaPayload.startsWith("data:")) {
+        const coma = mediaPayload.indexOf(",");
+        if (coma >= 0) mediaPayload = mediaPayload.slice(coma + 1);
+      }
+
       if (mensaje.media && mensaje.media.tipo === "audio") {
         const rutaAudio = `/message/sendWhatsAppAudio/${encodeURIComponent(cfg.instancia)}`;
         const cuerpoAudio = {
           number,
-          audio: mensaje.media.url,
+          audio: mediaPayload,
           options: {
             delay: 1200,
             encoding: true,
@@ -527,7 +533,7 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
           mediatype: mensaje.media.tipo,
           mimetype: mensaje.media.mime ?? (mensaje.media.tipo === "audio" ? "audio/ogg; codecs=opus" : "video/mp4"),
           caption: mensaje.texto,
-          media: mensaje.media.url,
+          media: mediaPayload,
           fileName: mensaje.media.nombre ?? "musa",
         }
         : { number, text: mensaje.texto };

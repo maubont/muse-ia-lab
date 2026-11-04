@@ -91,6 +91,11 @@ Es un pago único con acceso de por vida, sin mensualidades ni cobros sorpresa.
 5. PRECIO FIRME: Jamás rebajes el precio de 33.000 COP / 9 USD.
 6. NO INVENTAR CUENTAS: Cuando el usuario esté listo para pagar, marca "adjuntarCuentas": true y el sistema las inyectará de forma oficial y segura.
 7. ESCALADO REAL: Solo marca "escalarOperador": true si el usuario pide explícitamente hablar con el dueño o una persona humana. Pero NUNCA lo dejes en silencio ni le prometas horas irreales.
+8. AUDIOS Y NOTAS DE VOZ:
+   - Recibes tanto mensajes de texto como notas de voz enviadas por el cliente, las cuales son transcritas para ti y marcadas en el historial como [Nota de voz del cliente transcrita].
+   - Si el cliente dice "lo que te dije en los audios", se refiere a esos mensajes transcritos en tu historial.
+   - ¡Tú SÍ escuchas sus notas de voz y SÍ respondes a ellas con tu voz! PROHIBIDO TERMINANTEMENTE decir "en este chat solo me aparecen tus mensajes escritos" o "no puedo escuchar audios". Eso es falso y enfurece al cliente.
+   - Si el cliente te pregunta por lo que dijo en sus audios (por ejemplo, si te dijo que tenía 27.000 pesos o 9 dólares), respóndele directamente a eso: explícale con calidez que 9 dólares al cambio son casi 29.000 COP y la diferencia son apenas 4 mil pesitos para los 33.000 COP oficiales.
 
 [FORMATO DE RESPUESTA REQUERIDO (JSON ÚNICAMENTE)]
 Debes responder EXCLUSIVAMENTE un objeto JSON válido con esta estructura:
@@ -158,23 +163,29 @@ export async function ejecutarTurnoAgenteMusa(
   let historialMensajes: Array<{ role: "system" | "user" | "assistant"; content: string }> = [];
   try {
     const { rows: msgs } = await consultar(
-      `select direction, body from public.musa_messages
+      `select direction, body, media_type from public.musa_messages
         where lead_phone = $1 and body is not null and trim(body) != ''
         order by created_at desc, id desc limit 8`,
       [phone],
     );
     const cronologico = msgs.reverse();
-    historialMensajes = cronologico.map((m: any) => ({
-      role: m.direction === "in" ? ("user" as const) : ("assistant" as const),
-      content: String(m.body || "").slice(0, 350),
-    }));
+    historialMensajes = cronologico.map((m: any) => {
+      const esAudio = m.direction === "in" && m.media_type && String(m.media_type).startsWith("audio");
+      const prefijo = esAudio ? "[Nota de voz del cliente transcrita]: " : "";
+      return {
+        role: m.direction === "in" ? ("user" as const) : ("assistant" as const),
+        content: `${prefijo}${String(m.body || "").slice(0, 350)}`,
+      };
+    });
   } catch {
     historialMensajes = [];
   }
 
   // Si el mensaje actual no está en el historial, añadirlo
-  if (!historialMensajes.length || historialMensajes[historialMensajes.length - 1].content !== texto) {
-    historialMensajes.push({ role: "user", content: texto });
+  const ultimoMensajeHistorial = historialMensajes.length ? historialMensajes[historialMensajes.length - 1].content : "";
+  if (!historialMensajes.length || !ultimoMensajeHistorial.includes(texto)) {
+    const prefijo = esAudioEntrante ? "[Nota de voz del cliente transcrita]: " : "";
+    historialMensajes.push({ role: "user", content: `${prefijo}${texto}` });
   }
 
   const systemPrompt = construirPromptMaestroAgente({
@@ -252,14 +263,16 @@ export async function ejecutarTurnoAgenteMusa(
   // 5. Sanitizar y limpiar texto de salida
   let textoFinal = sanitizarRespuesta(estructurada.respuesta || "", false);
 
-  // Adjuntar enlace de la plataforma si el modelo lo solicitó
-  if (estructurada.adjuntarDemo) {
+  // Adjuntar enlace de la plataforma si el modelo lo solicitó y no está presente ya
+  if (estructurada.adjuntarDemo && !textoFinal.toLowerCase().includes("academia.html")) {
     textoFinal += enlaceDemoPlataforma(urlPublica);
   }
 
-  // Adjuntar cuentas bancarias si el modelo lo solicitó
+  // Adjuntar cuentas bancarias si el modelo lo solicitó y no están presentes ya
   if (estructurada.adjuntarCuentas) {
-    textoFinal += CUENTAS_COLOMBIA_TEXTO;
+    if (!textoFinal.toLowerCase().includes("bancolombia") && !textoFinal.toLowerCase().includes("nequi")) {
+      textoFinal += CUENTAS_COLOMBIA_TEXTO;
+    }
     await consultar(
       "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
       [phone],
@@ -300,25 +313,30 @@ export async function ejecutarTurnoAgenteMusa(
       });
 
       if (bufferAudio && bufferAudio.length > 0) {
-        const dataUri = `data:audio/ogg;base64,${bufferAudio.toString("base64")}`;
-        await canal.enviar(phone, {
+        // Enviar Base64 binario puro (Evolution API sendWhatsAppAudio lo requiere para WhatsApp PTT)
+        const pureBase64 = bufferAudio.toString("base64");
+        const resEnvio = await canal.enviar(phone, {
           texto: "",
           media: {
             tipo: "audio",
             mime: "audio/ogg; codecs=opus",
-            url: dataUri,
+            url: pureBase64,
             nombre: "musa-voz.opus",
           },
         });
-        audioDespachado = true;
+        if (resEnvio && resEnvio.ok) {
+          audioDespachado = true;
+        } else {
+          console.warn("[agente-cognitivo] Fallo al entregar audio a WhatsApp, canal status:", resEnvio?.status, resEnvio?.motivo);
+        }
       }
     } catch (e) {
       console.warn("[agente-cognitivo] Fallo generando voz OpenAI:", String(e).slice(0, 80));
     }
   }
 
-  // Si no se envió audio, enviar el texto.
-  // Si se envió audio pero hay enlaces o cuentas adjuntas, enviar también el texto complementario para que sea interactivo
+  // Si no se envió audio (o si falló la entrega), enviar texto garantizado.
+  // Si se envió audio pero hay enlaces o cuentas adjuntas, enviar también el texto complementario para que sea interactivo.
   if (!audioDespachado) {
     if (deps.esperar) await deps.esperar(1200);
     await canal.enviar(phone, { texto: textoFinal }).catch(() => ({ ok: false }));
@@ -332,8 +350,8 @@ export async function ejecutarTurnoAgenteMusa(
 
   // 8. Persistencia
   await consultar(
-    "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
-    [phone, textoFinal],
+    "insert into public.musa_messages (lead_phone, direction, body, media_type) values ($1, 'out', $2, $3)",
+    [phone, textoFinal, audioDespachado ? "audio/ogg" : null],
   ).catch(() => ({ rows: [] }));
 
   await consultar(
