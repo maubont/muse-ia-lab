@@ -151,10 +151,15 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
           const bytes = await mensaje.media.obtenerBytes();
           if (bytes && bytes.byteLength > 0) {
             const { transcribirAudio } = await import("./transcriptor-audio.ts");
-            const textoTranscrito = await transcribirAudio(Buffer.from(bytes), mensaje.media.mime ?? "audio/ogg");
+            const textoTranscrito = await transcribirAudio(Buffer.from(bytes), mensaje.media.mime ?? "audio/ogg", {
+              apiKey: deps.apiKeyIa,
+              baseUrl: deps.urlIa,
+            });
             if (textoTranscrito) {
               console.log(`[musa] nota de voz transcrita (${mensaje.telefono}): "${textoTranscrito.slice(0, 80)}"`);
               mensaje.texto = textoTranscrito;
+              // Desvincular media para que el pipeline downstream trate el turno como conversación y nunca como comprobante OCR
+              mensaje.media = null;
             }
           }
         } catch (e) {
@@ -188,13 +193,18 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         : null;
 
       // 4. decisión
-      // 4.5. Si el estado es S08 y llegó un adjunto, se LEE aquí: es el único punto
-      //      donde el comprobante se convierte en datos. Si la lectura no da datos,
-      //      S08 recibe null y manda el caso a un humano — nunca auto-valida.
+      // 4.5. Si el estado es S08 y llegó un adjunto de IMAGEN o PDF de pago, se LEE aquí.
+      // Jamás se procesa un audio como si fuera un comprobante de imagen.
       let comprobante: { datos: unknown; esPrimerPago: boolean; imagenDuplicada: boolean; dentroDeHorario: boolean } | undefined;
       const dentroDeHorario = dentroDeHorarioRazonable(ahora(), "America/Bogota");
 
-      if (lead.estado_funnel === "S08_ESPERA_CAPTURA" && mensaje.media && deps.lector) {
+      const esAdjuntoComprobante =
+        !!mensaje.media &&
+        (mensaje.media.tipo === "imagen" ||
+          (mensaje.media.tipo === "documento" &&
+            (mensaje.media.mime?.includes("image") || mensaje.media.mime?.includes("pdf"))));
+
+      if (lead.estado_funnel === "S08_ESPERA_CAPTURA" && esAdjuntoComprobante && deps.lector) {
         // OJO: el adaptador de Evolution entrega `obtenerBytes()`, NO una URL.
         // Antes se pasaba `url ?? ""` y toda imagen real caía en «sin_imagen»:
         // el cliente entraba en un bucle de reenvíos y la visión nunca corría.

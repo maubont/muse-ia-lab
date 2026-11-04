@@ -33,11 +33,11 @@ export interface RecordatorioProgramado {
 export const TEXTOS_RECORDATORIO: Record<TipoRecordatorio, string[]> = {
   pago_pendiente: [
     "¿Te quedó alguna duda con los datos de pago? Aquí sigo 😊",
-    "Tu cupo sigue disponible. Si quieres, te vuelvo a pasar los datos o te ayudo con el pago 💜",
+    "Tu cupo sigue disponible. Si quieres, te vuelvo a pasar los datos o te ayudo con el pago ✨",
     "Antes de cerrar: si decides empezar hoy, dime y te dejo todo listo en un minuto 😉",
   ],
   verificacion_pendiente: [
-    "Sigo revisando tu pago. Apenas esté confirmado te llega el acceso por aquí 💜",
+    "Sigo revisando tu pago. Apenas esté confirmado te llega el acceso por aquí ✨",
   ],
   chat_incompleto: [
     "¿Seguimos? Quedé pendiente de tu respuesta 😊",

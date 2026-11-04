@@ -56,6 +56,7 @@ export function limpiarTokens(t: string): string {
       " ",
     )
     .replace(/\[(VIDEO_AVATAR[^\]]*|PROMPT_MUESTRA|ENTREGA_LINKS:[^\]]*)\]/g, "")
+    .replace(/💜/g, "✨")
     .replace(/[ \t]{2,}/g, " ")
     .trim();
 }

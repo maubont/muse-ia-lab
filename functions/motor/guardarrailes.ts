@@ -32,6 +32,7 @@ export function normalizar(s: string): string {
 }
 
 export function esStopTotal(norm: string): boolean {
+  if (!norm) return false;
   // El opt-out debe dispararse aunque la palabra clave vaya acompañada de otro
   // texto ("mejor no, SALIR", "ya no, stop"). Detectamos STOP/SALIR/BAJA/
   // CANCELAR como TOKEN AISLADO (separado por límites no alfabéticos), no como
@@ -52,9 +53,18 @@ export function preguntaPorBot(norm: string): boolean {
 }
 
 export function pideHumano(norm: string): boolean {
-  return /\b(humano|asesor(a|es)?|agente)\b/.test(norm) ||
-    /(hablar|comunicar|atienda|pasame|quiero)\s+(con\s+)?(una?\s+)?persona/.test(norm) ||
-    /persona\s+real/.test(norm);
+  // 1. Palabras clave directas aisladas
+  if (/\b(humano|asesor(a|es)?|agente|operador(a)?|soporte)\b/.test(norm)) return true;
+
+  // 2. Intención de conectar con una persona / alguien
+  if (/(hablar|comunicar|comuniqueme|comunicame|contactar|atender|atienda|pasame|pasa|conectar|quiero|necesito)\s+(con\s+)?(una?\s+)?(persona|alguien|humano)/.test(norm)) return true;
+
+  // 3. Reclamo de atención humana ("alguien que me responda", "hay alguien ahi", "atencion al cliente")
+  if (/alguien\s+(que\s+)?(me\s+)?(responda|ayude|atienda|escuche|de informacion)/.test(norm)) return true;
+  if (/\b(hay\s+alguien|alguien\s+ahi|con\s+quien\s+hablo|persona\s+real|de\s+carne\s+y\s+hueso)\b/.test(norm)) return true;
+  if (/\b(atencion\s+al\s+cliente|servicio\s+al\s+cliente)\b/.test(norm)) return true;
+
+  return false;
 }
 
 export function preguntaPrecio(norm: string): boolean {
@@ -189,8 +199,13 @@ export function clasificarEdadHeuristico(normRaw: string): string | null {
 
 export function esAfirmativoCierre(norm: string): boolean {
   if (esNegativoCierre(norm)) return false;
-  return /^(si+|sip|dale|de una|ok|okey|okay|va|vale|listo|claro|perfecto|por supuesto|obvio|bueno|hagamoslo|quiero|me animo|empecemos|comencemos|arranquemos|comprar|inscribirme)\b/.test(norm) ||
-    /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero empezar|quiero comprar|si quiero|paso los datos|(?<!no\s+)me interesa|(?<!no\s+)me llama la atencion|(?<!no\s+)me gusta|como es|como seria|quiero info|quiero informacion|pasame la cuenta|a que cuenta|donde transfiero|donde consigno|tienes nequi|pago por nequi|nequi|bancolombia|bre-?b|cuanto cuesta|cuanto vale|que vale|precio|pasa los datos|dame los datos|donde deposito|quiero entrar|quiero acceder|como entro|quiero inscribirme)/.test(norm);
+  // Si pide información explícitamente, es consulta y no intención de compra/pago inmediata
+  if (/\b(info|informacion|detalles?|de que trata|como es el curso|saber mas|como funciona)\b/.test(norm)) {
+    return false;
+  }
+  return /^(si+|sip|dale|de una|ok|okey|okay|va|vale|listo|claro|perfecto|por supuesto|obvio|bueno|hagamoslo|me animo|empecemos|comencemos|arranquemos|comprar|inscribirme)\b/.test(norm) ||
+    /^quiero$/.test(norm) ||
+    /(como pago|donde pago|como hago (el|para|con el) ?pago|como hago para pagar|como hago el pago|como realizo el pago|como puedo pagar|como se paga|por donde pago|los datos|datos de pago|pasame|quiero pagar|quiero empezar|quiero comprar|si quiero|paso los datos|(?<!no\s+)me interesa|(?<!no\s+)me llama la atencion|(?<!no\s+)me gusta|como es|como seria|pasame la cuenta|a que cuenta|donde transfiero|donde consigno|tienes nequi|pago por nequi|nequi|bancolombia|bre-?b|cuanto cuesta|cuanto vale|que vale|precio|pasa los datos|dame los datos|donde deposito|quiero entrar|quiero acceder|como entro|quiero inscribirme)/.test(norm);
 }
 
 export function esNegativoCierre(norm: string): boolean {

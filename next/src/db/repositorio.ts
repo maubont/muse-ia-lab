@@ -426,7 +426,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     async responderObjecion(phone, args) {
       const respuestas: Record<number, string> = {
-        1: "Te entiendo perfecto 🙏 Por eso te dejo una muestra REAL del curso para que la pruebes gratis hoy mismo 👇\n\n🎨 *Retrato hiperrealista de una mujer joven latina, fotografía profesional, luz natural dorada, piel realista con textura, 85mm f/1.4*\n\nAdemás, apenas verifico tu comprobante recibes tu enlace personal al área del curso con los 13 módulos y 4 bonos al instante.",
+        1: "Te entiendo de corazón 🙏 En internet hay que ser precavido y haces bien en dudar. Puedes explorar la plataforma y ver la *Clase 1 gratis* aquí 👇\nhttps://server-production-3709.up.railway.app/academia.html\n\nMírala unos minutos para que juzgues la calidad tú mismo con tus propios ojos ✨ ¿Te abrió bien el enlace? 😊",
         2: "Te entiendo 🙏 Por eso el acceso es de solo *33.000 COP* (≈ *9 USD*) en un único pago de por vida, sin mensualidades ni cobros ocultos, e incluye los 13 módulos y los 4 bonos completos.",
         3: "¡Sí! 🚀 Apenas verifico tu comprobante te entrego por este mismo chat tu enlace personal a Musa Academy con los 13 módulos y los 4 bonos listos para ver.",
         4: "Totalmente 💪 El curso arranca desde CERO en el Módulo 1 y te lleva paso a paso hasta crear y monetizar tu primer modelo virtual, sin necesidad de experiencia previa.",

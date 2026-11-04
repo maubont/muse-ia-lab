@@ -34,7 +34,7 @@ import type { ClasificacionGPT, Efecto, LeadMotor } from "./efectos.ts";
 // ============================== textos fijos ==============================
 
 export const MSG_NEGATIVO_SUAVE =
-  "Todo bien, sin presión 😊 Aquí quedo por si te animas más adelante; cualquier duda me la escribes con confianza 💜";
+  "Todo bien, sin presión 😊 Aquí quedo por si te animas más adelante; cualquier duda me la escribes con confianza ✨";
 
 /** Instrucción al GPT cuando el lead cierra pero además pregunta algo. */
 export const INSTRUCCION_PREGUNTA_JUNTO_A_CIERRE =
@@ -42,7 +42,7 @@ export const INSTRUCCION_PREGUNTA_JUNTO_A_CIERRE =
   "Si el dato NO está en los HECHOS CERRADOS, NO lo afirmes (ni con un sí inicial): di SOLO que lo confirmas con el equipo y que le escriben enseguida por aquí, sin ofrecer enviar los datos de pago todavía.";
 
 const MSG_SIN_DATOS =
-  "¡Excelente decisión, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos de pago actualizados y te escribo en un ratico por aquí mismo 💜";
+  "¡Excelente decisión, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos de pago actualizados y te escribo en un ratico por aquí mismo ✨";
 
 // ============================== S06_CIERRE ==============================
 

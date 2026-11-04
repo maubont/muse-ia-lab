@@ -17,6 +17,7 @@ import {
   preguntaPorBot,
   pideHumano,
   preguntaPrecio,
+  normalizar,
 } from "../../../functions/motor/guardarrailes.ts";
 import { etapa, resolverPlaceholders } from "../../../functions/motor/copy.ts";
 import type { CfgCopy, LeadNombre } from "../../../functions/motor/copy.ts";
@@ -31,7 +32,7 @@ import type { AvatarListo } from "./s01.ts";
 
 /** «Listo, quedas fuera»: el único mensaje que se manda tras un STOP. */
 export const MSG_OPTOUT =
-  "Listo 👍 Quedas fuera de la lista y no te volveré a escribir. ¡Gracias por tu tiempo y que te vaya bonito! 💜";
+  "Listo 👍 Quedas fuera de la lista y no te volveré a escribir. ¡Gracias por tu tiempo y que te vaya bonito! ✨";
 
 /**
  * En S09 el lead YA PAGÓ y espera verificación humana. Escribir y no recibir
@@ -39,7 +40,7 @@ export const MSG_OPTOUT =
  * Copiado literal del original (L1563-1564).
  */
 export const MSG_VERIFICANDO =
-  "Seguimos verificando tu pago ✅ Tu acceso queda asegurado; te confirmo por aquí mismo apenas esté listo 💜";
+  "Seguimos verificando tu pago ✅ Tu acceso queda asegurado; te confirmo por aquí mismo apenas esté listo ✨";
 
 /** Pregunta de retorno por etapa. El original tiene un mapa; aquí lo esencial. */
 export const PREGUNTA_PENDIENTE: Record<string, string> = {
@@ -76,7 +77,8 @@ export function preguntaDeEtapa(estado: string): string {
 }
 
 export function decidirRuta(e: EntradaRuta): Efecto[] {
-  const { lead, cfg, body, norm } = e;
+  const { lead, cfg, body } = e;
+  const norm = e.norm ?? normalizar(body ?? "");
 
   // 1. Ya pidió salir: silencio absoluto. Ni acuse, ni seguimiento.
   if (lead.opt_out === true) return [];
@@ -112,6 +114,18 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
     ];
   }
 
+  // 2.c GUARDA DE ESCALADO A HUMANO ACTIVO:
+  // Si el lead ya está en atención humana, el bot NO interfiere con automatizaciones de venta.
+  if (lead.escalado_humano === true) {
+    return [
+      { tipo: "evento", nombre: "mensaje_durante_escalado", detalle: { body } },
+      {
+        tipo: "notificar_operador",
+        texto: `💬 Mensaje de ${lead.phone} (escalado a humano): "${body.slice(0, 160)}"`,
+      },
+    ];
+  }
+
   // 3. «¿Eres un bot?»: se responde con la objeción del copy, sin mentir.
   if (norm && preguntaPorBot(norm)) {
     const objeciones = cfg.funnelCopy?.objeciones ?? [];
@@ -128,21 +142,21 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
     // Sin objeción de bot en el copy: no se inventa una respuesta.
   }
 
-  // 4. Pide una persona: se escala y se avisa.
+  // 4. Pide una persona: se escala y se avisa al operador.
   if (norm && pideHumano(norm) && !preguntaPorBot(norm)) {
     let texto: string;
     try {
       texto = resolverPlaceholders(etapa(cfg, "S91_HUMANO").mensajes[0], lead as LeadNombre, cfg);
     } catch {
-      // Si el copy no trae S91, se escala igual pero sin inventar frase.
-      return [
-        { tipo: "lead", patch: { escalado_humano: true } },
-        { tipo: "evento", nombre: "escalado", detalle: { motivo: "pidio_humano" } },
-      ];
+      texto = "¡Hola! Con mucho gusto te comunico con un asesor de nuestro equipo. Ya le paso el chat para que te atienda personalmente por aquí mismo ✨";
     }
     return [
       { tipo: "lead", patch: { escalado_humano: true } },
       { tipo: "evento", nombre: "escalado", detalle: { motivo: "pidio_humano" } },
+      {
+        tipo: "notificar_operador",
+        texto: `🚨 ATENCIÓN REQUERIDA: El cliente ${lead.phone} pidió hablar con un humano:\n"${body.slice(0, 160)}"`,
+      },
       { tipo: "enviar", textos: [texto] },
     ];
   }
@@ -170,7 +184,44 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
 
     case "S08_ESPERA_CAPTURA":
       if (!e.comprobante) {
-        // Mensaje sin comprobante en S08: si es un saludo, recordar con amabilidad que esperamos el comprobante
+        // A) Si el usuario expresa confusión por la captura o pide información:
+        // romper el bucle, pedir disculpas con gracia colombiana y volver a S06_CIERRE
+        const pideInfoOConfundido =
+          /\b(cual|que|donde|de que)\s+(es\s+la\s+|captura|comprobante|pantallazo)\b/i.test(norm) ||
+          /\b(no he pagado|apenas estoy preguntando|solo pedi info|solo pedi informacion|de que hablas|que comprobante|cual captura|que captura)\b/i.test(norm) ||
+          /\b(informacion del curso|informacion sobre el curso|de que trata|como funciona el curso|que es el curso)\b/i.test(norm);
+
+        if (norm && pideInfoOConfundido) {
+          return [
+            { tipo: "lead", patch: { estado_funnel: "S06_CIERRE" } },
+            { tipo: "estado", nuevo: "S06_CIERRE" },
+            { tipo: "evento", nombre: "desescalada_captura_s08", detalle: { motivo: "confundido_captura" } },
+            {
+              tipo: "enviar",
+              textos: [
+                "¡Tienes toda la razón, qué pena contigo! Me adelanté de la emoción 😅 Olvida lo de la captura por un momento.",
+                "En *Modelos IA* aprendes paso a paso a crear modelos virtuales hiperrealistas con inteligencia artificial y monetizarlas desde tu celular o computador, 100% en el anonimato ✨\n\n¿Ya tienes algo de experiencia con herramientas de IA o estás empezando totalmente desde cero? 😊",
+              ],
+            },
+          ];
+        }
+
+        // B) Si pide que le repitan los datos de pago en S08:
+        if (norm && /(pasa|pasame|mandame|dame|cual es|me das|me repites|no vi|donde estan)\s+(los\s+)?(datos|cuentas?|numero|nequi|bancolombia|llave)/i.test(norm)) {
+          return [
+            { tipo: "evento", nombre: "reemision_cuentas_s08", detalle: {} },
+            {
+              tipo: "enviar",
+              textos: [
+                "¡Claro que sí! Aquí tienes de nuevo las cuentas para tu pago único de *33.000 COP* 👇",
+                resolverPlaceholders("{{cuentas_colombia}}", lead as LeadNombre, cfg),
+                "Apenas hagas la transferencia, me mandas la fotico del comprobante por aquí 📸 y te activo el acceso enseguida 🚀",
+              ],
+            },
+          ];
+        }
+
+        // C) Mensaje sin comprobante en S08: si es un saludo, recordar con amabilidad que esperamos el comprobante
         if (norm && /^(hola|buen|buenas|buenas tardes|buenas noches|buenos dias|que mas)\b/i.test(norm)) {
           return [
             {
