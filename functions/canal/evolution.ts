@@ -493,6 +493,31 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
 
     async enviar(telefono: string, mensaje: MensajeSaliente): Promise<ResultadoEnvio> {
       const number = telefono.replace(/^\+/, "");
+
+      // Si es una nota de voz (audio), intentar primero la ruta nativa sendWhatsAppAudio (PTT con waveform)
+      if (mensaje.media && mensaje.media.tipo === "audio") {
+        const rutaAudio = `/message/sendWhatsAppAudio/${encodeURIComponent(cfg.instancia)}`;
+        const cuerpoAudio = {
+          number,
+          audio: mensaje.media.url,
+          options: {
+            delay: 1200,
+            encoding: true,
+          },
+        };
+        const rAudio = await post(rutaAudio, cuerpoAudio);
+        if (rAudio.ok && rAudio.res.ok) {
+          let idAudio: string | null = null;
+          try {
+            const jAudio = (await rAudio.res.json()) as { key?: { id?: string }; messageId?: string; id?: string };
+            idAudio = jAudio.key?.id ?? jAudio.messageId ?? jAudio.id ?? null;
+          } catch {
+            /* respuesta sin cuerpo JSON: el mensaje ya salió */
+          }
+          return { ok: true, id_externo: idAudio, status: rAudio.res.status };
+        }
+      }
+
       const ruta = mensaje.media
         ? `/message/sendMedia/${encodeURIComponent(cfg.instancia)}`
         : `/message/sendText/${encodeURIComponent(cfg.instancia)}`;
@@ -500,7 +525,7 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
         ? {
           number,
           mediatype: mensaje.media.tipo,
-          mimetype: mensaje.media.mime ?? "video/mp4",
+          mimetype: mensaje.media.mime ?? (mensaje.media.tipo === "audio" ? "audio/ogg; codecs=opus" : "video/mp4"),
           caption: mensaje.texto,
           media: mensaje.media.url,
           fileName: mensaje.media.nombre ?? "musa",

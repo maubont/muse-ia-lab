@@ -294,12 +294,14 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       }
 
       let ultimoMensaje = "";
+      let esAudioEntrante = false;
       try {
         const { rows: msgs } = await consultar(
-          "select body from public.musa_messages where lead_phone = $1 and direction = 'in' order by created_at desc, id desc limit 1",
+          "select body, media_type from public.musa_messages where lead_phone = $1 and direction = 'in' order by created_at desc, id desc limit 1",
           [phone],
         );
         ultimoMensaje = (msgs[0]?.body as string) || "";
+        esAudioEntrante = !!(msgs[0]?.media_type && String(msgs[0].media_type).includes("audio"));
       } catch {
         ultimoMensaje = "";
       }
@@ -317,7 +319,41 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         },
       );
 
-      await canal.enviar(phone, { texto: resp.texto }).catch(() => ({ ok: false }));
+      let audioEnviado = false;
+      if (esAudioEntrante && apiKey) {
+        try {
+          const { sintetizarAudioOpenAI } = await import("../motor/sintetizador-voz-openai.ts");
+          const audioBuffer = await sintetizarAudioOpenAI(resp.texto, {
+            apiKey,
+            baseUrl: urlIa,
+            modelo: "tts-1-hd",
+            voz: "nova",
+          });
+          if (audioBuffer && audioBuffer.length > 0) {
+            const dataUri = `data:audio/ogg;base64,${audioBuffer.toString("base64")}`;
+            await canal.enviar(phone, {
+              texto: "",
+              media: {
+                tipo: "audio",
+                mime: "audio/ogg; codecs=opus",
+                url: dataUri,
+                nombre: "musa-voz.opus",
+              },
+            });
+            audioEnviado = true;
+          }
+        } catch (e) {
+          console.warn("[repositorio] Error sintetizando voz OpenAI:", String(e).slice(0, 100));
+        }
+      }
+
+      // Si no se envió audio, enviar texto normal. Si se envió audio pero el texto tiene enlaces o cuentas, enviar también el ancla de texto
+      if (!audioEnviado) {
+        await canal.enviar(phone, { texto: resp.texto }).catch(() => ({ ok: false }));
+      } else if (resp.texto.includes("http") || resp.texto.includes("3223565761") || resp.texto.includes("Nequi")) {
+        await canal.enviar(phone, { texto: resp.texto }).catch(() => ({ ok: false }));
+      }
+
       await consultar(
         "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
         [phone, resp.texto],
@@ -378,12 +414,14 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       }
 
       let ultimoMensaje = "";
+      let esAudioEntrante = false;
       try {
         const { rows: msgs } = await consultar(
-          "select body from public.musa_messages where lead_phone = $1 and direction = 'in' order by created_at desc, id desc limit 1",
+          "select body, media_type from public.musa_messages where lead_phone = $1 and direction = 'in' order by created_at desc, id desc limit 1",
           [phone],
         );
         ultimoMensaje = (msgs[0]?.body as string) || "";
+        esAudioEntrante = !!(msgs[0]?.media_type && String(msgs[0].media_type).includes("audio"));
       } catch {
         ultimoMensaje = "";
       }
@@ -414,7 +452,41 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         },
       );
 
-      await canal.enviar(phone, { texto: resp.texto }).catch(() => ({ ok: false }));
+      let audioEnviado = false;
+      if (esAudioEntrante && apiKey) {
+        try {
+          const { sintetizarAudioOpenAI } = await import("../motor/sintetizador-voz-openai.ts");
+          const audioBuffer = await sintetizarAudioOpenAI(resp.texto, {
+            apiKey,
+            baseUrl: urlIa,
+            modelo: "tts-1-hd",
+            voz: "nova",
+          });
+          if (audioBuffer && audioBuffer.length > 0) {
+            const dataUri = `data:audio/ogg;base64,${audioBuffer.toString("base64")}`;
+            await canal.enviar(phone, {
+              texto: "",
+              media: {
+                tipo: "audio",
+                mime: "audio/ogg; codecs=opus",
+                url: dataUri,
+                nombre: "musa-voz.opus",
+              },
+            });
+            audioEnviado = true;
+          }
+        } catch (e) {
+          console.warn("[repositorio] Error sintetizando voz OpenAI:", String(e).slice(0, 100));
+        }
+      }
+
+      // Si no se envió audio, enviar texto normal. Si se envió audio pero el texto tiene enlaces o cuentas, enviar también el ancla de texto
+      if (!audioEnviado) {
+        await canal.enviar(phone, { texto: resp.texto }).catch(() => ({ ok: false }));
+      } else if (resp.texto.includes("http") || resp.texto.includes("3223565761") || resp.texto.includes("Nequi")) {
+        await canal.enviar(phone, { texto: resp.texto }).catch(() => ({ ok: false }));
+      }
+
       await consultar(
         "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
         [phone, resp.texto],
