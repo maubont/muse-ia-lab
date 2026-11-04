@@ -128,6 +128,7 @@ const EMOJIS_PROHIBIDOS = /[🙏🥺🤫🙄💜]/gu;
  * Sanitiza la respuesta saliente:
  * 1. Remueve emojis de súplica (🙏) y corazones morados (💜).
  * 2. Si el usuario está molesto o confundido, remueve el 100% de emojis para máxima seriedad.
+ * 3. Remueve URLs idénticas repetidas en el mismo mensaje para no saturar al usuario.
  */
 export function sanitizarRespuesta(texto: string, usuarioMolesto = false): string {
   if (!texto) return "";
@@ -135,5 +136,17 @@ export function sanitizarRespuesta(texto: string, usuarioMolesto = false): strin
   if (usuarioMolesto) {
     limpio = limpio.replace(/\p{Extended_Pictographic}/gu, "");
   }
-  return limpio.replace(/[ \t]{2,}/g, " ").trim();
+
+  // Deduplicar URLs idénticas si aparecen más de una vez en el mismo texto
+  const urlsVistas = new Set<string>();
+  limpio = limpio.replace(/https?:\/\/[^\s]+/gi, (url) => {
+    const urlLimpia = url.replace(/[.,;!]+$/, "").toLowerCase();
+    if (urlsVistas.has(urlLimpia)) {
+      return "";
+    }
+    urlsVistas.add(urlLimpia);
+    return url;
+  });
+
+  return limpio.replace(/[ \t]{2,}/g, " ").replace(/\n{3,}/g, "\n\n").trim();
 }
