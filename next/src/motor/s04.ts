@@ -30,10 +30,10 @@ export type { ClasificacionGPT, Efecto };
 
 /** Se alterna con MSG_GATE18_REASK2 para no repetir el mismo mensaje seguido. */
 export const MSG_GATE18_REASK =
-  "Solo para estar segura antes de seguir 😊 ¿Ya tienes *18 años o más*? Respóndeme con un *sí* o dime tu edad, porfa 🙏";
+  "Solo para estar segura antes de seguir 😊 ¿Ya tienes *18 años o más*? Respóndeme con un *sí* o dime tu edad, porfa ✨";
 
 export const MSG_GATE18_REASK2 =
-  "Jeje va 😊 pero necesito que me lo confirmes clarito: ¿ya tienes *18 años o más*? Apenas me digas que sí, seguimos con todos los detalles 🙏";
+  "Jeje va 😊 pero necesito que me lo confirmes clarito: ¿ya tienes *18 años o más*? Apenas me digas que sí, seguimos con todos los detalles ✨";
 
 export const PREGUNTA_S04 = "¿Me confirmas que ya tienes 18 años o más?";
 

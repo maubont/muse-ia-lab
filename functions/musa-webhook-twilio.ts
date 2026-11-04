@@ -1166,7 +1166,7 @@ async function entregarCurso(admin: Admin, lead: Lead, cfg: Cfg): Promise<void> 
   if (plan) bloque2.push(`🎁 *Regalo — Guía Rápida de Implementación:* ${plan}`);
 
   const bienvenida = resolverPlaceholders(
-    "¡Bienvenida oficialmente, {{nombre}}! 💜 Ya tienes acceso de por vida a todo. " +
+    "¡Bienvenida oficialmente, {{nombre}}! ✨ Ya tienes acceso de por vida a todo. " +
     "Mi consejo: empieza HOY por el *Módulo 1* (el primer enlace de arriba) y avanza a tu ritmo. " +
     "Cualquier duda me escribes por aquí 😊",
     lead,
@@ -1557,24 +1557,24 @@ function dentroDeHorario(cfg: Cfg): boolean {
 
 const RECIERRE_SUAVE = "¿Te animas? ¿Te paso los datos de pago? 😊";
 const MSG_OPTOUT =
-  "Listo 👍 Quedas fuera de la lista y no te volveré a escribir. ¡Gracias por tu tiempo y que te vaya bonito! 💜";
+  "Listo 👍 Quedas fuera de la lista y no te volveré a escribir. ¡Gracias por tu tiempo y que te vaya bonito! ✨";
 const MSG_MENOR_REITERACION =
-  "Gracias por escribirme 🙏 Recuerda que este programa es solo para mayores de 18 años, así que no puedo venderte el acceso. ¡Cuídate mucho! 💜";
+  "Gracias por escribirme ✨ Recuerda que este programa es solo para mayores de 18 años, así que no puedo venderte el acceso. ¡Cuídate mucho! ✨";
 const MSG_VERIFICANDO =
-  "Seguimos verificando tu pago ✅ Tu acceso queda asegurado; te confirmo por aquí mismo apenas esté listo 💜";
+  "Seguimos verificando tu pago ✅ Tu acceso queda asegurado; te confirmo por aquí mismo apenas esté listo ✨";
 const MSG_GATE18_REASK =
-  "Solo para estar segura antes de seguir 😊 ¿Ya tienes *18 años o más*? Respóndeme con un *sí* o dime tu edad, porfa 🙏";
+  "Solo para estar segura antes de seguir 😊 ¿Ya tienes *18 años o más*? Respóndeme con un *sí* o dime tu edad, porfa ✨";
 const MSG_GATE18_REASK2 =
-  "Jeje va 😊 pero necesito que me lo confirmes clarito: ¿ya tienes *18 años o más*? Apenas me digas que sí, seguimos con todos los detalles 🙏";
+  "Jeje va 😊 pero necesito que me lo confirmes clarito: ¿ya tienes *18 años o más*? Apenas me digas que sí, seguimos con todos los detalles ✨";
 const MSG_NEGATIVO_SUAVE =
-  "Todo bien, sin presión 😊 Aquí quedo por si te animas más adelante; cualquier duda me la escribes con confianza 💜";
+  "Todo bien, sin presión 😊 Aquí quedo por si te animas más adelante; cualquier duda me la escribes con confianza ✨";
 const MSG_ESCALADO_ACK =
-  "El equipo ya está revisando tu consulta 🙏 Te escribo por aquí apenas tengan la respuesta";
+  "El equipo ya está revisando tu consulta ✨ Te escribo por aquí apenas tengan la respuesta";
 const MSG_ESCALADO_ACK2 =
-  "Sigo pendiente de tu caso con el equipo 💜 Apenas tenga novedad te aviso";
+  "Sigo pendiente de tu caso con el equipo ✨ Apenas tenga novedad te aviso";
 // CAMBIO 4 — respuesta cálida a una nota de voz (no avanza ni clasifica).
 const MSG_NOTA_VOZ =
-  "¡Ay, gracias por tu nota de voz! 🙈 Por ahora solo puedo leer mensajes de texto. ¿Me escribes tu mensajito y seguimos? 💜";
+  "¡Ay, gracias por tu nota de voz! 🙈 Por ahora solo puedo leer mensajes de texto. ¿Me escribes tu mensajito y seguimos? ✨";
 // FASE 4 (pagos) — acuses al lead tras recibir el comprobante.
 const MSG_PAGO_REENVIO =
   "¡Gracias! La captura me quedó un poquito incompleta o no se ve clara. ¿Me reenvías el comprobante completo (que se vean el monto, la fecha y el número de referencia)? Así te confirmo el acceso enseguida ✨";
@@ -1996,7 +1996,7 @@ async function enviarDatosPago(admin: Admin, lead: Lead, cfg: Cfg): Promise<void
             cfg,
           ),
           link,
-          "Apenas se confirme el pago, te entrego TODO automáticamente por aquí 💜 (la validación es automática, no necesitas enviarme captura).",
+          "Apenas se confirme el pago, te entrego TODO automáticamente por aquí ✨ (la validación es automática, no necesitas enviarme captura).",
         ]);
         return;
       }
@@ -2022,7 +2022,7 @@ async function enviarDatosPago(admin: Admin, lead: Lead, cfg: Cfg): Promise<void
     await registrarEvento(admin, lead.phone, "escalado", { motivo: "datos_pago_incompletos" });
     await enviarMensajes(admin, lead, [
       resolverPlaceholders(
-        "¡Excelente decisión, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos de pago actualizados y te escribo en un ratico por aquí mismo 💜",
+        "¡Excelente decisión, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos de pago actualizados y te escribo en un ratico por aquí mismo ✨",
         lead,
         cfg,
       ),
@@ -2446,7 +2446,7 @@ async function manejarS08(
       // Con Wompi la confirmación es automática (webhook de eventos): no pedir captura.
       await enviarMensajes(admin, lead, [
         resolverPlaceholders(
-          "¡Perfecto, {{nombre}}! 🙌 La validación es automática: apenas el banco confirme tu pago te llega TODO el acceso aquí mismo, sin que tengas que enviarme nada 💜",
+          "¡Perfecto, {{nombre}}! 🙌 La validación es automática: apenas el banco confirme tu pago te llega TODO el acceso aquí mismo, sin que tengas que enviarme nada ✨",
           lead,
           cfg,
         ),
@@ -2479,7 +2479,7 @@ async function manejarS08(
       });
       await enviarMensajes(admin, lead, [
         resolverPlaceholders(
-          "¡Claro, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos actualizados de ese método y te los paso enseguida por aquí mismo 💜",
+          "¡Claro, {{nombre}}! 🙌 Déjame confirmar con el equipo los datos actualizados de ese método y te los paso enseguida por aquí mismo ✨",
           lead,
           cfg,
         ),
