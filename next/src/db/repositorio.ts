@@ -255,11 +255,11 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     // ── Respuestas deterministas sin coste de IA (cero silencios en WhatsApp) ─
     async gptResponder() {
-      return { escalo: true };
+      return { escalo: false };
     },
     async gptFallback(phone) {
       const msg =
-        "¡Aquí estoy para ayudarte! 💜 Recuerda que el curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a Musa Studio) tiene un único pago promocional de *33.000 COP* (≈ *9 USD*).\n\n" +
+        "¡Aquí estoy para ayudarte! ✨ Recuerda que el curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a Musa Studio) tiene un único pago promocional de *33.000 COP* (≈ *9 USD*).\n\n" +
         "✨ Si deseas degustar la plataforma antes de decidirte, puedes ver la *Clase 1 gratis* aquí:\n" +
         "https://server-production-3709.up.railway.app/academia.html\n\n" +
         "¿Te gustaría que te comparta los datos de Nequi o Bancolombia para activar tu acceso completo, o tienes alguna duda específica?";
@@ -277,10 +277,10 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         6: "Son *33.000 COP* (≈ *9 USD*) pago único 🙌 Puedes pagar por *Nequi, llave Bre-B o Bancolombia*. ¿Te paso los datos para hacerlo ahora?",
         7: "Incluye *13 módulos prácticos* (creación de modelos hiperrealistas, consistencia facial, video IA, TikTok/Instagram, Telegram, Fanvue, ManyChat y prompts) + *4 bonos exclusivos* + la *Guía Rápida de Implementación* por *33.000 COP* (≈ *9 USD*) pago único.",
         8: "Sí 😊 Crear y gestionar personajes ficticios generados con IA es completamente legal. El curso enseña a crear identidades 100 % originales.",
-        9: "¡Por supuesto! 💜 Tú nunca muestras tu cara ni tu cuerpo: creas y diriges modelos virtuales con IA detrás de cámara.",
+        9: "¡Por supuesto! ✨ Tú nunca muestras tu cara ni tu cuerpo: creas y diriges modelos virtuales con IA detrás de cámara.",
         10: "Te garantizamos la entrega inmediata y verificable de los 13 módulos + 4 bonos en tu área privada apenas envíes tu comprobante, con soporte directo por este mismo WhatsApp 📲",
         11: "Lo hicimos accesible a propósito (*33.000 COP* / *9 USD* pago único) para que cualquier persona en Colombia pueda empezar sin barreras.",
-        12: "¡Claro, tómate tu tiempo! 😊 Recuerda que en tus primeras 24 horas tienes incluida de regalo la *Guía Rápida de Implementación*. Cuando quieras continuar, escríbeme *quiero pagar* 💜",
+        12: "¡Claro, tómate tu tiempo! 😊 Recuerda que en tus primeras 24 horas tienes incluida de regalo la *Guía Rápida de Implementación*. Cuando quieras continuar, solo avísame cuando desees continuar ✨",
         13: "Sí 😄 Soy Musa, la asistente virtual de Modelos IA. Y automatizar la atención así con IA es justamente una de las habilidades que aprenderás dentro del curso 😉",
       };
       const base = respuestas[args.id] ?? respuestas[7];

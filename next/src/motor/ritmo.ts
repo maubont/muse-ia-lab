@@ -10,8 +10,8 @@
 // peor que uno que contesta en dos.
 
 /** Tope de retardo por mensaje: nunca más de esto, aunque el texto sea enorme. */
-export const RETARDO_MAX_MS = 2_500;
-export const RETARDO_MIN_MS = 300;
+export const RETARDO_MAX_MS = 800;
+export const RETARDO_MIN_MS = 150;
 
 /** Máximo de caracteres por mensaje. Más que esto es «testamento». */
 export const MAX_CARACTERES_POR_MENSAJE = 420;
@@ -41,7 +41,7 @@ export const RETARDO_PRIMERO_MS = 150;
  */
 export function retardoMs(texto: string, tope = RETARDO_MAX_MS): number {
   const largo = (texto ?? "").length;
-  const calculado = 250 + largo * 18;
+  const calculado = 150 + largo * 4;
   return Math.min(tope, Math.max(RETARDO_MIN_MS, calculado));
 }
 

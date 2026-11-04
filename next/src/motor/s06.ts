@@ -62,9 +62,47 @@ export interface EntradaS06 {
 export function decidirS06(entrada: EntradaS06): Efecto[] {
   const { lead, cfg, body, norm } = entrada;
 
-  if (esAfirmativoCierre(norm)) return cerrarConDatos(lead, cfg, body, norm);
+  // 1. Negativo primero (respeto total a la decisión del prospecto)
   if (esNegativoCierre(norm)) return [{ tipo: "enviar", textos: [MSG_NEGATIVO_SUAVE] }];
 
+  // 2. Afirmativo heurístico de cierre -> Cierre inmediato con datos de pago
+  if (esAfirmativoCierre(norm)) return cerrarConDatos(lead, cfg, body, norm);
+
+  // 3. Consulta de Muestra / Ver Plataforma / Dónde se estudia
+  const PIDE_VER_PLATAFORMA = /\b(ver|muestra|muestrame|mostrar|plataforma|academia|donde estudio|donde se estudia|donde voy a estudiar|como es el curso|como es la plataforma|contenido|dichoso curso|es serio|seriedad|estafa|desconfianza|probar|degustar)\b/i;
+  if (PIDE_VER_PLATAFORMA.test(norm)) {
+    const urlAcademia = "https://server-production-3709.up.railway.app/academia.html";
+    const textoMuestra = `¡Claro que sí${lead.nombre ? ", " + lead.nombre : ""}! ✨ Puedes entrar ya mismo a ver el campus oficial y explorar la plataforma por dentro aquí 👇\n${urlAcademia}\n\nAllí verás el desglose de las 13 clases maestras y los 4 packs de bonos. Cuando quieras activar tu acceso completo por $33.000 COP (≈ $9 USD), ¿te comparto los datos de Nequi o Bancolombia?`;
+    return [{ tipo: "enviar", textos: [textoMuestra] }];
+  }
+
+  // 4. Saludo o reactivación en S06_CIERRE (en vez de repetir el fallback largo)
+  if (norm === "hola" || norm === "buenas" || norm === "buenos dias" || norm === "buenas tardes" || norm === "buenas noches") {
+    const textoSaludo = `¡Hola de nuevo${lead.nombre ? ", " + lead.nombre : ""}! ✨ Estábamos conversando sobre tu acceso a Musa Studio (13 clases + 4 bonos por $33.000 COP). ¿Te comparto los datos de Nequi o Bancolombia para activarte hoy, o tienes alguna duda antes de arrancar?`;
+    return [{ tipo: "enviar", textos: [textoSaludo] }];
+  }
+
+  // 5. Objeciones comunes resueltas directamente con recierre:
+  if (/\b(cuanto|precio|costo|valor|cuanto vale|en dolares|pesos)\b/i.test(norm)) {
+    return [{ tipo: "responder_objecion", id: 2, conRecierre: true }];
+  }
+  if (/\b(computador|computadora|pc|celular|telefono|movil|requisitos|experiencia|cero|tarjeta grafica)\b/i.test(norm)) {
+    return [{ tipo: "responder_objecion", id: 4, conRecierre: true }];
+  }
+  if (/\b(mostrar mi cara|mi rostro|mi cara|mi cuerpo|camara|anonimo|anonima)\b/i.test(norm)) {
+    return [{ tipo: "responder_objecion", id: 9, conRecierre: true }];
+  }
+  if (/\b(legal|legalidad|delito|ley|prohibido)\b/i.test(norm)) {
+    return [{ tipo: "responder_objecion", id: 8, conRecierre: true }];
+  }
+  if (/\b(eres real|eres un bot|eres bot|eres humana|persona real)\b/i.test(norm)) {
+    return [{ tipo: "responder_objecion", id: 13, conRecierre: true }];
+  }
+  if (/\b(que incluye|temario|modulos|que ensenan|que contiene|bonos)\b/i.test(norm)) {
+    return [{ tipo: "responder_objecion", id: 7, conRecierre: true }];
+  }
+
+  // 6. Clasificación GPT (si existe un modelo conectado)
   const cls = entrada.clasificacion ?? null;
   if (cls?.tipo === "afirmativo") return cerrarConDatos(lead, cfg, body, norm);
   if (cls?.tipo === "objecion" && cls.objecion_id) {

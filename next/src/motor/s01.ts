@@ -72,8 +72,7 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
     const rama = (cfg.funnelCopy?.etapas ?? [])
       .find((x) => x.id === "S02_AVATAR")?.ramas?.[avatar.rama];
     const mensajes = rama?.mensajes ?? [];
-    const caption = resolverPlaceholders(sinPrefijo(mensajes[0] ?? ""), lead, cfg) ||
-      "¡Hola! Soy Musa, anfitriona oficial de Muse IA Lab y modelo virtual creada 100% con IA 🎬";
+    const caption = resolverPlaceholders(sinPrefijo(mensajes[0] ?? ""), lead, cfg);
 
     efectos.push({ tipo: "enviar_media", url: avatar.url, mediaTipo: "video", texto: caption });
     if (mensajes[1]) {
@@ -91,7 +90,8 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
     .find((x) => x.id === "S02_AVATAR")?.ramas?.A?.sin_video ??
     "Te cuento todo en un momento 😉 Pero primero lo importante:";
 
-  efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(puente, lead, cfg), textoDegustacion, ...soporte] });
+  efectos.push({ tipo: "enviar", textos: [resolverPlaceholders(puente, lead, cfg)] });
+  efectos.push({ tipo: "enviar", textos: [textoDegustacion, ...soporte] });
   efectos.push({ tipo: "lead", patch: { avatar_enviado: false } });
   efectos.push({ tipo: "estado", nuevo: "S04_GATE18" });
   return efectos;

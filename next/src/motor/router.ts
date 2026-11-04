@@ -106,7 +106,7 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
       {
         tipo: "enviar",
         textos: [
-          "🔄 Conversación reiniciada. ¡Escribe *Hola* para probar el funnel completo desde el principio!",
+          "¡Listo! He restablecido nuestra conversación. ¿En qué te puedo ayudar hoy? ✨",
         ],
       },
     ];
@@ -174,7 +174,7 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
             {
               tipo: "enviar",
               textos: [
-                "¡Hola! 😄 Quedo super pendiente de tu captura del comprobante por aquí 📸 para confirmarte y darte acceso inmediato a Modelos IA 🚀\n\nSi necesitas los datos de pago nuevamente o quieres probar desde el inicio, escribe *reiniciar* 💜",
+                "¡Hola! 😄 Quedo super pendiente de tu captura del comprobante por aquí 📸 para confirmarte y darte acceso inmediato a Modelos IA 🚀\n\nSi necesitas que te recuerde los datos de pago o tienes alguna duda antes de transferir, solo avísame ✨",
               ],
             },
           ];
