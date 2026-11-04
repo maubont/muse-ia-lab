@@ -96,6 +96,9 @@ async function construirMotor(env: Entorno, consultarInyectado?: Consultar): Pro
     consultar,
     canal: crearCanalEvolutionConfig(env),
     urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined,
+    apiKeyIa: (env.MUSA_IA_KEY ?? process.env.MUSA_IA_KEY ?? "").trim(),
+    modeloIa: (env.MUSA_IA_MODELO ?? process.env.MUSA_IA_MODELO ?? "gpt-6-luna").trim(),
+    urlIa: (env.MUSA_IA_URL ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").trim(),
     lector,
   });
 }

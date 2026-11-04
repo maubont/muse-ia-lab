@@ -23,6 +23,9 @@ export interface DepsConversacion {
   urlPublica?: string;
   presupuestoDiarioUsd?: number;
   cfg?: CfgFunnel;
+  apiKey?: string;
+  modelo?: string;
+  baseUrl?: string;
 }
 
 export interface ResultadoConversacion {
@@ -137,9 +140,9 @@ export async function generarRespuestaConversacional(
   ctx: ContextoConversacion,
 ): Promise<ResultadoConversacion> {
   const t0 = Date.now();
-  const apiKey = (process.env.MUSA_IA_KEY || "").trim();
-  const baseUrl = (process.env.MUSA_IA_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
-  const modelo = (process.env.MUSA_IA_MODELO || deps.cfg?.modelos?.conversacion || "gpt-6-luna").trim();
+  const apiKey = (deps.apiKey || process.env.MUSA_IA_KEY || "").trim();
+  const baseUrl = (deps.baseUrl || process.env.MUSA_IA_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
+  const modelo = (deps.modelo || process.env.MUSA_IA_MODELO || deps.cfg?.modelos?.conversacion || "gpt-6-luna").trim();
   const urlPublica = deps.urlPublica || "https://server-production-3709.up.railway.app";
   const topePresupuesto = deps.presupuestoDiarioUsd ?? 1.0;
 
@@ -155,17 +158,27 @@ export async function generarRespuestaConversacional(
     };
   }
 
-  // 1. Control preventivo de presupuesto diario
-  const costoEstimadoTurno = costeEstimado(600, 350, { entrada: 0.1, salida: 0.5 });
-  const estadoPto = await consultarPresupuesto(deps.consultar, {
-    tope: topePresupuesto,
-    estimado: costoEstimadoTurno,
-  });
+  // 1. Control preventivo de presupuesto diario (fail-open si hay problema transitorio de DB)
+  let permitido = true;
+  try {
+    const costoEstimadoTurno = costeEstimado(600, 350, { entrada: 0.1, salida: 0.5 });
+    const estadoPto = await consultarPresupuesto(deps.consultar, {
+      tope: topePresupuesto,
+      estimado: costoEstimadoTurno,
+    });
+    if (!estadoPto.permitido && (estadoPto.motivo === "presupuesto_agotado" || estadoPto.motivo === "no_cabe_en_el_presupuesto")) {
+      permitido = false;
+      console.warn(`[ia-conversacion] presupuesto agotado: gastado=${estadoPto.gastado}, tope=${estadoPto.tope}`);
+    }
+  } catch (err) {
+    console.warn(`[ia-conversacion] fallo consultando presupuesto (fail-open para chat):`, err);
+    permitido = true;
+  }
 
-  if (!estadoPto.permitido) {
+  if (!permitido) {
     const texto = generarFallbackSeguro(ctx, urlPublica);
     return {
-      ok: true,
+      ok: false,
       texto,
       escalo: false,
       latenciaMs: Date.now() - t0,
@@ -186,9 +199,9 @@ export async function generarRespuestaConversacional(
     mensajesPayload.push({ role: "user", content: ctx.ultimoMensaje.slice(0, 400) });
   }
 
-  // 3. Invocar a gpt-6-luna con timeout estricto de 6.0 segundos
+  // 3. Invocar a gpt-6-luna con timeout de 8.0 segundos
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 6000);
+  const timer = setTimeout(() => ctrl.abort(), 8000);
 
   try {
     const res = await fetch(`${baseUrl}/chat/completions`, {

@@ -41,6 +41,9 @@ export interface DepsRepositorio {
   esperar?: (ms: number) => Promise<void>;
   /** Dominio público del servidor. Sin él, la entrega cae a los enlaces sueltos. */
   urlPublica?: string;
+  apiKeyIa?: string;
+  modeloIa?: string;
+  urlIa?: string;
 }
 
 /** Columnas que el motor puede tocar en `musa_leads`. */
@@ -88,6 +91,9 @@ export function nuevoShortId(): string {
 export function crearRepositorio(deps: DepsRepositorio): Repositorio {
   const { consultar, canal, telefonoOperador } = deps;
   const urlPublica = (deps.urlPublica ?? "").trim();
+  const apiKey = (deps.apiKeyIa || process.env.MUSA_IA_KEY || "").trim();
+  const modeloIa = (deps.modeloIa || process.env.MUSA_IA_MODELO || "gpt-6-luna").trim();
+  const urlIa = (deps.urlIa || process.env.MUSA_IA_URL || "https://api.openai.com/v1").trim();
   const esperar = deps.esperar ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
   /** Deja rastro de un envío fallido. Nunca lanza: es telemetría, no el flujo. */  const registrarEnvioFallido = async (phone: string, status?: number, motivo?: string) => {
@@ -263,7 +269,6 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     // ── Respuestas inteligentes contextuales con gpt-6-luna (y fallback determinista) ─
     async gptResponder(args: { instruccion?: string; abortarSiEscala?: boolean; phone?: string }) {
-      const apiKey = (process.env.MUSA_IA_KEY || "").trim();
       const phone = args.phone;
       if (!apiKey || !phone) {
         return { escalo: true };
@@ -295,7 +300,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
       const { generarRespuestaConversacional } = await import("../ia/conversacion.ts");
       const resp = await generarRespuestaConversacional(
-        { consultar, urlPublica, presupuestoDiarioUsd: 1.0 },
+        { consultar, urlPublica, presupuestoDiarioUsd: 1.0, apiKey, modelo: modeloIa, baseUrl: urlIa },
         {
           phone,
           nombre: leadRow?.nombre ?? leadRow?.profile_name ?? null,
@@ -338,8 +343,6 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
     },
 
     async gptFallback(phone) {
-      const apiKey = (process.env.MUSA_IA_KEY || "").trim();
-
       void canal.marcarEscribiendo(phone).catch?.(() => {});
 
       if (!apiKey) {
@@ -381,7 +384,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
       const { generarRespuestaConversacional } = await import("../ia/conversacion.ts");
       const resp = await generarRespuestaConversacional(
-        { consultar, urlPublica, presupuestoDiarioUsd: 1.0 },
+        { consultar, urlPublica, presupuestoDiarioUsd: 1.0, apiKey, modelo: modeloIa, baseUrl: urlIa },
         {
           phone,
           nombre: leadRow?.nombre ?? leadRow?.profile_name ?? null,
@@ -422,8 +425,6 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
     },
 
     async responderObjecion(phone, args) {
-      const apiKey = (process.env.MUSA_IA_KEY || "").trim();
-
       const respuestas: Record<number, string> = {
         1: "Te entiendo perfecto 🙏 Por eso te dejo una muestra REAL del curso para que la pruebes gratis hoy mismo 👇\n\n🎨 *Retrato hiperrealista de una mujer joven latina, fotografía profesional, luz natural dorada, piel realista con textura, 85mm f/1.4*\n\nAdemás, apenas verifico tu comprobante recibes tu enlace personal al área del curso con los 13 módulos y 4 bonos al instante.",
         2: "Te entiendo 🙏 Por eso el acceso es de solo *33.000 COP* (≈ *9 USD*) en un único pago de por vida, sin mensualidades ni cobros ocultos, e incluye los 13 módulos y los 4 bonos completos.",
@@ -441,7 +442,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       };
 
       const temasObjecion: Record<number, string> = {
-        1: "El lead pide una muestra o tiene desconfianza. Valida con empatía, menciona la Clase 1 gratis en la academia y entrega el prompt de muestra si lo pide.",
+        1: "El lead pide una muestra, ver la plataforma o desconfianza. Valida con empatía, menciona la Clase 1 gratis en la academia (https://server-production-3709.up.railway.app/academia.html) y pregunta si le pasas datos de Nequi o Bancolombia.",
         2: "El lead pregunta por el precio o siente que es caro. Explica que son solo 33.000 COP (≈ 9 USD) en único pago de por vida sin mensualidades.",
         3: "El lead pregunta si la entrega es inmediata. Confirma que se entrega al instante tras validar el comprobante por este mismo chat.",
         4: "El lead pregunta si necesita un computador potente o si puede desde el celular. Aclara con calidez que todo corre en la nube y puede hacerlo desde su celular o PC básico.",
@@ -476,7 +477,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
           const { generarRespuestaConversacional } = await import("../ia/conversacion.ts");
           const resp = await generarRespuestaConversacional(
-            { consultar, urlPublica, presupuestoDiarioUsd: 1.0 },
+            { consultar, urlPublica, presupuestoDiarioUsd: 1.0, apiKey, modelo: modeloIa, baseUrl: urlIa },
             {
               phone,
               nombre: leadRow?.nombre ?? leadRow?.profile_name ?? null,
@@ -488,11 +489,15 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
             },
           );
 
-          if (resp.ok && resp.texto) {
+          if (resp.ok && resp.origen === "ia_luna" && resp.texto) {
             texto = resp.texto;
             await this.registrarEvento(phone, "gpt_luna_objecion", { id: args.id, latencia_ms: resp.latenciaMs });
+            console.log(`[musa-ia] objecion #${args.id} respondida con ${modeloIa} (${resp.latenciaMs}ms) para ${phone}`);
+          } else {
+            console.warn(`[musa-ia] objecion #${args.id} fallback seguro activado (ok=${resp.ok}, origen=${resp.origen})`);
           }
-        } catch {
+        } catch (err) {
+          console.error(`[musa-ia] excepcion en responderObjecion:`, err);
           texto = "";
         }
       }

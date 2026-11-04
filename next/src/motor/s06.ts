@@ -71,15 +71,12 @@ export function decidirS06(entrada: EntradaS06): Efecto[] {
   // 3. Consulta de Muestra / Ver Plataforma / Dónde se estudia
   const PIDE_VER_PLATAFORMA = /\b(ver|muestra|muestrame|mostrar|plataforma|academia|donde estudio|donde se estudia|donde voy a estudiar|como es el curso|como es la plataforma|contenido|dichoso curso|es serio|seriedad|estafa|desconfianza|probar|degustar)\b/i;
   if (PIDE_VER_PLATAFORMA.test(norm)) {
-    const urlAcademia = "https://server-production-3709.up.railway.app/academia.html";
-    const textoMuestra = `¡Claro que sí${lead.nombre ? ", " + lead.nombre : ""}! ✨ Puedes entrar ya mismo a ver el campus oficial y explorar la plataforma por dentro aquí 👇\n${urlAcademia}\n\nAllí verás el desglose de las 13 clases maestras y los 4 packs de bonos. Cuando quieras activar tu acceso completo por $33.000 COP (≈ $9 USD), ¿te comparto los datos de Nequi o Bancolombia?`;
-    return [{ tipo: "enviar", textos: [textoMuestra] }];
+    return [{ tipo: "responder_objecion", id: 1, conRecierre: true }];
   }
 
-  // 4. Saludo o reactivación en S06_CIERRE (en vez de repetir el fallback largo)
+  // 4. Saludo o reactivación en S06_CIERRE
   if (norm === "hola" || norm === "buenas" || norm === "buenos dias" || norm === "buenas tardes" || norm === "buenas noches") {
-    const textoSaludo = `¡Hola de nuevo${lead.nombre ? ", " + lead.nombre : ""}! ✨ Estábamos conversando sobre tu acceso a Musa Studio (13 clases + 4 bonos por $33.000 COP). ¿Te comparto los datos de Nequi o Bancolombia para activarte hoy, o tienes alguna duda antes de arrancar?`;
-    return [{ tipo: "enviar", textos: [textoSaludo] }];
+    return [{ tipo: "gpt_fallback" }];
   }
 
   // 5. Objeciones comunes resueltas directamente con recierre:

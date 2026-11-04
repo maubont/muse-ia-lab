@@ -36,6 +36,9 @@ export interface DepsMotorReal {
   esperar?: (ms: number) => Promise<void>;
   /** Dominio público; sin él la entrega manda los enlaces sueltos. */
   urlPublica?: string;
+  apiKeyIa?: string;
+  modeloIa?: string;
+  urlIa?: string;
   /**
    * Lector de comprobantes. Si no se pasa, S08 recibe `datos: null` y el caso va
    * a la cola humana — nunca se auto-valida un pago sin haberlo leído.
@@ -290,6 +293,9 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         telefonoOperador: cfg.operador?.whatsapp ?? "",
         esperar: deps.esperar,
         urlPublica: deps.urlPublica,
+        apiKeyIa: deps.apiKeyIa,
+        modeloIa: deps.modeloIa,
+        urlIa: deps.urlIa,
       });
       const resumen = await ejecutar(efectos, { repo, phone: mensaje.telefono });
 
