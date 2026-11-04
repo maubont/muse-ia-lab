@@ -468,7 +468,7 @@ export async function ejecutarComandoConsola(deps: {
   if (mHistorial) {
     const tel = "+" + mHistorial[1].replace(/\D/g, "");
     const { rows: msgs } = await consultar(
-      "select direccion, tipo, cuerpo, created_at from public.musa_messages where lead_tel = $1 order by id asc limit 50",
+      "select direction, body, media_url, estado_funnel, created_at from public.musa_messages where lead_phone = $1 order by id asc limit 50",
       [tel],
     ).catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
     const { rows: leads } = await consultar(
@@ -476,11 +476,15 @@ export async function ejecutarComandoConsola(deps: {
       [tel],
     ).catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
     const l = leads[0];
-    const lineas = msgs.map((m: any) => `[${m.direccion === 'in' ? '👤 Lead' : '✨ Musa'}] ${m.cuerpo}`);
+    const lineas = msgs.map((m: any) => {
+      const remitente = m.direction === "in" ? "👤 Lead" : "✨ Musa";
+      const media = m.media_url ? ` [Adjunto: ${m.media_url}]` : "";
+      return `[${remitente}] ${m.body || ""}${media}`.trim();
+    });
     return {
       ok: true,
       accion: "historial_chat",
-      respuesta: `Historial de ${tel} (${l ? l.estado_funnel : 'no encontrado'}, mayor_18=${l?.mayor_18}):\n\n${lineas.length ? lineas.join("\n\n") : "(Sin mensajes registrados)"}`,
+      respuesta: `Historial de ${tel} (Estado: ${l ? l.estado_funnel : "no encontrado"}, mayor_18=${l?.mayor_18}):\n\n${lineas.length ? lineas.join("\n\n") : "(Sin mensajes registrados)"}`,
     };
   }
 

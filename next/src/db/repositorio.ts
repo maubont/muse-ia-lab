@@ -225,6 +225,10 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         void canal.marcarEscribiendo(phone).catch?.(() => {});
         await esperar(retardoDeTurno(indice, texto));
         const r = await canal.enviar(phone, { texto });
+        await consultar(
+          "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
+          [phone, texto],
+        ).catch(() => ({ rows: [] }));
         if (!r.ok) {
           todoBien = false;
           await registrarEnvioFallido(phone, r.status, r.motivo);
@@ -250,6 +254,10 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         texto: media.texto,
         media: { url: media.url, tipo: media.tipo },
       });
+      await consultar(
+        "insert into public.musa_messages (lead_phone, direction, body, media_url, media_type) values ($1, 'out', $2, $3, $4)",
+        [phone, media.texto, media.url, media.tipo],
+      ).catch(() => ({ rows: [] }));
       if (!r.ok) await registrarEnvioFallido(phone, r.status, r.motivo);
     },
 
@@ -265,6 +273,10 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         "¿Te gustaría que te comparta los datos de Nequi o Bancolombia para activar tu acceso completo, o tienes alguna duda específica?";
       void canal.marcarEscribiendo(phone).catch?.(() => {});
       await canal.enviar(phone, { texto: msg }).catch(() => ({ ok: false }));
+      await consultar(
+        "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
+        [phone, msg],
+      ).catch(() => ({ rows: [] }));
       await this.registrarEvento(phone, "asistencia_comercial", { motivo: "fallback" });
     },
     async responderObjecion(phone, args) {
@@ -287,6 +299,10 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
       const texto = args.conRecierre ? `${base}\n\n¿Te paso los datos de pago por Nequi o Bre-B para activar tu acceso? 😊` : base;
       void canal.marcarEscribiendo(phone).catch?.(() => {});
       await canal.enviar(phone, { texto }).catch(() => ({ ok: false }));
+      await consultar(
+        "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
+        [phone, texto],
+      ).catch(() => ({ rows: [] }));
       await this.registrarEvento(phone, "gpt_no_implementado", { motivo: "objecion", id: args.id });
     },
     async reaskGate(phone, motivo) {
@@ -294,6 +310,10 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
         "Para continuar y pasarte los detalles del acceso, confírmame por favor si eres mayor de 18 años 😊 (Respóndeme *Sí* o tu edad).";
       void canal.marcarEscribiendo(phone).catch?.(() => {});
       await canal.enviar(phone, { texto }).catch(() => ({ ok: false }));
+      await consultar(
+        "insert into public.musa_messages (lead_phone, direction, body) values ($1, 'out', $2)",
+        [phone, texto],
+      ).catch(() => ({ rows: [] }));
       await this.registrarEvento(phone, "gpt_no_implementado", { motivo: `reask:${motivo}` });
     },
   };
