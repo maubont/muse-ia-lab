@@ -146,7 +146,8 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       const lead = aLead(fila);
 
       // 1.b Transcripción de audio / notas de voz con IA:
-      if (mensaje.media && mensaje.media.tipo === "audio" && (!mensaje.texto || mensaje.texto.trim() === "")) {
+      const esAudioEntrante = !!(mensaje.media && mensaje.media.tipo === "audio");
+      if (esAudioEntrante && (!mensaje.texto || mensaje.texto.trim() === "")) {
         try {
           const bytes = await mensaje.media.obtenerBytes();
           if (bytes && bytes.byteLength > 0) {
@@ -187,7 +188,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         mensaje.telefono,
         mensaje.texto || null,
         mensaje.media?.url ?? null,
-        mensaje.media?.mime ?? null,
+        esAudioEntrante ? "audio/ogg" : (mensaje.media?.mime ?? null),
         lead.estado_funnel,
       ]);
 
@@ -284,64 +285,96 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
         return [];
       }
 
-      const urlBase = (deps.urlPublica ?? "https://server-production-3709.up.railway.app").replace(/\/+$/, "");
-      const avatar = {
-        url: `${urlBase}/assets/demo.mp4`,
-        rama: "A",
-      };
+      // A) Si llegó un comprobante de pago adjunto (imagen o PDF), verificar con el flujo estricto de comprobante
+      if (comprobante && comprobante.datos) {
+        const urlBase = (deps.urlPublica ?? "https://server-production-3709.up.railway.app").replace(/\/+$/, "");
+        const efectos = decidirRuta({
+          lead,
+          cfg: cfg as never,
+          body: mensaje.texto,
+          norm: normalizar(mensaje.texto),
+          clasificacion,
+          comprobante: comprobante as never,
+          avatar: null,
+        });
 
-      const efectos = decidirRuta({
-        lead,
-        cfg: cfg as never,
-        body: mensaje.texto,
-        norm: normalizar(mensaje.texto),
-        clasificacion,
-        comprobante: comprobante as never,
-        avatar,
-      });
-
-      // 5. ejecución contra Postgres
-      const repo = crearRepositorio({
-        consultar,
-        canal,
-        telefonoOperador: cfg.operador?.whatsapp ?? "",
-        esperar: deps.esperar,
-        urlPublica: deps.urlPublica,
-        apiKeyIa: deps.apiKeyIa,
-        modeloIa: deps.modeloIa,
-        urlIa: deps.urlIa,
-      });
-      const resumen = await ejecutar(efectos, { repo, phone: mensaje.telefono });
-
-      // `dupeRef` significa que la referencia ya existía en otro pago. El ejecutor
-      // ya se detuvo, pero hasta ahora ese resultado se descartaba en silencio: ni
-      // aviso al operador ni revisión. Ahora se escala.
-      if (resumen.dupeRef) {
-        await ejecutar(
-          [
-            { tipo: "evento", nombre: "pago_duplicado", detalle: { motivo: "referencia_ya_registrada" } },
-            { tipo: "notificar_operador", texto: `Pago con referencia repetida: ${mensaje.telefono}` },
-          ],
-          { repo, phone: mensaje.telefono },
-        );
-      }
-
-      // 6. recordatorios: si el estado cambió, se programan los del nuevo estado.
-      //    `ajustarAHorario` evita que caigan de madrugada.
-      const nuevoEstado = efectos.filter((e) => e.tipo === "estado").at(-1);
-      if (nuevoEstado && nuevoEstado.tipo === "estado" && nuevoEstado.nuevo !== lead.estado_funnel) {
-        for (const r of recordatoriosParaEstado(nuevoEstado.nuevo)) {
-          const cuando = ajustarAHorario(cuandoEnviar(ahora(), r.enMinutos));
-          await consultar(SQL_PROGRAMAR_RECORDATORIO, [mensaje.telefono, r.tipo, cuando.toISOString(), r.texto])
-            .catch(() => ({ rows: [] }));
+        const repo = crearRepositorio({
+          consultar,
+          canal,
+          telefonoOperador: cfg.operador?.whatsapp ?? "",
+          esperar: deps.esperar,
+          urlPublica: deps.urlPublica,
+          apiKeyIa: deps.apiKeyIa,
+          modeloIa: deps.modeloIa,
+          urlIa: deps.urlIa,
+        });
+        const resumen = await ejecutar(efectos, { repo, phone: mensaje.telefono });
+        if (resumen.dupeRef) {
+          await ejecutar(
+            [
+              { tipo: "evento", nombre: "pago_duplicado", detalle: { motivo: "referencia_ya_registrada" } },
+              { tipo: "notificar_operador", texto: `Pago con referencia repetida: ${mensaje.telefono}` },
+            ],
+            { repo, phone: mensaje.telefono },
+          );
         }
+        await consultar(
+          "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1,$2,$3::jsonb)",
+          [mensaje.telefono, "respuesta_enviada", JSON.stringify({ ms: Date.now() - t0, estado: lead.estado_funnel })],
+        ).catch(() => ({ rows: [] }));
+        return [];
       }
 
-      // 7. métrica que decide: cuánto tardó la primera respuesta
+      // B) STOP / SALIR / CANCELAR (Requisito legal)
+      const normLimpio = normalizar(mensaje.texto);
+      if (normLimpio === "stop" || normLimpio === "salir" || normLimpio === "cancelar") {
+        await consultar("update public.musa_leads set opt_out = true, updated_at = now() where phone = $1", [mensaje.telefono]);
+        await canal.enviar(mensaje.telefono, { texto: "Entendido, no te volveré a escribir. ¡Muchos éxitos en tus proyectos! ✨" });
+        return [];
+      }
+
+      // C) RESET / REINICIAR
+      if (normLimpio === "reset" || normLimpio === "reiniciar" || normLimpio === "recomenzar") {
+        await consultar(
+          "update public.musa_leads set estado_funnel = 'S00_LLEGADA', mayor_18 = false, pagado = false, escalado_humano = false, updated_at = now() where phone = $1",
+          [mensaje.telefono],
+        );
+        await canal.enviar(mensaje.telefono, {
+          texto: "¡Listo! He restablecido nuestra conversación. ¿En qué te puedo ayudar hoy? ✨",
+        });
+        return [];
+      }
+
+      // D) TODO LO DEMÁS: CEREBRO AGÉNTICO COGNITIVO PURO (MUSA IA 2026/2027)
+      // Sin árboles regex, sin colisiones de palabras clave, sin silencios forzados.
+      const { ejecutarTurnoAgenteMusa } = await import("../ia/agente-cognitivo.ts");
+      await ejecutarTurnoAgenteMusa(
+        {
+          consultar,
+          canal,
+          apiKey: deps.apiKeyIa,
+          baseUrl: deps.urlIa,
+          modelo: deps.modeloIa,
+          urlPublica: deps.urlPublica,
+          telefonoOperador: cfg.operador?.whatsapp ?? "",
+          presupuestoDiarioUsd: 1.0,
+          esperar: deps.esperar,
+        },
+        {
+          phone: mensaje.telefono,
+          nombrePerfil: mensaje.nombre_perfil,
+          texto: mensaje.texto,
+          esAudioEntrante,
+        },
+      );
+
+      // Registrar métrica de latencia
       await consultar(
         "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1,$2,$3::jsonb)",
         [mensaje.telefono, "respuesta_enviada", JSON.stringify({ ms: Date.now() - t0, estado: lead.estado_funnel })],
       ).catch(() => ({ rows: [] }));
+
+      return [];
 
       // El motor envía por los efectos; devolver algo aquí duplicaría el envío.
       return [];
