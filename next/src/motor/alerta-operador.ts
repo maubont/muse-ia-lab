@@ -181,15 +181,13 @@ export async function enviarAlertaOperador(
     return false;
   }
 
-  // GUARDA CRÍTICA: Si el operador está chateando como lead, NO enviar alerta a su propio chat
-  if (normalizarTel(telefonoOperador) === normalizarTel(ctx.phone)) {
-    console.log(`[alerta-operador] Alerta omitida por auto-notificación (operador === lead: ${ctx.phone})`);
-    return true;
-  }
-
+  const esAutoNotificacion = normalizarTel(telefonoOperador) === normalizarTel(ctx.phone);
   try {
     const textoAlerta = await construirAlertaEstructurada(consultar, ctx);
-    const res = await canal.enviar(telefonoOperador, { texto: textoAlerta });
+    const textoFinal = esAutoNotificacion
+      ? `🧪 *[NOTIFICACIÓN DE ESCALADO INTERNO - PRUEBA DE OPERADOR]*\n\n${textoAlerta}`
+      : textoAlerta;
+    const res = await canal.enviar(telefonoOperador, { texto: textoFinal });
     return res.ok;
   } catch (err) {
     console.error(`[alerta-operador] Error despachando alerta a operador:`, err);
