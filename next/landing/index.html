@@ -218,12 +218,12 @@ p.fuerte{color:var(--texto);font-weight:500}
   position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/10;background:#F3ECEA;
   border:1px solid var(--borde);
 }
-.musa-main-frame img{
+.musa-main-frame img, .musa-main-frame video{
   width:100%;height:100%;object-fit:cover;display:block;
   transition:opacity .28s var(--ease-out),transform .45s var(--ease-out);
 }
 .musa-thumbs{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px;
 }
 .musa-thumb{
   border-radius:12px;overflow:hidden;border:1px solid var(--borde);background:var(--fondo);
@@ -233,13 +233,63 @@ p.fuerte{color:var(--texto);font-weight:500}
 .musa-thumb:hover,.musa-thumb.activa{
   border-color:var(--rosa-editorial);background:var(--rosa-suave);transform:translateY(-2px);
 }
-.musa-thumb img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.musa-thumb img,.musa-thumb video{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
 .musa-thumb span{
   display:block;padding:8px 10px;
   font-family:"JetBrains Mono",ui-monospace,monospace;
   font-size:10.5px;color:var(--tenue);font-weight:600;letter-spacing:.02em;
 }
 .musa-thumb.activa span{color:var(--texto)}
+
+/* ---- Reproductor Táctil de Voz: Musa al Oído ---- */
+.reproductor-musa{
+  margin:20px auto 0;max-width:520px;
+  display:flex;align-items:center;gap:14px;
+  padding:12px 18px;border-radius:16px;
+  background:linear-gradient(135deg,#FFFFFF 0%,var(--rosa-suave) 60%,#FBF4E9 100%);
+  border:1px solid var(--rosa-borde);
+  box-shadow:0 12px 30px -14px rgba(184,107,119,.22), inset 0 1px 0 rgba(255,255,255,.9);
+  cursor:pointer;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+  user-select:none;
+}
+.reproductor-musa:hover{
+  transform:translateY(-1px);
+  border-color:var(--rosa-editorial);
+  box-shadow:0 16px 36px -12px rgba(184,107,119,.28);
+}
+.btn-play-musa{
+  flex:0 0 44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--oro),var(--rosa-editorial));
+  color:#FFFFFF;display:grid;place-items:center;font-size:15px;font-weight:700;
+  box-shadow:0 6px 16px -4px rgba(184,107,119,.45);
+  transition:transform .2s ease;
+}
+.reproductor-musa:hover .btn-play-musa{transform:scale(1.06)}
+.reproductor-info{flex:1;min-width:0;text-align:left}
+.reproductor-titulo{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.reproductor-titulo strong{font-size:13.5px;color:var(--texto);font-weight:700;letter-spacing:-.01em}
+.reproductor-duracion{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:10px;color:var(--rosa-editorial);font-weight:700;text-transform:uppercase;
+}
+.reproductor-onda{
+  display:flex;align-items:center;gap:3px;height:18px;
+}
+.reproductor-onda span{
+  flex:1;background:rgba(184,107,119,.35);border-radius:2px;height:4px;
+  transition:height .15s ease, background .15s ease;
+}
+.reproductor-musa.reproduciendo .reproductor-onda span{
+  background:linear-gradient(180deg,var(--oro),var(--rosa-editorial));
+  animation:animarOnda .8s ease-in-out infinite alternate;
+}
+.reproductor-musa.reproduciendo .reproductor-onda span:nth-child(2n){animation-delay:.15s}
+.reproductor-musa.reproduciendo .reproductor-onda span:nth-child(3n){animation-delay:.3s}
+.reproductor-musa.reproduciendo .reproductor-onda span:nth-child(4n){animation-delay:.45s}
+@keyframes animarOnda{
+  0%{height:4px}
+  100%{height:18px}
+}
 
 /* ---- Comparativa Visual: IA de Plástico vs Hiperrealismo Cotidiano iPhone (Inspirado en hypermodels.io/offer) ---- */
 .realismo-grid{
@@ -560,48 +610,70 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 
 <!-- ============================ HERO DE OFERTA DIRECTA ============================ -->
 <header class="hero contenedor">
-  <span class="etiqueta">✦ 13 módulos paso a paso · 4 bonos · acceso de por vida</span>
-  <h1>Crea modelos virtuales <span class="acento">hiperrealistas</span> con inteligencia artificial</h1>
-  <p class="fuerte">Sin saber diseño, sin cámara y sin modelos reales. Aprendes a crear el personaje, producir su contenido y venderlo en plataformas que ya monetizan.</p>
+  <span class="etiqueta">✦ ATELIER PRIVADO MUSA · EL ARTE DE MONETIZAR LA FASCINACIÓN VIRTUAL</span>
+  <h1>Mírame a los ojos. <span class="acento">No existo</span> en la vida real. Pero pagarías por hablar conmigo.</h1>
+  <p class="fuerte">El 99% crea muñecas de plástico que dan risa. Aquí aprendes el método exacto para darme piel con poros reales, mirada viva en video y monetizar la fascinación y el deseo en dólares sin mostrar tu cara ni salir de tu habitación.</p>
 
   <div class="precio-linea">
     <span class="antes">$47 USD</span>
     <strong>$9 USD</strong>
     <span class="ahorro">-80% HOY</span>
   </div>
-  <p class="fino">Pago único · 33.000 COP · Acceso inmediato al Estudio y a los 4 Packs</p>
+  <p class="fino">Pago único · 33.000 COP · Acceso vitalicio al Estudio y a los 4 Packs</p>
+
+  <!-- REPRODUCTOR TÁCTIL DE VOZ: MUSA AL OÍDO -->
+  <div class="reproductor-musa" id="reproductorMusa" onclick="toggleAudioMusa()" role="button" tabindex="0" aria-label="Escuchar la voz real de Musa al oído">
+    <button type="button" class="btn-play-musa" id="btnAudioMusa" aria-label="Reproducir o pausar audio de Musa">
+      <span class="icono-play" id="iconoAudioMusa">▶</span>
+    </button>
+    <div class="reproductor-info">
+      <div class="reproductor-titulo">
+        <strong>Escucha mi secreto al oído</strong>
+        <span class="reproductor-duracion">0:24 seg · Voz Real</span>
+      </div>
+      <div class="reproductor-onda" id="ondaAudioMusa" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <audio id="audioMusaEsencia" src="assets/musa-esencia.mp3" preload="metadata"></audio>
+  </div>
 
   <button class="cta" data-abrir-modal>
-    Quiero ver el contenido ahora
+    Quiero crear mi primera modelo hoy (33.000 COP)
     <span aria-hidden="true">→</span>
   </button>
-  <p class="fino" style="margin-top:10px">Entrega inmediata por WhatsApp · Sin mensualidades</p>
+  <p class="fino" style="margin-top:10px">Entrega inmediata por WhatsApp · Sin mensualidades · Cupo protegido</p>
 
   <!-- VISOR ÓPTICO HIPERREALISTA DE MUSA INTEGRADO EN EL PRIMER VIEWPORT -->
   <div class="musa-showcase">
     <div class="musa-badge-bar">
-      <span class="musa-pill">✦ ANFITRIONA OFICIAL DEL SISTEMA: MUSA · CONSISTENCIA FACIAL 100 %</span>
+      <span class="musa-pill">✦ ANFITRIONA OFICIAL: MUSA · CONSISTENCIA FACIAL 100 %</span>
       <span id="musaEscenaLabel">01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)</span>
     </div>
     <div class="musa-main-frame">
       <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista y anfitriona de Muse IA Lab" fetchpriority="high" loading="eager">
+      <video id="musaMainVideo" src="assets/muestra-latina.mp4" playsinline loop muted style="display:none"></video>
     </div>
-    <div class="musa-thumbs" role="group" aria-label="Ángulos y escenarios consistentes del mismo personaje Musa">
-      <button type="button" class="musa-thumb activa" onclick="document.getElementById('musaMainImg').src='assets/musa-hero.jpg';document.getElementById('musaEscenaLabel').textContent='01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+    <div class="musa-thumbs" role="group" aria-label="Ángulos, escenarios y video del personaje Musa">
+      <button type="button" class="musa-thumb activa" onclick="mostrarEscena('img','assets/musa-hero.jpg','01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)',this)">
         <img src="assets/musa-hero.jpg" alt="Musa en estudio cálido" loading="lazy">
-        <span>01 · Estudio 85mm f/1.4</span>
+        <span>01 · Estudio 85mm</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-closeup.jpg';document.getElementById('musaEscenaLabel').textContent='02 · TEXTURA DÉRMICA Y POROS REALES (PERFIL 3/4 · 5600K)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
-        <img src="assets/musa-closeup.jpg" alt="Close-up hiperrealista de Musa mostrando textura real de piel" loading="lazy">
-        <span>02 · Textura de Piel 3/4</span>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-closeup.jpg','02 · TEXTURA DÉRMICA Y POROS REALES (PERFIL 3/4 · 5600K)',this)">
+        <img src="assets/musa-closeup.jpg" alt="Close-up hiperrealista de Musa mostrando poros y textura" loading="lazy">
+        <span>02 · Piel y Poros</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="document.getElementById('musaMainImg').src='assets/musa-rooftop.jpg';document.getElementById('musaEscenaLabel').textContent='03 · EXTERIOR HORA AZUL EDITORIAL (35MM F/1.8 · MISMO ROSTRO)';document.querySelectorAll('.musa-thumb').forEach(b=>b.classList.remove('activa'));this.classList.add('activa')">
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-rooftop.jpg','03 · EXTERIOR HORA AZUL EDITORIAL (35MM F/1.8 · MISMO ROSTRO)',this)">
         <img src="assets/musa-rooftop.jpg" alt="Musa en terraza al anochecer con el mismo rostro" loading="lazy">
         <span>03 · Terraza Hora Azul</span>
       </button>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('video','assets/muestra-latina.mp4','04 · MIRADA Y RESPIRACIÓN EN VIDEO 4K (CERO DEFORMACIONES)',this)">
+        <img src="assets/mod-latina-glam.jpg" alt="Musa en video hiperrealista" loading="lazy">
+        <span>04 · Video 4K Vivo</span>
+      </button>
     </div>
   </div>
-  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Conoce a Musa, nuestra anfitriona oficial: el mismo rostro exacto en 3 ángulos e iluminaciones distintas. Y abajo verás los distintos perfiles cotidianos tipo iPhone que tú aprenderás a crear.</p>
+  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Mírame en 3 ángulos fotográficos o activa mi video en movimiento: el mismo rostro idéntico sin saltos ni deformaciones plásticas.</p>
 </header>
 
 <!-- CINTA MARQUEE CINÉTICA -->
@@ -779,6 +851,30 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <p class="fino nota-proceso">Aprendes el método completo, incluida la parte que casi nadie enseña: cómo se convierte una imagen en algo por lo que alguien paga.</p>
 </section>
 
+<!-- ================== NUEVA SECCIÓN: EL ESPEJO EMOCIONAL Y MONETIZACIÓN ================== -->
+<section class="contenedor" aria-labelledby="espejo-t">
+  <span class="kicker-seccion">Psicología de Conversión y Deseo</span>
+  <h2 id="espejo-t">El negocio no es vender fotos bonitas. Es monetizar la fascinación humana.</h2>
+  <p class="fuerte">Piénsalo con honestidad: ¿por qué millones de usuarios pagan religiosamente en Fanvue, Instagram y OnlyFans? No buscan modelos de cera de ciencia ficción. Buscan <span class="acento">cercanía, misterio y complicidad</span>. Buscan la selfie cotidiana en el espejo, la mirada cómplice antes de dormir y una voz suave que les responda al oído.</p>
+
+  <div class="contraste-grid" style="margin-top:24px">
+    <div class="columna-si" style="border-color:var(--rosa-borde);background:linear-gradient(135deg,#FFFFFF 0%,var(--rosa-suave) 70%,#FBF4E9 100%)">
+      <span class="kicker-seccion" style="background:#FFFFFF">La Llave Psicológica</span>
+      <h3 style="font-size:18px;margin-top:8px">El 80% del valor es cómo te perciben</h3>
+      <p style="font-size:14.5px;line-height:1.6;color:var(--texto);margin-top:8px">
+        Cuando una imagen tiene micro-textura dérmica, iluminación natural de iPhone y ángulo espontáneo, el cerebro no se detiene a juzgar si es humana o virtual: <strong>reacciona con curiosidad, deseo y validación</strong>. En Musa Studio te entregamos la ingeniería de prompts y las fórmulas ópticas para detonar esa reacción y crear una base de suscriptores dispuestos a pagar en dólares.
+      </p>
+    </div>
+    <div class="columna-si" style="border-color:var(--rosa-borde)">
+      <span class="kicker-seccion" style="background:#FFFFFF">Monetización Cero Exposición</span>
+      <h3 style="font-size:18px;margin-top:8px">Facturas en dólares sin mostrar tu rostro</h3>
+      <p style="font-size:14.5px;line-height:1.6;color:var(--texto);margin-top:8px">
+        Tú eres el director detrás de cámaras. Todo el contenido, los videos en movimiento y las notas de voz las protagoniza tu personaje virtual. Puedes dirigir tu atelier desde cualquier ciudad de Latinoamérica y recibir transferencias directas en plataformas internacionales protegidas.
+      </p>
+    </div>
+  </div>
+</section>
+
 <!-- ========================= LA PARTE DIFÍCIL ========================= -->
 <section class="contenedor" aria-labelledby="dificil-t">
   <span class="kicker-seccion">El 80% del Juego · Donde Casi Todos Fallan</span>
@@ -801,8 +897,8 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
       <p>El flujo para producir en serie: prompts de óptica iPhone, consistencia de rostro y estructura lista para publicar.</p>
     </div>
     <div class="tarjeta">
-      <h3>Lo que no resuelve</h3>
-      <p>Hacerlo por ti. Si no aplicas las plantillas, no pasa nada. Te lo decimos antes de cobrarte.</p>
+      <h3>El único requisito real</h3>
+      <p>Que apliques las plantillas y disfrutes el proceso creativo. Si dejas las fórmulas guardadas no pasará nada; pero si las ejecutas, verás nacer a tu primera modelo hoy mismo.</p>
     </div>
   </div>
 </section>
@@ -936,14 +1032,14 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <details><summary>¿Sirve si ya sé generar imágenes?</summary><p>Sí, si lo que te falta es la parte de después: coherencia del personaje, publicación constante y cómo se vende el contenido.</p></details>
   <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
   <details><summary>¿Sirve desde el celular?</summary><p>Sí. Todo el curso se puede hacer desde el teléfono.</p></details>
-  <details><summary>¿Quién me responde?</summary><p>Musa, una asistente virtual del equipo, y una persona cuando hace falta. Te lo digo claro: si preguntas si soy un bot, te lo confirmo.</p></details>
+  <details><summary>¿Quién me atiende por WhatsApp?</summary><p>Te atiendo yo misma: Musa. Estoy programada con inteligencia multimodal para resolver tus dudas al instante, guiarte con el pago de 33.000 COP y darte acceso inmediato al Atelier. Y si necesitas soporte humano directo, nuestro equipo de soporte está siempre disponible en la misma conversación.</p></details>
 </section>
 
 <!-- ============================ CIERRE ============================ -->
 <section class="contenedor" style="text-align:center">
   <h2 style="display:inline-block">Si llegaste hasta acá, es por algo</h2>
-  <p class="fuerte" style="max-width:540px;margin:0 auto">Los 13 módulos, los 4 bonos y la guía rápida de implementación en Musa Studio. $9 USD, una sola vez.</p>
-  <button class="cta" data-abrir-modal>Ver el contenido completo <span aria-hidden="true">→</span></button>
+  <p class="fuerte" style="max-width:540px;margin:0 auto">Los 13 módulos, los 4 bonos y la guía práctica de implementación en Musa Studio. $9 USD (33.000 COP), una sola vez.</p>
+  <button class="cta" data-abrir-modal>Quiero empezar ahora en Musa Studio (33.000 COP) <span aria-hidden="true">→</span></button>
 </section>
 
 <footer class="contenedor">
@@ -954,16 +1050,23 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <p style="margin-top:16px">Este sitio no garantiza ingresos. Los resultados dependen del trabajo de cada persona.</p>
 </footer>
 
-<!-- ============================ MODAL 18+ ============================ -->
+<!-- ============================ MODAL 18+ ATELIER PRIVADO ============================ -->
 <dialog id="puerta" aria-labelledby="puerta-t">
-  <h3 id="puerta-t">Antes de continuar</h3>
-  <p>El contenido del curso es para <strong>mayores de 18 años</strong>. Al continuar aceptas los términos y el aviso de que Musa es una asistente virtual con IA.</p>
-  <label>
-    <input type="checkbox" id="acepto">
-    <span>Tengo 18 años o más y acepto los términos y la política de privacidad.</span>
+  <span class="kicker-seccion" style="margin-bottom:8px">✦ Acceso Exclusivo (+18)</span>
+  <h3 id="puerta-t" style="font-size:22px;margin-bottom:10px">Estás entrando al Atelier Privado de Musa</h3>
+  <p style="font-size:14.5px;line-height:1.55;color:var(--tenue);margin-bottom:16px">
+    Adentro no hay avatares plásticos ni censura al hiperrealismo. Aprenderás el método exacto para generar piel con poros reales, consistencia facial inquebrantable y monetizar la fascinación en Fanvue e Instagram.
+  </p>
+  <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--tenue);cursor:pointer;margin-bottom:18px">
+    <input type="checkbox" id="acepto" style="margin-top:3px;accent-color:var(--rosa-editorial)">
+    <span>Confirmo que tengo 18 años o más y deseo acceder al sistema de formación y recursos de Musa Studio.</span>
   </label>
-  <a id="ir-wa" class="cta" aria-disabled="true" rel="noopener" href="#">Continuar por WhatsApp <span aria-hidden="true">→</span></a>
-  <button class="cta" style="background:transparent;border-color:transparent;box-shadow:none;color:var(--tenue);font-weight:500" data-cerrar-modal>Volver</button>
+  <a id="ir-wa" class="cta" aria-disabled="true" rel="noopener" href="#" style="margin-top:0">
+    Entrar al Atelier y Activar Acceso ($33.000 COP) <span aria-hidden="true">→</span>
+  </a>
+  <button class="cta" style="background:transparent;border-color:transparent;box-shadow:none;color:var(--tenue);font-weight:500;min-height:36px;margin-top:8px;padding:8px" data-cerrar-modal>
+    Volver a la galería
+  </button>
 </dialog>
 
 <script>
@@ -974,7 +1077,7 @@ var params = new URLSearchParams(location.search);
 var ref = (params.get("ref") || params.get("utm_campaign") || REF_POR_DEFECTO)
   .toString().slice(0, 20).replace(/[^A-Za-z0-9_-]/g, "");
 
-var texto = "Hola, vengo de la página. Ref: " + ref + " (+18). Quiero ver el contenido del curso.";
+var texto = "Hola Musa, vengo del Atelier Privado (+18). Quiero ver el acceso de 33.000 COP y empezar a crear mi primera modelo.";
 var enlace = "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent(texto);
 
 var puerta = document.getElementById("puerta");
@@ -1002,6 +1105,64 @@ irWa.addEventListener("click", function (e) {
   if (!acepto.checked) { e.preventDefault(); return; }
   if (typeof fbq === "function") fbq("track", "Contact");
 });
+
+/* ---- Reproductor Táctil de Audio Musa ---- */
+function toggleAudioMusa() {
+  var a = document.getElementById('audioMusaEsencia');
+  var b = document.getElementById('reproductorMusa');
+  var icon = document.getElementById('iconoAudioMusa');
+  if (!a) return;
+  if (a.paused) {
+    a.play().then(function() {
+      if (b) b.classList.add('reproduciendo');
+      if (icon) icon.textContent = '❚❚';
+    }).catch(function(err) {
+      console.log('Autoplay bloqueado', err);
+    });
+  } else {
+    a.pause();
+    if (b) b.classList.remove('reproduciendo');
+    if (icon) icon.textContent = '▶';
+  }
+}
+
+var audioMusa = document.getElementById('audioMusaEsencia');
+if (audioMusa) {
+  audioMusa.addEventListener('ended', function() {
+    var b = document.getElementById('reproductorMusa');
+    var icon = document.getElementById('iconoAudioMusa');
+    if (b) b.classList.remove('reproduciendo');
+    if (icon) icon.textContent = '▶';
+  });
+}
+
+/* ---- Visor Óptico / Video de Musa ---- */
+function mostrarEscena(tipo, src, label, btn) {
+  var img = document.getElementById('musaMainImg');
+  var vid = document.getElementById('musaMainVideo');
+  var lbl = document.getElementById('musaEscenaLabel');
+  if (lbl) lbl.textContent = label;
+  document.querySelectorAll('.musa-thumb').forEach(function(b) { b.classList.remove('activa'); });
+  if (btn) btn.classList.add('activa');
+
+  if (tipo === 'video') {
+    if (img) img.style.display = 'none';
+    if (vid) {
+      vid.style.display = 'block';
+      if (src && vid.getAttribute('src') !== src) vid.src = src;
+      vid.play().catch(function(){});
+    }
+  } else {
+    if (vid) {
+      vid.pause();
+      vid.style.display = 'none';
+    }
+    if (img) {
+      img.style.display = 'block';
+      img.src = src;
+    }
+  }
+}
 </script>
 </body>
 </html>
