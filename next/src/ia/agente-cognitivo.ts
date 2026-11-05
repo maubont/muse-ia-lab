@@ -199,7 +199,7 @@ export async function ejecutarTurnoAgenteMusa(
   let permitido = true;
   if (apiKey) {
     try {
-      const costoEstimadoTurno = costeEstimado(600, 350, { entrada: 0.1, salida: 0.5 });
+      const costoEstimadoTurno = costeEstimado(800, 450, { entrada: 0.1, salida: 0.5 });
       const estadoPto = await consultarPresupuesto(consultar, {
         tope: topePresupuesto,
         estimado: costoEstimadoTurno,
@@ -259,7 +259,7 @@ export async function ejecutarTurnoAgenteMusa(
 
   if (apiKey && permitido) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 9000);
+    const timer = setTimeout(() => ctrl.abort(), 12000);
 
     try {
       const res = await fetch(`${baseUrl}/chat/completions`, {
@@ -271,7 +271,7 @@ export async function ejecutarTurnoAgenteMusa(
         body: JSON.stringify({
           model: modelo,
           response_format: { type: "json_object" },
-          max_completion_tokens: 350,
+          max_completion_tokens: 850,
           reasoning_effort: "low",
           messages: [{ role: "system", content: systemPrompt }, ...historialMensajes],
         }),
