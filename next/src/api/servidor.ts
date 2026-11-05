@@ -247,7 +247,7 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const rutaSinQuery = url.split("?")[0].split("#")[0];
       const esRaiz = rutaSinQuery === "/" || rutaSinQuery === "";
       const esPagina = /\.html?$/i.test(rutaSinQuery) || esRaiz;
-      const esActivo = rutaSinQuery.startsWith("/assets/");
+      const esActivo = rutaSinQuery.startsWith("/assets/") || rutaSinQuery.startsWith("/videos/");
       if (esRaiz || esPagina || esActivo) {
         const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : rutaSinQuery);
         if (archivo) {
