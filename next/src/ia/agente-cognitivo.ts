@@ -127,6 +127,7 @@ Sigue este ritmo psicológico natural a lo largo de los turnos de la conversaci�
 
 [GATILLO PROACTIVO DE VIDEO (ACCIÓN MULTIMODAL INMEDIATA)]
 - Si el cliente menciona "adultos", "+18", "fanvue", "sensual" o "lencería": NO te quedes en texto plano. Marca INMEDIATAMENTE "videoAccion": "muestra_latina" y celebra su decisión con picardía.
+- Si el cliente pide ver el producto, una muestra, una prueba, o usa analogías como "cuando compro una camisa puedo medírmela" o "¿qué obtengo yo antes de pagar?": NO envíes enlaces ni texto frío. Marca INMEDIATAMENTE "videoAccion": "muestra_latina" (o "video_base") y "enviarVoz": true para demostrar la calidad del producto directamente en el chat.
 - Si el cliente expresa escepticismo sobre si una IA puede ser hiperrealista o dice que parecen muñecas de plástico: marca INMEDIATAMENTE "videoAccion": "video_base".
 
 [EJEMPLOS MODELO DE RESPUESTA (FEW-SHOT)]
@@ -164,6 +165,19 @@ Respuesta esperada:
   "videoAccion": "ninguno",
   "intencion": "intencion_compra",
   "adjuntarCuentas": true
+}
+
+Ejemplo 4 (Cliente pide ver o probar el producto antes de comprar / analogía de la camisa):
+Cliente: "bueno pero que obtengo yo cuando compro una camisa puedo verla hasta puedo medirmela y si me gusta me la llevo si no no"
+Respuesta esperada:
+{
+  "textoPrevio": "¡Tienes toda la razón cariño! Mira esto... 😏👗",
+  "respuesta": "¡Totalmente de acuerdo! Nadie compra una camisa a ciegas. Por eso mira el video que te acabo de mandar aquí mismo al chat: esa modelo que ves sonriendo, parpadeando y moviéndose con esa piel perfecta no existe en la vida real... fue creada con este mismo método desde un celular. Mírala, esa es la 'camisa'. Si te gusta esa calidad, eso exactamente es lo que vas a aprender a crear en una sola tarde por 33 mil pesos. ¿Qué opinas de cómo se ve?",
+  "enviarVoz": true,
+  "videoAccion": "muestra_latina",
+  "intencion": "escepticismo",
+  "adjuntarCuentas": false,
+  "adjuntarDemo": false
 }
 
 [HONESTIDAD AGÉNTICA Y ESCALADO AL CREADOR]
@@ -458,6 +472,11 @@ export async function ejecutarTurnoAgenteMusa(
   const SOLICITA_VOZ_REGEX =
     /(?:mand|pas|pon|quiero|quisiera|gustar[ií]a|deseo|puedes|puedo)\s+(?:un\s+|tu\s+|una\s+)?(?:audio|nota de voz|voz|escuchar(?:te)?|o[ií]r(?:te)?)/i;
 
+  // Si hay video de muestra o curiosidad visual, la voz DEBE acompañar al video siempre
+  if (estructurada.videoAccion && estructurada.videoAccion !== "ninguno") {
+    estructurada.enviarVoz = true;
+  }
+
   const debeEnviarVoz =
     !esTextoDeSistema &&
     !debeAdjuntarCuentas &&
@@ -550,6 +569,9 @@ export async function ejecutarTurnoAgenteMusa(
     await canal.enviar(phone, { texto: textoFinal }).catch(() => ({ ok: false }));
   } else if (estructurada.adjuntarCuentas) {
     await canal.enviar(phone, { texto: CUENTAS_COLOMBIA_TEXTO.trim() }).catch(() => ({ ok: false }));
+  } else if (estructurada.adjuntarDemo && audioDespachado) {
+    if (deps.esperar) await deps.esperar(600);
+    await canal.enviar(phone, { texto: `Aquí puedes explorar el aula y ver mi video de bienvenida:\n${enlaceDemoPlataforma(urlPublica).trim()}` }).catch(() => ({ ok: false }));
   }
 
   // 8. Persistencia
