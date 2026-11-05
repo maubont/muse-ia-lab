@@ -174,7 +174,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
           console.warn("[musa] error transcribiendo nota de voz:", String(e).slice(0, 100));
         }
         if (!mensaje.texto || mensaje.texto.trim() === "") {
-          mensaje.texto = "Hola, te envié una nota de voz pero no se pudo escuchar.";
+          mensaje.texto = "[Nota de voz recibida pero no se pudo transcribir por falla de red o cuota]";
           mensaje.media = null;
         }
       }

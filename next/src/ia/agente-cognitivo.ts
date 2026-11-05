@@ -303,12 +303,50 @@ export async function ejecutarTurnoAgenteMusa(
         throw new Error(`OpenAI error HTTP ${res.status}`);
       }
     } catch (e) {
-      console.warn("[agente-cognitivo] Fallo en llamada a LLM, usando fallback empático:", String(e).slice(0, 80));
+      const errStr = String(e || "");
+      const esErrorCuota = /429|quota|credits|insufficient/i.test(errStr);
+      console.warn(`[agente-cognitivo] Fallo en llamada a LLM (esCuota=${esErrorCuota}):`, errStr.slice(0, 100));
+
+      // Inspeccionar si ya le habíamos enviado un fallback en el historial reciente para evitar bucles robóticos
+      const ultimoMsgMusa = historialMensajes
+        .slice()
+        .reverse()
+        .find((m) => m.role === "assistant")?.content || "";
+
+      const yaSeEnvioFallback =
+        ultimoMsgMusa.includes("Aquí estoy") ||
+        ultimoMsgMusa.includes("Modelos IA te enseña") ||
+        ultimoMsgMusa.includes("estoy coordinando") ||
+        ultimoMsgMusa.includes("se cortó la señal");
+
+      const esAudioNoLegible =
+        texto.includes("Nota de voz") ||
+        texto.includes("no se pudo transcribir") ||
+        texto.includes("no legible") ||
+        esAudioEntrante;
+
+      let respuestaFallback = "";
+      let adjuntarDemoFallback = false;
+
+      if (esAudioNoLegible) {
+        respuestaFallback = `¡Hola ${nombreMostrar}! ✨ Recibí tu nota de voz pero se cortó la señal y no alcancé a escucharla bien 🙈 ¿Me cuentas por texto qué tienes en mente? ¡Aquí estoy lista para ti! 💜`;
+        adjuntarDemoFallback = false;
+      } else if (!yaSeEnvioFallback) {
+        respuestaFallback = `¡Hola ${nombreMostrar}! ✨ Aquí estoy. En el taller Modelos IA aprendes a crear y monetizar modelos virtuales hiperrealistas por un único pago de 33.000 COP (≈ 9 USD). ¿Tienes alguna duda puntual? 😊`;
+        adjuntarDemoFallback = true;
+      } else {
+        // Anti-bucle: si ya se envió el pitch en el turno anterior, no repetir como un loro
+        respuestaFallback = `¡Hola ${nombreMostrar}! ✨ Dame unos minutitos que estoy coordinando una entrega en el estudio y ya mismo te atiendo con toda la calma 💜 Si quieres déjame tu pregunta por aquí.`;
+        adjuntarDemoFallback = false;
+      }
+
       estructurada = {
-        respuesta: `¡Hola ${nombreMostrar}! ✨ Aquí estoy contigo. El taller Modelos IA te enseña desde cero a crear modelos virtuales hiperrealistas y monetizarlas sin mostrar tu rostro por solo 33.000 COP de por vida. ¿Qué duda puntual tienes? 😊`,
+        respuesta: respuestaFallback,
         enviarVoz: false,
         intencion: "duda_general",
-        adjuntarDemo: true,
+        adjuntarDemo: adjuntarDemoFallback,
+        escalarOperador: esErrorCuota,
+        motivoEscalado: esErrorCuota ? "API de OpenAI sin créditos o error HTTP 429" : undefined,
       };
     }
   } else {
@@ -364,10 +402,12 @@ export async function ejecutarTurnoAgenteMusa(
 
   // 7. Despacho sensorial ATÓMICO (Voz garantizada sin falsa promesa)
   let audioDespachado = false;
+  const esTextoDeSistema = /\[Nota de voz|no se pudo transcribir|no legible/i.test(texto);
   const SOLICITA_VOZ_REGEX =
-    /(?:mand|envi|pas|pon|quiero|quisiera|gustar[ií]a|deseo|puedes|puedo).*(?:audio|nota de voz|voz|escuchar(?:te)?|o[ií]r(?:te)?)/i;
+    /(?:mand|pas|pon|quiero|quisiera|gustar[ií]a|deseo|puedes|puedo)\s+(?:un\s+|tu\s+|una\s+)?(?:audio|nota de voz|voz|escuchar(?:te)?|o[ií]r(?:te)?)/i;
 
   const debeEnviarVoz =
+    !esTextoDeSistema &&
     (estructurada.enviarVoz || SOLICITA_VOZ_REGEX.test(texto)) &&
     Boolean(apiKey);
 
