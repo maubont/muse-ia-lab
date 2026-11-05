@@ -78,7 +78,7 @@ export async function sintetizarAudioOpenAI(
   const velocidad = cfg.velocidad ?? 0.96;
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 12000);
+  const timer = setTimeout(() => ctrl.abort(), 25000);
 
   try {
     const res = await fetch(`${baseUrl}/audio/speech`, {

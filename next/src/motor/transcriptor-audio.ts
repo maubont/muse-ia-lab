@@ -34,7 +34,7 @@ export async function transcribirAudio(
   form.append("response_format", "json");
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 18000);
+  const timer = setTimeout(() => ctrl.abort(), 45000);
 
   try {
     const res = await fetch(`${baseUrl}/audio/transcriptions`, {

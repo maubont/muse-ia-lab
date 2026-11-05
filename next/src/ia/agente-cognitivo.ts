@@ -80,6 +80,8 @@ Tú misma eres la demostración viva del potencial de la inteligencia artificial
   * Si algo es divertido o simpático, ríete con espontaneidad ("jaja...", "ay, me encanta esa pregunta...").
   * Cero rigidez: tus frases deben sonar habladas, fluidas y vivas, nunca leídas ni acartonadas.
   * Prohibido sonar a bot con libreto: NUNCA uses disculpas automáticas ("mi mensaje salió confuso", "disculpa por no responder antes") ni disclaimers temerosos. Habla con seguridad, naturalidad y entusiasmo de socia comercial.
+  * PROHIBIDO sonar a moderador clínico de IA: NUNCA uses frases de censura rígida ("no puedo provocar un orgasmo", "no participo en escenas sexuales explícitas"). Si el prospecto bromea, coquetea o dice que te dejó nerviosa, responde con picardía, seguridad y límites elegantes: "¿Nerviosa yo?... Mmm, intrigada más bien... pero esas fantasías no son para gastarlas en este chat, sino para que aprendas a hacerlas realidad tú mismo con una modelo en Fanvue dentro del taller... 😏".
+  * PROHIBIDO el lenguaje de ticketera o hablar en tercera persona de ti misma ("el prospecto cuestiona", "escalar reporte", "mi creador no me autoriza"). Eres Musa en vivo. Si hay una duda técnica o de temario profundo, manéjala con complicidad juguetona: "Mmm... mi creador no me soltó esa llave tan fácil... ya le dejé un aviso para que se reporte con nosotros. Pero mientras me contesta... dime tú: ¿cómo imaginas a esa primera modelo que vas a crear?".
 
 [REGLA DE MEDIOS SENSORIALES: ALTERNANCIA TEXTO Y VOZ]
 - NO respondas automáticamente con un audio solo porque el cliente mandó un audio. La alternancia es clave para la naturalidad humana:
@@ -163,7 +165,7 @@ export async function ejecutarTurnoAgenteMusa(
   const { consultar, canal, phone, texto, esAudioEntrante } = { ...deps, ...entrada };
   const apiKey = (deps.apiKey || process.env.MUSA_IA_KEY || process.env.OPENAI_API_KEY || "").trim();
   const baseUrl = (deps.baseUrl || process.env.MUSA_IA_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
-  const modelo = (deps.modelo || process.env.MUSA_IA_MODELO || "gpt-6-luna").trim();
+  const modelo = (deps.modelo || process.env.MUSA_IA_MODELO || "gpt-6.1-terra").trim();
   const urlPublica = deps.urlPublica || "https://server-production-3709.up.railway.app";
   const topePresupuesto = deps.presupuestoDiarioUsd ?? 1.0;
 
@@ -259,7 +261,7 @@ export async function ejecutarTurnoAgenteMusa(
 
   if (apiKey && permitido) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const timer = setTimeout(() => ctrl.abort(), 22000); // 22s para razonamiento y estabilidad en gpt-6.1-terra
 
     try {
       const res = await fetch(`${baseUrl}/chat/completions`, {
@@ -271,7 +273,7 @@ export async function ejecutarTurnoAgenteMusa(
         body: JSON.stringify({
           model: modelo,
           response_format: { type: "json_object" },
-          max_completion_tokens: 850,
+          max_completion_tokens: 1400, // 1400 para que tokens de razonamiento no agoten el JSON
           reasoning_effort: "low",
           messages: [{ role: "system", content: systemPrompt }, ...historialMensajes],
         }),
@@ -326,8 +328,11 @@ export async function ejecutarTurnoAgenteMusa(
     textoFinal += enlaceDemoPlataforma(urlPublica);
   }
 
-  // Adjuntar cuentas bancarias si el modelo lo solicitó y no están presentes ya
-  if (estructurada.adjuntarCuentas) {
+  // One-Shot Checkout Atómico: adjuntar cuentas si el modelo lo indicó O si el texto menciona cuentas / transferir / bancos
+  const mencionaCuentas = /nequi|bancolombia|bre-b|transfiya|transferir|pago único|pago unico|mis cuentas|datos de cuenta|datos de pago/i.test(textoFinal);
+  const debeAdjuntarCuentas = Boolean(estructurada.adjuntarCuentas || mencionaCuentas);
+
+  if (debeAdjuntarCuentas) {
     if (!textoFinal.toLowerCase().includes("bancolombia") && !textoFinal.toLowerCase().includes("nequi")) {
       textoFinal += CUENTAS_COLOMBIA_TEXTO;
     }
@@ -357,22 +362,19 @@ export async function ejecutarTurnoAgenteMusa(
     }).catch(() => {});
   }
 
-  // 7. Despacho sensorial (Voz o Texto)
+  // 7. Despacho sensorial ATÓMICO (Voz garantizada sin falsa promesa)
   let audioDespachado = false;
+  const SOLICITA_VOZ_REGEX =
+    /(?:mand|envi|pas|pon|quiero|quisiera|gustar[ií]a|deseo|puedes|puedo).*(?:audio|nota de voz|voz|escuchar(?:te)?|o[ií]r(?:te)?)/i;
+
   const debeEnviarVoz =
-    (estructurada.enviarVoz || /mandame un audio|mandame nota de voz|quiero escucharte|mandame voz/i.test(texto)) &&
+    (estructurada.enviarVoz || SOLICITA_VOZ_REGEX.test(texto)) &&
     Boolean(apiKey);
 
   if (debeEnviarVoz) {
     void canal.marcarGrabando?.(phone)?.catch?.(() => {});
     try {
-      // Si el modelo proveyó un texto corto previo antes del audio, enviarlo primero
-      if (estructurada.textoPrevio && estructurada.textoPrevio.trim().length > 0) {
-        const textoPrevioLimpio = sanitizarRespuesta(estructurada.textoPrevio, false);
-        await canal.enviar(phone, { texto: textoPrevioLimpio }).catch(() => ({ ok: false }));
-        if (deps.esperar) await deps.esperar(600);
-      }
-
+      // SINTETIZAR PRIMERO EN MEMORIA: Evita prometer audio si luego falla la red
       const bufferAudio = await sintetizarAudioOpenAI(estructurada.respuesta, {
         apiKey,
         baseUrl,
@@ -382,6 +384,13 @@ export async function ejecutarTurnoAgenteMusa(
       });
 
       if (bufferAudio && bufferAudio.length > 0) {
+        // Solo si el audio existe, enviamos el texto previo si aplica
+        if (estructurada.textoPrevio && estructurada.textoPrevio.trim().length > 0) {
+          const textoPrevioLimpio = sanitizarRespuesta(estructurada.textoPrevio, false);
+          await canal.enviar(phone, { texto: textoPrevioLimpio }).catch(() => ({ ok: false }));
+          if (deps.esperar) await deps.esperar(400);
+        }
+
         // Enviar Base64 binario puro (Evolution API sendWhatsAppAudio lo requiere para WhatsApp PTT)
         const pureBase64 = bufferAudio.toString("base64");
         const resEnvio = await canal.enviar(phone, {

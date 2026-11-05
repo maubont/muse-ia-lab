@@ -22,10 +22,13 @@ export function interpretarComando(texto: string): ComandoOperador | null {
   const limpio = String(texto ?? "").trim();
   if (!limpio) return null;
 
+  // Los comandos del operador pueden venir limpios o con prefijo / o cmd:
+  // Jamás frases conversacionales cotidianas ("no gracias", "ok amor", "veremos", etc.)
+  const textoSinPrefijo = limpio.replace(/^(?:\/|cmd:\s*)/i, "").trim();
+
   // 1. Comandos de pago (ok / no / ver) con sintaxis estricta.
   // Un shortId de pago SIEMPRE contiene al menos un dígito (ej: 4821, 4A2B).
-  // Esto previene que frases naturales ("ok pero...", "ver modelos...", "no gracias...") se confundan con comandos.
-  const mOkVer = /^(ok|ver)\s+((?=.*\d)[A-Za-z0-9]{3,10})$/i.exec(limpio);
+  const mOkVer = /^(ok|ver)\s+((?=.*\d)[A-Za-z0-9]{3,10})$/i.exec(textoSinPrefijo);
   if (mOkVer) {
     const verbo = mOkVer[1].toLowerCase();
     const shortId = mOkVer[2].toUpperCase();
@@ -33,7 +36,7 @@ export function interpretarComando(texto: string): ComandoOperador | null {
     if (verbo === "ver") return { tipo: "ver", shortId };
   }
 
-  const mNo = /^no\s+((?=.*\d)[A-Za-z0-9]{3,10})(?:\s+(.+))?$/i.exec(limpio);
+  const mNo = /^no\s+((?=.*\d)[A-Za-z0-9]{3,10})(?:\s+(.+))?$/i.exec(textoSinPrefijo);
   if (mNo) {
     const shortId = mNo[1].toUpperCase();
     const motivo = (mNo[2] ?? "").trim();
@@ -41,14 +44,14 @@ export function interpretarComando(texto: string): ComandoOperador | null {
   }
 
   // 2. Comandos de reanudación / desescalado del bot
-  const mReanudar = /^(?:reanudar|desescalar|boton|bot\s+on|atendido|reactivar)\s+(\+?\d[\d\s-]{7,16})$/i.exec(limpio);
+  const mReanudar = /^(?:reanudar|desescalar|boton|bot\s+on|atendido|reactivar)\s+(\+?\d[\d\s-]{7,16})$/i.exec(textoSinPrefijo);
   if (mReanudar) {
     const telefono = "+" + mReanudar[1].replace(/\D/g, "");
     return { tipo: "reanudar", telefono };
   }
 
   // 3. Comandos de pausa manual del bot
-  const mPausar = /^(?:pausar|escalar|botoff|bot\s+off|frenar)\s+(\+?\d[\d\s-]{7,16})$/i.exec(limpio);
+  const mPausar = /^(?:pausar|escalar|botoff|bot\s+off|frenar)\s+(\+?\d[\d\s-]{7,16})$/i.exec(textoSinPrefijo);
   if (mPausar) {
     const telefono = "+" + mPausar[1].replace(/\D/g, "");
     return { tipo: "pausar", telefono };

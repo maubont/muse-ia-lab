@@ -180,7 +180,7 @@ export async function generarRespuestaConversacional(
   const t0 = Date.now();
   const apiKey = (deps.apiKey || process.env.MUSA_IA_KEY || "").trim();
   const baseUrl = (deps.baseUrl || process.env.MUSA_IA_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
-  const modelo = (deps.modelo || process.env.MUSA_IA_MODELO || deps.cfg?.modelos?.conversacion || "gpt-6-luna").trim();
+  const modelo = (deps.modelo || process.env.MUSA_IA_MODELO || deps.cfg?.modelos?.conversacion || "gpt-6.1-terra").trim();
   const urlPublica = deps.urlPublica || "https://server-production-3709.up.railway.app";
   const topePresupuesto = deps.presupuestoDiarioUsd ?? 1.0;
 

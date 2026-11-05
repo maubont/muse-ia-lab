@@ -92,7 +92,7 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
   const { consultar, canal, telefonoOperador } = deps;
   const urlPublica = (deps.urlPublica ?? "").trim();
   const apiKey = (deps.apiKeyIa || process.env.MUSA_IA_KEY || "").trim();
-  const modeloIa = (deps.modeloIa || process.env.MUSA_IA_MODELO || "gpt-6-luna").trim();
+  const modeloIa = (deps.modeloIa || process.env.MUSA_IA_MODELO || "gpt-6.1-terra").trim();
   const urlIa = (deps.urlIa || process.env.MUSA_IA_URL || "https://api.openai.com/v1").trim();
   const esperar = deps.esperar ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
