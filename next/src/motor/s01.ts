@@ -79,7 +79,7 @@ export function decidirLeadNuevo(e: EntradaLeadNuevo): Efecto[] {
   const nuevoEstado = yaEsMayor ? "S06_CIERRE" : "S04_GATE18";
 
   const urlAcademia = "https://server-production-3709.up.railway.app/academia.html";
-  const textoDegustacion = `✨ *Degusta la plataforma antes de decidir:*\nPuedes explorar el estudio y ver la *Clase 1 gratis* aquí 👇\n${urlAcademia}`;
+  const textoDegustacion = `✨ *Explora la plataforma antes de decidir:*\nPuedes explorar el estudio y ver mi *video de bienvenida* aquí 👇\n${urlAcademia}`;
 
   // 3-4. momento avatar + stack/gate
   if (avatar) {

@@ -42,6 +42,7 @@ desktop.ini
 .env
 .env.*
 !.env.example
+voces_musa/
 
 # Imagenes candidatas para revisar (viven en el bucket)
 creativos-revisar/

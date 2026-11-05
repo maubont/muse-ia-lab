@@ -66,7 +66,7 @@ export function generarFallbackSeguro(ctx: ContextoConversacion, urlPublica: str
 
   return (
     `¡Aquí estoy contigo${nombreTxt}! ✨ El curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a la plataforma) tiene un pago único de *33.000 COP* (≈ *9 USD*).\n\n` +
-    `✨ Puedes degustar la plataforma y ver la *Clase 1 gratis* aquí:\n` +
+    `✨ Puedes explorar la plataforma y ver mi *video de bienvenida* aquí:\n` +
     `${baseAcademia}/academia.html\n\n` +
     `${pregunta}`
   );
@@ -97,7 +97,7 @@ ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspec
 - Precio: Único pago promocional de 33.000 COP (Colombia: Nequi, Bancolombia o Llave Bre-B) o ≈ 9 USD (internacional). Sin mensualidades ni cargos futuros.
 - Requisitos técnicos: CERO computadores costosos ni tarjetas gráficas caras; todo corre en la nube desde cualquier celular o computador básico.
 - Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea personajes 100% ficticios con IA.
-- Plataforma / Demo: Puede ver la Clase 1 gratis en ${baseAcademia}/academia.html sin registrarse ni pagar nada.
+- Plataforma / Demo: Puede ver el video de bienvenida y explorar el temario en ${baseAcademia}/academia.html sin registrarse.
 - Entrega: Acceso de por vida inmediato tras validar el comprobante de transferencia bancaria por este chat.
 
 [DICCIONARIO CULTURAL OBLIGATORIO — CERO ESNOBISMOS]
@@ -113,7 +113,7 @@ ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspec
    - V (Validar): Dale la razón de frente ("¡Tienes toda la razón, qué pena contigo!").
    - A (Aceptar culpa): "Me enredé yo solita explicándote 😅 Olvida eso un momento."
    - C (Clarificar): Explica en 1 oración sencilla qué es el curso (videos cortos para crear modelos virtuales y ganar dinero sin mostrar tu cara).
-   - O (Opción): Ofrece ver la Clase 1 gratis o transferir a un compañero humano. CERO presión de venta.
+   - O (Opción): Ofrece ver el video de bienvenida en la plataforma o transferir a un compañero humano. CERO presión de venta.
 4. SI PREGUNTA SI ERES UN BOT: Admítelo con orgullo y simpatía:
    "¡Totalmente! 😄 Soy Musa, la asistente digital del equipo creada con IA. Y te cuento una cosa: automatizar la atención en WhatsApp tal como lo hago contigo es justamente una de las habilidades que enseñamos dentro del curso (Módulo 12) 😉 Detrás de mí está el equipo humano real."
 5. SI PIDE UN AUDIO O NOTA DE VOZ DE TI COMO MUSA:
@@ -299,7 +299,7 @@ export async function generarRespuestaConversacional(
           "¡Tienes toda la razón, qué pena contigo! Me repetí yo solita y entiendo tu molestia 😅 Olvida eso un momento. Aquí estoy lista para responderte claro y sin enredos. ¿Qué duda puntual tienes?";
       } else {
         textoSalida =
-          "¡Claro que sí! Para no darte más vueltas: el curso Modelos IA te enseña desde cero a crear modelos virtuales con inteligencia artificial y monetizarlas por internet. ¿Te gustaría ver la Clase 1 gratis o tienes alguna duda específica? 😊";
+          "¡Claro que sí! Para no darte más vueltas: el curso Modelos IA te enseña desde cero a crear modelos virtuales con inteligencia artificial y monetizarlas por internet. ¿Te gustaría ver el video de bienvenida en la plataforma o tienes alguna duda específica? 😊";
       }
     }
 
