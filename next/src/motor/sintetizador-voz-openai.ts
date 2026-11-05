@@ -33,6 +33,15 @@ export function prepararTextoParaVoz(texto: string): string {
     .replace(/https?:\/\/[^\s]+/gi, "")
     // Limpiar marcadores internos
     .replace(/\[[^\]]+\]/g, "")
+    // Fonética 100% en español: Evita que OpenAI cambie de idioma o meta acento gringo
+    .replace(/\bMuse IA Lab\b/gi, "Musa Estudio")
+    .replace(/\bMuse IA\b/gi, "Musa")
+    .replace(/\bMuse\b/gi, "Musa")
+    .replace(/\bIA\b/g, "inteligencia artificial")
+    .replace(/\bAI\b/g, "inteligencia artificial")
+    .replace(/\bFanvue\b/gi, "Fanviú")
+    .replace(/\bOnlyFans\b/gi, "Onlifans")
+    .replace(/\bprompts?\b/gi, "instrucciones")
     // Suavizar números para pronunciación natural en Colombia
     .replace(/33\.000\s*(?:COP|pesos)?/gi, "33 mil pesos")
     .replace(/30\.000\s*(?:COP|pesos)?/gi, "30 mil pesos")
@@ -74,8 +83,8 @@ export async function sintetizarAudioOpenAI(
 
   const baseUrl = (cfg.baseUrl ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
   const modelo = cfg.modelo ?? "tts-1-hd";
-  const voz = cfg.voz ?? (process.env.MUSA_IA_VOZ ?? "nova");
-  const velocidad = cfg.velocidad ?? 0.96;
+  const voz = cfg.voz ?? (process.env.MUSA_IA_VOZ ?? "coral");
+  const velocidad = cfg.velocidad ?? 1.0;
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000);

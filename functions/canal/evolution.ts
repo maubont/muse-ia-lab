@@ -503,12 +503,14 @@ export function crearCanalEvolution(cfg: ConfigEvolution): Canal {
 
       if (mensaje.media && mensaje.media.tipo === "audio") {
         const rutaAudio = `/message/sendWhatsAppAudio/${encodeURIComponent(cfg.instancia)}`;
+        // Si el audio ya es OGG/Opus (como el generado por OpenAI), desactivar encoding para evitar doble compresión que distorsiona el sonido
+        const esOpus = /(?:ogg|opus)/i.test(mensaje.media.mime ?? "") || (mensaje.media.nombre ?? "").endsWith(".opus");
         const cuerpoAudio = {
           number,
           audio: mediaPayload,
           options: {
             delay: 1200,
-            encoding: true,
+            encoding: !esOpus,
           },
         };
         const rAudio = await post(rutaAudio, cuerpoAudio);
