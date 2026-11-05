@@ -410,13 +410,17 @@ export async function ejecutarComandoConsola(deps: {
       [tel],
     );
     await consultar(
+      "delete from public.musa_messages where lead_phone = $1",
+      [tel],
+    ).catch(() => ({ rows: [] }));
+    await consultar(
       "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'reset_desde_consola', '{}'::jsonb)",
       [tel],
     ).catch(() => ({ rows: [] }));
     return {
       ok: true,
       accion: "reiniciar_lead",
-      respuesta: `He reiniciado el lead ${tel} a la etapa inicial S00_LLEGADA en PostgreSQL.`,
+      respuesta: `He reiniciado el lead ${tel} a la etapa inicial S00_LLEGADA y limpiado su historial en PostgreSQL.`,
     };
   }
 
@@ -488,8 +492,8 @@ export async function ejecutarComandoConsola(deps: {
     };
   }
 
-  // 3c. Comando: sql <consulta> (solo SELECT para diagnósticos de consola)
-  const mSql = /^sql\s+(select\s+.+)$/is.exec(limpio);
+  // 3c. Comando: sql <consulta> (diagnóstico y mantenimiento autenticado de consola)
+  const mSql = /^sql\s+((?:select|delete|update|insert)\s+.+)$/is.exec(limpio);
   if (mSql) {
     const query = mSql[1];
     const { rows } = await consultar(query, []).catch((e: Error) => ({ rows: [{ error: e.message }] }));

@@ -347,8 +347,12 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
           "update public.musa_leads set estado_funnel = 'S00_LLEGADA', mayor_18 = false, pagado = false, escalado_humano = false, updated_at = now() where phone = $1",
           [mensaje.telefono],
         );
+        await consultar(
+          "delete from public.musa_messages where lead_phone = $1",
+          [mensaje.telefono],
+        ).catch(() => ({ rows: [] }));
         await canal.enviar(mensaje.telefono, {
-          texto: "¡Listo! He restablecido nuestra conversación. ¿En qué te puedo ayudar hoy? ✨",
+          texto: "¡Listo! He restablecido nuestra conversación desde cero. ¿En qué te puedo ayudar hoy? ✨",
         });
         return [];
       }
