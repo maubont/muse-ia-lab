@@ -1,0 +1,14 @@
+node_modules
+creativos-revisar
+avatar
+tmp
+voces_musa
+comprobantes-prueba
+.claude
+.manus
+.insforge
+.dsh-acl-recovery
+.tools
+dist
+panel-deploy
+*.log
