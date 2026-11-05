@@ -121,8 +121,24 @@
     </div>
 
     <!-- SUBTÍTULOS EN TIEMPO REAL (LO QUE HABLAN MUSA Y EL USUARIO) -->
-    <div id="subtitulos-box" class="w-full bg-surface/60 border border-border rounded-2xl p-4 text-center min-h-[70px] flex items-center justify-center text-sm text-neutral-300 italic mb-8 relative z-10 backdrop-blur-sm">
+    <div id="subtitulos-box" class="w-full bg-surface/60 border border-border rounded-2xl p-4 text-center min-h-[70px] flex items-center justify-center text-sm text-neutral-300 italic mb-4 relative z-10 backdrop-blur-sm">
       <span id="subtitulos-texto">«Presiona el botón dorado para iniciar la llamada de voz en tiempo real... Cero textos, solo habla y escúchame.»</span>
+    </div>
+
+    <!-- SELECTOR DE MATIZ DE VOZ FEMENINA -->
+    <div class="flex items-center justify-center gap-2 mb-8 relative z-10">
+      <span class="text-xs text-neutral-400">Voz:</span>
+      <div class="inline-flex bg-bg p-1 rounded-xl border border-border text-xs">
+        <button onclick="seleccionarVoz('coral')" id="btn-voz-coral" class="voz-btn px-3 py-1 rounded-lg font-medium transition-all bg-gold/20 text-goldLight border border-gold/40">
+          🌸 Coral (Ultra Femenina, Suave & Dulce)
+        </button>
+        <button onclick="seleccionarVoz('shimmer')" id="btn-voz-shimmer" class="voz-btn px-3 py-1 rounded-lg font-medium transition-all text-neutral-400 hover:text-white">
+          ✨ Shimmer (Aireada & Sensual)
+        </button>
+        <button onclick="seleccionarVoz('sage')" id="btn-voz-sage" class="voz-btn px-3 py-1 rounded-lg font-medium transition-all text-neutral-400 hover:text-white">
+          🍃 Sage (Madura & Serena)
+        </button>
+      </div>
     </div>
 
     <!-- CONTROLES PRINCIPALES DE LLAMADA -->
@@ -196,6 +212,7 @@
   <!-- ========================================== -->
   <script>
     let personaActual = "musa";
+    let vozActual = "coral";
     let peerConnection = null;
     let localStream = null;
     let dataChannel = null;
@@ -208,14 +225,14 @@
         nombre: "Musa",
         emoji: "💋",
         subtitulo: "Socia Magnética • Seducción & Negocio",
-        voz: "shimmer",
+        voz: "coral",
         bienvenida: "«Presiona el botón dorado para iniciar la llamada de voz con Musa... Cero textos, solo habla y escúchame.»"
       },
       fantasias: {
         nombre: "Eva",
         emoji: "🕯️",
         subtitulo: "Asistente Íntima • Deseo & Fantasías sin Censura",
-        voz: "shimmer",
+        voz: "coral",
         bienvenida: "«Soy Eva, tu confidente secreta. Llámame para explorar lo que sueñas crear sin ninguna censura.»"
       },
       negocios: {
@@ -226,6 +243,21 @@
         bienvenida: "«Lista para hablar de estrategia dura, Fanvue y monetización en dólares. Inicia la llamada.»"
       }
     };
+
+    function seleccionarVoz(v) {
+      if (enLlamada) {
+        alert("Para cambiar de matiz de voz, cuelga la llamada actual y vuelve a conectar.");
+        return;
+      }
+      vozActual = v;
+      document.querySelectorAll(".voz-btn").forEach(b => {
+        b.className = "voz-btn px-3 py-1 rounded-lg font-medium transition-all text-neutral-400 hover:text-white";
+      });
+      const activo = document.getElementById("btn-voz-" + v);
+      if (activo) {
+        activo.className = "voz-btn px-3 py-1 rounded-lg font-medium transition-all bg-gold/20 text-goldLight border border-gold/40";
+      }
+    }
 
     function seleccionarPersona(persona) {
       if (enLlamada) {
@@ -290,7 +322,7 @@
         const resToken = await fetch("/api/realtime/token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ persona: personaActual })
+          body: JSON.stringify({ persona: personaActual, voz: vozActual })
         });
         const dataToken = await resToken.json();
 
