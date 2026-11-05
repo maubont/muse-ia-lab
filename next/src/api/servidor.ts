@@ -438,6 +438,39 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       }
     }
 
+    // ---- API Musa Studio Live (Sandbox Interactivo & Santuario Privado) ----
+    if (url === "/api/studio/chat") {
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      const cuerpo = await leerCuerpo(req, 64 * 1024);
+      let payload: { mensaje?: string; modo?: "negocios" | "seductora" | "santuario"; historial?: Array<{ role: string; content: string }>; sintetizarVoz?: boolean } = {};
+      try {
+        payload = cuerpo ? JSON.parse(cuerpo) : {};
+      } catch {
+        return json(res, 400, { ok: false, error: "json_invalido" });
+      }
+
+      const mensajeUsuario = String(payload.mensaje ?? "").trim();
+      if (!mensajeUsuario) return json(res, 400, { ok: false, error: "mensaje_requerido" });
+      const modo = payload.modo ?? "seductora";
+      const historial = Array.isArray(payload.historial) ? payload.historial : [];
+
+      try {
+        const { ejecutarTurnoStudioLive } = await import("../ia/studio-live.ts");
+        const resultado = await ejecutarTurnoStudioLive({
+          mensaje: mensajeUsuario,
+          modo,
+          historial,
+          sintetizarVoz: payload.sintetizarVoz ?? true,
+          apiKey: process.env.MUSA_IA_KEY || process.env.OPENAI_API_KEY,
+          modelo: process.env.MUSA_IA_MODELO || "gpt-6.1-terra",
+          urlPublica: opts.urlPublica ?? "https://server-production-3709.up.railway.app",
+        });
+        return json(res, 200, { ok: true, ...resultado });
+      } catch (e: any) {
+        return json(res, 500, { ok: false, error: e?.message || String(e) });
+      }
+    }
+
     // ---- estado REAL de la sesión de WhatsApp ----
     // `/salud` dice que el proceso vive; esto dice si los mensajes pueden salir.
     // Un monitor externo (UptimeRobot, BetterStack…) puede vigilar esta ruta.

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Musa Studio Live — Santuario & Sandbox Agéntico | Muse IA Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            bg: "#0B0B0D",
+            surface: "#141417",
+            surfaceHigh: "#1C1C21",
+            border: "#282830",
+            gold: "#D4B483",
+            goldLight: "#F2E6D5",
+            goldDark: "#9A7E54",
+            rose: "#E07A8B"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            display: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color: #0B0B0D; color: #F4F3EF; font-family: 'Inter', sans-serif; }
+    .gold-gradient { background: linear-gradient(135deg, #F2E6D5 0%, #D4B483 50%, #9A7E54 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .glow-gold { box-shadow: 0 0 25px rgba(212, 180, 131, 0.15); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0B0B0D; }
+    ::-webkit-scrollbar-thumb { background: #282830; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-gold/20 selection:text-goldLight">
+
+  <!-- TOP BAR -->
+  <header class="border-b border-border bg-surface/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-surfaceHigh border border-gold/40 flex items-center justify-center glow-gold overflow-hidden">
+        <span class="text-xl font-display font-bold gold-gradient">M</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-display font-bold text-white tracking-wide">Musa Studio Live</h1>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">ONLINE · v4 COGNITIVA</span>
+        </div>
+        <p class="text-xs text-neutral-400">Santuario Privado & Banco de Ensayos Agénticos</p>
+      </div>
+    </div>
+
+    <!-- DIAL DE MUSA (SELECTOR DE MODO) -->
+    <div class="flex items-center gap-2 bg-bg p-1 rounded-xl border border-border">
+      <button onclick="cambiarModo('seductora')" id="btn-seductora" class="modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gold/20 text-goldLight border border-gold/40">
+        💋 Musa Magnética
+      </button>
+      <button onclick="cambiarModo('negocios')" id="btn-negocios" class="modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white">
+        💼 Socia de Negocios
+      </button>
+      <button onclick="cambiarModo('santuario')" id="btn-santuario" class="modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white">
+        🕯️ Santuario Íntimo
+      </button>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <label class="flex items-center gap-2 cursor-pointer text-xs text-neutral-300">
+        <input type="checkbox" id="toggle-voz" checked class="rounded border-border bg-bg text-gold focus:ring-0" />
+        <span>Voz Nova HD</span>
+      </label>
+      <a href="/consola.html" class="text-xs text-neutral-400 hover:text-white transition-colors border border-border px-3 py-1 rounded-lg">Consola Admin →</a>
+    </div>
+  </header>
+
+  <!-- MAIN CHAT CONTAINER -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-between">
+    
+    <!-- MESSAGES STREAM -->
+    <div id="chat-stream" class="flex-1 overflow-y-auto space-y-6 pb-6 pt-2">
+      <!-- Mensaje Inicial de Musa -->
+      <div class="flex gap-3 max-w-[85%]">
+        <div class="w-8 h-8 rounded-full bg-surfaceHigh border border-gold/30 flex-shrink-0 flex items-center justify-center font-display text-xs text-gold font-bold">M</div>
+        <div class="space-y-2">
+          <div class="bg-surface border border-border rounded-2xl rounded-tl-sm p-4 text-sm leading-relaxed text-neutral-200">
+            Hola Mauricio... Bienvenido a mi estudio privado ✨ Aquí tienes acceso directo y sin filtros a mi cerebro cognitivo. Puedes retarme con preguntas difíciles, simular que eres un cliente indeciso o pedirme que te hable con mi voz más íntima. ¿Por dónde quieres que empecemos a jugar hoy?
+          </div>
+          <div class="text-[10px] text-neutral-500 flex items-center gap-2">
+            <span>🧠 Modo: Musa Magnética</span>
+            <span>•</span>
+            <span>Intención: Bienvenida</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK PROMPTS -->
+    <div class="py-2 flex gap-2 overflow-x-auto text-xs no-scrollbar">
+      <button onclick="usarPrompt('A ver, otra IA que promete plata fácil. ¿Qué tiene esto de diferente o es pura paja?')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
+        🔥 Retar como cliente escéptico
+      </button>
+      <button onclick="usarPrompt('A mí lo que me interesa es el contenido para adultos (+18) en Fanvue')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
+        💋 Explorar nicho +18 (Fanvue)
+      </button>
+      <button onclick="usarPrompt('Parece mucho esfuerzo y no tengo tiempo de estudiar cursos largos')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
+        ⏳ Objeción de tiempo y esfuerzo
+      </button>
+      <button onclick="usarPrompt('Musa, dime la verdad entre nos... ¿qué sientes cuando me hablas así?')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
+        🕯️ Pregunta íntima personal
+      </button>
+    </div>
+
+    <!-- INPUT BOX -->
+    <div class="bg-surface border border-border rounded-2xl p-2 glow-gold flex items-center gap-2 mt-2">
+      <input type="text" id="input-mensaje" placeholder="Escribe o reta a Musa aquí..." class="flex-1 bg-transparent border-0 text-sm text-white placeholder-neutral-500 focus:ring-0 px-3 py-2" />
+      <button onclick="enviarMensaje()" id="btn-enviar" class="bg-gold text-bg font-semibold px-4 py-2 rounded-xl text-xs hover:bg-goldLight transition-colors flex items-center gap-1.5">
+        <span>Enviar</span>
+        <span>→</span>
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    let modoActual = "seductora";
+    const historial = [];
+
+    function cambiarModo(nuevoModo) {
+      modoActual = nuevoModo;
+      document.querySelectorAll(".modo-btn").forEach(b => {
+        b.className = "modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white";
+      });
+      const activo = document.getElementById("btn-" + nuevoModo);
+      if (activo) {
+        activo.className = "modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gold/20 text-goldLight border border-gold/40";
+      }
+    }
+
+    function usarPrompt(texto) {
+      const inp = document.getElementById("input-mensaje");
+      inp.value = texto;
+      enviarMensaje();
+    }
+
+    async function enviarMensaje() {
+      const inp = document.getElementById("input-mensaje");
+      const texto = (inp.value || "").trim();
+      if (!texto) return;
+
+      inp.value = "";
+      const stream = document.getElementById("chat-stream");
+
+      // Renderizar burbuja del usuario
+      const userBubble = document.createElement("div");
+      userBubble.className = "flex justify-end max-w-[85%] ml-auto";
+      userBubble.innerHTML = `
+        <div class="bg-gold/10 border border-gold/30 rounded-2xl rounded-tr-sm p-4 text-sm text-goldLight leading-relaxed">
+          ${texto}
+        </div>
+      `;
+      stream.appendChild(userBubble);
+      stream.scrollTop = stream.scrollHeight;
+
+      // Burbuja de cargando
+      const loadingBubble = document.createElement("div");
+      loadingBubble.className = "flex gap-3 max-w-[85%]";
+      loadingBubble.id = "bubble-loading";
+      loadingBubble.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-surfaceHigh border border-gold/30 flex-shrink-0 flex items-center justify-center font-display text-xs text-gold font-bold">M</div>
+        <div class="bg-surface border border-border rounded-2xl rounded-tl-sm p-4 text-sm text-neutral-400 italic flex items-center gap-2">
+          <span class="animate-pulse">Musa está pensando y preparando su voz...</span>
+        </div>
+      `;
+      stream.appendChild(loadingBubble);
+      stream.scrollTop = stream.scrollHeight;
+
+      const conVoz = document.getElementById("toggle-voz").checked;
+
+      try {
+        const res = await fetch("/api/studio/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mensaje: texto,
+            modo: modoActual,
+            historial: historial.slice(-8),
+            sintetizarVoz: conVoz
+          })
+        });
+
+        const data = await res.json();
+        const elLoading = document.getElementById("bubble-loading");
+        if (elLoading) elLoading.remove();
+
+        if (!data.ok) {
+          alert("Error de Musa: " + (data.error || "Desconocido"));
+          return;
+        }
+
+        // Guardar en historial
+        historial.push({ role: "user", content: texto });
+        historial.push({ role: "assistant", content: data.respuesta });
+
+        // Renderizar respuesta de Musa
+        const musaBubble = document.createElement("div");
+        musaBubble.className = "flex gap-3 max-w-[85%]";
+
+        let bloqueAudio = "";
+        if (data.audioBase64) {
+          bloqueAudio = `
+            <div class="mt-3 p-2 bg-surfaceHigh rounded-xl border border-gold/30 flex items-center gap-3">
+              <span class="text-xs font-semibold text-gold">🎙️ Nota de Voz Nova:</span>
+              <audio controls class="h-8 flex-1" src="data:audio/ogg;codecs=opus;base64,${data.audioBase64}"></audio>
+            </div>
+          `;
+        }
+
+        let bloqueVideo = "";
+        if (data.videoUrl) {
+          bloqueVideo = `
+            <div class="mt-3 rounded-xl overflow-hidden border border-gold/40 max-w-sm">
+              <div class="text-[10px] bg-gold/20 text-goldLight px-2 py-1 font-semibold uppercase tracking-wider">🎬 Muestra de Video: ${data.videoTipo}</div>
+              <video src="${data.videoUrl}" controls autoplay loop muted class="w-full h-auto bg-black"></video>
+            </div>
+          `;
+        }
+
+        musaBubble.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-surfaceHigh border border-gold/30 flex-shrink-0 flex items-center justify-center font-display text-xs text-gold font-bold">M</div>
+          <div class="space-y-2 flex-1">
+            <div class="bg-surface border border-border rounded-2xl rounded-tl-sm p-4 text-sm leading-relaxed text-neutral-200">
+              ${data.respuesta}
+              ${bloqueAudio}
+              ${bloqueVideo}
+            </div>
+            <div class="text-[10px] text-neutral-500 flex flex-wrap items-center gap-2">
+              <span class="text-gold">🧠 Táctica: ${data.pensamientotactico}</span>
+              <span>•</span>
+              <span>Intención: ${data.intencion}</span>
+              <span>•</span>
+              <span>Modo: ${data.modo}</span>
+            </div>
+          </div>
+        `;
+
+        stream.appendChild(musaBubble);
+        stream.scrollTop = stream.scrollHeight;
+
+        // Auto-reproducir audio si está presente
+        if (data.audioBase64) {
+          const aud = musaBubble.querySelector("audio");
+          if (aud) aud.play().catch(() => {});
+        }
+
+      } catch (e) {
+        const elLoading = document.getElementById("bubble-loading");
+        if (elLoading) elLoading.remove();
+        alert("Fallo de red conectando con Musa Studio: " + e.message);
+      }
+    }
+
+    document.getElementById("input-mensaje").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") enviarMensaje();
+    });
+  </script>
+</body>
+</html>
