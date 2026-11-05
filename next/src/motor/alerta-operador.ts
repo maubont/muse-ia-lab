@@ -107,6 +107,10 @@ function diagnosticarLead(
   } else if (/comprobante|pague|transferi|transferí|captura/i.test(textoCompleto)) {
     dilema = "Validación y activación de pago / comprobante bancario.";
     icebreaker = "¡Hola! Te escribe el asesor de Muse IA Lab. Aquí tengo tu chat abierto para validar tu comprobante y darte acceso inmediato a tu aula virtual 📲";
+  } else if (/viendo.*video|puedo ver|alcanc|videos gratis|sin pagar|plataforma abierta/i.test(textoCompleto)) {
+    temperatura = "🚨 *ALERTA ROJA* (Posible brecha / Reporte de videos abiertos sin pago)";
+    dilema = "El usuario afirma estar reproduciendo los videos del LMS sin haber pagado. Requiere verificación inmediata de academia.html.";
+    icebreaker = "¡Hola! Te escribe el asesor de Muse IA Lab. Vi tu comentario sobre los videos en el aula. Te confirmo que las lecciones maestras están bajo llave: ¿te ayudo a activar tu acceso oficial?";
   }
 
   return { temperatura, presupuesto, dilema, icebreaker };
@@ -131,6 +135,7 @@ export async function construirAlertaEstructurada(
     frustracion_incertidumbre: "Frustración / Incertidumbre sobre atención",
     reclamo_operativo: "Reclamo operativo / Problema de pago o acceso",
     fuera_de_alcance_legal: "Tema legal / Facturación empresarial fuera de alcance",
+    alerta_seguridad_bypass: "🚨 POSIBLE BRECHA DE PLATAFORMA / REPORTE DE VIDEOS ABIERTOS",
     fatiga_bucle: "Bucle conversacional detectado",
   };
 

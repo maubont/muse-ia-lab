@@ -9,6 +9,7 @@ export type MotivoEscalado =
   | "frustracion_incertidumbre"
   | "reclamo_operativo"
   | "fuera_de_alcance_legal"
+  | "alerta_seguridad_bypass"
   | "fatiga_bucle";
 
 export interface ResultadoDeteccionEscalado {
@@ -46,6 +47,10 @@ const RE_RECLAMO_OPERATIVO =
 // 4. Preguntas fuera de alcance comercial (legal / empresarial / B2B)
 const RE_OUT_OF_SCOPE =
   /\b(factura\s+electronica|rut|nit\s+de\s+la\s+empresa|superintendencia|sic|demanda|abogado|contrato\s+comercial|convenio\s+empresarial)\b/i;
+
+// 5. Alerta de seguridad: bypass, videos gratis o plataforma abierta reportada por el usuario
+const RE_ALERTA_BRECHA_PLATAFORMA =
+  /\b(estoy\s+viendo(\s+los)?\s+videos?|puedo\s+ver(\s+los)?\s+videos?|alcanc[eé]\s+a\s+ver|dejaste\s+habilitad[ao]s?|plataforma\s+abierta|videos?\s+gratis|sin\s+pagar|acceso\s+temporal|ya\s+los\s+vi|viendo\s+cuantos\s+videos)\b/i;
 
 /** Detecta si un mensaje requiere escalado a operador humano. */
 export function detectarIntencionEscalado(textoOriginal: string): ResultadoDeteccionEscalado {
@@ -103,6 +108,15 @@ export function detectarIntencionEscalado(textoOriginal: string): ResultadoDetec
       debeEscalar: true,
       motivo: "fuera_de_alcance_legal",
       detalle: "Consulta legal, tributaria o corporativa fuera del catálogo cerrado",
+    };
+  }
+
+  // 6. Alerta de seguridad: posible brecha de plataforma o reporte de videos abiertos
+  if (RE_ALERTA_BRECHA_PLATAFORMA.test(norm)) {
+    return {
+      debeEscalar: true,
+      motivo: "alerta_seguridad_bypass",
+      detalle: "URGENTE: Usuario afirma estar viendo videos o tener acceso libre sin token de pago. Verificar integridad de plataforma.",
     };
   }
 

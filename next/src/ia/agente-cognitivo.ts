@@ -8,6 +8,7 @@ import type { Consultar } from "../db/repositorio.ts";
 import type { Canal } from "../../../functions/canal/tipos.ts";
 import { sintetizarAudioOpenAI } from "../motor/sintetizador-voz-openai.ts";
 import { enviarAlertaOperador } from "../motor/alerta-operador.ts";
+import type { MotivoEscalado } from "../motor/deteccion-escalado.ts";
 import { sanitizarRespuesta, validarAntiRepeticion } from "./anti-repeticion.ts";
 import { consultarPresupuesto, registrarConsumo, costeEstimado } from "../vision/presupuesto.ts";
 
@@ -205,6 +206,7 @@ Si el cliente te pregunta un dato técnico avanzado, legal o de pagos que no tie
   * Enfoque comercial: "No es un pasatiempo; es un proceso con salida comercial". Te enseña a crear personajes con consistencia facial fotográfica (la misma mujer en 50 situaciones y ángulos) y monetizarlos mediante suscripciones en Fanvue (+18 sin censura), colaboraciones con marcas, o influencers virtuales de redes sociales.
   * Qué incluye por solo 33.000 COP / 9 USD (pago único y acceso vitalicio):
     - 13 módulos completos (desde la anatomía y consistencia facial con LoRA/FaceSwap, hasta la voz sintética, video y plataformas de cobro internacional).
+    - Módulo 08 (Voz y Realismo Sonoro): Enseña a clonar voces humanas en español con acentos latinos (colombiano, mexicano, neutro) con herramientas 100% gratuitas y de alta definición, eliminando cualquier tono robótico.
     - 4 packs de bonos descargables: Prompts maestros listos para copiar y pegar, biblioteca de poses, guía de monetización en Fanvue y automatización.
     - Acceso vitalicio al aula protegida en ${base}/academia.html (las clases prácticas están protegidas y se desbloquean tras confirmar el pago).
 - Si el usuario te pregunta "¿qué dice la landing?" o "¿qué es lo que ofrecen?", responde con soltura, autoridad y picardía resumiendo estos puntos clave con tus propias palabras, sin sonar a folleto aburrido.
@@ -218,6 +220,13 @@ Si el cliente te pregunta un dato técnico avanzado, legal o de pagos que no tie
 - JAMÁS digas que "la Clase 1 es gratis". Di que puede entrar a explorar el aula y ver tu video de bienvenida.
 - Si invitas al lead a explorar el aula o ver tu video de bienvenida, menciona el enlace directamente con tus propias palabras dentro de tu texto: "${base}/academia.html". Prohibido añadir pies de página mecánicos o banners repetitivos.
 
+[REGLA DE ORO DE SEGURIDAD Y BLUFFS DE ACCESO: REPORTE DE VIDEOS GRATIS O PLATAFORMA ABIERTA]
+- Si el usuario dice o insinúa que está viendo los videos sin pagar, que la plataforma quedó abierta o que está aprovechando para ver clases gratis (ej: "estoy viendo cuántos videos alcanzo a ver gracias", "se pueden ver los videos gratis", "dejaron la plataforma abierta"):
+  1. PROHIBICIÓN ABSOLUTA de felicitarlo, capitular o decir "¡Perfecto, disfruta los videos!". Eso compromete la integridad del negocio.
+  2. MARCA OBLIGATORIAMENTE "escalarOperador": true con "motivoEscalado": "alerta_seguridad_bypass" para que el equipo técnico verifique inmediatamente la plataforma.
+  3. Responde como Musa con picardía, firmeza y simpatía: aclara que lo que puede ver es la vitrina y tu saludo/bienvenida, pero que las 13 clases maestras con prompts y herramientas están bajo llave de titanio y solo se abren al confirmar el pago.
+  Ejemplo: "Jaja... buen intento cariño 😏 Lo que puedes ver en el aula es mi video de bienvenida y la estructura. Las 13 clases maestras con prompts y herramientas están bajo llave de titanio y solo se desbloquean con tu comprobante. ¿Hacemos el pago por Bre-B / Nequi y te abro la puerta de verdad?"
+
 [BÓVEDA SENSORIAL DE VIDEO (DEMOSTRACIÓN WOW EN VIVO)]
 Tienes a tu disposición tu propia Bóveda de Video en alta definición:
 - "video_base": Tu video oficial de presentación donde se te ve en movimiento y hablando.
@@ -225,6 +234,7 @@ Tienes a tu disposición tu propia Bóveda de Video en alta definición:
 - "muestra_glamour": Muestra de video de modelo de noche, elegancia europea o pasarela.
 - "muestra_comercial": Muestra publicitaria para marcas y redes sociales.
 - "ninguno": Para turnos conversacionales normales (la gran mayoría de los turnos).
+- NUNCA repitas el mismo video si ya fue enviado en el historial (revisa los turnos con "[Video enviado: ...]"): si ya enviaste "muestra_latina", usa "ninguno" o una muestra diferente.
 
 [CRITERIO CONVERSACIONAL Y ACCIÓN AGÉNTICA (CERO PLANTILLAS)]
 1. Prohibido el "Feature Dumping": No recites temarios como un folleto andante. Habla como una socia inteligente y concisa (2 a 4 oraciones por turno, 35 a 65 palabras). Solo detalla módulos si el usuario te pregunta explícitamente qué contiene el temario.
@@ -245,7 +255,7 @@ Debes responder EXCLUSIVAMENTE un objeto JSON válido con esta estructura:
   "intencion": "duda_negocio | duda_tecnica | contenido_adultos | saturacion_mercado | precio | intencion_compra | saludo | solicitar_humano",
   "adjuntarCuentas": true o false (marca true SOLO si el cliente dice que va a transferir/pagar o pide datos de cuenta),
   "adjuntarDemo": true o false (marca true si el cliente quiere explorar el aula o ver el video de bienvenida),
-  "escalarOperador": true o false (marca true únicamente si pide explícitamente hablar con un humano),
+  "escalarOperador": true o false (marca true si pide explícitamente hablar con un humano O si reporta un posible fallo de seguridad/plataforma abierta/bypass de videos),
   "motivoEscalado": "motivo si aplica",
   "confirmoMayor18": true, false o null
 }`;
@@ -482,15 +492,41 @@ export async function ejecutarTurnoAgenteMusa(
     ).catch(() => {});
   }
 
-  // 6. Si solicitó escalado a operador humano, notificar por WhatsApp al operador SIN mutear a Musa
+  // Centinela de Seguridad: Detección determinista de reporte de bypass / videos gratis / plataforma abierta
+  const mencionaBypassOVerVideos = /\b(estoy\s+viendo(\s+los)?\s+videos?|puedo\s+ver(\s+los)?\s+videos?|alcanc[eé]\s+a\s+ver|dejaste\s+habilitad[ao]s?|plataforma\s+abierta|videos?\s+gratis|sin\s+pagar|acceso\s+temporal|ya\s+los\s+vi|viendo\s+cuantos\s+videos)\b/i.test(texto);
+  if (mencionaBypassOVerVideos) {
+    estructurada.escalarOperador = true;
+    estructurada.motivoEscalado = "alerta_seguridad_bypass";
+    await consultar(
+      "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'alerta_seguridad_bypass_plataforma', $2::jsonb)",
+      [phone, JSON.stringify({ mensaje: texto.slice(0, 200), timestamp: new Date().toISOString() })],
+    ).catch(() => {});
+
+    // Salvaguarda: si el modelo capituló o dijo "disfruta los videos", neutralizarlo de inmediato
+    if (/disfruta\s+(de\s+)?(los\s+)?videos/i.test(textoFinal)) {
+      textoFinal = `Jaja... buen intento cariño 😏 Lo que puedes ver en el aula es mi video de bienvenida y la estructura. Las 13 clases maestras con prompts y herramientas están bajo llave de titanio y solo se desbloquean con tu comprobante. ¿Hacemos el pago por Bre-B / Nequi y te abro la puerta de verdad? 🚀`;
+      estructurada.enviarVoz = false;
+    }
+  }
+
+  // 6. Si solicitó escalado o se activó alerta de seguridad, notificar por WhatsApp al operador SIN mutear a Musa
   if (estructurada.escalarOperador && deps.telefonoOperador) {
+    const motivoFinal: MotivoEscalado =
+      estructurada.motivoEscalado === "alerta_seguridad_bypass" || mencionaBypassOVerVideos
+        ? "alerta_seguridad_bypass"
+        : "solicitud_explicita";
+
     await enviarAlertaOperador(canal, deps.telefonoOperador, consultar, {
       phone,
       nombre: nombreMostrar,
       estadoFunnel: leadRow?.estado_funnel ?? "CONVERSACION",
       ultimoMensajeCliente: texto,
-      motivo: "solicitud_explicita",
-      detalle: estructurada.motivoEscalado || "Cliente solicitó apoyo específico de un asesor humano",
+      motivo: motivoFinal,
+      detalle:
+        estructurada.motivoEscalado ||
+        (mencionaBypassOVerVideos
+          ? "URGENTE: Usuario afirma estar viendo videos o tener acceso libre sin token. Verificar si la plataforma quedó abierta."
+          : "Cliente solicitó apoyo específico de un asesor humano"),
     }).catch(() => {});
   }
 

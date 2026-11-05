@@ -352,10 +352,26 @@
       <div id="playerMainCol" class="xl:col-span-8 space-y-4 transition-all duration-300">
 
         <div class="relative aspect-video rounded-2xl overflow-hidden bg-[#0E0E0D] border border-[#E4E0D8] shadow-lg">
-          <video id="mainVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="/assets/musa-hero.jpg">
-            <source id="mainVideoSource" src="/assets/demo.mp4" type="video/mp4"/>
+          <video id="mainVideoPlayer" class="w-full h-full object-contain bg-black" controls playsinline preload="none" poster="/assets/musa-hero.jpg">
+            <source id="mainVideoSource" src="" type="video/mp4"/>
             Tu navegador no soporta reproducción de video HTML5.
           </video>
+
+          <!-- Overlay de Bloqueo para Visitantes No Autenticados -->
+          <div id="overlayBloqueoVisitante" style="display: none;" class="absolute inset-0 bg-[#0E0E0D]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 sm:p-8 text-center z-30">
+            <div class="w-14 h-14 rounded-2xl bg-[#1C1A19] border border-[#C8A97E]/40 flex items-center justify-center text-[#C8A97E] mb-3 shadow-lg">
+              <span class="material-symbols-outlined text-3xl">lock</span>
+            </div>
+            <span class="font-mono-tech text-[10.5px] font-bold uppercase tracking-widest text-[#C8A97E] mb-1">✦ CLASE PROTEGIDA · MUSA STUDIO ✦</span>
+            <h3 class="text-lg sm:text-xl font-bold text-[#FAF7F5] mb-2">Acceso Exclusivo para Alumnos</h3>
+            <p class="text-xs sm:text-sm text-[#A8A29E] max-w-md mb-5 leading-relaxed">
+              La reproducción en alta definición, las plantillas de consistencia facial y los prompts descargables de esta clase están bajo llave.
+            </p>
+            <button onclick="abrirModalConversion()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-[#C8A97E] to-[#B86B77] hover:opacity-95 text-[#181415] text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 shadow-lg transition-transform hover:scale-[1.02]">
+              <span class="material-symbols-outlined text-[18px]">key</span>
+              <span>Desbloquear Clase por $33.000 COP ($9 USD)</span>
+            </button>
+          </div>
 
           <!-- Overlay cuando el archivo seleccionado es un PDF o Paquete Descargable -->
           <div id="nonVideoOverlay" style="display: none;" class="absolute inset-0 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
@@ -1044,6 +1060,18 @@ function reproducirLeccion(lIdx, esBono) {
   const video = document.getElementById("mainVideoPlayer");
   const source = document.getElementById("mainVideoSource");
   const overlay = document.getElementById("nonVideoOverlay");
+  const overlayBloqueo = document.getElementById("overlayBloqueoVisitante");
+
+  // Bloqueo estricto para visitantes sin token: no reproducir nada
+  if (!catalogoData?.autenticado) {
+    if (video) video.pause();
+    if (source) source.src = "";
+    if (overlayBloqueo) overlayBloqueo.style.display = "flex";
+    if (overlay) overlay.style.display = "none";
+    abrirModalConversion(moduloActivoIdx);
+    return;
+  }
+  if (overlayBloqueo) overlayBloqueo.style.display = "none";
 
   if (item.esVideo) {
     overlay.style.display = "none";
