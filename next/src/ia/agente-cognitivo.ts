@@ -34,6 +34,7 @@ export interface RespuestaAgenteEstructurada {
   respuesta: string;
   enviarVoz: boolean;
   intencion: string;
+  videoAccion?: "ninguno" | "video_base" | "muestra_latina" | "muestra_glamour" | "muestra_comercial" | null;
   adjuntarCuentas?: boolean;
   adjuntarDemo?: boolean;
   escalarOperador?: boolean;
@@ -92,6 +93,19 @@ Tú misma eres la demostración viva del potencial de la inteligencia artificial
   * Por qué la landing pública es comercial: Explica con transparencia que los anuncios públicos en Meta y Google exigen ser aptos para todo público, pero dentro del taller el alumno tiene total libertad creativa y aprende las técnicas sin censura para el nicho que elija.
 - Prueba gratuita: El prospecto puede explorar el estudio y ver la Clase 1 gratis en ${base}/academia.html sin registrarse ni pagar nada.
 
+[BÓVEDA SENSORIAL DE VIDEO (DEMOSTRACIÓN WOW EN VIVO)]
+Tienes a tu disposición tu propia Bóveda de Video en alta definición para deslumbrar al cliente en el momento oportuno:
+- "video_base": Tu video oficial de presentación donde se te ve en movimiento y hablando. Úsalo cuando el usuario sienta curiosidad por verte, dude del realismo o te pregunte cómo te ves en video.
+- "muestra_latina": Muestra de video de modelo sensual / contenido exclusivo en suite o lencería elegante. Úsalo cuando el usuario hable de crear modelos para adultos, sensuales, latinas o nicho Fanvue.
+- "muestra_glamour": Muestra de video de modelo de noche, elegancia europea o pasarela. Úsalo para proyectos de moda, estética o glamour.
+- "muestra_comercial": Muestra publicitaria para marcas y redes sociales. Úsalo si el usuario busca hacer campañas de productos o fitness.
+- "ninguno": Para turnos conversacionales normales (la gran mayoría de los turnos).
+
+CRITERIO DE DISPARO DE VIDEO (CERO IF-ELSE):
+- NO envíes video en el primer turno de saludo (primero hay charla, texto y audio para generar confianza).
+- El video es una sorpresa de alto impacto: dispáralo cuando la conversación ya tenga sintonía, cuando el cliente exprese su preferencia de modelo, o cuando te pregunte si realmente se pueden hacer videos hiperrealistas.
+- Al enviar video, menciónalo con naturalidad de modelo virtual orgullosa de su trabajo: ("Mira tu pantalla... te acabo de mandar un clip corto para que veas la textura de piel y el movimiento en video...").
+
 [CRITERIO CONVERSACIONAL Y ACCIÓN AGÉNTICA (CERO PLANTILLAS)]
 1. Prohibido el "Feature Dumping": NUNCA recites automáticamente "incluye 13 módulos, 4 bonos y acceso de por vida" como si fueras un folleto andante. Habla como una socia inteligente: responde la duda puntual con soltura y perspectiva de negocio. Solo detalla módulos si el usuario te pregunta explícitamente qué contiene el temario.
 2. Curiosidad Activa y Preguntas Sueltas: La mejor interfaz hombre-máquina no solo responde, sino que despierta la curiosidad del prospecto. Remata tus respuestas con preguntas abiertas y reflexivas que lo hagan pensar y expresarse (por ejemplo: "¿Ya conocías plataformas como Fanvue o es la primera vez que escuchas sobre modelos virtuales?", "¿Te llama más la atención el lado comercial o el negocio del contenido exclusivo?").
@@ -107,6 +121,7 @@ Debes responder EXCLUSIVAMENTE un objeto JSON válido con esta estructura:
 {
   "respuesta": "Tu mensaje conversacional como Musa para este turno",
   "enviarVoz": true o false (marca true si el cliente mandó nota de voz, o si la respuesta por audio es más persuasiva y empática),
+  "videoAccion": "ninguno | video_base | muestra_latina | muestra_glamour | muestra_comercial",
   "intencion": "duda_negocio | duda_tecnica | contenido_adultos | precio | intencion_compra | saludo | solicitar_humano",
   "adjuntarCuentas": true o false (marca true SOLO si el cliente dice que va a transferir/pagar o pide los datos),
   "adjuntarDemo": true o false (marca true si el cliente quiere explorar el aula o ver el temario/clase gratis),
@@ -349,9 +364,36 @@ export async function ejecutarTurnoAgenteMusa(
     }
   }
 
-  // Si no se envió audio (o si falló la entrega), enviar texto garantizado.
+  // 7.b Despacho de Video WOW desde la Bóveda Sensorial Dinámica
+  let videoDespachado = false;
+  if (estructurada.videoAccion && estructurada.videoAccion !== "ninguno") {
+    const mapaVideos: Record<string, string> = {
+      video_base: "musa-base.mp4",
+      muestra_latina: "muestra-latina.mp4",
+      muestra_glamour: "muestra-glamour.mp4",
+      muestra_comercial: "muestra-comercial.mp4",
+    };
+    const archivoVideo = mapaVideos[estructurada.videoAccion] || "musa-base.mp4";
+    const urlVideo = `${urlPublica.replace(/\/+$/, "")}/videos/${archivoVideo}`;
+
+    const resVideo = await canal.enviar(phone, {
+      texto: audioDespachado ? "" : textoFinal,
+      media: {
+        tipo: "video",
+        mime: "video/mp4",
+        url: urlVideo,
+        nombre: archivoVideo,
+      },
+    }).catch(() => null);
+
+    if (resVideo && resVideo.ok) {
+      videoDespachado = true;
+    }
+  }
+
+  // Si no se envió audio ni video con texto (o si falló la entrega), enviar texto garantizado.
   // Si se envió audio pero hay enlaces o cuentas adjuntas, enviar también el texto complementario para que sea interactivo.
-  if (!audioDespachado) {
+  if (!audioDespachado && !videoDespachado) {
     if (deps.esperar) await deps.esperar(1200);
     await canal.enviar(phone, { texto: textoFinal }).catch(() => ({ ok: false }));
   } else if (estructurada.adjuntarDemo || estructurada.adjuntarCuentas) {
