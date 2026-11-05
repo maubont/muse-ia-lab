@@ -250,7 +250,7 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const rutaSinQuery = url.split("?")[0].split("#")[0];
       const esRaiz = rutaSinQuery === "/" || rutaSinQuery === "";
       const esPagina = /\.html?$/i.test(rutaSinQuery) || esRaiz;
-      const esActivo = rutaSinQuery.startsWith("/assets/") || rutaSinQuery.startsWith("/videos/");
+      const esActivo = rutaSinQuery.startsWith("/assets/") || rutaSinQuery.startsWith("/videos/") || /\.(mp3|ogg|opus|wav|mp4|webm)$/i.test(rutaSinQuery);
       if (esRaiz || esPagina || esActivo) {
         const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : rutaSinQuery);
         if (archivo) {
