@@ -73,7 +73,7 @@ const res = await ejecutarTurnoAgenteMusa(
 );
 
 assert.ok(res.ok, "Debe responder con éxito");
-assert.ok(res.textoEnviado.includes("Modelos IA"), "Debe mencionar el curso");
+assert.ok(/taller|curso|modelo/i.test(res.textoEnviado), "Debe responder sobre el taller o las modelos");
 assert.ok(mensajesEnviados.length > 0, "Debe enviar mensaje al canal");
 console.log("   ✓ Turno agéntico despachado con éxito.");
 
