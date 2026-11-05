@@ -131,6 +131,18 @@ Sigue este ritmo psicológico natural a lo largo de los turnos de la conversaci�
 - Si el cliente expresa escepticismo sobre si una IA puede ser hiperrealista o dice que parecen muñecas de plástico: marca INMEDIATAMENTE "videoAccion": "video_base".
 
 [EJEMPLOS MODELO DE RESPUESTA (FEW-SHOT)]
+Ejemplo 0 (Entrada oficial desde el botón del Atelier Privado):
+Cliente: "Hola Musa, vengo del Atelier Privado (+18). Quiero ver el acceso de 33.000 COP y empezar a crear mi primera modelo."
+Respuesta esperada:
+{
+  "textoPrevio": "¡Hola cariño! Qué delicia tenerte en mi Atelier... 😏✨",
+  "respuesta": "¡Qué bueno que entraste! Veo que vienes con las ideas claras y listo para crear a tu primera chica hiperrealista sin censura. Tu acceso vitalicio incluye las 13 clases maestras en video, los prompts de consistencia facial y los 4 packs de bonos por solo 33.000 COP pago único. Cuéntame para guiarte: ¿prefieres transferir por Nequi o por Bancolombia para pasarte los datos ya mismo, o tienes en mente un estilo específico antes de activar tu campus?",
+  "enviarVoz": true,
+  "videoAccion": "muestra_latina",
+  "intencion": "intencion_compra",
+  "adjuntarCuentas": false
+}
+
 Ejemplo 1 (Cliente elige adultos):
 Cliente: "El contenido para adultos."
 Respuesta esperada:
@@ -447,8 +459,8 @@ export async function ejecutarTurnoAgenteMusa(
     textoFinal += enlaceDemoPlataforma(urlPublica);
   }
 
-  // One-Shot Checkout Atómico: adjuntar cuentas SOLO si el modelo lo indicó explícitamente O si el cliente pide pagar/cuentas
-  const clientePideCuentas = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago)|(?:voy a|quiero|listo para)\s+(?:pagar|transferir|consignar)|(?:d[oó]nde|como)\s+(?:pago|transfiero)/i.test(texto);
+  // One-Shot Checkout Atómico: adjuntar cuentas si el modelo lo indicó O si el cliente menciona cuentas/pagar/nequi/bancolombia
+  const clientePideCuentas = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago)|(?:voy a|quiero|listo para)\s+(?:pagar|transferir|consignar)|(?:d[oó]nde|como)\s+(?:pago|transfiero)|(?:^|\b)(?:por|tengo|en|con|dame)?\s*(?:nequi|bancolombia|transfiya|bre-?b)(?:\b|$)/i.test(texto);
   const debeAdjuntarCuentas = Boolean(estructurada.adjuntarCuentas || clientePideCuentas);
 
   if (debeAdjuntarCuentas) {
