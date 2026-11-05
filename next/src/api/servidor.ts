@@ -167,6 +167,9 @@ const MIME: Record<string, string> = {
   ".ico": "image/x-icon",
   ".mp4": "video/mp4",
   ".pdf": "application/pdf",
+  ".mp3": "audio/mpeg",
+  ".ogg": "audio/ogg",
+  ".opus": "audio/opus",
 };
 
 /**
