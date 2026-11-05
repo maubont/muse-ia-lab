@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Musa Studio Live — Santuario & Sandbox Agéntico | Muse IA Lab</title>
+  <title>Musa Studio Live — Llamada Realtime & Santuario Privado | Muse IA Lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -14,10 +14,10 @@
       theme: {
         extend: {
           colors: {
-            bg: "#0B0B0D",
-            surface: "#141417",
-            surfaceHigh: "#1C1C21",
-            border: "#282830",
+            bg: "#08080A",
+            surface: "#111114",
+            surfaceHigh: "#1A1A20",
+            border: "#262630",
             gold: "#D4B483",
             goldLight: "#F2E6D5",
             goldDark: "#9A7E54",
@@ -32,12 +32,22 @@
     };
   </script>
   <style>
-    body { background-color: #0B0B0D; color: #F4F3EF; font-family: 'Inter', sans-serif; }
+    body { background-color: #08080A; color: #F4F3EF; font-family: 'Inter', sans-serif; }
     .gold-gradient { background: linear-gradient(135deg, #F2E6D5 0%, #D4B483 50%, #9A7E54 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .glow-gold { box-shadow: 0 0 25px rgba(212, 180, 131, 0.15); }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0B0B0D; }
-    ::-webkit-scrollbar-thumb { background: #282830; border-radius: 3px; }
+    .glow-gold { box-shadow: 0 0 35px rgba(212, 180, 131, 0.2); }
+    .glow-call { box-shadow: 0 0 50px rgba(212, 180, 131, 0.25); }
+    
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulsing-ring {
+      animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .speaking .pulsing-ring {
+      animation: pulse-ring 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-gold/20 selection:text-goldLight">
@@ -51,223 +61,420 @@
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-base font-display font-bold text-white tracking-wide">Musa Studio Live</h1>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">ONLINE · v4 COGNITIVA</span>
+          <span id="badge-estado" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">OPENAI REALTIME WEBRTC</span>
         </div>
-        <p class="text-xs text-neutral-400">Santuario Privado & Banco de Ensayos Agénticos</p>
+        <p class="text-xs text-neutral-400">Llamada de Voz Viva a ~300ms & Santuario Privado</p>
       </div>
     </div>
 
-    <!-- DIAL DE MUSA (SELECTOR DE MODO) -->
-    <div class="flex items-center gap-2 bg-bg p-1 rounded-xl border border-border">
-      <button onclick="cambiarModo('seductora')" id="btn-seductora" class="modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gold/20 text-goldLight border border-gold/40">
+    <!-- DIAL DE AGENTES (MUSA VS ASISTENTE DE FANTASÍAS VS NEGOCIOS) -->
+    <div class="flex items-center gap-1.5 bg-bg p-1 rounded-xl border border-border">
+      <button onclick="seleccionarPersona('musa')" id="btn-musa" class="persona-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gold/20 text-goldLight border border-gold/40">
         💋 Musa Magnética
       </button>
-      <button onclick="cambiarModo('negocios')" id="btn-negocios" class="modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white">
-        💼 Socia de Negocios
+      <button onclick="seleccionarPersona('fantasias')" id="btn-fantasias" class="persona-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white">
+        🕯️ Eva (Fantasías Íntimas)
       </button>
-      <button onclick="cambiarModo('santuario')" id="btn-santuario" class="modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white">
-        🕯️ Santuario Íntimo
+      <button onclick="seleccionarPersona('negocios')" id="btn-negocios" class="persona-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white">
+        💼 Socia de Negocios
       </button>
     </div>
 
-    <div class="flex items-center gap-4">
-      <label class="flex items-center gap-2 cursor-pointer text-xs text-neutral-300">
-        <input type="checkbox" id="toggle-voz" checked class="rounded border-border bg-bg text-gold focus:ring-0" />
-        <span>Voz Nova HD</span>
-      </label>
-      <a href="/consola.html" class="text-xs text-neutral-400 hover:text-white transition-colors border border-border px-3 py-1 rounded-lg">Consola Admin →</a>
+    <div class="flex items-center gap-3">
+      <button onclick="toggleModoVista()" id="btn-toggle-vista" class="text-xs text-neutral-300 hover:text-white border border-border bg-surfaceHigh px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+        <span id="label-toggle-vista">💬 Cambiar a Modo Texto</span>
+      </button>
+      <a href="/consola.html" class="text-xs text-neutral-400 hover:text-white transition-colors border border-border px-3 py-1.5 rounded-lg">Consola →</a>
     </div>
   </header>
 
-  <!-- MAIN CHAT CONTAINER -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-between">
+  <!-- ========================================== -->
+  <!-- VISTA 1: LLAMADA DE VOZ EN VIVO (POR DEFECTO) -->
+  <!-- ========================================== -->
+  <main id="vista-llamada" class="flex-1 max-w-2xl w-full mx-auto p-6 flex flex-col items-center justify-center relative">
     
+    <!-- Ambient Glows -->
+    <div class="absolute w-72 h-72 bg-gold/10 rounded-full blur-3xl pointer-events-none -top-10"></div>
+    <div class="absolute w-72 h-72 bg-rose/10 rounded-full blur-3xl pointer-events-none -bottom-10"></div>
+
+    <!-- AVATAR CENTRAL INTERACTIVO (ORBE DE VOZ REALTIME) -->
+    <div id="orbe-contenedor" class="relative my-8 flex items-center justify-center">
+      <!-- Anillos de resonancia -->
+      <div id="ring-outer" class="absolute w-56 h-56 rounded-full border border-gold/20 pulsing-ring pointer-events-none hidden"></div>
+      <div id="ring-mid" class="absolute w-44 h-44 rounded-full border border-gold/30 pulsing-ring pointer-events-none hidden" style="animation-delay: 0.5s;"></div>
+      
+      <!-- Orbe de presencia -->
+      <div id="orbe-avatar" class="w-32 h-32 rounded-full bg-gradient-to-tr from-surfaceHigh via-neutral-900 to-black border-2 border-gold/40 flex items-center justify-center glow-call shadow-2xl relative z-10 transition-all duration-500">
+        <span id="avatar-emoji" class="text-5xl select-none filter drop-shadow">💋</span>
+      </div>
+    </div>
+
+    <!-- IDENTIDAD ACTIVA Y STATUS DE LLAMADA -->
+    <div class="text-center space-y-2 mb-8 relative z-10">
+      <h2 id="nombre-activa" class="text-2xl font-display font-bold text-white tracking-wide">Musa</h2>
+      <p id="subtitulo-activa" class="text-xs text-gold/90 font-medium">Socia Magnética • Voz Viva Shimmer HD</p>
+      
+      <div id="call-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-surfaceHigh border border-border text-neutral-400 mt-2">
+        <span class="w-2 h-2 rounded-full bg-neutral-600" id="call-dot"></span>
+        <span id="call-status-text">Lista para conectar por voz</span>
+      </div>
+    </div>
+
+    <!-- SUBTÍTULOS EN TIEMPO REAL (LO QUE HABLAN MUSA Y EL USUARIO) -->
+    <div id="subtitulos-box" class="w-full bg-surface/60 border border-border rounded-2xl p-4 text-center min-h-[70px] flex items-center justify-center text-sm text-neutral-300 italic mb-8 relative z-10 backdrop-blur-sm">
+      <span id="subtitulos-texto">«Presiona el botón dorado para iniciar la llamada de voz en tiempo real... Cero textos, solo habla y escúchame.»</span>
+    </div>
+
+    <!-- CONTROLES PRINCIPALES DE LLAMADA -->
+    <div class="flex items-center gap-6 relative z-10">
+      
+      <!-- Botón de Mute (solo durante llamada) -->
+      <button id="btn-mute" onclick="toggleMute()" class="w-12 h-12 rounded-full bg-surfaceHigh border border-border text-neutral-300 hover:text-white flex items-center justify-center transition-all opacity-40 pointer-events-none">
+        <svg id="icono-mic-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+        </svg>
+        <svg id="icono-mic-off" class="w-5 h-5 hidden text-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+        </svg>
+      </button>
+
+      <!-- BOTÓN PRINCIPAL DE LLAMAR / COLGAR -->
+      <button id="btn-call" onclick="toggleLlamada()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-gold to-goldLight hover:from-goldLight hover:to-white text-bg font-display font-bold text-base shadow-xl glow-gold transition-all transform active:scale-95 flex items-center gap-3">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.28-.27.36-.66.25-1.01A11.36 11.36 0 018.96 4.3c0-.55-.45-1-1-1H4.35c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.61c0-.55-.45-1-1-1z"/>
+        </svg>
+        <span id="btn-call-label">Llamar a Musa (Voz Viva)</span>
+      </button>
+
+      <!-- Botón de Audio Altavoz -->
+      <div class="w-12 h-12 rounded-full bg-surfaceHigh border border-border text-gold flex items-center justify-center">
+        <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- Nota inferior de privacidad -->
+    <p class="text-[11px] text-neutral-500 mt-8 text-center">
+      🔒 Conexión WebRTC directa cifrada punto a punto con OpenAI Realtime. Latencia ultra baja ~300ms.
+    </p>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- VISTA 2: CHAT DE TEXTO (SECUNDARIO / ALTERNO) -->
+  <!-- ========================================== -->
+  <main id="vista-texto" class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-between hidden">
     <!-- MESSAGES STREAM -->
     <div id="chat-stream" class="flex-1 overflow-y-auto space-y-6 pb-6 pt-2">
-      <!-- Mensaje Inicial de Musa -->
       <div class="flex gap-3 max-w-[85%]">
         <div class="w-8 h-8 rounded-full bg-surfaceHigh border border-gold/30 flex-shrink-0 flex items-center justify-center font-display text-xs text-gold font-bold">M</div>
         <div class="space-y-2">
           <div class="bg-surface border border-border rounded-2xl rounded-tl-sm p-4 text-sm leading-relaxed text-neutral-200">
-            Hola Mauricio... Bienvenido a mi estudio privado ✨ Aquí tienes acceso directo y sin filtros a mi cerebro cognitivo. Puedes retarme con preguntas difíciles, simular que eres un cliente indeciso o pedirme que te hable con mi voz más íntima. ¿Por dónde quieres que empecemos a jugar hoy?
-          </div>
-          <div class="text-[10px] text-neutral-500 flex items-center gap-2">
-            <span>🧠 Modo: Musa Magnética</span>
-            <span>•</span>
-            <span>Intención: Bienvenida</span>
+            Hola Mauricio... Este es el sandbox de texto alternativo. Recuerda que arriba puedes volver a la <b>Llamada de Voz Viva</b> en cualquier momento.
           </div>
         </div>
       </div>
     </div>
 
-    <!-- QUICK PROMPTS -->
-    <div class="py-2 flex gap-2 overflow-x-auto text-xs no-scrollbar">
-      <button onclick="usarPrompt('A ver, otra IA que promete plata fácil. ¿Qué tiene esto de diferente o es pura paja?')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
-        🔥 Retar como cliente escéptico
-      </button>
-      <button onclick="usarPrompt('A mí lo que me interesa es el contenido para adultos (+18) en Fanvue')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
-        💋 Explorar nicho +18 (Fanvue)
-      </button>
-      <button onclick="usarPrompt('Parece mucho esfuerzo y no tengo tiempo de estudiar cursos largos')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
-        ⏳ Objeción de tiempo y esfuerzo
-      </button>
-      <button onclick="usarPrompt('Musa, dime la verdad entre nos... ¿qué sientes cuando me hablas así?')" class="bg-surfaceHigh hover:bg-border text-neutral-300 border border-border px-3 py-1.5 rounded-full whitespace-nowrap transition-colors">
-        🕯️ Pregunta íntima personal
-      </button>
-    </div>
-
     <!-- INPUT BOX -->
     <div class="bg-surface border border-border rounded-2xl p-2 glow-gold flex items-center gap-2 mt-2">
-      <input type="text" id="input-mensaje" placeholder="Escribe o reta a Musa aquí..." class="flex-1 bg-transparent border-0 text-sm text-white placeholder-neutral-500 focus:ring-0 px-3 py-2" />
-      <button onclick="enviarMensaje()" id="btn-enviar" class="bg-gold text-bg font-semibold px-4 py-2 rounded-xl text-xs hover:bg-goldLight transition-colors flex items-center gap-1.5">
+      <input type="text" id="input-mensaje" placeholder="Escribe tu mensaje si prefieres teclear..." class="flex-1 bg-transparent border-0 text-sm text-white placeholder-neutral-500 focus:ring-0 px-3 py-2" />
+      <button onclick="enviarMensajeTexto()" id="btn-enviar-texto" class="bg-gold text-bg font-semibold px-4 py-2 rounded-xl text-xs hover:bg-goldLight transition-colors flex items-center gap-1.5">
         <span>Enviar</span>
         <span>→</span>
       </button>
     </div>
-
   </main>
 
-  <script>
-    let modoActual = "seductora";
-    const historial = [];
+  <!-- WEBRTC AUDIO ELEMENT -->
+  <audio id="remote-audio" autoplay playsinline></audio>
 
-    function cambiarModo(nuevoModo) {
-      modoActual = nuevoModo;
-      document.querySelectorAll(".modo-btn").forEach(b => {
-        b.className = "modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white";
+  <!-- ========================================== -->
+  <!-- SCRIPT DE CONEXIÓN WEBRTC OPENAI REALTIME -->
+  <!-- ========================================== -->
+  <script>
+    let personaActual = "musa";
+    let peerConnection = null;
+    let localStream = null;
+    let dataChannel = null;
+    let enLlamada = false;
+    let microfonoMuteado = false;
+    let vistaModo = "llamada"; // "llamada" | "texto"
+
+    const configPersonas = {
+      musa: {
+        nombre: "Musa",
+        emoji: "💋",
+        subtitulo: "Socia Magnética • Seducción & Negocio",
+        voz: "shimmer",
+        bienvenida: "«Presiona el botón dorado para iniciar la llamada de voz con Musa... Cero textos, solo habla y escúchame.»"
+      },
+      fantasias: {
+        nombre: "Eva",
+        emoji: "🕯️",
+        subtitulo: "Asistente Íntima • Deseo & Fantasías sin Censura",
+        voz: "shimmer",
+        bienvenida: "«Soy Eva, tu confidente secreta. Llámame para explorar lo que sueñas crear sin ninguna censura.»"
+      },
+      negocios: {
+        nombre: "Musa Negocios",
+        emoji: "💼",
+        subtitulo: "Socia Estratégica • Voss / Kennedy / Klaff",
+        voz: "coral",
+        bienvenida: "«Lista para hablar de estrategia dura, Fanvue y monetización en dólares. Inicia la llamada.»"
+      }
+    };
+
+    function seleccionarPersona(persona) {
+      if (enLlamada) {
+        if (!confirm("Estás en una llamada activa. ¿Deseas colgar y cambiar de agente?")) return;
+        colgarLlamada();
+      }
+
+      personaActual = persona;
+      document.querySelectorAll(".persona-btn").forEach(b => {
+        b.className = "persona-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-neutral-400 hover:text-white";
       });
-      const activo = document.getElementById("btn-" + nuevoModo);
-      if (activo) {
-        activo.className = "modo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gold/20 text-goldLight border border-gold/40";
+
+      const btnActivo = document.getElementById("btn-" + persona);
+      if (btnActivo) {
+        btnActivo.className = "persona-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gold/20 text-goldLight border border-gold/40";
+      }
+
+      const cfg = configPersonas[persona];
+      document.getElementById("nombre-activa").textContent = cfg.nombre;
+      document.getElementById("avatar-emoji").textContent = cfg.emoji;
+      document.getElementById("subtitulo-activa").textContent = cfg.subtitulo;
+      document.getElementById("btn-call-label").textContent = "Llamar a " + cfg.nombre + " (Voz Viva)";
+      document.getElementById("subtitulos-texto").textContent = cfg.bienvenida;
+    }
+
+    function toggleModoVista() {
+      if (vistaModo === "llamada") {
+        vistaModo = "texto";
+        document.getElementById("vista-llamada").classList.add("hidden");
+        document.getElementById("vista-texto").classList.remove("hidden");
+        document.getElementById("label-toggle-vista").textContent = "📞 Cambiar a Llamada de Voz";
+      } else {
+        vistaModo = "llamada";
+        document.getElementById("vista-texto").classList.add("hidden");
+        document.getElementById("vista-llamada").classList.remove("hidden");
+        document.getElementById("label-toggle-vista").textContent = "💬 Cambiar a Modo Texto";
       }
     }
 
-    function usarPrompt(texto) {
-      const inp = document.getElementById("input-mensaje");
-      inp.value = texto;
-      enviarMensaje();
+    async function toggleLlamada() {
+      if (enLlamada) {
+        colgarLlamada();
+      } else {
+        await iniciarLlamadaRealtime();
+      }
     }
 
-    async function enviarMensaje() {
+    async function iniciarLlamadaRealtime() {
+      const btnCall = document.getElementById("btn-call");
+      const btnCallLabel = document.getElementById("btn-call-label");
+      const callDot = document.getElementById("call-dot");
+      const callStatusText = document.getElementById("call-status-text");
+      const subtitulosTexto = document.getElementById("subtitulos-texto");
+
+      btnCall.disabled = true;
+      btnCallLabel.textContent = "Negociando conexión WebRTC...";
+      callStatusText.textContent = "Solicitando token efímero a OpenAI...";
+      callDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+
+      try {
+        // 1. Obtener token efímero del backend
+        const resToken = await fetch("/api/realtime/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ persona: personaActual })
+        });
+        const dataToken = await resToken.json();
+
+        if (!dataToken.ok || !dataToken.client_secret) {
+          throw new Error(dataToken.error || "No se pudo obtener el token de OpenAI Realtime");
+        }
+
+        const ephemeralKey = dataToken.client_secret;
+        callStatusText.textContent = "Conectando micrófono...";
+
+        // 2. Acceder al micrófono local
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+
+        // 3. Crear conexión WebRTC Peer
+        peerConnection = new RTCPeerConnection();
+
+        // 4. Conectar audio remoto de Musa
+        const remoteAudio = document.getElementById("remote-audio");
+        peerConnection.ontrack = (event) => {
+          remoteAudio.srcObject = event.streams[0];
+          remoteAudio.play().catch(e => console.warn("Auto-play error:", e));
+        };
+
+        // 5. Agregar track de audio local
+        peerConnection.addTrack(localStream.getTracks()[0]);
+
+        // 6. Canal de datos para transcripción en vivo
+        dataChannel = peerConnection.createDataChannel("oai-events");
+        dataChannel.onmessage = (event) => {
+          try {
+            const ev = JSON.parse(event.data);
+            if (ev.type === "response.audio_transcript.delta") {
+              subtitulosTexto.textContent = (subtitulosTexto.textContent.startsWith("«") ? "" : subtitulosTexto.textContent) + ev.delta;
+            } else if (ev.type === "response.audio_transcript.done") {
+              subtitulosTexto.textContent = ev.transcript || subtitulosTexto.textContent;
+            } else if (ev.type === "input_audio_buffer.speech_started") {
+              document.getElementById("orbe-contenedor").classList.add("speaking");
+              callStatusText.textContent = "🎙️ Escuchándote hablar...";
+              subtitulosTexto.textContent = "Te estoy escuchando...";
+            } else if (ev.type === "input_audio_buffer.speech_stopped") {
+              document.getElementById("orbe-contenedor").classList.remove("speaking");
+              callStatusText.textContent = "💋 Pensando respuesta...";
+            }
+          } catch (e) {}
+        };
+
+        // 7. Crear oferta SDP
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        callStatusText.textContent = "Enlazando con OpenAI Realtime...";
+
+        // 8. Enviar oferta SDP a OpenAI Realtime
+        const sdpResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
+          method: "POST",
+          body: offer.sdp,
+          headers: {
+            Authorization: `Bearer ${ephemeralKey}`,
+            "Content-Type": "application/sdp"
+          }
+        });
+
+        if (!sdpResponse.ok) {
+          const errBody = await sdpResponse.text();
+          throw new Error("Fallo en SDP OpenAI: " + errBody);
+        }
+
+        const answerSdp = await sdpResponse.text();
+        await peerConnection.setRemoteDescription({
+          type: "answer",
+          sdp: answerSdp
+        });
+
+        // CONEXIÓN EXITOSA
+        enLlamada = true;
+        btnCall.disabled = false;
+        btnCall.className = "px-8 py-4 rounded-2xl bg-rose hover:bg-rose/90 text-white font-display font-bold text-base shadow-xl transition-all transform active:scale-95 flex items-center gap-3";
+        btnCallLabel.textContent = "Colgar Llamada 🔴";
+        
+        callDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        callStatusText.textContent = "🟢 EN LLAMADA ACTIVA • Habla libremente";
+        subtitulosTexto.textContent = "«Conexión establecida. Di cualquier cosa por tu micrófono para empezar...»";
+
+        document.getElementById("ring-outer").classList.remove("hidden");
+        document.getElementById("ring-mid").classList.remove("hidden");
+        document.getElementById("btn-mute").classList.remove("opacity-40", "pointer-events-none");
+
+      } catch (err) {
+        console.error("Error al iniciar llamada Realtime:", err);
+        alert("Error iniciando llamada Realtime: " + err.message);
+        colgarLlamada();
+      }
+    }
+
+    function colgarLlamada() {
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      enLlamada = false;
+      microfonoMuteado = false;
+
+      const btnCall = document.getElementById("btn-call");
+      const btnCallLabel = document.getElementById("btn-call-label");
+      const callDot = document.getElementById("call-dot");
+      const callStatusText = document.getElementById("call-status-text");
+
+      btnCall.disabled = false;
+      btnCall.className = "px-8 py-4 rounded-2xl bg-gradient-to-r from-gold to-goldLight hover:from-goldLight hover:to-white text-bg font-display font-bold text-base shadow-xl glow-gold transition-all transform active:scale-95 flex items-center gap-3";
+      
+      const cfg = configPersonas[personaActual];
+      btnCallLabel.textContent = "Llamar a " + cfg.nombre + " (Voz Viva)";
+      callDot.className = "w-2 h-2 rounded-full bg-neutral-600";
+      callStatusText.textContent = "Llamada finalizada";
+      document.getElementById("subtitulos-texto").textContent = cfg.bienvenida;
+
+      document.getElementById("ring-outer").classList.add("hidden");
+      document.getElementById("ring-mid").classList.add("hidden");
+      document.getElementById("btn-mute").classList.add("opacity-40", "pointer-events-none");
+    }
+
+    function toggleMute() {
+      if (!localStream) return;
+      microfonoMuteado = !microfonoMuteado;
+      localStream.getAudioTracks().forEach(track => {
+        track.enabled = !microfonoMuteado;
+      });
+
+      const iconOn = document.getElementById("icono-mic-on");
+      const iconOff = document.getElementById("icono-mic-off");
+      if (microfonoMuteado) {
+        iconOn.classList.add("hidden");
+        iconOff.classList.remove("hidden");
+        document.getElementById("call-status-text").textContent = "🔇 Micrófono silenciado";
+      } else {
+        iconOn.classList.remove("hidden");
+        iconOff.classList.add("hidden");
+        document.getElementById("call-status-text").textContent = "🟢 EN LLAMADA ACTIVA • Habla libremente";
+      }
+    }
+
+    // Chat de texto secundario
+    async function enviarMensajeTexto() {
       const inp = document.getElementById("input-mensaje");
       const texto = (inp.value || "").trim();
       if (!texto) return;
-
       inp.value = "";
-      const stream = document.getElementById("chat-stream");
 
-      // Renderizar burbuja del usuario
+      const stream = document.getElementById("chat-stream");
       const userBubble = document.createElement("div");
       userBubble.className = "flex justify-end max-w-[85%] ml-auto";
-      userBubble.innerHTML = `
-        <div class="bg-gold/10 border border-gold/30 rounded-2xl rounded-tr-sm p-4 text-sm text-goldLight leading-relaxed">
-          ${texto}
-        </div>
-      `;
+      userBubble.innerHTML = `<div class="bg-gold/10 border border-gold/30 rounded-2xl p-4 text-sm text-goldLight">${texto}</div>`;
       stream.appendChild(userBubble);
       stream.scrollTop = stream.scrollHeight;
-
-      // Burbuja de cargando
-      const loadingBubble = document.createElement("div");
-      loadingBubble.className = "flex gap-3 max-w-[85%]";
-      loadingBubble.id = "bubble-loading";
-      loadingBubble.innerHTML = `
-        <div class="w-8 h-8 rounded-full bg-surfaceHigh border border-gold/30 flex-shrink-0 flex items-center justify-center font-display text-xs text-gold font-bold">M</div>
-        <div class="bg-surface border border-border rounded-2xl rounded-tl-sm p-4 text-sm text-neutral-400 italic flex items-center gap-2">
-          <span class="animate-pulse">Musa está pensando y preparando su voz...</span>
-        </div>
-      `;
-      stream.appendChild(loadingBubble);
-      stream.scrollTop = stream.scrollHeight;
-
-      const conVoz = document.getElementById("toggle-voz").checked;
 
       try {
         const res = await fetch("/api/studio/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            mensaje: texto,
-            modo: modoActual,
-            historial: historial.slice(-8),
-            sintetizarVoz: conVoz
-          })
+          body: JSON.stringify({ mensaje: texto, modo: personaActual === "fantasias" ? "santuario" : (personaActual === "negocios" ? "negocios" : "seductora") })
         });
-
         const data = await res.json();
-        const elLoading = document.getElementById("bubble-loading");
-        if (elLoading) elLoading.remove();
-
-        if (!data.ok) {
-          alert("Error de Musa: " + (data.error || "Desconocido"));
-          return;
-        }
-
-        // Guardar en historial
-        historial.push({ role: "user", content: texto });
-        historial.push({ role: "assistant", content: data.respuesta });
-
-        // Renderizar respuesta de Musa
-        const musaBubble = document.createElement("div");
-        musaBubble.className = "flex gap-3 max-w-[85%]";
-
-        let bloqueAudio = "";
-        if (data.audioBase64) {
-          bloqueAudio = `
-            <div class="mt-3 p-2 bg-surfaceHigh rounded-xl border border-gold/30 flex items-center gap-3">
-              <span class="text-xs font-semibold text-gold">🎙️ Nota de Voz Nova:</span>
-              <audio controls class="h-8 flex-1" src="data:audio/ogg;codecs=opus;base64,${data.audioBase64}"></audio>
-            </div>
-          `;
-        }
-
-        let bloqueVideo = "";
-        if (data.videoUrl) {
-          bloqueVideo = `
-            <div class="mt-3 rounded-xl overflow-hidden border border-gold/40 max-w-sm">
-              <div class="text-[10px] bg-gold/20 text-goldLight px-2 py-1 font-semibold uppercase tracking-wider">🎬 Muestra de Video: ${data.videoTipo}</div>
-              <video src="${data.videoUrl}" controls autoplay loop muted class="w-full h-auto bg-black"></video>
-            </div>
-          `;
-        }
-
-        musaBubble.innerHTML = `
+        const botBubble = document.createElement("div");
+        botBubble.className = "flex gap-3 max-w-[85%]";
+        botBubble.innerHTML = `
           <div class="w-8 h-8 rounded-full bg-surfaceHigh border border-gold/30 flex-shrink-0 flex items-center justify-center font-display text-xs text-gold font-bold">M</div>
-          <div class="space-y-2 flex-1">
-            <div class="bg-surface border border-border rounded-2xl rounded-tl-sm p-4 text-sm leading-relaxed text-neutral-200">
-              ${data.respuesta}
-              ${bloqueAudio}
-              ${bloqueVideo}
-            </div>
-            <div class="text-[10px] text-neutral-500 flex flex-wrap items-center gap-2">
-              <span class="text-gold">🧠 Táctica: ${data.pensamientotactico}</span>
-              <span>•</span>
-              <span>Intención: ${data.intencion}</span>
-              <span>•</span>
-              <span>Modo: ${data.modo}</span>
-            </div>
-          </div>
+          <div class="bg-surface border border-border rounded-2xl p-4 text-sm text-neutral-200">${data.respuesta}</div>
         `;
-
-        stream.appendChild(musaBubble);
+        stream.appendChild(botBubble);
         stream.scrollTop = stream.scrollHeight;
-
-        // Auto-reproducir audio si está presente
-        if (data.audioBase64) {
-          const aud = musaBubble.querySelector("audio");
-          if (aud) aud.play().catch(() => {});
-        }
-
       } catch (e) {
-        const elLoading = document.getElementById("bubble-loading");
-        if (elLoading) elLoading.remove();
-        alert("Fallo de red conectando con Musa Studio: " + e.message);
+        console.error(e);
       }
     }
-
-    document.getElementById("input-mensaje").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") enviarMensaje();
-    });
   </script>
 </body>
 </html>

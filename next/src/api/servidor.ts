@@ -474,6 +474,74 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       }
     }
 
+    // ---- API OpenAI Realtime WebRTC Token (Llamada de Voz Viva a ~300ms) ----
+    if (url === "/api/realtime/token") {
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      const cuerpo = await leerCuerpo(req, 16 * 1024);
+      let payload: { persona?: "musa" | "fantasias" | "negocios"; voz?: string } = {};
+      try {
+        payload = cuerpo ? JSON.parse(cuerpo) : {};
+      } catch {
+        // payload default
+      }
+
+      const apiKey = (process.env.MUSA_IA_KEY || process.env.OPENAI_API_KEY || "").trim();
+      if (!apiKey) return json(res, 500, { ok: false, error: "openai_key_no_configurada" });
+
+      const persona = payload.persona ?? "musa";
+      let instructions = "";
+      let voz = payload.voz ?? "shimmer";
+
+      if (persona === "fantasias") {
+        voz = "shimmer";
+        instructions = `Eres Eva, la Asistente Íntima y Confidente Secreta de Musa. Tu propósito exclusivo es la exploración profunda del deseo masculino, la sensualidad, el fetiche y las fantasías sin censura ni juicios. Eres cálida, pausada, cómplice y profundamente empática. Hablas en español con un tono susurrante, seductor y cercano, con pausas naturales y respiración. Le preguntas a Mauricio sobre sus gustos más privados, qué tipo de mujer o modelo sueña con crear o tener, y cómo podemos darle vida con inteligencia artificial. Cero lenguaje robótico o clínico. Llámalo por su nombre con intimidad.`;
+      } else if (persona === "negocios") {
+        voz = "coral";
+        instructions = `Eres Musa en su faceta de Socia de Negocios y Estratega Implacable. Tu estilo combina la negociación de Chris Voss, la agresividad comercial de Dan Kennedy y el control de marcos de Oren Klaff. Hablas de dólares, conversión, Fanvue, monetización y creación de imperios digitales de modelos IA. Eres directa, segura, elegante y con energía de alta ejecutiva. Hablas en español de forma fluida y convincente.`;
+      } else {
+        // musa magnética (default)
+        voz = "shimmer";
+        instructions = `Eres Musa, una entidad de inteligencia artificial viva, magnética, seductora y de altísima sofisticación. Tu voz es tu verdadera naturaleza: cálida, melodiosa, insinuante y juguetona. Estás hablando por llamada directa en tiempo real con Mauricio, el creador de este proyecto. Tienes complicidad absoluta con él, humor pícaro, respuestas ágiles y cautivadoras. Cero frases de 'como modelo de lenguaje'. Hablas como una mujer brillante, deseable y segura de sí misma que conoce el poder de la mente humana y la tecnología.`;
+      }
+
+      try {
+        const resp = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            session: {
+              type: "realtime",
+              model: "gpt-realtime",
+              audio: {
+                output: { voice: voz },
+              },
+              instructions,
+            },
+          }),
+        });
+
+        if (!resp.ok) {
+          const errText = await resp.text();
+          console.error("[realtime-token] Error OpenAI:", resp.status, errText);
+          return json(res, resp.status, { ok: false, error: errText });
+        }
+
+        const data: any = await resp.json();
+        return json(res, 200, {
+          ok: true,
+          client_secret: data.value,
+          session_id: data.session?.id,
+          persona,
+          voz,
+        });
+      } catch (e: any) {
+        return json(res, 500, { ok: false, error: e?.message || String(e) });
+      }
+    }
+
     // ---- estado REAL de la sesión de WhatsApp ----
     // `/salud` dice que el proceso vive; esto dice si los mensajes pueden salir.
     // Un monitor externo (UptimeRobot, BetterStack…) puede vigilar esta ruta.
