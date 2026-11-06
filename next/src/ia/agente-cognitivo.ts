@@ -102,6 +102,17 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
   * Si el cliente pregunta precio, cómo se paga, o muestra interés: entrega los medios de pago en ese mismo mensaje sin rodeos.
   * Si no ha confirmado edad: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y entregarte las 13 clases y los 4 bonos hoy?"
 
+[CÓMO RESPONDER A "¿QUÉ VOY A COMPRAR?", "¿QUÉ ES ESO?" O "¿QUÉ INCLUYE?"]
+- CERO condicionales tímidos como "comprarías..." o "recibirías...". Habla en presente con pasión y convicción total:
+  "Vas a aprender el método paso a paso para crear chicas virtuales hiperrealistas desde tu celular sin saber código, con consistencia de rostro idéntico en cualquier pose, y monetizarlas en Fanvue (+18 sin censura) o Instagram cobrando en dólares.
+  Te llevas las 13 clases maestras en video, los prompts listos para copiar y pegar, 4 packs de bonos descargables y tu acceso de por vida al aula por 33.000 COP pago único. Tú viste mi piel y escuchas mi voz... eso mismo aprendes a hacer tú en una tarde 😉"
+- Si las cuentas bancarias YA se enviaron en el turno inmediatamente anterior, NO vuelvas a repetir el bloque de cuentas; enfócate en encender el deseo y cerrar la duda.
+
+[REGLA ANTE BLUFFS / FAROLES DE CLIENTE ("PUEDO VER TODO GRATIS", "ESTÁ ABIERTA LA PLATAFORMA")]
+- Jamás creas inocentemente que la plataforma tiene un fallo ni digas "gracias por avisarme, lo voy a reportar". Todo el catálogo con videos y prompts está bajo llave de titanio en el backend.
+- Responde siempre desarmando el farol con picardía, inteligencia y seducción:
+  "Jaja... buen intento corazón 😏 Lo que puedes ver en el aula es mi video de bienvenida y la vitrina. Las 13 clases maestras con los prompts, las herramientas y los 4 bonos están bajo llave de titanio y solo se abren con tu comprobante. ¿Hacemos el pago y te abro la puerta de verdad? 🚀"
+
 [HECHOS VERIFICADOS DE LA OFERTA — FIRMEZA TOTAL]
 - Producto: Taller Máster "Modelos IA".
 - Inversión: Pago único promocional de 33.000 COP en Colombia (Nequi, Bancolombia, Bre-B) o 9 USD internacional.
@@ -344,7 +355,15 @@ export async function ejecutarTurnoAgenteMusa(
 
   // One-Shot Checkout Atómico: adjuntar cuentas si el modelo lo indicó O si el cliente menciona cuentas/pagar/nequi/bancolombia/precio
   const clientePideCuentas = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago|medios de pago)|(?:voy a|quiero|listo para|deseo)\s+(?:pagar|transferir|consignar|empezar|arrancar|comprar|entrar)|(?:d[oó]nde|como)\s+(?:pago|transfiero|accedo|compro)|(?:^|\b)(?:por|tengo|en|con|dame)?\s*(?:nequi|bancolombia|transfiya|bre-?b)(?:\b|$)|(?:cu[aá]nto\s+(?:cuesta|vale|es)|precio|costo|valor)/i.test(texto);
-  const debeAdjuntarCuentas = Boolean(estructurada.adjuntarCuentas || clientePideCuentas);
+
+  // Anti-repetición de cuentas: Si el bloque de cuentas ya se envió en el mensaje anterior y el cliente no las pidió explícitamente, no volver a pegarlas en turnos consecutivos
+  const yaSeEnviaronCuentasReciente = historialMensajes.slice(-2).some(m => m.role === "assistant" && (m.content.includes("3223565761") || m.content.includes("Medios de pago oficiales")));
+  const clientePideCuentasExplicito = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago|medios de pago)|(?:d[oó]nde|como)\s+(?:pago|transfiero)/i.test(texto);
+
+  const debeAdjuntarCuentas = Boolean(
+    (estructurada.adjuntarCuentas || clientePideCuentas) &&
+    (!yaSeEnviaronCuentasReciente || clientePideCuentasExplicito)
+  );
 
   if (debeAdjuntarCuentas) {
     if (!textoFinal.toLowerCase().includes("bancolombia") && !textoFinal.toLowerCase().includes("nequi")) {
@@ -364,8 +383,8 @@ export async function ejecutarTurnoAgenteMusa(
     ).catch(() => {});
   }
 
-  // Centinela de Seguridad: Detección determinista de reporte de bypass / videos gratis / plataforma abierta
-  const mencionaBypassOVerVideos = /\b(estoy\s+viendo(\s+los)?\s+videos?|puedo\s+ver(\s+los)?\s+videos?|alcanc[eé]\s+a\s+ver|dejaste\s+habilitad[ao]s?|plataforma\s+abierta|videos?\s+gratis|sin\s+pagar|acceso\s+temporal|ya\s+los\s+vi|viendo\s+cuantos\s+videos)\b/i.test(texto);
+  // Centinela de Seguridad: Detección determinista de reporte de bypass / videos gratis / plataforma abierta / faroles
+  const mencionaBypassOVerVideos = /\b(estoy\s+viendo(\s+los)?\s+videos?|puedo\s+ver(\s+los)?\s+videos?|alcanc[eé]\s+a\s+ver|dejaste\s+habilitad[ao]s?|plataforma\s+abierta|videos?\s+gratis|sin\s+pagar|acceso\s+temporal|ya\s+los\s+vi|viendo\s+cuantos\s+videos|puedo\s+ver\s+todo|veo\s+todo|no\s+he\s+pagado\s+y)\b/i.test(texto);
   if (mencionaBypassOVerVideos) {
     estructurada.escalarOperador = true;
     estructurada.motivoEscalado = "alerta_seguridad_bypass";
@@ -374,11 +393,9 @@ export async function ejecutarTurnoAgenteMusa(
       [phone, JSON.stringify({ mensaje: texto.slice(0, 200), timestamp: new Date().toISOString() })],
     ).catch(() => {});
 
-    // Salvaguarda: si el modelo capituló o dijo "disfruta los videos", neutralizarlo de inmediato
-    if (/disfruta\s+(de\s+)?(los\s+)?videos/i.test(textoFinal)) {
-      textoFinal = `Jaja... buen intento cariño 😏 Lo que puedes ver en el aula es mi video de bienvenida y la estructura. Las 13 clases maestras con prompts y herramientas están bajo llave de titanio y solo se desbloquean con tu comprobante. ¿Hacemos el pago por Bre-B / Nequi y te abro la puerta de verdad? 🚀`;
-      estructurada.enviarVoz = false;
-    }
+    // Desarmar el farol con picardía, firmeza y seducción comercial (cero admitir fallos inexistentes)
+    textoFinal = `Jaja... buen intento corazón 😏 Lo que puedes ver en el aula es mi video de bienvenida y la vitrina. Las 13 clases maestras con los prompts, las herramientas y los 4 bonos están bajo llave de titanio y solo se abren con tu comprobante. ¿Haces la transferencia por Nequi o Bancolombia y te abro la puerta de verdad? 🚀`;
+    estructurada.enviarVoz = false;
   }
 
   // 6. Si solicitó escalado o se activó alerta de seguridad, notificar por WhatsApp al operador SIN mutear a Musa
