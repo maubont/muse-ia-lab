@@ -56,8 +56,8 @@ const filterComplex = [
   // - Ajuste de contraste y calidez de sensor Sony FX3
   "[vraw]noise=alls=5:allf=t+u,unsharp=5:5:0.4:5:5:0.0,eq=contrast=1.03:brightness=0.01:saturation=1.02[vgraded]",
 
-  // 7. Pista de audio: voz Nova HD limpia con remate suave y cola de reverberación natural
-  "[4:a]volume=1.35,afade=t=out:st=26.3:d=0.7[aout]",
+  // 7. Pista de audio: voz Nova HD limpia con remate suave y cola de reverberación natural en estéreo 48kHz
+  "[4:a]aformat=channel_layouts=stereo:sample_rates=48000,volume=1.8,afade=t=out:st=26.3:d=0.7[aout]",
 
   // 8. Overlays Gráficos Seguros (Personaje 100% Despejado)
   // 8.1 Header Superior Permanente (Y: 75 - 135)
@@ -117,7 +117,9 @@ const args = [
   "-maxrate", "5000k",
   "-bufsize", "10000k",
   "-c:a", "aac",
-  "-b:a", "192k",
+  "-b:a", "256k",
+  "-ar", "48000",
+  "-ac", "2",
   "-t", "27.0",
   salidaLocal
 ];
