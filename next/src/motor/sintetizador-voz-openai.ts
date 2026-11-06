@@ -33,6 +33,8 @@ export function prepararTextoParaVoz(texto: string): string {
     .replace(/https?:\/\/[^\s]+/gi, "")
     // Limpiar marcadores internos
     .replace(/\[[^\]]+\]/g, "")
+    // Limpiar muletillas fonéticamente toscas en TTS
+    .replace(/\b(m{2,}|h[eé]{2,}|h[aá]{2,}|u{2,}m+)\b/gi, "")
     // Fonética 100% en español: Evita que OpenAI cambie de idioma o meta acento gringo
     .replace(/\bMuse IA Lab\b/gi, "Musa Estudio")
     .replace(/\bMuse IA\b/gi, "Musa")
@@ -83,8 +85,9 @@ export async function sintetizarAudioOpenAI(
 
   const baseUrl = (cfg.baseUrl ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
   const modelo = cfg.modelo ?? "tts-1-hd";
-  const voz = cfg.voz ?? (process.env.MUSA_IA_VOZ ?? "coral");
-  const velocidad = cfg.velocidad ?? 1.0;
+  // Voz por defecto: 'nova' (joven, sensual, inteligente, espontánea; reemplaza a 'coral' que sonaba madura/señora)
+  const voz = cfg.voz ?? (process.env.MUSA_IA_VOZ ?? "nova");
+  const velocidad = cfg.velocidad ?? 1.02;
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000);

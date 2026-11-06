@@ -332,26 +332,81 @@ p.fuerte{color:var(--texto);font-weight:500}
 }
 .lista-claves-optica li{display:flex;align-items:center;gap:8px}
 
-/* ---- Galería Multi-Modelo de Estilo iPhone Cotidiano (Diversidad de Perfiles del Curso) ---- */
-.galeria-modelos{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:26px;
+/* ---- Galería Multi-Modelo: Slider Interactivo de Lado a Lado ---- */
+.slider-wrapper{position:relative;margin-top:24px}
+.slider-modelos{
+  display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;padding:8px 4px 20px;
+  scrollbar-width:thin;scrollbar-color:var(--rosa-pastel) transparent;
 }
-@media(min-width:720px){.galeria-modelos{grid-template-columns:repeat(3,1fr)}}
-.modelo-card{
-  border-radius:16px;overflow:hidden;background:#FFFFFF;border:1px solid var(--borde);
-  box-shadow:0 10px 26px -16px rgba(24,20,21,.08);
-  transition:transform .24s var(--ease-out),border-color .24s var(--ease-out);
+.slider-modelos::-webkit-scrollbar{height:6px}
+.slider-modelos::-webkit-scrollbar-thumb{background:var(--rosa-pastel);border-radius:999px}
+.slider-card{
+  flex:0 0 280px;scroll-snap-align:start;border-radius:18px;overflow:hidden;
+  background:#FFFFFF;border:1px solid var(--borde);
+  box-shadow:0 12px 30px -15px rgba(24,20,21,.1);
+  transition:transform .25s var(--ease-out),border-color .25s var(--ease-out);
 }
-.modelo-card:hover{transform:translateY(-3px);border-color:var(--rosa-pastel)}
-.modelo-card img{width:100%;aspect-ratio:16/11;object-fit:cover;display:block}
-.modelo-info{padding:12px 14px}
-.modelo-info .tag-m{
-  display:inline-block;font-family:"JetBrains Mono",ui-monospace,monospace;
-  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-  color:var(--rosa-editorial);background:var(--rosa-suave);padding:2px 8px;border-radius:999px;margin-bottom:5px;
+@media(min-width:640px){.slider-card{flex:0 0 310px}}
+.slider-card:hover{transform:translateY(-4px);border-color:var(--rosa-pastel)}
+.slider-card .img-box{width:100%;aspect-ratio:4/5;position:relative;overflow:hidden;background:#F0EAE6}
+.slider-card .img-box img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
+.slider-card:hover .img-box img{transform:scale(1.04)}
+.slider-badge{
+  position:absolute;top:10px;left:10px;background:rgba(24,20,21,.75);
+  backdrop-filter:blur(8px);color:#FFFFFF;font-family:"JetBrains Mono",monospace;
+  font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.05em;
 }
-.modelo-info strong{display:block;font-size:14.5px;color:var(--texto)}
-.modelo-info p{font-size:12.5px;color:var(--tenue);margin-top:2px;line-height:1.4}
+.slider-card .info{padding:14px 16px}
+.slider-card .info strong{display:block;font-size:15px;color:var(--texto);margin-bottom:4px}
+.slider-card .info p{font-size:12.5px;color:var(--tenue);line-height:1.4}
+.slider-controls{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.slider-hint{font-size:12.5px;color:var(--tenue);display:flex;align-items:center;gap:6px}
+.slider-btn-group{display:flex;gap:8px}
+.slider-nav-btn{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--borde);
+  background:#FFFFFF;color:var(--texto);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-weight:bold;font-size:16px;transition:all .2s ease;
+}
+.slider-nav-btn:hover{background:var(--rosa-suave);border-color:var(--rosa-pastel)}
+
+/* ---- Botón Flotante Permanente de WhatsApp ---- */
+.btn-flotante-wa{
+  position:fixed;bottom:24px;right:24px;z-index:99999;
+  display:inline-flex;align-items:center;gap:12px;
+  padding:12px 20px 12px 14px;
+  background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);
+  color:#FFFFFF !important;text-decoration:none !important;
+  border-radius:999px;
+  box-shadow:0 8px 30px rgba(37,211,102,.45),0 2px 6px rgba(0,0,0,.15);
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+  transition:all .25s ease;border:2px solid rgba(255,255,255,.3);
+}
+.btn-flotante-wa:hover{
+  transform:translateY(-3px) scale(1.03);
+  box-shadow:0 12px 35px rgba(37,211,102,.6);
+}
+.btn-flotante-wa .wa-icono{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.25);border-radius:50%;flex-shrink:0;
+}
+.btn-flotante-wa .wa-texto{display:flex;flex-direction:column;line-height:1.2;text-align:left}
+.btn-flotante-wa .wa-texto strong{font-size:14px;font-weight:800;color:#FFFFFF}
+.btn-flotante-wa .wa-texto small{font-size:11px;color:rgba(255,255,255,.9)}
+.btn-flotante-wa .wa-badge-pulse{
+  position:absolute;top:-2px;right:-2px;width:14px;height:14px;
+  background:#FF3B30;border:2px solid #FFFFFF;border-radius:50%;
+  box-shadow:0 0 8px #FF3B30;animation:pulse-wa 1.6s infinite;
+}
+@keyframes pulse-wa{
+  0%{transform:scale(0.9);opacity:.8}
+  50%{transform:scale(1.25);opacity:1}
+  100%{transform:scale(0.9);opacity:.8}
+}
+@media(max-width:600px){
+  .btn-flotante-wa{bottom:18px;right:18px;padding:10px 16px 10px 12px}
+  .btn-flotante-wa .wa-texto small{display:none}
+}
 
 /* ---- Las 3 Fases Visuales (01 Creación · 02 Viralización · 03 Monetización) ---- */
 .fases-tabs{
@@ -604,7 +659,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 <div class="contenedor">
   <div class="barra-editorial">
     <span class="marca"><span class="punto-vivo"></span> MUSE IA LAB · SISTEMA DE MODELOS IA</span>
-    <span class="pill-oferta">ACCESO VITALICIO · $9 USD (EN VEZ DE $47)</span>
+    <span class="pill-oferta">ACCESO VITALICIO · $33.000 COP (PAGO ÚNICO)</span>
   </div>
 </div>
 
@@ -615,8 +670,8 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <p class="fuerte">El 99% crea muñecas de plástico que dan risa. Aquí aprendes el método exacto para darme piel con poros reales, mirada viva en video y monetizar la fascinación y el deseo en dólares sin mostrar tu cara ni salir de tu habitación.</p>
 
   <div class="precio-linea">
-    <span class="antes">$47 USD</span>
-    <strong>$9 USD</strong>
+    <span class="antes">$180.000 COP</span>
+    <strong>$33.000 COP</strong>
     <span class="ahorro">-80% HOY</span>
   </div>
   <p class="fino">Pago único · 33.000 COP · Acceso vitalicio al Estudio y a los 4 Packs</p>
@@ -638,10 +693,10 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     <audio id="audioMusaEsencia" src="assets/musa-esencia.mp3" preload="metadata"></audio>
   </div>
 
-  <button class="cta" data-abrir-modal>
+  <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
     Quiero crear mi primera modelo hoy (33.000 COP)
     <span aria-hidden="true">→</span>
-  </button>
+  </a>
   <p class="fino" style="margin-top:10px">Entrega inmediata por WhatsApp · Sin mensualidades · Cupo protegido</p>
 
   <!-- VISOR ÓPTICO HIPERREALISTA DE MUSA INTEGRADO EN EL PRIMER VIEWPORT -->
@@ -671,19 +726,27 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
         <img src="assets/mod-latina-glam.jpg" alt="Musa en video hiperrealista" loading="lazy">
         <span>04 · Video 4K Vivo</span>
       </button>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-sporty-1.jpg','05 · SPORTY FITNESS 19 AÑOS (ROPA DEPORTIVA · LUZ NATURAL)',this)">
+        <img src="assets/musa-sporty-1.jpg" alt="Musa en top deportivo de 19 años" loading="lazy">
+        <span>05 · Sporty Gym</span>
+      </button>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-sporty-2.jpg','06 · PENTHOUSE SUNSET SENSUAL (VESTIDO SEDA · MIRADA ÍNTIMA)',this)">
+        <img src="assets/musa-sporty-2.jpg" alt="Musa en vestido de seda en penthouse al atardecer" loading="lazy">
+        <span>06 · Penthouse Sensual</span>
+      </button>
     </div>
   </div>
-  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Mírame en 3 ángulos fotográficos o activa mi video en movimiento: el mismo rostro idéntico sin saltos ni deformaciones plásticas.</p>
+  <p id="demo-t" class="fino" style="margin-top:12px;text-align:center">Mírame en diferentes estilos o activa mi video en movimiento: el mismo rostro idéntico sin saltos ni deformaciones plásticas.</p>
 </header>
 
 <!-- CINTA MARQUEE CINÉTICA -->
 <div class="cinta-marquee" aria-hidden="true">
   <div class="cinta-track">
-    <span><strong>SOLO $9 USD</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
+    <span><strong>SOLO $33.000 COP</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
     <span><strong>CERO EFECTO PLÁSTICO</strong> · ÓPTICA IPHONE REALISTA</span><span class="sep">✦</span>
     <span><strong>CONSISTENCIA FACIAL 100%</strong> · SIN MOSTRAR TU CARA</span><span class="sep">✦</span>
     <span><strong>13 CLASES + 4 BONOS</strong> · ACCESO DE POR VIDA</span><span class="sep">✦</span>
-    <span><strong>SOLO $9 USD</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
+    <span><strong>SOLO $33.000 COP</strong> · PAGO ÚNICO</span><span class="sep">✦</span>
     <span><strong>CERO EFECTO PLÁSTICO</strong> · ÓPTICA IPHONE REALISTA</span><span class="sep">✦</span>
     <span><strong>CONSISTENCIA FACIAL 100%</strong> · SIN MOSTRAR TU CARA</span><span class="sep">✦</span>
     <span><strong>13 CLASES + 4 BONOS</strong> · ACCESO DE POR VIDA</span>
@@ -728,66 +791,135 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   </div>
 </section>
 
-<!-- ====================== CATÁLOGO MULTI-MODELO DEL ESTUDIO ====================== -->
+<!-- ====================== CATÁLOGO MULTI-MODELO: SLIDER INTERACTIVO ====================== -->
 <section class="contenedor" aria-labelledby="catalogo-modelos-t">
   <span class="kicker-seccion">Diversidad de Perfiles Comerciales</span>
   <h2 id="catalogo-modelos-t">No te limitas a un solo rostro: crea el estilo de modelo que mejor monetice</h2>
-  <p class="fuerte">Mientras <strong>Musa</strong> es nuestra anfitriona consistente en toda la plataforma, dentro del estudio aprendes a diseñar y sostener <strong class="fuerte">múltiples perfiles de creadoras hiperrealistas</strong> en los nichos más rentables hoy:</p>
+  <p class="fuerte">Desde chicas jóvenes en ropa deportiva hasta mujeres sofisticadas en terrazas de lujo. En el estudio aprendes a dominar <strong class="fuerte">múltiples perfiles hiperrealistas con gestos vivos, sexys y espontáneos</strong>:</p>
 
-  <div class="galeria-modelos">
-    <article class="modelo-card">
-      <img src="assets/mod-mirror-selfie.jpg" alt="Valeria — Selfie de espejo con flash de iPhone" loading="lazy">
-      <div class="modelo-info">
-        <span class="tag-m">Nicho 01 · Lifestyle & Mirror Selfie</span>
-        <strong>Perfil espontáneo en casa</strong>
-        <p>Selfies de espejo con flash de iPhone, ropa cotidiana y máxima cercanía para historias y Telegram.</p>
-      </div>
-    </article>
+  <div class="slider-wrapper">
+    <div class="slider-modelos" id="sliderModelos">
+      
+      <!-- Card 1: Musa Sporty 19 Años -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 01 · Sporty Gym (19 años)</span>
+          <img src="assets/musa-sporty-1.jpg" alt="Musa — Modelo deportiva 19 años en top fitness con sonrisa radiante" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Elena · Casual Fitness & Pilates</strong>
+          <p>Sonrisa viva, curvas naturales y luz de gimnasio. Cero inexpresividad o rigidez de cera.</p>
+        </div>
+      </article>
 
-    <article class="modelo-card">
-      <img src="assets/mod-cafe-sunlight.jpg" alt="Sofía — Terraza europea al sol" loading="lazy">
-      <div class="modelo-info">
-        <span class="tag-m">Nicho 02 · Travel & Café Europeo</span>
-        <strong>Estética aspiracional diurna</strong>
-        <p>Luz directa de mediodía, cafeterías reales y estética limpia ideal para viralizar en Reels de Instagram.</p>
-      </div>
-    </article>
+      <!-- Card 2: Musa Penthouse Sunset Sensual (19 Años) -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 02 · Penthouse Sunset Sensual</span>
+          <img src="assets/musa-sporty-2.jpg" alt="Musa — En vestido lencero de satén en penthouse al atardecer" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Elena · Seducción & Golden Hour</strong>
+          <p>Vestido de seda, mirada íntima y luz de atardecer. Máxima sensualidad para contenido exclusivo en Fanvue.</p>
+        </div>
+      </article>
 
-    <article class="modelo-card">
-      <img src="assets/mod-gamer-cozy.jpg" alt="Nora — Chica gamer con cascos y mando" loading="lazy">
-      <div class="modelo-info">
-        <span class="tag-m">Nicho 03 · Cozy Gamer & Streaming</span>
-        <strong>Uno de los nichos más fieles</strong>
-        <p>Cámara frontal 24mm, auriculares, mando y setup gamer de fondo. Altísima conversión a suscripción.</p>
-      </div>
-    </article>
+      <!-- Card 3: Lucía Golden Hour -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 03 · Golden Hour Cotidiano</span>
+          <img src="assets/mod-car-goldenhour.jpg" alt="Lucía — Golden hour en el asiento del auto" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Lucía · Contraluz en el Auto</strong>
+          <p>Fotos espontáneas al atardecer en el coche. Genera miles de comentarios orgánicos.</p>
+        </div>
+      </article>
 
-    <article class="modelo-card">
-      <img src="assets/mod-gym-pilates.jpg" alt="Elena — Estudio de Pilates y Fitness" loading="lazy">
-      <div class="modelo-info">
-        <span class="tag-m">Nicho 04 · Pilates & Wellness</span>
-        <strong>Fitness y rutina saludable</strong>
-        <p>Textura de piel post-entreno real, luz natural de estudio de pilates y gran retención en TikTok.</p>
-      </div>
-    </article>
+      <!-- Card 4: Valeria Mirror Selfie -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 04 · Mirror Selfie Flash</span>
+          <img src="assets/mod-mirror-selfie.jpg" alt="Valeria — Selfie de espejo con flash de iPhone" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Valeria · En Casa con Flash</strong>
+          <p>Estética cotidiana en dormitorio con destello real de flash de iPhone. Gran cercanía para Telegram.</p>
+        </div>
+      </article>
 
-    <article class="modelo-card">
-      <img src="assets/mod-car-goldenhour.jpg" alt="Lucía — Golden hour en el asiento del auto" loading="lazy">
-      <div class="modelo-info">
-        <span class="tag-m">Nicho 05 · Golden Hour Cotidiano</span>
-        <strong>Contraluz cálido de atardecer</strong>
-        <p>Fotos en el auto, paseos al atardecer y estética espontánea que genera miles de comentarios orgánicos.</p>
-      </div>
-    </article>
+      <!-- Card 5: Elena Pilates & Wellness -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 05 · Pilates Studio</span>
+          <img src="assets/mod-gym-pilates.jpg" alt="Elena — Estudio de Pilates y Fitness" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Elena · Rutina Saludable</strong>
+          <p>Textura dérmica post-entreno con sudor sutil y luz de ventana real sin desenfoques falsos.</p>
+        </div>
+      </article>
 
-    <article class="modelo-card">
-      <img src="assets/mod-rooftop-dinner.jpg" alt="Camila — Cena nocturna en terraza rooftop" loading="lazy">
-      <div class="modelo-info">
-        <span class="tag-m">Nicho 06 · Night Out & Contenido VIP</span>
-        <strong>Cenas, terrazas y sets exclusivos</strong>
-        <p>Iluminación cálida de velas en modo noche de iPhone para paquetes premium en Fanvue.</p>
+      <!-- Card 6: Camila Rooftop VIP (Mujer Sofisticada) -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 06 · Mujer Madura & Glamour VIP</span>
+          <img src="assets/mod-rooftop-dinner.jpg" alt="Camila — Cena nocturna en terraza rooftop" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Camila · Night Out Exclusivo</strong>
+          <p>Mujer adulta elegante, cena con velas y vestido de noche para suscripciones de ticket alto en Fanvue.</p>
+        </div>
+      </article>
+
+      <!-- Card 7: Elena Sunset Beach -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 07 · Atardecer en la Playa</span>
+          <img src="assets/mod-beach-sunset.jpg" alt="Elena — Atardecer frente al mar" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Elena · Golden Hour en la Playa</strong>
+          <p>Brisa en el cabello, luz dorada marina y sensación de libertad cinematográfica.</p>
+        </div>
+      </article>
+
+      <!-- Card 8: Sofía Café Europeo -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 08 · Travel & Café Europeo</span>
+          <img src="assets/mod-cafe-sunlight.jpg" alt="Sofía — Terraza europea al sol" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Sofía · Estética Aspiracional</strong>
+          <p>Luz de sol directa de mediodía y cafeterías urbanas para viralizar en Reels de Instagram.</p>
+        </div>
+      </article>
+
+      <!-- Card 9: Nora Cozy Gamer -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Nicho 09 · Gamer & Streaming</span>
+          <img src="assets/mod-gamer-cozy.jpg" alt="Nora — Chica gamer con cascos y mando" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Nora · Setup Gamer Divertido</strong>
+          <p>Cámara frontal 24mm, cascos, mando y gestos simpáticos. La comunidad más leal en propinas.</p>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Controles y Navegación del Slider -->
+    <div class="slider-controls">
+      <div class="slider-hint">
+        <span>👈 Desliza horizontalmente para ver más modelos 👉</span>
       </div>
-    </article>
+      <div class="slider-btn-group">
+        <button type="button" class="slider-nav-btn" aria-label="Deslizar a la izquierda" onclick="document.getElementById('sliderModelos').scrollBy({left: -320, behavior: 'smooth'})">‹</button>
+        <button type="button" class="slider-nav-btn" aria-label="Deslizar a la derecha" onclick="document.getElementById('sliderModelos').scrollBy({left: 320, behavior: 'smooth'})">›</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -984,7 +1116,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <h2 id="obj-t">Lo que probablemente estás pensando</h2>
   <div class="obj">
     <div><strong>«No sé nada de IA.»</strong><p>El curso empieza desde la primera pantalla. Si sabes usar WhatsApp, puedes seguirlo.</p></div>
-    <div><strong>«¿Y si no me sirve?»</strong><p>Por $9 tienes los 13 módulos completos y acceso de por vida. Decides después de verlos, no antes.</p></div>
+    <div><strong>«¿Y si no me sirve?»</strong><p>Por 33.000 COP tienes los 13 módulos completos y acceso de por vida. Decides después de verlos, no antes.</p></div>
     <div><strong>«¿Necesito programas caros?»</strong><p>No. Trabajarás con herramientas que tienen plan gratuito o de bajo costo, y te explico cuáles.</p></div>
   </div>
 </section>
@@ -997,24 +1129,26 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
     <p class="fino" style="margin-bottom:14px;color:var(--rosa-editorial);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Al acceder hoy recibes todo el ecosistema:</p>
 
     <div class="stack-valor">
-      <div class="stack-fila"><span>✦ Sistema Completo en Musa Studio (13 Módulos)</span><span class="val-tachado">$47 USD</span></div>
-      <div class="stack-fila"><span>✦ Flujo Hiperrealista iPhone & Video 100% Realista</span><span class="val-tachado">$27 USD</span></div>
-      <div class="stack-fila"><span>✦ Embudo de Monetización (Fanvue, Telegram & ManyChat)</span><span class="val-tachado">$27 USD</span></div>
-      <div class="stack-fila"><span>✦ Bono 1: Colección de Modelos IA Listas</span><span class="val-tachado">$19 USD</span></div>
-      <div class="stack-fila"><span>✦ Bono 2: Megapack Master IA (22 sesiones)</span><span class="val-tachado">$29 USD</span></div>
-      <div class="stack-fila"><span>✦ Bono 3 y 4: YouTube Money Machine + Audios Fempro</span><span class="val-tachado">$19 USD</span></div>
+      <div class="stack-fila"><span>✦ Sistema Completo en Musa Studio (13 Módulos)</span><span class="val-tachado">$180.000 COP</span></div>
+      <div class="stack-fila"><span>✦ Flujo Hiperrealista iPhone & Video 100% Realista</span><span class="val-tachado">$95.000 COP</span></div>
+      <div class="stack-fila"><span>✦ Embudo de Monetización (Fanvue, Telegram & ManyChat)</span><span class="val-tachado">$95.000 COP</span></div>
+      <div class="stack-fila"><span>✦ Bono 1: Colección de Modelos IA Listas</span><span class="val-tachado">$65.000 COP</span></div>
+      <div class="stack-fila"><span>✦ Bono 2: Megapack Master IA (22 sesiones)</span><span class="val-tachado">$80.000 COP</span></div>
+      <div class="stack-fila"><span>✦ Bono 3 y 4: YouTube Money Machine + Audios Fempro</span><span class="val-tachado">$65.000 COP</span></div>
     </div>
 
-    <div class="grande">$9 USD</div>
-    <p class="fino" style="margin-top:6px">33.000 COP · pago único · sin mensualidades</p>
+    <div class="grande">$33.000 COP</div>
+    <p class="fino" style="margin-top:6px">pago único · acceso de por vida · sin mensualidades</p>
     <ul>
-      <li>13 módulos completos</li>
-      <li>4 bonos incluidos</li>
+      <li>13 módulos completos prácticos</li>
+      <li>4 bonos descargables incluidos</li>
       <li>Guía rápida de implementación y plantillas</li>
       <li>Módulos de publicación y monetización incluidos</li>
       <li>Acceso de por vida, sin mensualidades</li>
     </ul>
-    <button class="cta" data-abrir-modal>Empezar ahora por $9 USD <span aria-hidden="true">→</span></button>
+    <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
+      Empezar ahora por 33.000 COP <span aria-hidden="true">→</span>
+    </a>
     <p class="fino" style="margin-top:12px">Pago por Nequi, Bancolombia o Bre-B. Te guío al instante por WhatsApp.</p>
   </div>
 </section>
@@ -1030,7 +1164,7 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   <details><summary>¿Necesito pagar herramientas?</summary><p>No para empezar. El curso trabaja con herramientas que tienen plan gratuito o de bajo costo, y te dice cuáles usar en cada paso antes de gastar un peso.</p></details>
   <details><summary>¿Y si no tengo Instagram ni seguidores?</summary><p>Se empieza desde cero. El módulo 1 asume que no sabes nada de IA ni de diseño, y el método paso a paso no pide audiencia previa.</p></details>
   <details><summary>¿Sirve si ya sé generar imágenes?</summary><p>Sí, si lo que te falta es la parte de después: coherencia del personaje, publicación constante y cómo se vende el contenido.</p></details>
-  <details><summary>¿Es un pago único?</summary><p>Sí. $9 USD, sin mensualidades ni cargos posteriores.</p></details>
+  <details><summary>¿Es un pago único?</summary><p>Sí. 33.000 COP, sin mensualidades ni cargos posteriores.</p></details>
   <details><summary>¿Sirve desde el celular?</summary><p>Sí. Todo el curso se puede hacer desde el teléfono.</p></details>
   <details><summary>¿Quién me atiende por WhatsApp?</summary><p>Te atiendo yo misma: Musa. Estoy programada con inteligencia multimodal para resolver tus dudas al instante, guiarte con el pago de 33.000 COP y darte acceso inmediato al Atelier. Y si necesitas soporte humano directo, nuestro equipo de soporte está siempre disponible en la misma conversación.</p></details>
 </section>
@@ -1038,8 +1172,10 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 <!-- ============================ CIERRE ============================ -->
 <section class="contenedor" style="text-align:center">
   <h2 style="display:inline-block">Si llegaste hasta acá, es por algo</h2>
-  <p class="fuerte" style="max-width:540px;margin:0 auto">Los 13 módulos, los 4 bonos y la guía práctica de implementación en Musa Studio. $9 USD (33.000 COP), una sola vez.</p>
-  <button class="cta" data-abrir-modal>Quiero empezar ahora en Musa Studio (33.000 COP) <span aria-hidden="true">→</span></button>
+  <p class="fuerte" style="max-width:540px;margin:0 auto">Los 13 módulos, los 4 bonos y la guía práctica de implementación en Musa Studio. 33.000 COP, una sola vez.</p>
+  <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
+    Quiero empezar ahora en Musa Studio (33.000 COP) <span aria-hidden="true">→</span>
+  </a>
 </section>
 
 <footer class="contenedor">
@@ -1164,5 +1300,23 @@ function mostrarEscena(tipo, src, label, btn) {
   }
 }
 </script>
+<!-- BOTÓN FLOTANTE PERMANENTE DE WHATSAPP -->
+<a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." 
+   class="btn-flotante-wa" 
+   target="_blank" 
+   rel="noopener" 
+   aria-label="Hablar directamente con Musa por WhatsApp">
+  <span class="wa-icono">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.99.54 1.761.813 2.796.813 3.183 0 5.769-2.587 5.77-5.767 0-3.182-2.588-5.769-5.77-5.769zm3.385 8.163c-.145.409-.844.757-1.189.789-.345.031-.796.062-2.275-.548-1.745-.722-2.871-2.483-2.958-2.6-.088-.117-.704-.937-.704-1.789 0-.852.443-1.27.601-1.444.158-.174.345-.218.46-.218.115 0 .23.002.331.007.107.006.251-.041.391.295.145.348.496 1.213.54 1.301.044.088.073.19.015.305-.058.115-.088.188-.175.29-.088.102-.185.228-.264.307-.088.088-.18.185-.078.361.103.175.457.754.981 1.221.674.601 1.243.787 1.419.875.175.088.277.073.38-.044.103-.117.438-.511.555-.686.117-.175.234-.146.394-.088.16.058 1.019.48 1.194.568.175.088.292.131.335.204.043.073.043.424-.102.833z"/>
+    </svg>
+  </span>
+  <span class="wa-texto">
+    <strong>¿Dudas? Habla con Musa</strong>
+    <small>Responde al instante · WhatsApp</small>
+  </span>
+  <span class="wa-badge-pulse" aria-hidden="true"></span>
+</a>
+
 </body>
 </html>

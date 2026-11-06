@@ -32,11 +32,10 @@ export interface EntradaLeadNuevo {
   norm?: string;
 }
 
-/** Solo Colombia: precio fijo en COP con el USD como ancla. */
+/** Solo Colombia: precio fijo en COP sin mención a USD. */
 export function mensajePrecioRapido(cfg: CfgCopy): string {
   const cop = formatMiles(Number(cfg.precio?.cop ?? 33000));
-  const usd = Number(cfg.precio?.usd ?? 9);
-  return `El curso completo cuesta *${cop} COP* (≈ *${usd} USD*), pago único 💥 Incluye 13 módulos prácticos + 4 bonos + la Guía Rápida de Implementación, con acceso de por vida.`;
+  return `El acceso completo cuesta *${cop} COP*, pago único 💥 Incluye el método completo para crear y monetizar modelos virtuales + 4 bonos VIP con acceso de por vida.`;
 }
 
 /** Stack S04 + pregunta 18+, listos para enviar tras el saludo. */

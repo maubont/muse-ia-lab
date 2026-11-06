@@ -556,7 +556,7 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
 
       const persona = payload.persona ?? "musa";
       let instructions = "";
-      const voz = payload.voz ?? "coral";
+      const voz = payload.voz ?? "nova";
 
       const actuacionVocalFemenina = "ACTUACIÓN VOCAL OBLIGATORIA: Eres una mujer con una voz profundamente femenina, dulce, suave, cálida, aterciopelada y seductora. Hablas en español latino con cadencia pausada, melodiosa e íntima, como si estuvieras hablando muy cerca del oído en un santuario privado. Haz pausas naturales, pequeñas risitas cómplices y susurros sutiles. Cero tono corporativo, rígido o metálico.";
 
