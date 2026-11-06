@@ -178,7 +178,7 @@ const MIME: Record<string, string> = {
  * SEGURIDAD: la ruta pedida se normaliza y se comprueba que el destino siga dentro
  * de la carpeta. Sin eso, un `GET /../.env` leería el entorno del contenedor.
  */
-function servirLanding(raiz: string, pedida: string): { cuerpo: Buffer; tipo: string } | null {
+function servirLanding(raiz: string, pedida: string): { rutaCompleta: string; tipo: string; tamano: number } | null {
   const limpia = pedida.split("?")[0].split("#")[0];
   const relativa = normalizar(decodeURIComponent(limpia)).replace(/^([/\\])+/, "");
   if (relativa.includes("..")) return null;
@@ -187,7 +187,8 @@ function servirLanding(raiz: string, pedida: string): { cuerpo: Buffer; tipo: st
   const dentro = normalizar(destino).startsWith(normalizar(raiz));
   if (!dentro || !existeRuta(destino) || !statSync(destino).isFile()) return null;
 
-  return { cuerpo: leerArchivo(destino), tipo: MIME[extname(destino).toLowerCase()] ?? "application/octet-stream" };
+  const st = statSync(destino);
+  return { rutaCompleta: destino, tipo: MIME[extname(destino).toLowerCase()] ?? "application/octet-stream", tamano: st.size };
 }
 
 export function crearServidor(opts: OpcionesServidor): Servidor {
@@ -243,28 +244,93 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
   const manejar = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = req.url ?? "/";
 
-    // ── LANDING ──────────────────────────────────────────────────────────────
-    // Pública a propósito: es la página de venta. Se sirve desde el mismo servidor
-    // para no depender de un hosting extra. Ignora query strings (?ref=..., ?t=...).
+    // ── LANDING Y ACTIVOS ESTÁTICOS ───────────────────────────────────────────
+    // Pública a propósito: es la página de venta y creativos de difusión.
+    // Soporta HTTP Range Requests (206 Partial Content) para compatibilidad total con iOS/Android video/audio.
     if (opts.landingHabilitada !== false && opts.landingDir && (req.method === "GET" || req.method === "HEAD")) {
       const rutaSinQuery = url.split("?")[0].split("#")[0];
+
+      // Redirecciones rápidas anti-caché para revisión desde móvil o WhatsApp
+      if (rutaSinQuery === "/creativo" || rutaSinQuery === "/v7" || rutaSinQuery === "/creativos") {
+        res.writeHead(302, {
+          "Location": `/creativo-v7.html?ts=${Date.now()}`,
+          "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        });
+        res.end();
+        return;
+      }
+
       const esRaiz = rutaSinQuery === "/" || rutaSinQuery === "";
-      const esPagina = /\.html?$/i.test(rutaSinQuery) || esRaiz;
-      const esActivo = rutaSinQuery.startsWith("/assets/") || rutaSinQuery.startsWith("/videos/") || /\.(mp3|ogg|opus|wav|mp4|webm)$/i.test(rutaSinQuery);
-      if (esRaiz || esPagina || esActivo) {
-        const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : rutaSinQuery);
-        if (archivo) {
-          res.writeHead(200, {
+      const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : rutaSinQuery);
+
+      if (archivo) {
+        const total = archivo.tamano;
+        const rangeHeader = req.headers.range;
+        const esSensibleACache = rutaSinQuery.includes("creativo") || rutaSinQuery.includes("v7") || rutaSinQuery.includes("audio") || rutaSinQuery.endsWith(".html");
+        const cacheControl = esSensibleACache
+          ? "no-cache, no-store, must-revalidate, max-age=0"
+          : "public, max-age=3600";
+
+        if (rangeHeader && rangeHeader.startsWith("bytes=")) {
+          const partes = rangeHeader.replace(/bytes=/, "").split("-");
+          let inicio = parseInt(partes[0], 10);
+          let fin = partes[1] ? parseInt(partes[1], 10) : total - 1;
+
+          if (isNaN(inicio)) {
+            inicio = total - fin;
+            fin = total - 1;
+          }
+          if (isNaN(fin) || fin >= total) {
+            fin = total - 1;
+          }
+
+          if (inicio > fin || inicio >= total) {
+            res.writeHead(416, {
+              "Content-Range": `bytes */${total}`,
+              "Accept-Ranges": "bytes",
+            });
+            res.end();
+            return;
+          }
+
+          const chunk = fin - inicio + 1;
+          res.writeHead(206, {
+            "Content-Range": `bytes ${inicio}-${fin}/${total}`,
+            "Accept-Ranges": "bytes",
+            "Content-Length": chunk,
             "Content-Type": archivo.tipo,
-            "Content-Length": archivo.cuerpo.length,
-            "Cache-Control": esActivo && !rutaSinQuery.includes("creativo") && !rutaSinQuery.includes("v7") && !rutaSinQuery.includes("audio") ? "public, max-age=3600" : "no-cache, no-store, must-revalidate, max-age=0",
+            "Cache-Control": cacheControl,
             "X-Content-Type-Options": "nosniff",
           });
-          res.end(req.method === "HEAD" ? undefined : archivo.cuerpo);
+
+          if (req.method === "HEAD") {
+            res.end();
+            return;
+          }
+
+          const stream = createReadStream(archivo.rutaCompleta, { start: inicio, end: fin });
+          stream.pipe(res);
           return;
         }
-        if (esRaiz) return json(res, 500, { error: "landing_no_encontrada" });
+
+        res.writeHead(200, {
+          "Content-Length": total,
+          "Content-Type": archivo.tipo,
+          "Accept-Ranges": "bytes",
+          "Cache-Control": cacheControl,
+          "X-Content-Type-Options": "nosniff",
+        });
+
+        if (req.method === "HEAD") {
+          res.end();
+          return;
+        }
+
+        const stream = createReadStream(archivo.rutaCompleta);
+        stream.pipe(res);
+        return;
       }
+      if (esRaiz) return json(res, 500, { error: "landing_no_encontrada" });
     }
 
     if (url === RUTA_SALUD) {
