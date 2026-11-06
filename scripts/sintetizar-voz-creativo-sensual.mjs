@@ -1,11 +1,11 @@
-// scripts/sintetizar-voz-creativo-sensual.mjs — Voz HD con ángulo sensual/Fanvue +18 para video publicitario
+// scripts/sintetizar-voz-creativo-sensual.mjs — Síntesis limpia con voz Nova HD sin cortes al final
 import fs from "node:fs";
 
 const apiKey = "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";
 
-const guion = `El mercado de las modelos virtuales para Fanvue y contenido exclusivo está facturando miles de dólares cada mes. Y el verdadero secreto no son los filtros plásticos ni las muñecas de siempre: es la consistencia fotográfica real. Piel con textura, miradas magnéticas y video en movimiento que conecta de verdad. En nuestro taller virtual intensivo de Musa aprendes todo el método paso a paso en una sola tarde, sin saber programar, por solo treinta y tres mil pesos. Escríbenos al WhatsApp tocando el botón y empieza hoy mismo.`;
+const guion = `El mercado de las modelos virtuales para Fanvue y contenido exclusivo está facturando miles de dólares cada mes. El verdadero secreto no son las muñecas de plástico de siempre, sino la consistencia fotográfica: piel real con poros, miradas magnéticas y presencia auténtica. En nuestro taller virtual intensivo de Musa aprendes todo el método en una sola tarde, sin programar, por solo treinta y tres mil pesos. Escríbenos al WhatsApp y empieza hoy.`;
 
-console.log("=== SINTETIZANDO VOZ SENSUAL COMERCIAL (Nova tts-1-hd) ===");
+console.log("=== SINTETIZANDO VOZ SENSUAL COMERCIAL LIMPIA (Nova tts-1-hd) ===");
 console.log("Guion:", guion);
 
 async function main() {
