@@ -60,45 +60,46 @@ const filterComplex = [
   // 7. Pista de audio: voz Salomé limpia con remate suave y estéreo 48kHz
   "[4:a]aformat=channel_layouts=stereo:sample_rates=48000,volume=1.5,afade=t=out:st=33.8:d=0.7[aout]",
 
-  // 8. Overlays Gráficos Seguros (Personaje 100% Despejado)
-  // 8.1 Header Superior Permanente (Y: 75 - 135)
-  "[vgraded]drawbox=x=80:y=75:w=920:h=60:color=black@0.7:t=fill[h0]",
-  "[h0]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("● MUSA IA LAB  |  MODELOS VIRTUALES +18") + "':fontcolor=white:fontsize=30:x=(w-text_w)/2:y=90[vheader]",
+  // 8. Overlays Gráficos Seguros (Atelier Musa Estudio - Elegante, Minimalista y Limpio)
+  // 8.1 Header Superior Permanente (Y: 75 - 139)
+  "[vgraded]drawbox=x=50:y=75:w=980:h=64:color=#080C14@0.85:t=fill[h0]",
+  "[h0]drawbox=x=50:y=75:w=980:h=2:color=#C8A97E@0.9:t=fill[h1]",
+  "[h1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("MUSA ESTUDIO  ·  ATELIER DE CREACIÓN HIPERREALISTA") + "':fontcolor=white:fontsize=28:x=(w-text_w)/2:y=94[vheader]",
 
-  // 8.2 Dock Inferior Permanente (Y: 1460 - 1870, libre de rostro y cuerpo)
-  "[vheader]drawbox=x=50:y=1460:w=980:h=410:color=#060910@0.88:t=fill[dock0]",
-  "[dock0]drawbox=x=50:y=1460:w=980:h=4:color=#00FF88@0.85:t=fill[dock1]",
+  // 8.2 Dock Inferior Permanente (Y: 1440 - 1860, libre de rostro y cuerpo)
+  "[vheader]drawbox=x=40:y=1440:w=1000:h=420:color=#080C14@0.92:t=fill[dock0]",
+  "[dock0]drawbox=x=40:y=1440:w=1000:h=2:color=#C8A97E@0.8:t=fill[dock1]",
 
-  // 8.3 Textos Fase 1 (0 a 8.5s): Hook Fanvue
-  "[dock1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("MONETIZA MODELOS EN FANVUE") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1510:enable='between(t,0,8.5)'[d1_1]",
-  "[d1_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("El mercado de contenido exclusivo más rentable") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1580:enable='between(t,0,8.5)'[d1_2]",
-  "[d1_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("● Facturación mensual en dólares reales") + "':fontcolor=#00FF88:fontsize=34:x=(w-text_w)/2:y=1660:enable='between(t,0,8.5)'[d1_3]",
-  "[d1_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,0,8.5)'[s1_done]",
+  // 8.3 Textos Fase 1 (0 a 8.5s): Hook Atelier
+  "[dock1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("ATELIER EXCLUSIVO  ·  MODELOS HIPERREALISTAS") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1485:enable='between(t,0,8.5)'[d1_1]",
+  "[d1_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("CREA TU MODELO VIRTUAL") + "':fontcolor=white:fontsize=44:x=(w-text_w)/2:y=1535:enable='between(t,0,8.5)'[d1_2]",
+  "[d1_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Consistencia facial total y piel real · Facturación en dólares") + "':fontcolor=#CBD5E1:fontsize=30:x=(w-text_w)/2:y=1615:enable='between(t,0,8.5)'[d1_3]",
+  "[d1_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,0,8.5)'[s1_done]",
 
-  // 8.4 Textos Fase 2 (8.5 a 17.5s): Anti-Plástico & Consistencia Real
-  "[s1_done]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("CERO MUÑECAS DE PLÁSTICO") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1510:enable='between(t,8.5,17.5)'[d2_1]",
-  "[d2_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("El secreto de las agencias top es la consistencia real") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1580:enable='between(t,8.5,17.5)'[d2_2]",
-  "[d2_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("● Mismo rostro, cuerpo y estilo en cada toma") + "':fontcolor=#00FF88:fontsize=34:x=(w-text_w)/2:y=1660:enable='between(t,8.5,17.5)'[d2_3]",
-  "[d2_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,8.5,17.5)'[s2_done]",
+  // 8.4 Textos Fase 2 (8.5 a 17.5s): Dominio de Identidad & Expresión
+  "[s1_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("DOMINIO DE IDENTIDAD  ·  GESTUALIDAD VIVA") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1485:enable='between(t,8.5,17.5)'[d2_1]",
+  "[d2_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("MISMO ROSTRO EN CADA ESCENA") + "':fontcolor=white:fontsize=44:x=(w-text_w)/2:y=1535:enable='between(t,8.5,17.5)'[d2_2]",
+  "[d2_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Cero muñecas de plástico · Expresión seductora real") + "':fontcolor=#CBD5E1:fontsize=30:x=(w-text_w)/2:y=1615:enable='between(t,8.5,17.5)'[d2_3]",
+  "[d2_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,8.5,17.5)'[s2_done]",
 
-  // 8.5 Textos Fase 3 (17.5 a 26.0s): Textura & Piel Real
-  "[s2_done]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TEXTURA DE PIEL TOTALMENTE REAL") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1510:enable='between(t,17.5,26.0)'[d3_1]",
-  "[d3_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Poros reales, miradas magnéticas y presencia viva") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1580:enable='between(t,17.5,26.0)'[d3_2]",
-  "[d3_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("● Calidad cinematográfica lista para suscriptores") + "':fontcolor=#00FF88:fontsize=34:x=(w-text_w)/2:y=1660:enable='between(t,17.5,26.0)'[d3_3]",
-  "[d3_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,17.5,26.0)'[s3_done]",
+  // 8.5 Textos Fase 3 (17.5 a 26.0s): Calidad Cinematográfica & Macro Piel
+  "[s2_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("ACABADO CINEMATOGRÁFICO  ·  MACRO PIEL") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1485:enable='between(t,17.5,26.0)'[d3_1]",
+  "[d3_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TEXTURA DE PIEL INDISTINGUIBLE") + "':fontcolor=white:fontsize=44:x=(w-text_w)/2:y=1535:enable='between(t,17.5,26.0)'[d3_2]",
+  "[d3_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Poros auténticos y miradas vivas de calidad editorial") + "':fontcolor=#CBD5E1:fontsize=30:x=(w-text_w)/2:y=1615:enable='between(t,17.5,26.0)'[d3_3]",
+  "[d3_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,17.5,26.0)'[s3_done]",
 
-  // 8.6 Textos Fase 4 (26.0 a 30.5s): Oferta del Taller
-  "[s3_done]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1505:enable='between(t,26.0,30.5)'[d4_1]",
-  "[d4_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Aprende el método en una tarde · Sin programar") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1575:enable='between(t,26.0,30.5)'[d4_2]",
-  "[d4_2]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("SOLO $33.000 COP") + "':fontcolor=#00FF88:fontsize=58:x=(w-text_w)/2:y=1650:enable='between(t,26.0,30.5)'[d4_3]",
-  "[d4_3]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Acceso Vitalicio · 13 Clases + Prompts VIP") + "':fontcolor=white:fontsize=30:x=(w-text_w)/2:y=1735:enable='between(t,26.0,30.5)'[s4_done]",
+  // 8.6 Textos Fase 4 (26.0 a 30.5s): Propuesta del Taller
+  "[s3_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("METODOLOGÍA PRÁCTICA  ·  APRENDE EN UNA TARDE") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1475:enable='between(t,26.0,30.5)'[d4_1]",
+  "[d4_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("13 CLASES + PROMPTS VIP DE AGENCIA") + "':fontcolor=white:fontsize=40:x=(w-text_w)/2:y=1530:enable='between(t,26.0,30.5)'[d4_2]",
+  "[d4_2]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("SOLO $33.000 COP") + "':fontcolor=#10B981:fontsize=56:x=(w-text_w)/2:y=1610:enable='between(t,26.0,30.5)'[d4_3]",
+  "[d4_3]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Acceso vitalicio inmediato · Sin programar") + "':fontcolor=#CBD5E1:fontsize=28:x=(w-text_w)/2:y=1705:enable='between(t,26.0,30.5)'[s4_done]",
 
   // 8.7 Textos Fase 5 (30.5 a 34.5s): Clímax de Conversión WhatsApp
-  "[s4_done]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("EMPIEZA HOY MISMO") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1495:enable='between(t,30.5,34.5)'[d5_1]",
-  "[d5_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("SOLO $33.000 COP") + "':fontcolor=#00FF88:fontsize=64:x=(w-text_w)/2:y=1565:enable='between(t,30.5,34.5)'[d5_2]",
-  "[d5_2]drawbox=x=130:y=1665:w=820:h=90:color=#00A859@0.92:t=fill:enable='between(t,30.5,34.5)'[cta_box]",
-  "[cta_box]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TOCA AQUÍ PARA ESCRIBIR A WHATSAPP") + "':fontcolor=white:fontsize=34:x=(w-text_w)/2:y=1695:enable='between(t,30.5,34.5)'[d5_3]",
-  "[d5_3]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Cupos Limitados · Entrega Automática") + "':fontcolor=#8b949e:fontsize=28:x=(w-text_w)/2:y=1780:enable='between(t,30.5,34.5)'[vout]"
+  "[s4_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("INSCRIPCIONES ABIERTAS  ·  CUPOS LIMITADOS") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1470:enable='between(t,30.5,34.5)'[d5_1]",
+  "[d5_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=54:x=(w-text_w)/2:y=1525:enable='between(t,30.5,34.5)'[d5_2]",
+  "[d5_2]drawbox=x=90:y=1630:w=900:h=90:color=#25D366@0.95:t=fill:enable='between(t,30.5,34.5)'[cta_box]",
+  "[cta_box]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("▶ ESCRIBIR A WHATSAPP PARA ACCEDER") + "':fontcolor=#041008:fontsize=34:x=(w-text_w)/2:y=1660:enable='between(t,30.5,34.5)'[d5_3]",
+  "[d5_3]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Atención personalizada · Entrega inmediata del taller") + "':fontcolor=#94A3B8:fontsize=24:x=(w-text_w)/2:y=1755:enable='between(t,30.5,34.5)'[vout]"
 ].join(";");
 
 const args = [
