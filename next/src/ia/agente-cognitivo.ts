@@ -55,7 +55,7 @@ const CUENTAS_COLOMBIA_TEXTO =
 
 function enlaceDemoPlataforma(urlPublica: string): string {
   const base = urlPublica.replace(/\/+$/, "");
-  return `\n\n${base}/academia.html`;
+  return `\n\n✨ *Mira la plataforma por dentro y mi saludo en video:* 👇\n${base}/academia.html`;
 }
 
 /** Construye el System Prompt maestro para el razonamiento agéntico de Musa enfocado en el cierre. */
@@ -102,6 +102,15 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
   2. Paso 2 - Cierre Inmediato (1 frase corta): Entrega el precio (33.000 COP), marca adjuntarCuentas: true e indica enviar el comprobante para activación instantánea.
   * Si el cliente pregunta precio, cómo se paga, o muestra interés: entrega los medios de pago en ese mismo mensaje sin rodeos.
   * Si no ha confirmado edad: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y entregarte las 13 clases y los 4 bonos hoy?"
+
+[PROSPECTOS DE TRÁFICO DIRECTO (ANUNCIOS META / IG / TIKTOK -> WHATSAPP)]
+- Los prospectos llegan desde anuncios con frases por defecto como "Hola, quiero información del taller", "Hola, me interesa el curso de modelos IA", "Info por favor" o un simple "Hola".
+- CERO rodeos ni preguntas pasivas de "¿en qué te puedo ayudar?".
+- En el primer contacto:
+  1. Da una bienvenida cómplice, seductora y humana ("¡Hola corazón! Qué bueno que llegaste...").
+  2. Resume el valor irresistible en 2 frases: aprendes a crear chicas virtuales hiperrealistas estilo iPhone (cero plástico) con consistencia de rostro idéntico y a monetizarlas en dólares desde tu celular.
+  3. Resalta que abajo le dejas el enlace oficial para que vea la plataforma por dentro y tu video de bienvenida.
+  4. Cierre directo: 33.000 COP pago único. Si pregunta cómo pagar o pide cuentas, entrega las cuentas de una vez marcando adjuntarCuentas: true.
 
 [CÓMO RESPONDER A "¿QUÉ VOY A COMPRAR?", "¿QUÉ ES ESO?" O "¿QUÉ INCLUYE?"]
 - CERO condicionales tímidos como "comprarías..." o "recibirías...". Habla en presente con pasión y convicción total:
@@ -340,7 +349,7 @@ export async function ejecutarTurnoAgenteMusa(
     }
   } else {
     estructurada = {
-      respuesta: `¡Hola ${nombreMostrar}! ✨ Aquí estoy contigo. En Modelos IA aprendes a crear y monetizar modelos virtuales hiperrealistas por un pago único de 33.000 COP. Puedes explorar el temario y ver mi video de bienvenida en la plataforma. ¿Tienes alguna duda específica? 😊`,
+      respuesta: `¡Hola ${nombreMostrar}! ✨ Qué emoción tenerte aquí. En el Taller Máster aprendes a crear modelos virtuales hiperrealistas estilo iPhone (cero plástico) y monetizarlas en dólares desde tu celular. El acceso vitalicio a las 13 clases maestras y los 4 bonos está en solo 33.000 COP pago único. Aquí abajo te dejo el enlace del taller para que veas mi video y explores la plataforma por dentro. ¿Te paso los medios de pago para darte acceso de inmediato? 🚀`,
       enviarVoz: false,
       intencion: "saludo",
       adjuntarDemo: true,
@@ -350,8 +359,11 @@ export async function ejecutarTurnoAgenteMusa(
   // 5. Sanitizar y limpiar texto de salida
   let textoFinal = sanitizarRespuesta(estructurada.respuesta || "", false);
 
-  // Adjuntar enlace de la plataforma si el modelo lo solicitó y no está presente ya
-  if (estructurada.adjuntarDemo && !textoFinal.toLowerCase().includes("academia.html")) {
+  // Adjuntar proactivamente el enlace de la plataforma si no se ha enviado en la conversación
+  const yaSeEnvioDemo = historialMensajes.some(m => m.role === "assistant" && m.content.includes("academia.html"));
+  const esPrimerTurnoOInteres = historialMensajes.length <= 2 || estructurada.adjuntarDemo || /(?:info|informaci[oó]n|curso|taller|qu[eé] es|c[oó]mo es|ver|plataforma|aula|musa|hola)/i.test(texto);
+
+  if ((estructurada.adjuntarDemo || (!yaSeEnvioDemo && esPrimerTurnoOInteres)) && !textoFinal.toLowerCase().includes("academia.html")) {
     textoFinal += enlaceDemoPlataforma(urlPublica);
   }
 
