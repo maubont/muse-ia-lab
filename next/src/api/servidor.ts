@@ -259,6 +259,14 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
         res.end();
         return;
       }
+      if (rutaSinQuery === "/voces" || rutaSinQuery === "/casting" || rutaSinQuery === "/voz") {
+        res.writeHead(302, {
+          "Location": `/voces.html?ts=${Date.now()}`,
+          "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        });
+        res.end();
+        return;
+      }
 
       const esRaiz = rutaSinQuery === "/" || rutaSinQuery === "";
       const archivo = servirLanding(opts.landingDir, esRaiz ? "index.html" : rutaSinQuery);
@@ -604,6 +612,65 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
         });
       } catch (e: any) {
         return json(res, 500, { ok: false, error: e?.message || String(e) });
+      }
+    }
+
+    // ---- API Síntesis de Voz Qwen 3.1 TTS Plus (Alibaba Cloud ModelStudio) ----
+    if (url === "/api/voz/sintetizar") {
+      if (req.method !== "POST") return json(res, 405, { error: "metodo_no_permitido" });
+      const cuerpo = await leerCuerpo(req, 64 * 1024);
+      let payload: { texto?: string; voz?: string; instruccion?: string; modelo?: string } = {};
+      try {
+        payload = cuerpo ? JSON.parse(cuerpo) : {};
+      } catch {
+        return json(res, 400, { ok: false, error: "json_invalido" });
+      }
+
+      const texto = (payload.texto ?? "").trim();
+      if (!texto) return json(res, 400, { ok: false, error: "texto_requerido" });
+
+      const apiKey = (process.env.DASHSCOPE_API_KEY || process.env.ALIBABA_API_KEY || "sk-ws-H.DIRMRHH.dEXC.MEQCIAFsXhFxsdXJQGcdcAQfGxC5H_CZ1hasvCVMCqnpv6eRAiBwEebSbx4MvzjAUp6ZjFJtUbZxOxeZoGPTFDp02HYU2w").trim();
+      const voz = payload.voz || "longanlingxin_v3.1";
+      const modelo = payload.modelo || "qwen-audio-3.1-tts-plus";
+      const instruccion = payload.instruccion || "Hablar en español con tono cálido, femenino, sensual y cercano.";
+
+      try {
+        const respuesta = await fetch("https://dashscope-intl.aliyuncs.com/api/v1/services/audio/tts/SpeechSynthesizer", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: modelo,
+            input: { text: texto },
+            parameters: {
+              voice: voz,
+              format: "mp3",
+              sample_rate: 24000,
+              instruction: instruccion
+            }
+          })
+        });
+
+        const data: any = await respuesta.json();
+        if (respuesta.status === 200 && data.output?.audio?.url) {
+          return json(res, 200, {
+            ok: true,
+            audioUrl: data.output.audio.url,
+            voz,
+            modelo,
+            instruccion
+          });
+        } else {
+          return json(res, respuesta.status || 500, {
+            ok: false,
+            error: data.message || "Error en síntesis con Alibaba ModelStudio",
+            detalle: data
+          });
+        }
+      } catch (err: any) {
+        return json(res, 500, { ok: false, error: err?.message || String(err) });
       }
     }
 

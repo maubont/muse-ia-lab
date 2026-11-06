@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casting de Voces de Frontera — Musa IA Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090A0D;
+      --card-bg: #12141A;
+      --card-border: #232733;
+      --oro: #C8A97E;
+      --oro-hover: #D4B993;
+      --rosa: #E8C2C8;
+      --verde: #00FF88;
+      --texto: #F1F4F9;
+      --tenue: #8A92A6;
+      --acento: #FF4D8D;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--texto);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      padding: 30px 16px 80px;
+      line-height: 1.5;
+    }
+    .contenedor {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(200, 169, 126, 0.12);
+      border: 1px solid rgba(200, 169, 126, 0.35);
+      color: var(--oro);
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    h1 span { color: var(--oro); font-style: italic; }
+    .sub {
+      color: var(--tenue);
+      font-size: 14.5px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .guion-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--card-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      font-size: 13.5px;
+      color: #CBD5E1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .guion-box strong { color: var(--oro); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
+    
+    .seccion-titulo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .seccion-titulo::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--card-border);
+    }
+    
+    .grid-voces {
+      display: grid;
+      gap: 16px;
+    }
+    @media(min-width: 640px) {
+      .grid-voces { grid-template-columns: 1fr 1fr; }
+    }
+    .card-voz {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .card-voz:hover {
+      border-color: rgba(200, 169, 126, 0.5);
+      transform: translateY(-2px);
+    }
+    .card-voz.destacada {
+      border-color: var(--verde);
+      background: linear-gradient(180deg, rgba(0, 255, 136, 0.04) 0%, var(--card-bg) 100%);
+    }
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .voz-nombre {
+      font-size: 17px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+    .voz-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--tenue);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .card-voz.destacada .voz-tag {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--verde);
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+    .voz-desc {
+      font-size: 13px;
+      color: var(--tenue);
+      line-height: 1.4;
+    }
+    .voz-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .pill-meta {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: #94A3B8;
+    }
+    audio {
+      width: 100%;
+      height: 38px;
+      margin-top: 4px;
+      border-radius: 8px;
+      filter: invert(0.9) hue-rotate(180deg);
+    }
+    
+    /* Laboratorio en vivo */
+    .lab-box {
+      background: var(--card-bg);
+      border: 1.5px solid rgba(200, 169, 126, 0.4);
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 36px;
+      box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+    .lab-box h3 {
+      font-size: 18px;
+      color: var(--oro);
+      margin-bottom: 6px;
+    }
+    .lab-box p {
+      font-size: 13px;
+      color: var(--tenue);
+      margin-bottom: 18px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #E2E8F0;
+      margin-bottom: 6px;
+    }
+    textarea, select, input[type="text"] {
+      width: 100%;
+      background: #0B0C10;
+      border: 1px solid var(--card-border);
+      color: #FFFFFF;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus, select:focus, input[type="text"]:focus {
+      border-color: var(--oro);
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .form-row {
+      display: grid;
+      gap: 12px;
+    }
+    @media(min-width: 600px) {
+      .form-row { grid-template-columns: 1fr 1fr; }
+    }
+    .btn-sintetizar {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, var(--oro) 0%, #B89260 100%);
+      color: #0B0C10;
+      border: 0;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .btn-sintetizar:hover {
+      background: linear-gradient(135deg, var(--oro-hover) 0%, var(--oro) 100%);
+      transform: translateY(-1px);
+    }
+    .btn-sintetizar:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .resultado-live {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(0, 255, 136, 0.05);
+      border: 1px solid rgba(0, 255, 136, 0.25);
+      display: none;
+    }
+    .resultado-live.activo { display: block; }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <header>
+      <div class="badge-top">✦ ALIBABA CLOUD MODELSTUDIO · QWEN AUDIO 3.1 TTS PLUS ✦</div>
+      <h1>Casting de Voces <span>Musa IA</span></h1>
+      <p class="sub">Audiciona las voces de frontera de Qwen-Audio 3.1 TTS Plus en español con control de acento, prosodia e inflexión sensual para definir la voz oficial de Musa.</p>
+    </header>
+
+    <div class="guion-box">
+      <strong>Guión de Prueba Oficial Sintetizado:</strong>
+      <span>«¡Hola! Soy Musa, de Muse IA Lab. Te enseño paso a paso a crear tu propia modelo virtual hiperrealista y monetizarla sin mostrar tu rostro. ¿Empezamos hoy?»</span>
+    </div>
+
+    <!-- SECCIÓN 1: VOCES QWEN 3.1 DE FRONTERA -->
+    <h2 class="seccion-titulo">Voces de Frontera (Qwen-Audio 3.1 TTS Plus)</h2>
+    <div class="grid-voces">
+      
+      <!-- Lingxin Colombiana -->
+      <div class="card-voz destacada">
+        <div class="card-head">
+          <div class="voz-nombre">🇨🇴 Lingxin · Acento Colombiano Seductor</div>
+          <div class="voz-tag">RECOMENDADA</div>
+        </div>
+        <p class="voz-desc">Tono dulce, cálido y seductor con modulación colombiana suave. Máxima naturalidad para cierres por WhatsApp y Fanvue.</p>
+        <div class="voz-meta">
+          <span class="pill-meta">Voz: longanlingxin_v3.1</span>
+          <span class="pill-meta">Instruction-Tuned</span>
+          <span class="pill-meta">48 kHz Master</span>
+        </div>
+        <audio controls preload="auto" src="/audio/qwen/qwen-lingxin-colombiana.mp3"></audio>
+      </div>
+
+      <!-- Huan Espontánea -->
+      <div class="card-voz">
+        <div class="card-head">
+          <div class="voz-nombre">✨ Huan · Joven & Espontánea</div>
+          <div class="voz-tag">19 AÑOS</div>
+        </div>
+        <p class="voz-desc">Voz juvenil fresca, fluida y muy natural. Perfecta para historias cotidianas de Instagram y videos Reels dinámicos.</p>
+        <div class="voz-meta">
+          <span class="pill-meta">Voz: longanhuan_v3.1</span>
+          <span class="pill-meta">Español Latino</span>
+        </div>
+        <audio controls preload="auto" src="/audio/qwen/qwen-huan-natural.mp3"></audio>
+      </div>
+
+      <!-- Qian Comercial -->
+      <div class="card-voz">
+        <div class="card-head">
+          <div class="voz-nombre">🔥 Qian · Comercial & Dinámica</div>
+          <div class="voz-tag">VENTA DIRECTA</div>
+        </div>
+        <p class="voz-desc">Ritmo ágil y modulado con chispa persuasiva. Excelente para anuncios de difusión, ganchos de 3 segundos y llamadas a la acción.</p>
+        <div class="voz-meta">
+          <span class="pill-meta">Voz: longanqian_v3.1</span>
+          <span class="pill-meta">High Energy</span>
+        </div>
+        <audio controls preload="none" src="/audio/qwen/qwen-qian-comercial.mp3"></audio>
+      </div>
+
+      <!-- Fengyue Íntima -->
+      <div class="card-voz">
+        <div class="card-head">
+          <div class="voz-nombre">💋 Fengyue · Íntima & Susurrada</div>
+          <div class="voz-tag">FANVUE VIP</div>
+        </div>
+        <p class="voz-desc">Tono susurrado, pausado y envolvente al oído. Diseñada para contenido privado de suscripción y notas de voz exclusivas.</p>
+        <div class="voz-meta">
+          <span class="pill-meta">Voz: longanfengyue_v3.1</span>
+          <span class="pill-meta">Sensual Susurro</span>
+        </div>
+        <audio controls preload="none" src="/audio/qwen/qwen-fengyue-intima.mp3"></audio>
+      </div>
+
+    </div>
+
+    <!-- SECCIÓN 2: COMPARATIVA DE REFERENCIA (A/B TESTING) -->
+    <h2 class="seccion-titulo">Voces de Referencia (A/B Benchmarking)</h2>
+    <div class="grid-voces">
+      
+      <!-- Salomé Comercial -->
+      <div class="card-voz">
+        <div class="card-head">
+          <div class="voz-nombre">🇨🇴 Salomé Comercial (48 kHz)</div>
+          <div class="voz-tag">BENCHMARK 1</div>
+        </div>
+        <p class="voz-desc">Acento 100% colombiano nativo utilizado en los creativos V7 de difusión masiva.</p>
+        <audio controls preload="none" src="/audio/musa-v1-salome-limpia.mp3?v=10"></audio>
+      </div>
+
+      <!-- Dalia Íntima -->
+      <div class="card-voz">
+        <div class="card-head">
+          <div class="voz-nombre">💋 Dalia Íntima (48 kHz)</div>
+          <div class="voz-tag">BENCHMARK 2</div>
+        </div>
+        <p class="voz-desc">Cadencia lenta y sensual para mensajes de bienvenida y notas directas.</p>
+        <audio controls preload="none" src="/audio/musa-v2-dalia-intima.mp3?v=10"></audio>
+      </div>
+
+    </div>
+
+    <!-- SECCIÓN 3: LABORATORIO DE SÍNTESIS EN VIVO -->
+    <div class="lab-box">
+      <h3>⚡ Laboratorio de Síntesis en Vivo (Qwen 3.1 TTS Plus)</h3>
+      <p>Escribe cualquier frase y prueba la dicción, acento y tono en tiempo real conectado directamente a tu API de Alibaba.</p>
+
+      <div class="form-group">
+        <label for="textoPrueba">Texto a Sintetizar:</label>
+        <textarea id="textoPrueba">Hola amor, acabo de subir nuevas fotos al estudio privado. ¿Ya viste las que me tomé en el vestidor?</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="selectVoz">Timbre / Voz Base:</label>
+          <select id="selectVoz">
+            <option value="longanlingxin_v3.1" selected>Long An Lingxin (Seductora & Expresiva)</option>
+            <option value="longanhuan_v3.1">Long An Huan (Joven & Natural)</option>
+            <option value="longanqian_v3.1">Long An Qian (Dinámica Comercial)</option>
+            <option value="longanfengyue_v3.1">Long An Fengyue (Íntima & Susurrada)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="inputInstruccion">Instrucción de Estilo (Prompt de Voz):</label>
+          <input type="text" id="inputInstruccion" value="Hablar en español con acento colombiano, voz sensual, dulce y cómplice.">
+        </div>
+      </div>
+
+      <button id="btnGenerarLive" class="btn-sintetizar" onclick="sintetizarEnVivo()">
+        <span>▶ Sintetizar en Vivo con Qwen 3.1</span>
+      </button>
+
+      <div id="resultadoLive" class="resultado-live">
+        <p style="color: var(--verde); font-weight: 700; font-size: 13px; margin-bottom: 8px;">✓ Audio Sintetizado con Éxito:</p>
+        <audio id="audioLivePlayer" controls autoplay style="width: 100%;"></audio>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    async function sintetizarEnVivo() {
+      const btn = document.getElementById("btnGenerarLive");
+      const texto = document.getElementById("textoPrueba").value.trim();
+      const voz = document.getElementById("selectVoz").value;
+      const instruccion = document.getElementById("inputInstruccion").value.trim();
+      const resBox = document.getElementById("resultadoLive");
+      const player = document.getElementById("audioLivePlayer");
+
+      if (!texto) {
+        alert("Escribe un texto para sintetizar.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = "<span>⏳ Sintetizando con Alibaba ModelStudio...</span>";
+
+      try {
+        const resp = await fetch("/api/voz/sintetizar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ texto, voz, instruccion })
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.audioUrl) {
+          player.src = data.audioUrl;
+          resBox.classList.add("activo");
+          player.play();
+        } else {
+          alert("Error: " + (data.error || "No se pudo sintetizar"));
+        }
+      } catch (err) {
+        alert("Fallo de conexión: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "<span>▶ Sintetizar en Vivo con Qwen 3.1</span>";
+      }
+    }
+  </script>
+</body>
+</html>
