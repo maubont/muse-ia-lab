@@ -257,7 +257,7 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
           res.writeHead(200, {
             "Content-Type": archivo.tipo,
             "Content-Length": archivo.cuerpo.length,
-            "Cache-Control": esActivo && !rutaSinQuery.includes("creativo") ? "public, max-age=3600" : "no-cache, no-store, must-revalidate",
+            "Cache-Control": esActivo && !rutaSinQuery.includes("creativo") && !rutaSinQuery.includes("v7") && !rutaSinQuery.includes("audio") ? "public, max-age=3600" : "no-cache, no-store, must-revalidate, max-age=0",
             "X-Content-Type-Options": "nosniff",
           });
           res.end(req.method === "HEAD" ? undefined : archivo.cuerpo);
