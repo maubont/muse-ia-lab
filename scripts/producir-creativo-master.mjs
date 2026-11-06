@@ -61,19 +61,19 @@ const filterComplex = [
   "[dock1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("NUEVA ECONOMÍA DE MODELOS IA") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1510:enable='between(t,0,7.5)'[d1_1]",
   "[d1_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Las agencias ya no pagan sesiones de fotos tradicionales") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1580:enable='between(t,0,7.5)'[d1_2]",
   "[d1_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("● Aprende el método exacto en una tarde") + "':fontcolor=#00FF88:fontsize=34:x=(w-text_w)/2:y=1660:enable='between(t,0,7.5)'[d1_3]",
-  "[d1_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,0,7.5)'[s1_done]",
+  "[d1_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,0,7.5)'[s1_done]",
 
   // 6.4 TEXTOS DE ESCENA 2 (7.5 a 16.5s)
   "[s1_done]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("CONSISTENCIA FOTOGRÁFICA REAL") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1510:enable='between(t,7.5,16.5)'[d2_1]",
   "[d2_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Piel con textura y poros reales · Cero filtros plásticos") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1580:enable='between(t,7.5,16.5)'[d2_2]",
   "[d2_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("● Monetiza en Fanvue y marcas internacionales") + "':fontcolor=#00FF88:fontsize=34:x=(w-text_w)/2:y=1660:enable='between(t,7.5,16.5)'[d2_3]",
-  "[d2_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,7.5,16.5)'[s2_done]",
+  "[d2_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=white:fontsize=46:x=(w-text_w)/2:y=1750:enable='between(t,7.5,16.5)'[s2_done]",
 
   // 6.5 TEXTOS DE ESCENA 3 (16.5 a 25.5s) — CLÍMAX DE CONVERSIÓN
   "[s2_done]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("ACCESO INMEDIATO AL TALLER") + "':fontcolor=#FFE500:fontsize=44:x=(w-text_w)/2:y=1500:enable='between(t,16.5,25.5)'[d3_1]",
   "[d3_1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("13 Clases Prácticas + Prompts + 4 Bonos VIP") + "':fontcolor=white:fontsize=32:x=(w-text_w)/2:y=1565:enable='between(t,16.5,25.5)'[d3_2]",
-  // PRECIO GIGANTE DESTACADO: $33.000 (SIN COP)
-  "[d3_2]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("SOLO $33.000") + "':fontcolor=#00FF88:fontsize=62:x=(w-text_w)/2:y=1640:enable='between(t,16.5,25.5)'[d3_3]",
+  // PRECIO GIGANTE DESTACADO: $33.000 COP (CERO DÓLARES)
+  "[d3_2]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("SOLO $33.000 COP") + "':fontcolor=#00FF88:fontsize=60:x=(w-text_w)/2:y=1640:enable='between(t,16.5,25.5)'[d3_3]",
   // CTA FINAL WHATSAPP
   "[d3_3]drawbox=x=140:y=1740:w=800:h=85:color=#00A859@0.9:t=fill:enable='between(t,16.5,25.5)'[cta_box]",
   "[cta_box]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TOCA AQUÍ PARA ENVIAR WHATSAPP") + "':fontcolor=white:fontsize=36:x=(w-text_w)/2:y=1765:enable='between(t,16.5,25.5)'[vout]"
