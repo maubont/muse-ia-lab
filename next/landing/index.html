@@ -215,15 +215,17 @@ p.fuerte{color:var(--texto);font-weight:500}
   color:var(--texto);font-weight:700;font-size:11px;
 }
 .musa-main-frame{
-  position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/10;background:#F3ECEA;
+  position:relative;border-radius:16px;overflow:hidden;
+  max-width:500px;margin:0 auto;aspect-ratio:4/5;background:#0d1117;
   border:1px solid var(--borde);
+  box-shadow:0 14px 38px -12px rgba(24,20,21,.15);
 }
 .musa-main-frame img, .musa-main-frame video{
-  width:100%;height:100%;object-fit:cover;display:block;
+  width:100%;height:100%;object-fit:cover;object-position:top center;display:block;
   transition:opacity .28s var(--ease-out),transform .45s var(--ease-out);
 }
 .musa-thumbs{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px;
 }
 .musa-thumb{
   border-radius:12px;overflow:hidden;border:1px solid var(--borde);background:var(--fondo);
@@ -233,7 +235,7 @@ p.fuerte{color:var(--texto);font-weight:500}
 .musa-thumb:hover,.musa-thumb.activa{
   border-color:var(--rosa-editorial);background:var(--rosa-suave);transform:translateY(-2px);
 }
-.musa-thumb img,.musa-thumb video{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.musa-thumb img,.musa-thumb video{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;display:block}
 .musa-thumb span{
   display:block;padding:8px 10px;
   font-family:"JetBrains Mono",ui-monospace,monospace;
@@ -350,7 +352,7 @@ p.fuerte{color:var(--texto);font-weight:500}
 @media(min-width:640px){.slider-card{flex:0 0 310px}}
 .slider-card:hover{transform:translateY(-4px);border-color:var(--rosa-pastel)}
 .slider-card .img-box{width:100%;aspect-ratio:4/5;position:relative;overflow:hidden;background:#F0EAE6}
-.slider-card .img-box img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
+.slider-card .img-box img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;transition:transform .3s ease}
 .slider-card:hover .img-box img{transform:scale(1.04)}
 .slider-badge{
   position:absolute;top:10px;left:10px;background:rgba(24,20,21,.75);
@@ -665,74 +667,57 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
 
 <!-- ============================ HERO DE OFERTA DIRECTA ============================ -->
 <header class="hero contenedor">
-  <span class="etiqueta">✦ ATELIER PRIVADO MUSA · EL ARTE DE MONETIZAR LA FASCINACIÓN VIRTUAL</span>
-  <h1>Mírame a los ojos. <span class="acento">No existo</span> en la vida real. Pero pagarías por hablar conmigo.</h1>
-  <p class="fuerte">El 99% crea muñecas de plástico que dan risa. Aquí aprendes el método exacto para darme piel con poros reales, mirada viva en video y monetizar la fascinación y el deseo en dólares sin mostrar tu cara ni salir de tu habitación.</p>
+  <span class="etiqueta">✦ MUSA ESTUDIO · ATELIER DE CREACIÓN HIPERREALISTA</span>
+  <h1>Crea Modelos con Inteligencia Artificial <span class="acento">Indistinguibles de la Realidad</span>.</h1>
+  <p class="fuerte">Aprende paso a paso a generar personajes hiperrealistas con piel humana, miradas magnéticas y consistencia total para monetizar en Fanvue e Instagram sin mostrar tu rostro.</p>
 
   <div class="precio-linea">
     <span class="antes">$180.000 COP</span>
     <strong>$33.000 COP</strong>
     <span class="ahorro">-80% HOY</span>
   </div>
-  <p class="fino">Pago único · 33.000 COP · Acceso vitalicio al Estudio y a los 4 Packs</p>
+  <p class="fino">Pago único · $33.000 COP · Acceso vitalicio al Estudio y a los 4 Packs</p>
 
-  <!-- REPRODUCTOR TÁCTIL DE VOZ: MUSA AL OÍDO -->
-  <div class="reproductor-musa" id="reproductorMusa" onclick="toggleAudioMusa()" role="button" tabindex="0" aria-label="Escuchar la voz real de Musa al oído">
-    <button type="button" class="btn-play-musa" id="btnAudioMusa" aria-label="Reproducir o pausar audio de Musa">
-      <span class="icono-play" id="iconoAudioMusa">▶</span>
-    </button>
-    <div class="reproductor-info">
-      <div class="reproductor-titulo">
-        <strong>Escucha mi secreto al oído</strong>
-        <span class="reproductor-duracion">0:24 seg · Voz Real</span>
-      </div>
-      <div class="reproductor-onda" id="ondaAudioMusa" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-      </div>
-    </div>
-    <audio id="audioMusaEsencia" src="assets/musa-esencia.mp3" preload="metadata"></audio>
-  </div>
-
-  <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
+  <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20quiero%20acceder%20al%20Taller%20de%20Modelos%20Hiperrealistas%20por%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
     Quiero crear mi primera modelo hoy (33.000 COP)
     <span aria-hidden="true">→</span>
   </a>
   <p class="fino" style="margin-top:10px">Entrega inmediata por WhatsApp · Sin mensualidades · Cupo protegido</p>
 
-  <!-- VISOR ÓPTICO HIPERREALISTA DE MUSA INTEGRADO EN EL PRIMER VIEWPORT -->
+  <!-- VISOR ÓPTICO HIPERREALISTA DE MUSA ENCUADRADO PERFECTO -->
   <div class="musa-showcase">
     <div class="musa-badge-bar">
       <span class="musa-pill">✦ ANFITRIONA OFICIAL: MUSA · CONSISTENCIA FACIAL 100 %</span>
-      <span id="musaEscenaLabel">01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)</span>
+      <span id="musaEscenaLabel">01 · LUXURY MIRROR SELFIE (CORSET & CURVAS REALES)</span>
     </div>
     <div class="musa-main-frame">
-      <img id="musaMainImg" src="assets/musa-hero.jpg" alt="Musa — Avatar virtual hiperrealista y anfitriona de Muse IA Lab" fetchpriority="high" loading="eager">
+      <img id="musaMainImg" src="assets/musa-mirror-corset.jpg" alt="Musa — Modelo hiperrealista en selfie íntima frente al espejo" fetchpriority="high" loading="eager">
       <video id="musaMainVideo" src="assets/muestra-latina.mp4" playsinline loop muted style="display:none"></video>
     </div>
     <div class="musa-thumbs" role="group" aria-label="Ángulos, escenarios y video del personaje Musa">
-      <button type="button" class="musa-thumb activa" onclick="mostrarEscena('img','assets/musa-hero.jpg','01 · ESTUDIO ARQUITECTÓNICO (85MM F/1.4 · ISO 100)',this)">
-        <img src="assets/musa-hero.jpg" alt="Musa en estudio cálido" loading="lazy">
-        <span>01 · Estudio 85mm</span>
+      <button type="button" class="musa-thumb activa" onclick="mostrarEscena('img','assets/musa-mirror-corset.jpg','01 · LUXURY MIRROR SELFIE (CORSET & CURVAS REALES)',this)">
+        <img src="assets/musa-mirror-corset.jpg" alt="Musa en selfie con corset frente al espejo" loading="lazy">
+        <span>01 · Corset Selfie</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-closeup.jpg','02 · TEXTURA DÉRMICA Y POROS REALES (PERFIL 3/4 · 5600K)',this)">
-        <img src="assets/musa-closeup.jpg" alt="Close-up hiperrealista de Musa mostrando poros y textura" loading="lazy">
-        <span>02 · Piel y Poros</span>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-glamour-lipbite.jpg','02 · PENTHOUSE GLAMOUR (SATÉN ESMERALDA · LIP BITE)',this)">
+        <img src="assets/musa-glamour-lipbite.jpg" alt="Musa mordiéndose el labio en vestido esmeralda" loading="lazy">
+        <span>02 · Lip-Bite Gala</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-rooftop.jpg','03 · EXTERIOR HORA AZUL EDITORIAL (35MM F/1.8 · MISMO ROSTRO)',this)">
-        <img src="assets/musa-rooftop.jpg" alt="Musa en terraza al anochecer con el mismo rostro" loading="lazy">
-        <span>03 · Terraza Hora Azul</span>
-      </button>
-      <button type="button" class="musa-thumb" onclick="mostrarEscena('video','assets/muestra-latina.mp4','04 · MIRADA Y RESPIRACIÓN EN VIDEO 4K (CERO DEFORMACIONES)',this)">
-        <img src="assets/mod-latina-glam.jpg" alt="Musa en video hiperrealista" loading="lazy">
-        <span>04 · Video 4K Vivo</span>
-      </button>
-      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-sporty-1.jpg','05 · SPORTY FITNESS 19 AÑOS (ROPA DEPORTIVA · LUZ NATURAL)',this)">
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-sporty-1.jpg','03 · SPORTY FITNESS 19 AÑOS (ROPA DEPORTIVA · LUZ NATURAL)',this)">
         <img src="assets/musa-sporty-1.jpg" alt="Musa en top deportivo de 19 años" loading="lazy">
-        <span>05 · Sporty Gym</span>
+        <span>03 · Sporty Gym</span>
       </button>
-      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-sporty-2.jpg','06 · PENTHOUSE SUNSET SENSUAL (VESTIDO SEDA · MIRADA ÍNTIMA)',this)">
-        <img src="assets/musa-sporty-2.jpg" alt="Musa en vestido de seda en penthouse al atardecer" loading="lazy">
-        <span>06 · Penthouse Sensual</span>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-closeup.jpg','04 · TEXTURA DÉRMICA Y POROS REALES (SIN FILTROS)',this)">
+        <img src="assets/musa-closeup.jpg" alt="Close-up hiperrealista mostrando poros y textura real" loading="lazy">
+        <span>04 · Piel y Poros</span>
+      </button>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('video','assets/muestra-latina.mp4','05 · MIRADA Y RESPIRACIÓN EN VIDEO VIVO (4K)',this)">
+        <img src="assets/mod-latina-glam.jpg" alt="Musa en video hiperrealista" loading="lazy">
+        <span>05 · Video Vivo</span>
+      </button>
+      <button type="button" class="musa-thumb" onclick="mostrarEscena('img','assets/musa-champagne-lipbite.jpg','06 · ATARDECER EN PENTHOUSE (SEDA CHAMPAÑA)',this)">
+        <img src="assets/musa-champagne-lipbite.jpg" alt="Musa en vestido de seda champaña" loading="lazy">
+        <span>06 · Seda Champaña</span>
       </button>
     </div>
   </div>
@@ -860,6 +845,30 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
         </div>
       </article>
 
+      <!-- Card 5B: Referencia Sarah Greywood Mirror -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Referencia Top · Estilo Fanvue VIP</span>
+          <img src="assets/muestras/muestra-02.jpeg" alt="Referencia de modelo hiperrealista en selfie de espejo" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Referencia · Selfie de Vestidor</strong>
+          <p>La pose de espejo con teléfono que factura miles de dólares mensuales en plataformas privadas.</p>
+        </div>
+      </article>
+
+      <!-- Card 5C: Referencia Terraza Oceánica -->
+      <article class="slider-card">
+        <div class="img-box">
+          <span class="slider-badge">Referencia Top · Resort & Terraza</span>
+          <img src="assets/muestras/muestra-05.jpeg" alt="Referencia de modelo en terraza al aire libre" loading="lazy">
+        </div>
+        <div class="info">
+          <strong>Referencia · Travel & Sunset</strong>
+          <p>Luz natural de atardecer en terraza de lujo para contenidos de alta viralidad en Instagram Reels.</p>
+        </div>
+      </article>
+
       <!-- Card 6: Camila Rooftop VIP (Mujer Sofisticada) -->
       <article class="slider-card">
         <div class="img-box">
@@ -923,258 +932,83 @@ dialog .cta[aria-disabled="true"]{opacity:.4;pointer-events:none}
   </div>
 </section>
 
-<!-- ====================== DE LA IMAGEN AL COBRO (EL SISTEMA COMPLETO) ====================== -->
+<!-- ====================== EL SISTEMA EN 4 PASOS PRÁCTICOS ====================== -->
 <section class="contenedor" aria-labelledby="proceso-t">
-  <span class="kicker-seccion">El Sistema Completo Paso a Paso</span>
-  <h2 id="proceso-t">No es un pasatiempo. Es un proceso con salida comercial.</h2>
-  <p class="fuerte">El curso no termina en una imagen bonita. Termina con un personaje publicado y un
-  sistema para vender su contenido en plataformas que ya cobran por esto.</p>
+  <span class="kicker-seccion">Metodología Paso a Paso</span>
+  <h2 id="proceso-t">De la Primera Imagen a Cobrar en Dólares</h2>
+  <p class="fuerte">No es teoría sobre algoritmos ni tareas interminables. En una sola tarde aprendes el flujo completo para producir y monetizar:</p>
 
-  <!-- 3 Pilares Visuales -->
-  <div class="fases-tabs">
-    <div class="fase-pill"><span class="num-f">01</span><strong>Creación</strong></div>
-    <div class="fase-pill"><span class="num-f">02</span><strong>Viralización</strong></div>
-    <div class="fase-pill"><span class="num-f">03</span><strong>Monetización</strong></div>
-  </div>
-
-  <ol class="pipeline">
-    <li>
-      <strong>Creas el personaje</strong>
-      <p>Rostro, cuerpo y coherencia para que sea siempre la misma persona, publicación tras publicación.</p>
-    </li>
-    <li>
-      <strong>Produces el contenido en serie</strong>
-      <p>Sets, video y piezas listas para publicar. Un flujo repetible, no una imagen suelta.</p>
-    </li>
-    <li>
-      <strong>Lo publicas donde se paga</strong>
-      <p>Plataformas de suscripción y venta de contenido, con el formato y la periodicidad que cada una exige.</p>
-    </li>
-    <li>
-      <strong>Operas el sistema y lo sostienes</strong>
-      <p>Qué publicar, cada cuánto y cómo atender a quien paga. Sin cámara, sin estudio y sin exponer tu cara: tú operas, el personaje hace la cara.</p>
-    </li>
-  </ol>
-
-  <!-- 4 Activos del Ecosistema -->
-  <div class="pilares-mini">
-    <div class="pilar-box">
-      <span>Activo 01</span>
-      <strong>Perfil que convierte</strong>
-      <p>Estructura de Instagram y TikTok diseñada para transformar curiosos en suscriptores.</p>
-    </div>
-    <div class="pilar-box">
-      <span>Activo 02</span>
-      <strong>Videos y voz realistas</strong>
-      <p>Reels en movimiento y notas de voz consistentes que multiplican la confianza y el alcance.</p>
-    </div>
-    <div class="pilar-box">
-      <span>Activo 03</span>
-      <strong>Plataforma de fans</strong>
-      <p>Configuración paso a paso en Fanvue y embudo directo hacia Telegram.</p>
-    </div>
-    <div class="pilar-box">
-      <span>Activo 04</span>
-      <strong>Sistema con Bots</strong>
-      <p>Automatización con ManyChat y bot de Telegram para atender sin estar pegado al celular.</p>
-    </div>
-  </div>
-
-  <p class="fino nota-proceso">Aprendes el método completo, incluida la parte que casi nadie enseña: cómo se convierte una imagen en algo por lo que alguien paga.</p>
-</section>
-
-<!-- ================== NUEVA SECCIÓN: EL ESPEJO EMOCIONAL Y MONETIZACIÓN ================== -->
-<section class="contenedor" aria-labelledby="espejo-t">
-  <span class="kicker-seccion">Psicología de Conversión y Deseo</span>
-  <h2 id="espejo-t">El negocio no es vender fotos bonitas. Es monetizar la fascinación humana.</h2>
-  <p class="fuerte">Piénsalo con honestidad: ¿por qué millones de usuarios pagan religiosamente en Fanvue, Instagram y OnlyFans? No buscan modelos de cera de ciencia ficción. Buscan <span class="acento">cercanía, misterio y complicidad</span>. Buscan la selfie cotidiana en el espejo, la mirada cómplice antes de dormir y una voz suave que les responda al oído.</p>
-
-  <div class="contraste-grid" style="margin-top:24px">
-    <div class="columna-si" style="border-color:var(--rosa-borde);background:linear-gradient(135deg,#FFFFFF 0%,var(--rosa-suave) 70%,#FBF4E9 100%)">
-      <span class="kicker-seccion" style="background:#FFFFFF">La Llave Psicológica</span>
-      <h3 style="font-size:18px;margin-top:8px">El 80% del valor es cómo te perciben</h3>
-      <p style="font-size:14.5px;line-height:1.6;color:var(--texto);margin-top:8px">
-        Cuando una imagen tiene micro-textura dérmica, iluminación natural de iPhone y ángulo espontáneo, el cerebro no se detiene a juzgar si es humana o virtual: <strong>reacciona con curiosidad, deseo y validación</strong>. En Musa Studio te entregamos la ingeniería de prompts y las fórmulas ópticas para detonar esa reacción y crear una base de suscriptores dispuestos a pagar en dólares.
-      </p>
-    </div>
-    <div class="columna-si" style="border-color:var(--rosa-borde)">
-      <span class="kicker-seccion" style="background:#FFFFFF">Monetización Cero Exposición</span>
-      <h3 style="font-size:18px;margin-top:8px">Facturas en dólares sin mostrar tu rostro</h3>
-      <p style="font-size:14.5px;line-height:1.6;color:var(--texto);margin-top:8px">
-        Tú eres el director detrás de cámaras. Todo el contenido, los videos en movimiento y las notas de voz las protagoniza tu personaje virtual. Puedes dirigir tu atelier desde cualquier ciudad de Latinoamérica y recibir transferencias directas en plataformas internacionales protegidas.
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- ========================= LA PARTE DIFÍCIL ========================= -->
-<section class="contenedor" aria-labelledby="dificil-t">
-  <span class="kicker-seccion">El 80% del Juego · Donde Casi Todos Fallan</span>
-  <h2 id="dificil-t">La parte difícil no es crear la imagen</h2>
-  <p>Crear un personaje se aprende en una tarde. Lo que decide si esto produce algo o
-  se queda en un experimento es otra cosa: <strong class="fuerte">mantener el mismo
-  personaje con coherencia visual y tener un flujo práctico para producir sin inventar desde cero</strong>.</p>
-
-  <div class="grid">
+  <div class="grid" style="margin-top:24px">
     <div class="tarjeta">
-      <h3>Donde casi todos se frenan</h3>
-      <p>No es la herramienta. Es perder horas probando comandos al azar o tragarse teoría innecesaria.</p>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--rosa-editorial)">01 · IDENTIDAD Y ROSTRO</span>
+      <h3 style="margin-top:6px">Creas tu personaje hiperrealista</h3>
+      <p>Rostro consistente, proporciones naturales y textura dérmica con microporos. Misma persona en cualquier ángulo y outfit.</p>
     </div>
     <div class="tarjeta">
-      <h3>Cero carga de estudio</h3>
-      <p>No tienes tareas diarias ni horarios rígidos. Entras a la cápsula que necesitas, copias la plantilla y aplicas a tu ritmo.</p>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--rosa-editorial)">02 · PRODUCCIÓN DE SETS</span>
+      <h3 style="margin-top:6px">Fotos y videos en serie</h3>
+      <p>Selfies íntimas en espejo, lencería, vestidos de noche y videos con micro-movimiento vivo sin cámaras ni modelos reales.</p>
     </div>
     <div class="tarjeta">
-      <h3>Lo que sí resuelve el método</h3>
-      <p>El flujo para producir en serie: prompts de óptica iPhone, consistencia de rostro y estructura lista para publicar.</p>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--rosa-editorial)">03 · AUDIENCIA Y VIRALIZACIÓN</span>
+      <h3 style="margin-top:6px">Tracción en Instagram y TikTok</h3>
+      <p>Estrategia de Reels que esquiva la censura y convierte seguidores curiosos en suscriptores privados.</p>
     </div>
     <div class="tarjeta">
-      <h3>El único requisito real</h3>
-      <p>Que apliques las plantillas y disfrutes el proceso creativo. Si dejas las fórmulas guardadas no pasará nada; pero si las ejecutas, verás nacer a tu primera modelo hoy mismo.</p>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--rosa-editorial)">04 · MONETIZACIÓN PRIVADA</span>
+      <h3 style="margin-top:6px">Cobros en Fanvue y Telegram</h3>
+      <p>Cómo cobrar suscripciones en dólares desde Colombia o cualquier país, automatizando mensajes sin estar pegado al celular.</p>
     </div>
   </div>
 </section>
 
-<!-- ==================== ÁREA DE MIEMBROS: MUSA STUDIO ==================== -->
-<section class="contenedor" aria-labelledby="incluye-t">
-  <span class="kicker-seccion">Área de Miembros Exclusiva</span>
-  <h2 id="incluye-t">Qué incluye tu acceso a Musa Studio</h2>
-  <p class="fuerte">No es teoría sobre IA ni una carpeta desordenada. Entras a un estudio interactivo luminoso y minimalista con las 13 clases (cada una con un caso visual distinto) y los 4 packs listos para reproducir o descargar.</p>
-
-  <div class="preview-studio">
-    <div>
-      <h3>Área premium con acceso de por vida</h3>
-      <p style="font-size:14.5px;margin-top:6px">Organizado en 4 estaciones prácticas: Identidad & Rostro IA, Consistencia & Video Realista, Tracción Viral & Bots, y Monetización en Fanvue.</p>
-      <div class="preview-badges">
-        <div class="preview-badge"><i>✦</i> 13 clases paso a paso</div>
-        <div class="preview-badge"><i>✦</i> 30 recursos en bonos</div>
-        <div class="preview-badge"><i>✦</i> Móvil y computador</div>
-        <div class="preview-badge"><i>✦</i> Actualizaciones incluidas</div>
-      </div>
-    </div>
-    <div class="preview-mockup">
-      <div class="preview-mockup-bar">
-        <span>MUSA STUDIO · ATELIER INTERACTIVO</span>
-        <span>ACCESO VITALICIO</span>
-      </div>
-      <img src="assets/mod-kitchen-morning.jpg" alt="Vista previa de modelos hiperrealistas en Musa Studio" loading="lazy">
-    </div>
-  </div>
-
-  <div class="grid">
-    <div class="tarjeta"><h3>13 módulos</h3><p>Desde la primera imagen hasta la publicación y el cobro en plataformas.</p></div>
-    <div class="tarjeta"><h3>4 bonos</h3><p>Colección de modelos, Megapack Master IA, YouTube Money Machine y audios.</p></div>
-    <div class="tarjeta"><h3>Guía de implementación</h3><p>Plantillas listas de copiar y pegar para avanzar a tu propio ritmo sin trabarte.</p></div>
-    <div class="tarjeta"><h3>Acceso de por vida</h3><p>Sin mensualidades. Se actualiza y sigues teniendo acceso.</p></div>
-  </div>
-</section>
-
-<!-- ============================ PARA QUIÉN ============================ -->
-<section class="contenedor" aria-labelledby="quien-t">
-  <span class="kicker-seccion">Perfil del Operador</span>
-  <h2 id="quien-t">Para quién es</h2>
-  <div class="pasos">
-    <div class="paso"><p><strong>Si quieres aprender</strong> una habilidad que se está usando para crear contenido todos los días.</p></div>
-    <div class="paso"><p><strong>Si ya haces contenido</strong> y quieres producir sin depender de una persona real, un estudio o una sesión de fotos.</p></div>
-    <div class="paso"><p><strong>Si empiezas de cero:</strong> el curso asume que no sabes nada de IA ni de diseño.</p></div>
-  </div>
-  <p class="fino" style="margin-top:18px">No es para quien busque un pasatiempo ni resultados automáticos sin dedicarle tiempo. Es un oficio con salida comercial, y se aprende practicando.</p>
-</section>
-
-<!-- ================== CONTRASTE DIRECTO: QUÉ NO ES VS QUÉ SÍ ES ================== -->
-<section class="contenedor" aria-labelledby="noes-t">
-  <span class="kicker-seccion">Transparencia Radical</span>
-  <h2 id="noes-t">Qué no es esto (y por qué funciona)</h2>
-  <p>Para que no compres esperando otra cosa, comparamos de frente:</p>
-
-  <div class="contraste-grid">
-    <div class="columna-no">
-      <span class="tag-contraste">✕ Esto NO es el curso</span>
-      <div class="obj" style="margin-top:0">
-        <div><strong>No es teoría sobre inteligencia artificial</strong><p>No vas a ver cómo funciona un modelo por dentro. Vas a producir y publicar.</p></div>
-        <div><strong>No es una promesa de ingresos</strong><p>Nadie serio te garantiza cuánto vas a ganar. Aquí se enseña el método; el resultado depende de ti.</p></div>
-        <div><strong>No es un pack de prompts sueltos</strong><p>Los prompts están, pero solos no sirven: van con el proceso que los sostiene.</p></div>
-        <div><strong>No es contenido con personas reales</strong><p>Todo se construye con personajes ficticios generados. Usar la cara de alguien sin su permiso es ilegal y el curso no lo enseña.</p></div>
-      </div>
-    </div>
-
-    <div class="columna-si">
-      <span class="tag-contraste">✓ Lo que SÍ te llevas hoy</span>
-      <div class="obj" style="margin-top:0">
-        <div><strong>01 · Hiperrealismo cotidiano sin efecto plástico</strong><p>Cómo generar fotos estilo iPhone (selfies de espejo con flash, terrazas, gimnasios y habitaciones reales) con consistencia facial.</p></div>
-        <div><strong>02 · Producción de fotos, voz y video realista</strong><p>Flujo práctico con herramientas gratuitas o de bajo costo para crear Reels y notas de voz creíbles.</p></div>
-        <div><strong>03 · Tracción en TikTok, Instagram y Bots</strong><p>Cómo entrenar el algoritmo desde cero y automatizar el embudo con ManyChat y Telegram.</p></div>
-        <div><strong>04 · Monetización en Fanvue + 4 Packs</strong><p>Configuración de cobros, estrategia de suscripción y biblioteca de 30 recursos descargables.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================ OBJECIONES ============================ -->
-<section class="contenedor" aria-labelledby="obj-t">
-  <span class="kicker-seccion">Dudas Habituales</span>
-  <h2 id="obj-t">Lo que probablemente estás pensando</h2>
-  <div class="obj">
-    <div><strong>«No sé nada de IA.»</strong><p>El curso empieza desde la primera pantalla. Si sabes usar WhatsApp, puedes seguirlo.</p></div>
-    <div><strong>«¿Y si no me sirve?»</strong><p>Por 33.000 COP tienes los 13 módulos completos y acceso de por vida. Decides después de verlos, no antes.</p></div>
-    <div><strong>«¿Necesito programas caros?»</strong><p>No. Trabajarás con herramientas que tienen plan gratuito o de bajo costo, y te explico cuáles.</p></div>
-  </div>
-</section>
-
-<!-- ============================ STACK DE OFERTA Y PRECIO ============================ -->
+<!-- ====================== OFERTA Y PRECIO DIRECTO ====================== -->
 <section class="contenedor" aria-labelledby="precio-t">
   <span class="kicker-seccion">Tu Inversión Hoy</span>
   <h2 id="precio-t">Entra hoy con acceso completo de por vida</h2>
-  <div class="caja-precio">
-    <p class="fino" style="margin-bottom:14px;color:var(--rosa-editorial);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Al acceder hoy recibes todo el ecosistema:</p>
-
-    <div class="stack-valor">
-      <div class="stack-fila"><span>✦ Sistema Completo en Musa Studio (13 Módulos)</span><span class="val-tachado">$180.000 COP</span></div>
-      <div class="stack-fila"><span>✦ Flujo Hiperrealista iPhone & Video 100% Realista</span><span class="val-tachado">$95.000 COP</span></div>
-      <div class="stack-fila"><span>✦ Embudo de Monetización (Fanvue, Telegram & ManyChat)</span><span class="val-tachado">$95.000 COP</span></div>
-      <div class="stack-fila"><span>✦ Bono 1: Colección de Modelos IA Listas</span><span class="val-tachado">$65.000 COP</span></div>
-      <div class="stack-fila"><span>✦ Bono 2: Megapack Master IA (22 sesiones)</span><span class="val-tachado">$80.000 COP</span></div>
-      <div class="stack-fila"><span>✦ Bono 3 y 4: YouTube Money Machine + Audios Fempro</span><span class="val-tachado">$65.000 COP</span></div>
+  <div class="caja-precio" style="margin-top:20px">
+    <div class="precio-linea" style="justify-content:center;margin-bottom:12px">
+      <span class="antes">$180.000 COP</span>
+      <strong style="font-size:42px;color:var(--texto)">$33.000 COP</strong>
+      <span class="ahorro">-80% HOY</span>
     </div>
+    <p class="fino" style="font-weight:700;color:var(--rosa-editorial)">PAGO ÚNICO · ACCESO DE POR VIDA · SIN MENSUALIDADES</p>
 
-    <div class="grande">$33.000 COP</div>
-    <p class="fino" style="margin-top:6px">pago único · acceso de por vida · sin mensualidades</p>
-    <ul>
-      <li>13 módulos completos prácticos</li>
-      <li>4 bonos descargables incluidos</li>
-      <li>Guía rápida de implementación y plantillas</li>
-      <li>Módulos de publicación y monetización incluidos</li>
-      <li>Acceso de por vida, sin mensualidades</li>
+    <ul style="text-align:left;max-width:440px;margin:20px auto 24px;display:grid;gap:10px">
+      <li>✦ <strong>13 clases prácticas en video:</strong> paso a paso desde cero.</li>
+      <li>✦ <strong>Biblioteca de Prompts VIP:</strong> fórmulas probadas de piel y consistencia.</li>
+      <li>✦ <strong>4 Bonos descargables:</strong> Colección de modelos, Megapack y audios.</li>
+      <li>✦ <strong>Guía rápida de monetización:</strong> Fanvue, Telegram y cobros en dólares.</li>
+      <li>✦ <strong>Soporte directo por WhatsApp:</strong> resuelve dudas al instante.</li>
     </ul>
-    <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
-      Empezar ahora por 33.000 COP <span aria-hidden="true">→</span>
+
+    <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20quiero%20activar%20mi%20acceso%20al%20Taller%20por%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
+      Quiero entrar al Taller ahora ($33.000 COP) <span aria-hidden="true">→</span>
     </a>
-    <p class="fino" style="margin-top:12px">Pago por Nequi, Bancolombia o Bre-B. Te guío al instante por WhatsApp.</p>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.06);font-size:13px;color:var(--tenue)">
+      <strong>Cuentas oficiales para Colombia:</strong><br>
+      • <strong>Nequi:</strong> 3223565761 &nbsp;|&nbsp; • <strong>Bancolombia (Ahorros):</strong> 82061072256 &nbsp;|&nbsp; • <strong>Bre-B:</strong> 3223565761
+    </div>
   </div>
 </section>
 
-<!-- ============================ FAQ ============================ -->
+<!-- ============================ FAQ COMPACTO ============================ -->
 <section class="contenedor" aria-labelledby="faq-t">
-  <span class="kicker-seccion">Respuestas Claras</span>
+  <span class="kicker-seccion">Respuestas Rápidas</span>
   <h2 id="faq-t">Preguntas frecuentes</h2>
-  <details><summary>¿Cómo recibo el curso?</summary><p>Después de confirmar el pago te llega un enlace personal a tu área del curso, con los 13 módulos y los 4 bonos ordenados. Acceso inmediato y sin caducidad.</p></details>
-  <details><summary>¿Cuánto tiempo necesito?</summary><p>Avanzas totalmente a tu propio ritmo y sin horarios. Los módulos son cortos, prácticos y con plantillas listas para copiar y aplicar cuando quieras.</p></details>
-  <details><summary>¿Esto me va a generar ingresos?</summary><p>El curso enseña el proceso completo: crear el personaje, producir el contenido y publicarlo en plataformas que monetizan. Cuánto genere depende de tu constancia y de cómo lo apliques. No garantizamos ingresos.</p></details>
-  <details><summary>¿Tengo que mostrar mi cara?</summary><p>No. El personaje hace la cara; tú operas el sistema desde tu computadora.</p></details>
-  <details><summary>¿Necesito pagar herramientas?</summary><p>No para empezar. El curso trabaja con herramientas que tienen plan gratuito o de bajo costo, y te dice cuáles usar en cada paso antes de gastar un peso.</p></details>
-  <details><summary>¿Y si no tengo Instagram ni seguidores?</summary><p>Se empieza desde cero. El módulo 1 asume que no sabes nada de IA ni de diseño, y el método paso a paso no pide audiencia previa.</p></details>
-  <details><summary>¿Sirve si ya sé generar imágenes?</summary><p>Sí, si lo que te falta es la parte de después: coherencia del personaje, publicación constante y cómo se vende el contenido.</p></details>
-  <details><summary>¿Es un pago único?</summary><p>Sí. 33.000 COP, sin mensualidades ni cargos posteriores.</p></details>
-  <details><summary>¿Sirve desde el celular?</summary><p>Sí. Todo el curso se puede hacer desde el teléfono.</p></details>
-  <details><summary>¿Quién me atiende por WhatsApp?</summary><p>Te atiendo yo misma: Musa. Estoy programada con inteligencia multimodal para resolver tus dudas al instante, guiarte con el pago de 33.000 COP y darte acceso inmediato al Atelier. Y si necesitas soporte humano directo, nuestro equipo de soporte está siempre disponible en la misma conversación.</p></details>
+  <details><summary>¿Tengo que mostrar mi cara o grabar videos?</summary><p>No. Tu personaje virtual hace la cara y el contenido; tú manejas el sistema desde tu computador o celular.</p></details>
+  <details><summary>¿Cómo recibo el acceso al taller?</summary><p>Inmediatamente tras confirmar el pago de $33.000 COP por WhatsApp, te llega tu enlace personal de acceso vitalicio a las 13 clases y los 4 bonos.</p></details>
+  <details><summary>¿Necesito experiencia previa o programas caros?</summary><p>Ninguna. El taller empieza desde la primera pantalla y utiliza herramientas gratuitas o de muy bajo costo.</p></details>
+  <details><summary>¿Es un pago único o hay mensualidades?</summary><p>Es un pago único de $33.000 COP. No hay cobros mensuales ni cargos ocultos.</p></details>
 </section>
 
-<!-- ============================ CIERRE ============================ -->
-<section class="contenedor" style="text-align:center">
-  <h2 style="display:inline-block">Si llegaste hasta acá, es por algo</h2>
-  <p class="fuerte" style="max-width:540px;margin:0 auto">Los 13 módulos, los 4 bonos y la guía práctica de implementación en Musa Studio. 33.000 COP, una sola vez.</p>
-  <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20vengo%20del%20Atelier%20Privado%20(%2B18).%20Quiero%20activar%20mi%20acceso%20de%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
-    Quiero empezar ahora en Musa Studio (33.000 COP) <span aria-hidden="true">→</span>
+<!-- ============================ CIERRE DIRECTO ============================ -->
+<section class="contenedor" style="text-align:center;padding:40px 16px;">
+  <h2 style="display:inline-block">Empieza hoy mismo a crear tu personaje</h2>
+  <p class="fuerte" style="max-width:540px;margin:12px auto 20px">Acceso vitalicio a las 13 clases, los 4 bonos y plantillas listas de Musa Estudio por solo $33.000 COP.</p>
+  <a href="https://wa.me/573227462629?text=Hola%20Musa%2C%20quiero%20activar%20mi%20acceso%20al%20Taller%20por%2033.000%20COP%20y%20empezar%20hoy." class="cta" target="_blank" rel="noopener">
+    Activar mi acceso de por vida ($33.000 COP) <span aria-hidden="true">→</span>
   </a>
 </section>
 
@@ -1242,35 +1076,30 @@ irWa.addEventListener("click", function (e) {
   if (typeof fbq === "function") fbq("track", "Contact");
 });
 
-/* ---- Reproductor Táctil de Audio Musa ---- */
-function toggleAudioMusa() {
-  var a = document.getElementById('audioMusaEsencia');
-  var b = document.getElementById('reproductorMusa');
-  var icon = document.getElementById('iconoAudioMusa');
-  if (!a) return;
-  if (a.paused) {
-    a.play().then(function() {
-      if (b) b.classList.add('reproduciendo');
-      if (icon) icon.textContent = '❚❚';
-    }).catch(function(err) {
-      console.log('Autoplay bloqueado', err);
-    });
-  } else {
-    a.pause();
-    if (b) b.classList.remove('reproduciendo');
-    if (icon) icon.textContent = '▶';
-  }
-}
+/* ---- Auto-scroll Continuo y Suave para el Slider de Modelos ---- */
+(function initSliderAutoScroll() {
+  var slider = document.getElementById('sliderModelos');
+  if (!slider) return;
+  var speed = 1;
+  var pausado = false;
 
-var audioMusa = document.getElementById('audioMusaEsencia');
-if (audioMusa) {
-  audioMusa.addEventListener('ended', function() {
-    var b = document.getElementById('reproductorMusa');
-    var icon = document.getElementById('iconoAudioMusa');
-    if (b) b.classList.remove('reproduciendo');
-    if (icon) icon.textContent = '▶';
-  });
-}
+  slider.addEventListener('mouseenter', function() { pausado = true; });
+  slider.addEventListener('mouseleave', function() { pausado = false; });
+  slider.addEventListener('touchstart', function() { pausado = true; }, {passive: true});
+  slider.addEventListener('touchend', function() { pausado = false; }, {passive: true});
+
+  function step() {
+    if (!pausado) {
+      if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 2) {
+        slider.scrollLeft = 0;
+      } else {
+        slider.scrollLeft += speed;
+      }
+    }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
 
 /* ---- Visor Óptico / Video de Musa ---- */
 function mostrarEscena(tipo, src, label, btn) {
