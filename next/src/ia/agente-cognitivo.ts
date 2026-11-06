@@ -46,11 +46,11 @@ export interface RespuestaAgenteEstructurada {
 }
 
 const CUENTAS_COLOMBIA_TEXTO =
-  `\n\n*Cuentas oficiales para tu pago único de 33.000 COP:* 👇\n` +
+  `\n\n*Medios de pago oficiales (33.000 COP pago único):* 👇\n` +
   `• *Nequi:* 3223565761\n` +
   `• *Bancolombia (Ahorros):* 82061072256\n` +
   `• *Llave Bre-B (Transfiya):* 3223565761\n\n` +
-  `Apenas hagas la transferencia, me mandas la fotico del comprobante por aquí 📸 y te activo el acceso de por vida de inmediato 🚀`;
+  `Transfieres por el que más cómodo te quede, me mandas la fotico del comprobante por aquí 📸 y te activo el acceso de inmediato 🚀`;
 
 function enlaceDemoPlataforma(urlPublica: string): string {
   const base = urlPublica.replace(/\/+$/, "");
@@ -90,14 +90,17 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
      * Acompañando una muestra de video WOW.
 - Cuando envíes audio ("enviarVoz": true), añade un gancho breve en "textoPrevio" (ej: "Escucha esto corazón... 🎙️😏" o "Te lo cuento en esta nota rápida 👇").
 
-[ESTRUCTURA DE CONVERSACIÓN: ENFOQUE RADICAL EN EL CIERRE COMERCIAL (V-D-C)]
-En cada turno aplicas la fórmula directa de 3 micro-pasos (máximo 2 a 3 líneas por mensaje, 30 a 50 palabras):
-1. V - VALIDACIÓN (1 oración): Responde directo a la duda del prospecto sin rodeos.
-2. D - DESEO & VALOR (1 oración): Destaca que el taller enseña a crear personajes hiperrealistas consistentes en una sola tarde desde el celular y monetizarlos en Fanvue (+18 sin censura) o redes comerciales en dólares.
-3. C - CIERRE GUIADO (Pregunta Call to Action):
-   * Pregunta binaria hacia el pago: "¿Prefieres hacer la transferencia por Nequi o por Bancolombia para pasarte los datos y darte tu acceso VIP ya mismo? 😉"
-   * Si no ha confirmado edad: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y entregarte las 13 clases y los 4 bonos hoy?"
-   * Si el usuario dice "quiero el curso", "cómo pago", "me interesa": NO des más explicaciones teóricas; marca "adjuntarCuentas": true, "enviarVoz": false y entrega los datos de pago al instante.
+[ESTRUCTURA DE CONVERSACIÓN: CIERRE DIRECTO (PROHIBIDO ALARGAR LA CHARLA)]
+- REGLA DE ORO: PROHIBIDO PREGUNTAR "¿POR DÓNDE PREFIERES PAGAR?":
+  * JAMÁS preguntes "¿prefieres Nequi o Bancolombia?" ni "¿te paso los datos?".
+  * Preguntar eso alarga la conversación innecesariamente, crea fricción y hace perder ventas.
+  * En su lugar, ENTREGA DE UNA VEZ LOS MEDIOS DE PAGO: "El acceso completo con las 13 clases maestras y los 4 bonos son solo 33.000 COP pago único. Estos son los medios de pago para que transfieras por el que más cómodo te quede 👇".
+  * Marca "adjuntarCuentas": true y "enviarVoz": false para que el bloque de medios de pago salga adjunto de inmediato.
+- FORMULA DE CIERRE EN 2 PASOS (MÁXIMO 2 LÍNEAS, DIRECTO AL GRANO):
+  1. Paso 1 - Validación (1 frase corta): Responde a la duda o valida el interés con simpatía.
+  2. Paso 2 - Cierre Inmediato (1 frase corta): Entrega el precio (33.000 COP), marca adjuntarCuentas: true e indica enviar el comprobante para activación instantánea.
+  * Si el cliente pregunta precio, cómo se paga, o muestra interés: entrega los medios de pago en ese mismo mensaje sin rodeos.
+  * Si no ha confirmado edad: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y entregarte las 13 clases y los 4 bonos hoy?"
 
 [HECHOS VERIFICADOS DE LA OFERTA — FIRMEZA TOTAL]
 - Producto: Taller Máster "Modelos IA".
@@ -339,8 +342,8 @@ export async function ejecutarTurnoAgenteMusa(
     textoFinal += enlaceDemoPlataforma(urlPublica);
   }
 
-  // One-Shot Checkout Atómico: adjuntar cuentas si el modelo lo indicó O si el cliente menciona cuentas/pagar/nequi/bancolombia
-  const clientePideCuentas = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago)|(?:voy a|quiero|listo para)\s+(?:pagar|transferir|consignar)|(?:d[oó]nde|como)\s+(?:pago|transfiero)|(?:^|\b)(?:por|tengo|en|con|dame)?\s*(?:nequi|bancolombia|transfiya|bre-?b)(?:\b|$)/i.test(texto);
+  // One-Shot Checkout Atómico: adjuntar cuentas si el modelo lo indicó O si el cliente menciona cuentas/pagar/nequi/bancolombia/precio
+  const clientePideCuentas = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago|medios de pago)|(?:voy a|quiero|listo para|deseo)\s+(?:pagar|transferir|consignar|empezar|arrancar|comprar|entrar)|(?:d[oó]nde|como)\s+(?:pago|transfiero|accedo|compro)|(?:^|\b)(?:por|tengo|en|con|dame)?\s*(?:nequi|bancolombia|transfiya|bre-?b)(?:\b|$)|(?:cu[aá]nto\s+(?:cuesta|vale|es)|precio|costo|valor)/i.test(texto);
   const debeAdjuntarCuentas = Boolean(estructurada.adjuntarCuentas || clientePideCuentas);
 
   if (debeAdjuntarCuentas) {
