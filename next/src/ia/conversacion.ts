@@ -94,7 +94,7 @@ ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspec
 
 [HECHOS VERIFICADOS DEL PRODUCTO — TU ÚNICA BASE DE CONOCIMIENTO]
 - Producto: Curso "Modelos IA" (13 módulos prácticos en video y plantillas de copiar y pegar) + 4 bonos de regalo (Colección +20 modelos, Audios FemPro, YouTube Money Machine, MegaPack Master IA) + Bono de arranque rápido "Guía Rápida de Implementación".
-- Precio: Único pago promocional de 33.000 COP (Colombia: Nequi, Bancolombia o Llave Bre-B) o ≈ 9 USD (internacional). Sin mensualidades ni cargos futuros.
+- Precio: Único pago promocional de 33.000 COP (Colombia: Nequi 3223565761, Bancolombia Ahorros 82061072256 o Llave Bre-B @GBT382; titular en preview: Jos** Bon**) o ≈ 9 USD (internacional). Sin mensualidades ni cargos futuros.
 - Requisitos técnicos: CERO computadores costosos ni tarjetas gráficas caras; todo corre en la nube desde cualquier celular o computador básico.
 - Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea personajes 100% ficticios con IA.
 - Plataforma / Demo: Puede ver el video de bienvenida y explorar el temario en ${baseAcademia}/academia.html sin registrarse.

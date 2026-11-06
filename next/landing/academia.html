@@ -151,8 +151,13 @@
       </a>
 
       <div class="pl-2 border-l border-[#E4E0D8] flex items-center gap-2">
-        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#141413] text-[#F6F4F0] flex items-center justify-center font-bold text-xs">ES</div>
-        <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#141413] max-w-[120px] truncate">Estudiante</span>
+        <div id="avatarInitials" class="w-8 h-8 rounded-full bg-[#141413] text-[#F6F4F0] flex items-center justify-center font-bold text-xs select-none">ES</div>
+        <div class="flex items-center gap-1.5">
+          <span id="studentNameSidebar" class="hidden xl:inline text-xs font-semibold text-[#141413] max-w-[120px] truncate">Estudiante</span>
+          <button id="btnLogoutLms" onclick="cerrarSesionLms()" title="Cerrar sesión del taller" class="hidden p-1 text-[#8C827A] hover:text-[#B86B77] transition-colors rounded">
+            <span class="material-symbols-outlined text-[16px]">logout</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -612,6 +617,11 @@ async function cargarCatalogo() {
   const iniciales = esVisitante ? "VS" : (nombre.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "ES");
   const avatarEl = document.getElementById("avatarInitials");
   if (avatarEl) avatarEl.textContent = iniciales;
+
+  const logoutBtn = document.getElementById("btnLogoutLms");
+  if (logoutBtn) {
+    logoutBtn.style.display = esVisitante ? "none" : "inline-flex";
+  }
 
   const affBtn = document.getElementById("btnAfiliadosHeader");
   if (affBtn) {
@@ -1103,6 +1113,15 @@ function copiarEnlaceAfiliado() {
     setTimeout(() => { label.textContent = prev; }, 2000);
   }
   mostrarToast("Enlace de afiliado (50%) copiado");
+}
+
+async function cerrarSesionLms() {
+  try {
+    await fetch("/api/academia/logout", { method: "POST" });
+  } catch {}
+  const u = new URL(window.location.href);
+  u.searchParams.delete("t");
+  window.location.href = u.pathname;
 }
 
 function abrirModalConversion(idx) {

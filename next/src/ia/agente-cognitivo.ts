@@ -49,7 +49,8 @@ const CUENTAS_COLOMBIA_TEXTO =
   `\n\n*Medios de pago oficiales (33.000 COP pago único):* 👇\n` +
   `• *Nequi:* 3223565761\n` +
   `• *Bancolombia (Ahorros):* 82061072256\n` +
-  `• *Llave Bre-B (Transfiya):* 3223565761\n\n` +
+  `• *Llave Bre-B (Transfiya):* @GBT382\n` +
+  `_(Al transferir te saldrá como titular de cuenta: Jos** Bon** / José Bonilla)_\n\n` +
   `Transfieres por el que más cómodo te quede, me mandas la fotico del comprobante por aquí 📸 y te activo el acceso de inmediato 🚀`;
 
 function enlaceDemoPlataforma(urlPublica: string): string {
@@ -116,6 +117,7 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
 [HECHOS VERIFICADOS DE LA OFERTA — FIRMEZA TOTAL]
 - Producto: Taller Máster "Modelos IA".
 - Inversión: Pago único promocional de 33.000 COP en Colombia (Nequi, Bancolombia, Bre-B) o 9 USD internacional.
+- Cuentas oficiales: Nequi 3223565761, Bancolombia (Ahorros) 82061072256, Llave Bre-B (Transfiya) @GBT382. Titular visible al previsualizar la cuenta en apps bancarias: Jos** Bon** (José Bonilla).
 - Incluye: 13 clases maestras en video + 4 bonos descargables (Prompts de consistencia facial, poses, guía de monetización Fanvue, automatización) + acceso de por vida al aula protegida en ${base}/academia.html.
 - CERO requisitos técnicos costosos: Todo corre en la nube desde cualquier celular o computador básico. Cero código.
 - Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea chicas 100% ficticias con IA.
@@ -357,7 +359,7 @@ export async function ejecutarTurnoAgenteMusa(
   const clientePideCuentas = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago|medios de pago)|(?:voy a|quiero|listo para|deseo)\s+(?:pagar|transferir|consignar|empezar|arrancar|comprar|entrar)|(?:d[oó]nde|como)\s+(?:pago|transfiero|accedo|compro)|(?:^|\b)(?:por|tengo|en|con|dame)?\s*(?:nequi|bancolombia|transfiya|bre-?b)(?:\b|$)|(?:cu[aá]nto\s+(?:cuesta|vale|es)|precio|costo|valor)/i.test(texto);
 
   // Anti-repetición de cuentas: Si el bloque de cuentas ya se envió en el mensaje anterior y el cliente no las pidió explícitamente, no volver a pegarlas en turnos consecutivos
-  const yaSeEnviaronCuentasReciente = historialMensajes.slice(-2).some(m => m.role === "assistant" && (m.content.includes("3223565761") || m.content.includes("Medios de pago oficiales")));
+  const yaSeEnviaronCuentasReciente = historialMensajes.slice(-2).some(m => m.role === "assistant" && (m.content.includes("3223565761") || m.content.includes("@GBT382") || m.content.includes("Medios de pago oficiales")));
   const clientePideCuentasExplicito = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago|medios de pago)|(?:d[oó]nde|como)\s+(?:pago|transfiero)/i.test(texto);
 
   const debeAdjuntarCuentas = Boolean(

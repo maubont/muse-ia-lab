@@ -412,6 +412,16 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       }
     }
 
+    if (url === "/api/academia/logout") {
+      const esHttps = (req.headers["x-forwarded-proto"] ?? "").toString().toLowerCase() === "https";
+      const flags = esHttps ? " Secure;" : "";
+      res.setHeader(
+        "Set-Cookie",
+        `musa_acceso=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0;${flags}`,
+      );
+      return json(res, 200, { ok: true, mensaje: "sesion_cerrada" });
+    }
+
     // ---- API Consola Musa: Sesión, Estado & Comandos Protegidos ----
     if (url === "/api/consola/session") {
       if (req.method !== "GET") return json(res, 405, { error: "metodo_no_permitido" });

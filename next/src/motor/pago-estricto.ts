@@ -45,7 +45,7 @@ export interface DestinoPropio {
 /** Normaliza un destino del comprobante a solo dígitos, quitando el prefijo 57. */
 export function normalizarDestino(valor: string | null | undefined): { digitos: string | null; alfa: string } {
   const crudo = String(valor ?? "").trim();
-  const alfa = crudo.toLowerCase().replace(/\s+/g, "");
+  const alfa = crudo.toLowerCase().replace(/[@\s]/g, "");
   let d = soloDigitos(crudo);
   // Prefijo de país de Colombia: 57 + 10 dígitos -> 10 dígitos.
   if (d.length === 12 && d.startsWith("57")) d = d.slice(2);
@@ -101,6 +101,7 @@ export function coincideDestinoExacto(
   for (const destino of utiles) {
     if (destino.digitos && cand.digitos && destino.digitos === cand.digitos) return { coincide: true };
     if (!destino.digitos && cand.alfa === destino.alfa) return { coincide: true };
+    if (cand.alfa && destino.alfa && (cand.alfa === destino.alfa || cand.alfa.includes(destino.alfa))) return { coincide: true };
   }
   return { coincide: false, motivo: "destino_no_exacto" };
 }

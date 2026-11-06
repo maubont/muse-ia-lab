@@ -103,10 +103,12 @@ export function bloqueCuentasVE(cfg: CfgCopy): string {
 
 export function bloqueCuentasCO(cfg: CfgCopy): string {
   const c = cfg.cuentasCo ?? {};
+  const titular = c.bancolombia?.titular || c.nequi?.titular || "Jos** Bon**";
   return [
     `📲 *Nequi*: ${c.nequi?.numero ?? ""}`,
-    `🏦 *Bancolombia* (${c.bancolombia?.tipo ?? "ahorros"}): ${c.bancolombia?.numero ?? ""} — Titular: ${c.bancolombia?.titular ?? ""}`,
+    `🏦 *Bancolombia* (${c.bancolombia?.tipo ?? "ahorros"}): ${c.bancolombia?.numero ?? ""}`,
     `🔑 *Llave Bre-B*: ${c.breb?.llave ?? ""}`,
+    `_(Titular al previsualizar la cuenta: ${titular})_`,
   ].join("\n");
 }
 

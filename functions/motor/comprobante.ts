@@ -152,8 +152,18 @@ export function decidirComprobante(
   const candidatos = [d.destino, ...(d.numeros_detectados ?? [])]
     .map((s) => soloDigitos(s))
     .filter((s) => s.length >= 6);
-  const coincide = destinos.length > 0 &&
-    candidatos.some((cand) => destinos.some((n) => cand === n || cand.includes(n)));
+  const normAlfa = (s: string | null | undefined) => String(s ?? "").toLowerCase().replace(/[@\s]/g, "");
+  const brebLlave = normAlfa(cfg.cuentasCo?.breb?.llave);
+  const coincideBreb = Boolean(
+    brebLlave &&
+    brebLlave.length >= 4 &&
+    [d.destino, ...(d.numeros_detectados ?? [])].some((s) => {
+      const na = normAlfa(s);
+      return na === brebLlave || na.includes(brebLlave);
+    })
+  );
+  const coincide = (destinos.length > 0 &&
+    candidatos.some((cand) => destinos.some((n) => cand === n || cand.includes(n)))) || coincideBreb;
   if (!coincide) {
     return { accion: "COLA_HUMANA", motivo: "destino_no_coincide" };
   }
