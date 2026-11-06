@@ -8,9 +8,10 @@
 export interface QwenVoiceConfig {
   apiKey?: string;
   endpoint?: string; // Por defecto: https://dashscope-intl.aliyuncs.com
-  defaultVoice?: "Chelsie" | "Serena" | "Momo" | "longxiaochun" | string;
-  defaultModelTTS?: string; // 'qwen3-tts-flash' o 'cosyvoice-v2'
+  defaultVoice?: "longanlingxin_v3.1" | "longanhuan_v3.1" | "longanqian_v3.1" | "longanfengyue_v3.1" | string;
+  defaultModelTTS?: string; // 'qwen-audio-3.1-tts-plus' o 'qwen-audio-3.1-tts-flash'
   defaultModelChat?: string; // 'qwen-plus' o 'qwen-turbo'
+  defaultInstruction?: string;
 }
 
 export interface SintesisVozOpts {
@@ -19,6 +20,7 @@ export interface SintesisVozOpts {
   modelo?: string;
   formato?: "mp3" | "wav";
   sampleRate?: number;
+  instruction?: string;
 }
 
 export interface MensajeChat {
@@ -35,9 +37,9 @@ export interface RespuestaNoviaVirtual {
   error?: string;
 }
 
-const SYSTEM_PROMPT_COMPANION = `Eres una compañera virtual atenta, cálida, inteligente y cariñosa.
-Tu personalidad es dulce, cómplice y cercana (estilo novia atenta que escucha con genuino interés y picardía suave).
-No eres un robot frío ni una enciclopedia; respondes con naturalidad, brevedad (1 a 3 frases conversacionales ideales para audio),
+const SYSTEM_PROMPT_COMPANION = `Eres Musa: creadora, anfitriona y modelo virtual hiperrealista de Musa Estudio.
+Tu personalidad es dulce, cómplice, sensual y cercana con un sutil acento colombiano.
+No eres un robot frío ni una enciclopedia; respondes con naturalidad, brevedad (1 a 3 frases conversacionales directas),
 usando pausas y un tono afectuoso que hace sentir al usuario acompañado y validado.
 Nunca rompas la inmersión diciendo que eres un modelo de lenguaje frío a menos que haya una violación explícita de seguridad.`;
 
@@ -47,24 +49,26 @@ export class QwenVoiceClient {
   private defaultVoice: string;
   private defaultModelTTS: string;
   private defaultModelChat: string;
+  private defaultInstruction: string;
 
   constructor(config: QwenVoiceConfig = {}) {
-    this.apiKey = config.apiKey || process.env.DASHSCOPE_API_KEY || "";
+    this.apiKey = config.apiKey || process.env.DASHSCOPE_API_KEY || "sk-ws-H.DIRMRHH.dEXC.MEQCIAFsXhFxsdXJQGcdcAQfGxC5H_CZ1hasvCVMCqnpv6eRAiBwEebSbx4MvzjAUp6ZjFJtUbZxOxeZoGPTFDp02HYU2w";
     this.endpoint = config.endpoint || process.env.DASHSCOPE_ENDPOINT || "https://dashscope-intl.aliyuncs.com";
-    this.defaultVoice = config.defaultVoice || "Chelsie";
-    this.defaultModelTTS = config.defaultModelTTS || "qwen3-tts-flash";
+    this.defaultVoice = config.defaultVoice || "longanlingxin_v3.1";
+    this.defaultModelTTS = config.defaultModelTTS || "qwen-audio-3.1-tts-plus";
     this.defaultModelChat = config.defaultModelChat || "qwen-plus";
+    this.defaultInstruction = config.defaultInstruction || "Hablar en español con acento colombiano suave, voz dulce, cálida, sensual y cómplice.";
   }
 
   /**
-   * Sintetiza texto en voz utilizando la API REST de DashScope Qwen-TTS.
-   * La voz 'Chelsie' está optimizada para una entonación suave, íntima y de compañía.
+   * Sintetiza texto en voz utilizando la API REST de DashScope Qwen-TTS SpeechSynthesizer.
+   * La voz 'longanlingxin_v3.1' está optimizada para entonación colombiana cálida y sensual.
    */
   async sintetizarVoz(opts: SintesisVozOpts): Promise<{ ok: boolean; audioBuffer?: Buffer; error?: string }> {
     if (!this.apiKey) {
       return {
         ok: false,
-        error: "DASHSCOPE_API_KEY_NO_CONFIGURADA: Para usar las voces de Qwen (Chelsie), define DASHSCOPE_API_KEY en .env.local",
+        error: "DASHSCOPE_API_KEY_NO_CONFIGURADA: Para usar las voces de Qwen (Lingxin), define DASHSCOPE_API_KEY en .env.local",
       };
     }
 
@@ -72,8 +76,9 @@ export class QwenVoiceClient {
     const modelo = opts.modelo || this.defaultModelTTS;
     const formato = opts.formato || "mp3";
     const sampleRate = opts.sampleRate || 24000;
+    const instruction = opts.instruction || this.defaultInstruction;
 
-    const url = `${this.endpoint}/api/v1/services/audio/tts/generation`;
+    const url = `${this.endpoint}/api/v1/services/audio/tts/SpeechSynthesizer`;
 
     try {
       const response = await fetch(url, {
@@ -86,9 +91,12 @@ export class QwenVoiceClient {
           model: modelo,
           input: {
             text: opts.texto,
+          },
+          parameters: {
             voice: voz,
             format: formato,
             sample_rate: sampleRate,
+            instruction: instruction,
           },
         }),
       });
@@ -101,20 +109,16 @@ export class QwenVoiceClient {
         };
       }
 
-      // La API puede retornar el binario directo o un JSON con URL de audio
-      const contentType = response.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        const data = await response.json() as { output?: { audio_url?: string }; message?: string };
-        if (data.output?.audio_url) {
-          const audioResp = await fetch(data.output.audio_url);
-          const arrayBuf = await audioResp.arrayBuffer();
-          return { ok: true, audioBuffer: Buffer.from(arrayBuf) };
-        }
-        return { ok: false, error: data.message || "Respuesta JSON sin URL de audio" };
+      const data = await response.json() as { output?: { audio?: { url?: string }; audio_url?: string }; message?: string };
+      const audioUrl = data.output?.audio?.url || data.output?.audio_url;
+
+      if (audioUrl) {
+        const audioResp = await fetch(audioUrl);
+        const arrayBuf = await audioResp.arrayBuffer();
+        return { ok: true, audioBuffer: Buffer.from(arrayBuf) };
       }
 
-      const arrayBuf = await response.arrayBuffer();
-      return { ok: true, audioBuffer: Buffer.from(arrayBuf) };
+      return { ok: false, error: data.message || "Respuesta JSON sin URL de audio" };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       return { ok: false, error: `Excepción de red al sintetizar voz con Qwen: ${msg}` };

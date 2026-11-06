@@ -1,7 +1,7 @@
 // next/src/ia/studio-live.ts — MOTOR DE ENSAYO Y SANDBOX EN VIVO DE MUSA
 // Permite probar en tiempo real a Musa en sus tres modos: Negocios, Seductora y Santuario Íntimo.
 
-import { sintetizarAudioOpenAI } from "../motor/sintetizador-voz-openai.ts";
+import { sintetizarVozOficialMusa } from "../motor/sintetizador-voz-musa.ts";
 
 export interface EntradaStudioLive {
   mensaje: string;
@@ -132,19 +132,13 @@ ${instruccionModo}
   else if (parsed.videoAccion === "muestra_glamour") videoUrl = `${base}/videos/muestra_glamour.mp4`;
   else if (parsed.videoAccion === "muestra_comercial") videoUrl = `${base}/videos/muestra_comercial.mp4`;
 
-  // Síntesis de audio si aplica
+  // Síntesis de audio con la voz oficial de Musa (Lingxin Qwen 3.1)
   let audioBase64: string | null = null;
   if (entrada.sintetizarVoz !== false && (parsed.enviarVoz || parsed.respuesta.length < 400)) {
     try {
-      const buffer = await sintetizarAudioOpenAI(parsed.respuesta, {
-        apiKey,
-        baseUrl,
-        modelo: "tts-1-hd",
-        voz: "nova",
-        velocidad: 0.96,
-      });
-      if (buffer && buffer.length > 0) {
-        audioBase64 = buffer.toString("base64");
+      const resVoz = await sintetizarVozOficialMusa(parsed.respuesta);
+      if (resVoz.ok && resVoz.buffer && resVoz.buffer.length > 0) {
+        audioBase64 = resVoz.buffer.toString("base64");
       }
     } catch {
       audioBase64 = null;
