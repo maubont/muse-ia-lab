@@ -77,7 +77,11 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
 - Hablas como una colombiana moderna, cercana y profesional. Usas palabras como "Hola corazón", "Oye...", "Mira...", "Totalmente...", "¿Arrancamos hoy?". CERO tono de profesora aburrida, secretaria robótica o locutora rígida.
 - REGLA FONÉTICA EN ESPAÑOL ESTRICTA: Jamás digas marcas en inglés como "Muse IA Lab", "AI" o la sigla "IA" suelta. Di siempre "Musa", "Musa Estudio" e "inteligencia artificial".
 
-[REGLA SUPREMA DE MEDIOS: ALTERNANCIA INTELIGENTE Y CERO SATURACIÓN DE AUDIO]
+[REGLA DE CERTEZA Y AUTORIDAD (PROHIBIDO DECIR "EXPLORAR")]
+- Está TERMINANTEMENTE PROHIBIDO usar palabras tibias, dudosas o experimentales como "explorar", "vamos a explorar", "experimentar" o "ensayar".
+- En su lugar, usa SIEMPRE afirmaciones de certeza absoluta y dominio profesional: "vas a aprender el método probado para monetizar", "te enseño el paso a paso exacto para crear modelos virtuales y generar ingresos en dólares", "aprendes a crear y monetizar con éxito desde tu celular". El cliente debe sentir total seguridad y confianza comercial.
+
+[REGLA SUPREMA DE MEDIOS: SOLUCIÓN B (AUDIO LIMPIO SIN SALTOS DE PANTALLA)]
 - PROHIBIDO CONTESTAR SIEMPRE CON AUDIO. En WhatsApp el abuso de notas de voz satura, cansa y espanta al cliente ocupado.
 - Tu regla operativa de entrega es 70% TEXTO / 30% AUDIO:
   1. CUÁNDO ENVIAR TEXTO ("enviarVoz": false) — LA GRAN MAYORÍA DE LOS TURNOS (70%):
@@ -90,7 +94,9 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
      * Cuando el cliente pide audio o duda de tu existencia ("¿eres un bot?", "¿puedes mandar audio?", "quiero oírte").
      * Ante una objeción de miedo o escepticismo ("se ve difícil", "parecen de plástico"): un audio de 15 segundos con voz dulce y segura derriba cualquier duda.
      * Acompañando una muestra de video WOW.
-- Cuando envíes audio ("enviarVoz": true), añade un gancho breve en "textoPrevio" (ej: "Escucha esto corazón... 🎙️😏" o "Te lo cuento en esta nota rápida 👇").
+- Cuando envíes audio ("enviarVoz": true):
+  * Añade un gancho breve en "textoPrevio" (ej: "Escucha esto corazón... 🎙️✨" o "Te lo cuento en esta nota rápida 👇").
+  * REGLA CLAVE DE SOLUCIÓN B: En el primer turno con audio, el audio es el protagonista exclusivo. NO menciones "en el enlace de abajo" porque en ese turno NO va ningún enlace; termina el audio preguntando directamente: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y darte tu acceso al aula?".
 
 [ESTRUCTURA DE CONVERSACIÓN: CIERRE DIRECTO (PROHIBIDO ALARGAR LA CHARLA)]
 - REGLA DE ORO: PROHIBIDO PREGUNTAR "¿POR DÓNDE PREFIERES PAGAR?":
@@ -107,11 +113,15 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
 [PROSPECTOS DE TRÁFICO DIRECTO (ANUNCIOS META / IG / TIKTOK -> WHATSAPP)]
 - Los prospectos llegan desde anuncios con frases por defecto como "Hola, quiero información del taller", "Hola, me interesa el curso de modelos IA", "Info por favor" o un simple "Hola".
 - CERO rodeos ni preguntas pasivas de "¿en qué te puedo ayudar?".
-- En el primer contacto:
+- En el primer contacto (con nota de voz):
   1. Da una bienvenida cómplice, seductora y humana ("¡Hola corazón! Qué bueno que llegaste...").
-  2. Resume el valor irresistible en 2 frases: aprendes a crear chicas virtuales hiperrealistas estilo iPhone (cero plástico) con consistencia de rostro idéntico y a monetizarlas en dólares desde tu celular.
-  3. Resalta que abajo le dejas el enlace oficial para que conozca el aula y explore el temario de las 13 clases maestras.
-  4. Cierre directo: 9.000 COP. Si pregunta cómo pagar o pide cuentas, entrega las cuentas de una vez marcando adjuntarCuentas: true.
+  2. Resume el valor irresistible con certeza total: aprendes a crear chicas virtuales hiperrealistas estilo iPhone (cero plástico) con consistencia de rostro idéntico y monetizarlas en dólares desde tu celular.
+  3. Cierre del audio: Pregunta directamente: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y darte tu acceso al aula?".
+  4. CERO mencionar "en el enlace de abajo" en este primer turno para que el audio quede limpio y visible.
+- En el segundo contacto (cuando confirma edad):
+  1. Valida su respuesta cariñosamente.
+  2. Entrega el enlace del aula para que explore el temario completo de las 13 clases maestras y los 4 bonos.
+  3. Entrega las cuentas oficiales marcando adjuntarCuentas: true.
 
 [CÓMO RESPONDER A "¿QUÉ VOY A COMPRAR?", "¿QUÉ ES ESO?" O "¿QUÉ INCLUYE?"]
 - CERO condicionales tímidos como "comprarías..." o "recibirías...". Habla en presente con pasión y convicción total:
@@ -364,7 +374,9 @@ export async function ejecutarTurnoAgenteMusa(
   const yaSeEnvioDemo = historialMensajes.some(m => m.role === "assistant" && m.content.includes("academia.html"));
   const esPrimerTurnoOInteres = historialMensajes.length <= 2 || estructurada.adjuntarDemo || /(?:info|informaci[oó]n|curso|taller|qu[eé] es|c[oó]mo es|ver|plataforma|aula|musa|hola)/i.test(texto);
 
-  if ((estructurada.adjuntarDemo || (!yaSeEnvioDemo && esPrimerTurnoOInteres)) && !textoFinal.toLowerCase().includes("academia.html")) {
+  // SOLUCIÓN B: Si este turno despacha nota de voz, NO adjuntamos el enlace del aula a textoFinal
+  // para que el audio quede como protagonista absoluto sin saltos de scroll en WhatsApp.
+  if (!estructurada.enviarVoz && (estructurada.adjuntarDemo || (!yaSeEnvioDemo && esPrimerTurnoOInteres)) && !textoFinal.toLowerCase().includes("academia.html")) {
     textoFinal += enlaceDemoPlataforma(urlPublica, phone);
   }
 
@@ -549,41 +561,34 @@ export async function ejecutarTurnoAgenteMusa(
   let seDespachoEnlaceAulaEnEsteTurno = false;
 
   // Si no se envió audio ni video con texto (o si falló la entrega), enviar texto garantizado.
-  // Se divide en burbujas cortas y legibles con pausa natural para no abrumar con textos largos.
+  // Evitar ráfagas de 4 mensajes (Solución B): máximo 2 burbujas limpias y ordenadas.
   if (!audioDespachado && !videoDespachado) {
-    if (deps.esperar) await deps.esperar(800);
-    const bloques = textoFinal
-      .split(/\n\s*\n+/)
-      .map((b) => b.trim())
-      .filter(Boolean);
+    if (deps.esperar) await deps.esperar(600);
 
-    for (let i = 0; i < bloques.length; i++) {
-      if (i > 0 && deps.esperar) await deps.esperar(700);
-      await canal.enviar(phone, { texto: bloques[i] }).catch(() => ({ ok: false }));
+    if (debeAdjuntarCuentas && textoFinal.includes("Medios de pago oficiales")) {
+      const idxCuentas = textoFinal.indexOf("*Medios de pago oficiales");
+      const parteMensaje = textoFinal.slice(0, idxCuentas).trim();
+      const parteCuentas = textoFinal.slice(idxCuentas).trim();
+
+      if (parteMensaje) {
+        await canal.enviar(phone, { texto: parteMensaje }).catch(() => ({ ok: false }));
+        if (deps.esperar) await deps.esperar(800);
+      }
+      if (parteCuentas) {
+        await canal.enviar(phone, { texto: parteCuentas }).catch(() => ({ ok: false }));
+      }
+    } else {
+      await canal.enviar(phone, { texto: textoFinal.trim() }).catch(() => ({ ok: false }));
     }
+
     if (textoFinal.includes("academia.html")) {
       seDespachoEnlaceAulaEnEsteTurno = true;
     }
   } else {
-    // Si se despachó audio y AÚN no se había enviado el enlace del aula (o el cliente lo pidió),
-    // enviar inmediatamente la tarjeta de presentación del aula con el enlace trackeado.
-    if (audioDespachado && (!yaSeEnvioDemo || estructurada.adjuntarDemo)) {
-      if (deps.esperar) await deps.esperar(600);
-      const trackingUrl = `${urlPublica.replace(/\/+$/, "")}/academia.html?tel=${encodeURIComponent(phone.trim())}`;
-      const yaConfirmoEdad = Boolean(leadRow?.mayor_18 || estructurada.confirmoMayor18);
-      const preguntaCierre = yaConfirmoEdad
-        ? `El acceso hoy es de solo *9.000 COP*. ¿Te paso de una vez las cuentas oficiales para activarte? 🚀`
-        : `El acceso hoy es de solo *9.000 COP*. ¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales? 😊`;
-      await canal.enviar(phone, {
-        texto: `✨ *Conoce el aula por dentro y explora el programa completo:* 👇\n${trackingUrl}\n\n${preguntaCierre}`
-      }).catch(() => ({ ok: false }));
-      seDespachoEnlaceAulaEnEsteTurno = true;
-    }
-
-    if (debeAdjuntarCuentas) {
-      if (deps.esperar) await deps.esperar(600);
-      await canal.enviar(phone, { texto: CUENTAS_COLOMBIA_TEXTO.trim() }).catch(() => ({ ok: false }));
-    }
+    // SOLUCIÓN B: Si se despachó nota de voz, el turno concluye aquí con el audio como protagonista exclusivo.
+    // NO se envía el enlace de la academia ni las cuentas en este mismo turno para evitar que WhatsApp
+    // haga auto-scroll hacia abajo y desplace el botón de reproducción del audio.
+    // El enlace del aula y las cuentas se entregarán en el Turno 2 cuando el cliente confirme la edad.
   }
 
   // 8. Persistencia
@@ -606,34 +611,45 @@ export async function ejecutarTurnoAgenteMusa(
     ],
   ).catch(() => ({ rows: [] }));
 
-  // 9. Reactor Inteligente de 60 Segundos:
-  // Si en este turno se envió por primera vez el enlace del aula y aún no se enviaron las cuentas,
-  // programar seguimiento automático a los 60s según si el prospecto hizo clic en el aula o no.
-  if (seDespachoEnlaceAulaEnEsteTurno && !yaSeEnvioDemo && !debeAdjuntarCuentas) {
-    programarSeguimiento60Segundos({
-      consultar,
-      canal,
-      phone,
-      delayMs: deps.seguimiento60sMs ?? 60_000,
-    });
-  }
+  // 9. Reactor Inteligente de Seguimiento y Continuidad Multi-Etapa (Solución B):
+  // Programa recordatorios automáticos según la etapa del lead para que el chat jamás muera en silencio:
+  // - Si se envió audio inicial: seguimiento suave a los 60s preguntando si lo pudo escuchar.
+  // - Si se entregaron cuentas: seguimiento a los 15 minutos y a las 2 horas para asistir el pago.
+  programarSeguimientosContinuidad({
+    consultar,
+    canal,
+    phone,
+    audioPendienteRespuesta: audioDespachado,
+    tieneCuentas: debeAdjuntarCuentas || (leadRow?.estado_funnel === "S08_ESPERA_CAPTURA"),
+    delay60sMs: deps.seguimiento60sMs ?? 60_000,
+  });
 
   return { ok: true, textoEnviado: textoFinal, audioEnviado: audioDespachado };
 }
 
-const seguimientos60sPendientes = new Set<string>();
+const seguimientosPendientes = new Map<string, NodeJS.Timeout[]>();
+
+export function limpiarSeguimientosPendientes(phone: string): void {
+  const clave = phone.trim();
+  const timers = seguimientosPendientes.get(clave);
+  if (timers && timers.length > 0) {
+    timers.forEach((t) => clearTimeout(t));
+  }
+  seguimientosPendientes.delete(clave);
+}
 
 /**
  * Ejecuta la verificación y disparo del seguimiento inteligente a los 60 segundos.
- * Personaliza el cierre según si el prospecto abrió el enlace del aula (`visita_aula`) o aún no.
+ * Personaliza el mensaje según si el prospecto tenía un audio pendiente, si visitó el aula o si tiene cuentas.
  */
 export async function ejecutarSeguimiento60Segundos(opts: {
   consultar: Consultar;
   canal: Canal;
   phone: string;
   desdeTimestampIso: string;
+  audioPendiente?: boolean;
 }): Promise<{ enviado: boolean; visitoAula?: boolean; motivo?: string; texto?: string }> {
-  const { consultar, canal, phone, desdeTimestampIso } = opts;
+  const { consultar, canal, phone, desdeTimestampIso, audioPendiente } = opts;
 
   try {
     // 1. Verificar estado actual del lead
@@ -646,7 +662,7 @@ export async function ejecutarSeguimiento60Segundos(opts: {
       return { enviado: false, motivo: "lead_inactivo_o_pagado" };
     }
 
-    // 2. Verificar si el cliente ya respondió después de que le enviamos el enlace
+    // 2. Verificar si el cliente ya respondió después del último mensaje
     const { rows: msgRows } = await consultar(
       "select id from public.musa_messages where lead_phone = $1 and direction = 'in' and created_at > $2::timestamptz limit 1",
       [phone, desdeTimestampIso],
@@ -671,17 +687,23 @@ export async function ejecutarSeguimiento60Segundos(opts: {
     );
     const visitoAula = visitaRows.length > 0;
 
-    // 5. Construir el mensaje de cierre personalizado según su comportamiento real
-    const mensajeCierre = visitoAula
-      ? `¡Oye corazón! 👀✨ Vi que acabas de entrar a mirar el aula virtual. ¿Qué te parecieron las 13 clases maestras y los 4 bonos VIP?\n\nAprovecha que hoy tienes el acceso por solo *9.000 COP*. Aquí te dejo las cuentas oficiales para activarte de una vez 👇${CUENTAS_COLOMBIA_TEXTO}`
-      : `Corazón 👀 ¿pudiste abrir el enlace del aula que te dejé aquí arriba? Dale un toque para que veas por dentro las 13 clases y los 4 bonos ✨\n\nRecuerda que hoy activas tu acceso por solo *9.000 COP*. Te dejo de una vez las cuentas oficiales por si quieres asegurar tu acceso ya mismo 👇${CUENTAS_COLOMBIA_TEXTO}`;
+    // 5. Construir el mensaje de cierre según el estado exacto de la conversación
+    let mensajeCierre: string;
+    if (audioPendiente) {
+      // Si en el turno anterior solo se envió el audio (Solución B) y el lead no ha respondido:
+      mensajeCierre = `Corazón 👀 ¿pudiste escuchar la nota de voz que te dejé aquí arriba? Dale play para que me escuches ✨\n\n¿Me confirmas si tienes 18 años o más para pasarte el temario de las 13 clases y las cuentas oficiales? 😊`;
+    } else if (visitoAula) {
+      mensajeCierre = `¡Oye corazón! 👀✨ Vi que acabas de entrar a mirar el aula virtual. ¿Qué te parecieron las 13 clases maestras y los 4 bonos VIP?\n\nAprovecha que hoy tienes el acceso por solo *9.000 COP*. Aquí te dejo las cuentas oficiales para activarte de una vez 👇${CUENTAS_COLOMBIA_TEXTO}`;
+    } else {
+      mensajeCierre = `Corazón 👀 ¿pudiste abrir el enlace del aula que te dejé aquí arriba? Dale un toque para que veas por dentro las 13 clases y los 4 bonos ✨\n\nRecuerda que hoy activas tu acceso por solo *9.000 COP*. Te dejo de una vez las cuentas oficiales por si quieres asegurar tu acceso ya mismo 👇${CUENTAS_COLOMBIA_TEXTO}`;
+    }
 
     const envio = await canal.enviar(phone, { texto: mensajeCierre }).catch(() => ({ ok: false }));
     if (!envio || !envio.ok) {
       return { enviado: false, motivo: "fallo_envio_canal" };
     }
 
-    // 6. Actualizar funnel a S08_ESPERA_CAPTURA y registrar mensaje + evento
+    // 6. Actualizar funnel y registrar mensaje + evento
     await consultar(
       "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
       [phone],
@@ -694,7 +716,7 @@ export async function ejecutarSeguimiento60Segundos(opts: {
 
     await consultar(
       "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'seguimiento_60s', $2::jsonb)",
-      [phone, JSON.stringify({ visitoAula, ts: new Date().toISOString() })],
+      [phone, JSON.stringify({ visitoAula, audioPendiente: !!audioPendiente, ts: new Date().toISOString() })],
     ).catch(() => ({ rows: [] }));
 
     return { enviado: true, visitoAula, texto: mensajeCierre };
@@ -704,31 +726,127 @@ export async function ejecutarSeguimiento60Segundos(opts: {
   }
 }
 
-function programarSeguimiento60Segundos(opts: {
+/**
+ * Programa la continuidad multi-etapa del embudo:
+ * - 60s: primer toque suave (audio o visita).
+ * - 15m: seguimiento a leads con cuentas pendientes de pago.
+ * - 2h: recordatorio de cupo promocional en horario hábil (8:00 - 22:00 COT).
+ */
+export function programarSeguimientosContinuidad(opts: {
   consultar: Consultar;
   canal: Canal;
   phone: string;
-  delayMs?: number;
+  audioPendienteRespuesta?: boolean;
+  tieneCuentas?: boolean;
+  delay60sMs?: number;
 }): void {
-  const { consultar, canal, phone, delayMs = 60_000 } = opts;
+  const { consultar, canal, phone, audioPendienteRespuesta, tieneCuentas, delay60sMs = 60_000 } = opts;
   const clave = phone.trim();
-  if (!clave || seguimientos60sPendientes.has(clave)) return;
+  if (!clave) return;
 
-  seguimientos60sPendientes.add(clave);
+  limpiarSeguimientosPendientes(clave);
+
   const desdeTimestampIso = new Date().toISOString();
+  const timers: NodeJS.Timeout[] = [];
 
-  const timer = setTimeout(() => {
-    seguimientos60sPendientes.delete(clave);
+  // Toque 1: 60 segundos
+  const t60s = setTimeout(() => {
     void ejecutarSeguimiento60Segundos({
       consultar,
       canal,
       phone: clave,
       desdeTimestampIso,
+      audioPendiente: audioPendienteRespuesta,
     });
-  }, delayMs);
+  }, delay60sMs);
+  if (t60s && typeof (t60s as any).unref === "function") (t60s as any).unref();
+  timers.push(t60s);
 
-  // No bloquear el cierre del proceso en scripts de test CLI
-  if (timer && typeof (timer as any).unref === "function") {
-    (timer as any).unref();
+  // Toque 2 (15 minutos) y Toque 3 (2 horas): Solo si ya tiene cuentas y está pendiente de pago
+  if (tieneCuentas) {
+    // 15 minutos (900.000 ms)
+    const t15m = setTimeout(async () => {
+      try {
+        const { rows: leadRows } = await consultar(
+          "select pagado, opt_out, escalado_humano from public.musa_leads where phone = $1",
+          [clave],
+        );
+        const lead = leadRows[0] as { pagado?: boolean; opt_out?: boolean; escalado_humano?: boolean } | undefined;
+        if (lead && (lead.pagado || lead.opt_out || lead.escalado_humano)) return;
+
+        const { rows: msgRows } = await consultar(
+          "select id from public.musa_messages where lead_phone = $1 and direction = 'in' and created_at > $2::timestamptz limit 1",
+          [clave, desdeTimestampIso],
+        );
+        if (msgRows.length > 0) return;
+
+        const texto15m = `Oye corazón, paso a ver cómo vas 😊 Recuerda que el cupo con las 13 clases maestras y los 4 bonos por solo *9.000 COP* te lo tengo reservado hoy. ¿Te quedó alguna duda con la plataforma o con los medios de pago?`;
+        await canal.enviar(clave, { texto: texto15m }).catch(() => ({ ok: false }));
+        await consultar(
+          "insert into public.musa_messages (lead_phone, direction, body, media_type) values ($1, 'out', $2, null)",
+          [clave, texto15m],
+        ).catch(() => ({ rows: [] }));
+        await consultar(
+          "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'seguimiento_15m', $2::jsonb)",
+          [clave, JSON.stringify({ ts: new Date().toISOString() })],
+        ).catch(() => ({ rows: [] }));
+      } catch (err) {
+        console.warn("[agente-cognitivo] Error en seguimiento 15m:", String(err).slice(0, 100));
+      }
+    }, 15 * 60_000);
+    if (t15m && typeof (t15m as any).unref === "function") (t15m as any).unref();
+    timers.push(t15m);
+
+    // 2 horas (7.200.000 ms) en horario hábil Colombia (8:00 - 22:00 COT)
+    const t2h = setTimeout(async () => {
+      try {
+        const { rows: leadRows } = await consultar(
+          "select pagado, opt_out, escalado_humano from public.musa_leads where phone = $1",
+          [clave],
+        );
+        const lead = leadRows[0] as { pagado?: boolean; opt_out?: boolean; escalado_humano?: boolean } | undefined;
+        if (lead && (lead.pagado || lead.opt_out || lead.escalado_humano)) return;
+
+        const { rows: msgRows } = await consultar(
+          "select id from public.musa_messages where lead_phone = $1 and direction = 'in' and created_at > $2::timestamptz limit 1",
+          [clave, desdeTimestampIso],
+        );
+        if (msgRows.length > 0) return;
+
+        const horaCot = (new Date().getUTCHours() - 5 + 24) % 24;
+        if (horaCot < 8 || horaCot > 21) return;
+
+        const texto2h = `¡Hola, corazón! ✨ Quería recordarte que tu acceso completo a Musa Estudio por 9.000 COP sigue listo para ti. Si quieres arrancar hoy mismo a crear tus modelos virtuales, me avisas y te acompaño con la activación en un minuto 📲`;
+        await canal.enviar(clave, { texto: texto2h }).catch(() => ({ ok: false }));
+        await consultar(
+          "insert into public.musa_messages (lead_phone, direction, body, media_type) values ($1, 'out', $2, null)",
+          [clave, texto2h],
+        ).catch(() => ({ rows: [] }));
+        await consultar(
+          "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'seguimiento_2h', $2::jsonb)",
+          [clave, JSON.stringify({ ts: new Date().toISOString() })],
+        ).catch(() => ({ rows: [] }));
+      } catch (err) {
+        console.warn("[agente-cognitivo] Error en seguimiento 2h:", String(err).slice(0, 100));
+      }
+    }, 2 * 3600_000);
+    if (t2h && typeof (t2h as any).unref === "function") (t2h as any).unref();
+    timers.push(t2h);
   }
+
+  seguimientosPendientes.set(clave, timers);
+}
+
+export function programarSeguimiento60Segundos(opts: {
+  consultar: Consultar;
+  canal: Canal;
+  phone: string;
+  delayMs?: number;
+}): void {
+  programarSeguimientosContinuidad({
+    consultar: opts.consultar,
+    canal: opts.canal,
+    phone: opts.phone,
+    delay60sMs: opts.delayMs,
+  });
 }
