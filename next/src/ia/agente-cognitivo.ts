@@ -23,6 +23,7 @@ export interface DepsAgenteCognitivo {
   telefonoOperador?: string;
   presupuestoDiarioUsd?: number;
   esperar?: (ms: number) => Promise<void>;
+  seguimiento60sMs?: number;
 }
 
 export interface EntradaTurnoAgente {
@@ -446,6 +447,16 @@ export async function ejecutarTurnoAgenteMusa(
     estructurada.enviarVoz = true;
   }
 
+  // En el Turno 1 (primer contacto real con API activa, sin haber enviado el aula antes),
+  // garantizamos el impacto sensorial inicial: texto corto + nota de voz de bienvenida + link del aula.
+  const esPrimerContactoReal = Boolean(apiKey && permitido && !yaSeEnvioDemo && historialMensajes.length <= 2 && !mencionaBypassOVerVideos);
+  if (esPrimerContactoReal && !debeAdjuntarCuentas) {
+    estructurada.enviarVoz = true;
+    if (!estructurada.textoPrevio || estructurada.textoPrevio.trim().length === 0) {
+      estructurada.textoPrevio = `¡Hola ${nombreMostrar !== "amigo" ? nombreMostrar : "corazón"}! ✨ Qué rico que escribiste... escucha esto un segundito 👇🎙️😏`;
+    }
+  }
+
   // REGLA CLAVE: NO CONTESTAR SIEMPRE CON AUDIO.
   // Solo se envía audio si el modelo lo solicitó activamente (enviarVoz: true),
   // o si el cliente pidió escuchar la voz explícitamente, o si duda de la realidad.
@@ -535,6 +546,8 @@ export async function ejecutarTurnoAgenteMusa(
     }
   }
 
+  let seDespachoEnlaceAulaEnEsteTurno = false;
+
   // Si no se envió audio ni video con texto (o si falló la entrega), enviar texto garantizado.
   // Se divide en burbujas cortas y legibles con pausa natural para no abrumar con textos largos.
   if (!audioDespachado && !videoDespachado) {
@@ -548,17 +561,26 @@ export async function ejecutarTurnoAgenteMusa(
       if (i > 0 && deps.esperar) await deps.esperar(700);
       await canal.enviar(phone, { texto: bloques[i] }).catch(() => ({ ok: false }));
     }
+    if (textoFinal.includes("academia.html")) {
+      seDespachoEnlaceAulaEnEsteTurno = true;
+    }
   } else {
-    // Si se despachó audio, enviar inmediatamente el mensaje de texto con el enlace clickeable trackeado
-    if (audioDespachado) {
+    // Si se despachó audio y AÚN no se había enviado el enlace del aula (o el cliente lo pidió),
+    // enviar inmediatamente la tarjeta de presentación del aula con el enlace trackeado.
+    if (audioDespachado && (!yaSeEnvioDemo || estructurada.adjuntarDemo)) {
       if (deps.esperar) await deps.esperar(600);
       const trackingUrl = `${urlPublica.replace(/\/+$/, "")}/academia.html?tel=${encodeURIComponent(phone.trim())}`;
+      const yaConfirmoEdad = Boolean(leadRow?.mayor_18 || estructurada.confirmoMayor18);
+      const preguntaCierre = yaConfirmoEdad
+        ? `El acceso hoy es de solo *9.000 COP*. ¿Te paso de una vez las cuentas oficiales para activarte? 🚀`
+        : `El acceso hoy es de solo *9.000 COP*. ¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales? 😊`;
       await canal.enviar(phone, {
-        texto: `✨ *Conoce el aula por dentro y explora el programa completo:* 👇\n${trackingUrl}\n\n¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales? 😊`
+        texto: `✨ *Conoce el aula por dentro y explora el programa completo:* 👇\n${trackingUrl}\n\n${preguntaCierre}`
       }).catch(() => ({ ok: false }));
+      seDespachoEnlaceAulaEnEsteTurno = true;
     }
 
-    if (estructurada.adjuntarCuentas) {
+    if (debeAdjuntarCuentas) {
       if (deps.esperar) await deps.esperar(600);
       await canal.enviar(phone, { texto: CUENTAS_COLOMBIA_TEXTO.trim() }).catch(() => ({ ok: false }));
     }
@@ -584,5 +606,129 @@ export async function ejecutarTurnoAgenteMusa(
     ],
   ).catch(() => ({ rows: [] }));
 
+  // 9. Reactor Inteligente de 60 Segundos:
+  // Si en este turno se envió por primera vez el enlace del aula y aún no se enviaron las cuentas,
+  // programar seguimiento automático a los 60s según si el prospecto hizo clic en el aula o no.
+  if (seDespachoEnlaceAulaEnEsteTurno && !yaSeEnvioDemo && !debeAdjuntarCuentas) {
+    programarSeguimiento60Segundos({
+      consultar,
+      canal,
+      phone,
+      delayMs: deps.seguimiento60sMs ?? 60_000,
+    });
+  }
+
   return { ok: true, textoEnviado: textoFinal, audioEnviado: audioDespachado };
+}
+
+const seguimientos60sPendientes = new Set<string>();
+
+/**
+ * Ejecuta la verificación y disparo del seguimiento inteligente a los 60 segundos.
+ * Personaliza el cierre según si el prospecto abrió el enlace del aula (`visita_aula`) o aún no.
+ */
+export async function ejecutarSeguimiento60Segundos(opts: {
+  consultar: Consultar;
+  canal: Canal;
+  phone: string;
+  desdeTimestampIso: string;
+}): Promise<{ enviado: boolean; visitoAula?: boolean; motivo?: string; texto?: string }> {
+  const { consultar, canal, phone, desdeTimestampIso } = opts;
+
+  try {
+    // 1. Verificar estado actual del lead
+    const { rows: leadRows } = await consultar(
+      "select pagado, opt_out, escalado_humano, estado_funnel from public.musa_leads where phone = $1",
+      [phone],
+    );
+    const lead = leadRows[0] as { pagado?: boolean; opt_out?: boolean; escalado_humano?: boolean; estado_funnel?: string } | undefined;
+    if (lead && (lead.pagado || lead.opt_out || lead.escalado_humano)) {
+      return { enviado: false, motivo: "lead_inactivo_o_pagado" };
+    }
+
+    // 2. Verificar si el cliente ya respondió después de que le enviamos el enlace
+    const { rows: msgRows } = await consultar(
+      "select id from public.musa_messages where lead_phone = $1 and direction = 'in' and created_at > $2::timestamptz limit 1",
+      [phone, desdeTimestampIso],
+    );
+    if (msgRows.length > 0) {
+      return { enviado: false, motivo: "lead_ya_respondio" };
+    }
+
+    // 3. Verificar que no se haya enviado ya el seguimiento de 60s a este lead
+    const { rows: segRows } = await consultar(
+      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'seguimiento_60s' limit 1",
+      [phone],
+    );
+    if (segRows.length > 0) {
+      return { enviado: false, motivo: "ya_enviado" };
+    }
+
+    // 4. Detectar por telemetría si el prospecto hizo clic en el enlace del aula (`visita_aula`)
+    const { rows: visitaRows } = await consultar(
+      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'visita_aula' limit 1",
+      [phone],
+    );
+    const visitoAula = visitaRows.length > 0;
+
+    // 5. Construir el mensaje de cierre personalizado según su comportamiento real
+    const mensajeCierre = visitoAula
+      ? `¡Oye corazón! 👀✨ Vi que acabas de entrar a mirar el aula virtual. ¿Qué te parecieron las 13 clases maestras y los 4 bonos VIP?\n\nAprovecha que hoy tienes el acceso por solo *9.000 COP*. Aquí te dejo las cuentas oficiales para activarte de una vez 👇${CUENTAS_COLOMBIA_TEXTO}`
+      : `Corazón 👀 ¿pudiste abrir el enlace del aula que te dejé aquí arriba? Dale un toque para que veas por dentro las 13 clases y los 4 bonos ✨\n\nRecuerda que hoy activas tu acceso por solo *9.000 COP*. Te dejo de una vez las cuentas oficiales por si quieres asegurar tu acceso ya mismo 👇${CUENTAS_COLOMBIA_TEXTO}`;
+
+    const envio = await canal.enviar(phone, { texto: mensajeCierre }).catch(() => ({ ok: false }));
+    if (!envio || !envio.ok) {
+      return { enviado: false, motivo: "fallo_envio_canal" };
+    }
+
+    // 6. Actualizar funnel a S08_ESPERA_CAPTURA y registrar mensaje + evento
+    await consultar(
+      "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
+      [phone],
+    ).catch(() => ({ rows: [] }));
+
+    await consultar(
+      "insert into public.musa_messages (lead_phone, direction, body, media_type) values ($1, 'out', $2, null)",
+      [phone, mensajeCierre],
+    ).catch(() => ({ rows: [] }));
+
+    await consultar(
+      "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'seguimiento_60s', $2::jsonb)",
+      [phone, JSON.stringify({ visitoAula, ts: new Date().toISOString() })],
+    ).catch(() => ({ rows: [] }));
+
+    return { enviado: true, visitoAula, texto: mensajeCierre };
+  } catch (err) {
+    console.warn("[agente-cognitivo] Error en seguimiento 60s:", String(err).slice(0, 100));
+    return { enviado: false, motivo: "excepcion" };
+  }
+}
+
+function programarSeguimiento60Segundos(opts: {
+  consultar: Consultar;
+  canal: Canal;
+  phone: string;
+  delayMs?: number;
+}): void {
+  const { consultar, canal, phone, delayMs = 60_000 } = opts;
+  const clave = phone.trim();
+  if (!clave || seguimientos60sPendientes.has(clave)) return;
+
+  seguimientos60sPendientes.add(clave);
+  const desdeTimestampIso = new Date().toISOString();
+
+  const timer = setTimeout(() => {
+    seguimientos60sPendientes.delete(clave);
+    void ejecutarSeguimiento60Segundos({
+      consultar,
+      canal,
+      phone: clave,
+      desdeTimestampIso,
+    });
+  }, delayMs);
+
+  // No bloquear el cierre del proceso en scripts de test CLI
+  if (timer && typeof (timer as any).unref === "function") {
+    (timer as any).unref();
+  }
 }

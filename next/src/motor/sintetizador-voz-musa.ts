@@ -27,7 +27,7 @@ const DASHSCOPE_KEY_DEFAULT =
   "sk-ws-H.DIRMRHH.dEXC.MEQCIAFsXhFxsdXJQGcdcAQfGxC5H_CZ1hasvCVMCqnpv6eRAiBwEebSbx4MvzjAUp6ZjFJtUbZxOxeZoGPTFDp02HYU2w";
 
 const INSTRUCCION_LINGXIN_DEFAULT =
-  "Hablar en español con acento colombiano suave, voz dulce, cálida, sensual y cómplice.";
+  "Hablar en español con acento colombiano suave y natural, tono íntimo de nota de voz de WhatsApp, voz dulce, cálida, cercana, sensual y cómplice, con respiración suave y ritmo conversacional espontáneo.";
 
 /**
  * Sintetiza la voz oficial de Musa con el acento colombiano de Lingxin (Qwen 3.1 TTS Plus).

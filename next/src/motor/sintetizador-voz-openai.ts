@@ -44,12 +44,21 @@ export function prepararTextoParaVoz(texto: string): string {
     .replace(/\bFanvue\b/gi, "Fanviú")
     .replace(/\bOnlyFans\b/gi, "Onlifans")
     .replace(/\bprompts?\b/gi, "instrucciones")
-    // Suavizar números para pronunciación natural en Colombia
-    .replace(/33\.000\s*(?:COP|pesos)?/gi, "33 mil pesos")
-    .replace(/30\.000\s*(?:COP|pesos)?/gi, "30 mil pesos")
-    .replace(/9\s*(?:USD|dolares|dólares)?/gi, "9 dólares")
-    .replace(/13\s*módulos/gi, "trece módulos")
-    .replace(/4\s*bonos/gi, "cuatro bonos")
+    // Suavizar números y precios para pronunciación natural y fluida en Colombia
+    .replace(/\$?\s*9\.000\s*(?:COP|pesos\s*colombianos|pesos)?/gi, "nueve mil pesos")
+    .replace(/\b9\s*mil\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "nueve mil pesos")
+    .replace(/\$?\s*33\.000\s*(?:COP|pesos\s*colombianos|pesos)?/gi, "treinta y tres mil pesos")
+    .replace(/\$?\s*30\.000\s*(?:COP|pesos\s*colombianos|pesos)?/gi, "treinta mil pesos")
+    .replace(/\$?\s*2[.,]50?\s*(?:USD|dolares|dólares)\b/gi, "dos dólares con cincuenta")
+    .replace(/\b9\s*(?:USD|dolares|dólares)\b/gi, "nueve dólares")
+    .replace(/\bCOP\b/g, "pesos")
+    .replace(/\b13\s*clases\b/gi, "trece clases")
+    .replace(/\b13\s*módulos\b/gi, "trece módulos")
+    .replace(/\b4\s*bonos\b/gi, "cuatro bonos")
+    .replace(/\b18\s*años\b/gi, "dieciocho años")
+    .replace(/\b30\s*días\b/gi, "treinta días")
+    // Pausas conversacionales orgánicas (puntos suspensivos a pausa suave con coma)
+    .replace(/\.{2,}/g, ", ")
     // Erradicar emojis y pictogramas Unicode
     .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}]/gu, "")
     // Espacios repetidos y saltos de línea

@@ -31,7 +31,7 @@ export const ETIQUETAS_BONOS: Record<string, string> = {
 };
 
 export const MENSAJE_BIENVENIDA =
-  "¡Bienvenida oficialmente, {{nombre}}! ✨ Ya tienes acceso de por vida a todo. " +
+  "¡Bienvenida oficialmente, {{nombre}}! ✨ Ya tienes activo tu acceso completo al aula virtual. " +
   "Mi consejo: empieza HOY por el *Módulo 1* (el que aparece primero en tu página) y avanza a tu ritmo. " +
   "Cualquier duda me escribes por aquí 😊";
 

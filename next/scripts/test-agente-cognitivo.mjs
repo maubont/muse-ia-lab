@@ -1,6 +1,7 @@
 // next/scripts/test-agente-cognitivo.mjs — Prueba del Cerebro Agéntico Puro Musa IA
 import assert from "node:assert/strict";
-import { construirPromptMaestroAgente, ejecutarTurnoAgenteMusa } from "../src/ia/agente-cognitivo.ts";
+import { construirPromptMaestroAgente, ejecutarTurnoAgenteMusa, ejecutarSeguimiento60Segundos } from "../src/ia/agente-cognitivo.ts";
+import { prepararTextoParaVoz } from "../src/motor/sintetizador-voz-openai.ts";
 
 console.log("=== INICIANDO PRUEBAS DEL CEREBRO AGÉNTICO MUSA IA 2026/2027 ===");
 
@@ -76,6 +77,73 @@ assert.ok(res.ok, "Debe responder con éxito");
 assert.ok(/taller|curso|modelo/i.test(res.textoEnviado), "Debe responder sobre el taller o las modelos");
 assert.ok(mensajesEnviados.length > 0, "Debe enviar mensaje al canal");
 console.log("   ✓ Turno agéntico despachado con éxito.");
+
+// 3. Verificación de fonética en español para 9.000 COP en notas de voz
+console.log("3. Verificando fonética de 9.000 COP en prepararTextoParaVoz...");
+const fonetica = prepararTextoParaVoz("El acceso al taller son solo 9.000 COP por las 13 clases y 4 bonos...");
+assert.ok(fonetica.includes("nueve mil pesos"), `Debe pronunciar 'nueve mil pesos', obtenido: ${fonetica}`);
+assert.ok(!fonetica.includes("dólares.000"), "Jamás debe corromper 9.000 COP con dólares");
+console.log("   ✓ Fonética colombiana de 9.000 COP validada.");
+
+// 4. Verificación del Reactor Inteligente de 60 Segundos (Con clic en Aula vs Sin clic)
+console.log("4. Verificando Reactor Inteligente de 60 Segundos...");
+const envios60s = [];
+const canal60s = {
+  async enviar(phone, m) {
+    envios60s.push({ phone, ...m });
+    return { ok: true };
+  },
+};
+
+// Caso A: Prospecto SÍ hizo clic en el enlace del aula (visita_aula presente)
+const resConClic = await ejecutarSeguimiento60Segundos({
+  consultar: async (sql) => {
+    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false }] };
+    if (sql.includes("direction = 'in'")) return { rows: [] };
+    if (sql.includes("evento = 'seguimiento_60s'")) return { rows: [] };
+    if (sql.includes("evento = 'visita_aula'")) return { rows: [{ id: 1 }] };
+    return { rows: [] };
+  },
+  canal: canal60s,
+  phone: "+573001112233",
+  desdeTimestampIso: new Date(Date.now() - 60000).toISOString(),
+});
+assert.equal(resConClic.enviado, true, "Debe enviar seguimiento a los 60s si no respondió");
+assert.equal(resConClic.visitoAula, true, "Debe detectar que visitó el aula");
+assert.ok(resConClic.texto.includes("Vi que acabas de entrar a mirar el aula"), "Debe personalizar el mensaje reconociendo la visita al aula");
+assert.ok(resConClic.texto.includes("9.000 COP"), "Debe cerrar a 9.000 COP");
+
+// Caso B: Prospecto NO hizo clic en el enlace del aula
+const resSinClic = await ejecutarSeguimiento60Segundos({
+  consultar: async (sql) => {
+    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false }] };
+    if (sql.includes("direction = 'in'")) return { rows: [] };
+    if (sql.includes("evento = 'seguimiento_60s'")) return { rows: [] };
+    if (sql.includes("evento = 'visita_aula'")) return { rows: [] };
+    return { rows: [] };
+  },
+  canal: canal60s,
+  phone: "+573009998877",
+  desdeTimestampIso: new Date(Date.now() - 60000).toISOString(),
+});
+assert.equal(resSinClic.enviado, true, "Debe enviar seguimiento a los 60s aunque no haya abierto el link");
+assert.equal(resSinClic.visitoAula, false, "Debe detectar que no visitó el aula aún");
+assert.ok(resSinClic.texto.includes("pudiste abrir el enlace del aula"), "Debe invitar cálidamente a abrir el enlace y dejar cuentas");
+
+// Caso C: Prospecto YA respondió antes de los 60s -> se cancela
+const resYaRespondio = await ejecutarSeguimiento60Segundos({
+  consultar: async (sql) => {
+    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false }] };
+    if (sql.includes("direction = 'in'")) return { rows: [{ id: 99 }] };
+    return { rows: [] };
+  },
+  canal: canal60s,
+  phone: "+573005554433",
+  desdeTimestampIso: new Date(Date.now() - 60000).toISOString(),
+});
+assert.equal(resYaRespondio.enviado, false, "No debe interrumpir si el cliente ya respondió");
+assert.equal(resYaRespondio.motivo, "lead_ya_respondio");
+console.log("   ✓ Reactor inteligente de 60 segundos validado (Con clic / Sin clic / Cancelación).");
 
 console.log("\n=======================================================");
 console.log("TODAS LAS PRUEBAS DEL AGENTE COGNITIVO PASARON (100%)");

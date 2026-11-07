@@ -41,7 +41,7 @@ export const MSG_PAGO_EN_PROCESO =
   "¡Gracias! Veo que tu operación aún aparece como en proceso o programada. Apenas tu banco la muestre como *exitosa*, reenvíamela y te activo el acceso al toque ✨";
 
 export const MSG_PAGO_YA_TIENE_ACCESO =
-  "¡Ya tienes tu acceso activo, no te preocupes! ✨ Tu pago ya quedó confirmado y tienes acceso de por vida a todo. Si no encuentras los enlaces o necesitas algo, me escribes con confianza 😊";
+  "¡Ya tienes tu acceso activo, no te preocupes! ✨ Tu pago ya quedó confirmado y tienes tu membresía activa en el aula. Si no encuentras los enlaces o necesitas algo, me escribes con confianza 😊";
 
 /** Motivos que reciben el acuse de «en proceso» en vez del genérico. */
 export const MOTIVOS_EN_PROCESO = ["estado_en_proceso", "estado_programada", "estado_fallida"];

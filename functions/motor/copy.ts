@@ -103,12 +103,10 @@ export function bloqueCuentasVE(cfg: CfgCopy): string {
 
 export function bloqueCuentasCO(cfg: CfgCopy): string {
   const c = cfg.cuentasCo ?? {};
-  const titular = c.bancolombia?.titular || c.nequi?.titular || "Jos** Bon**";
   return [
     `📲 *Nequi*: ${c.nequi?.numero ?? ""}`,
     `🏦 *Bancolombia* (${c.bancolombia?.tipo ?? "ahorros"}): ${c.bancolombia?.numero ?? ""}`,
     `🔑 *Llave Bre-B*: ${c.breb?.llave ?? ""}`,
-    `_(Titular al previsualizar la cuenta: ${titular})_`,
   ].join("\n");
 }
 
@@ -126,7 +124,7 @@ export function resolverPlaceholders(texto: string, lead: LeadNombre, cfg: CfgCo
   }
   t = t
     .replace(/\{\{precio_bs\}\}/g, formatMiles(Number(cfg.precioBsHoy?.bs ?? 7400)))
-    .replace(/\{\{precio_cop\}\}/g, formatMiles(Number(cfg.precio?.cop ?? 33000)))
+    .replace(/\{\{precio_cop\}\}/g, formatMiles(Number(cfg.precio?.cop ?? 9000)))
     .replace(/\{\{cuentas_venezuela\}\}/g, bloqueCuentasVE(cfg))
     .replace(/\{\{cuentas_colombia\}\}/g, bloqueCuentasCO(cfg))
     .replace(/\{\{link_grupo\}\}/g, cfg.entrega?.link_grupo ?? "");

@@ -216,7 +216,14 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
           (mensaje.media.tipo === "documento" &&
             (mensaje.media.mime?.includes("image") || mensaje.media.mime?.includes("pdf"))));
 
-      if (lead.estado_funnel === "S08_ESPERA_CAPTURA" && esAdjuntoComprobante && deps.lector) {
+      if (!lead.pagado && esAdjuntoComprobante && deps.lector) {
+        if (lead.estado_funnel !== "S08_ESPERA_CAPTURA") {
+          lead.estado_funnel = "S08_ESPERA_CAPTURA";
+          await consultar(
+            "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
+            [mensaje.telefono],
+          ).catch(() => ({ rows: [] }));
+        }
         // OJO: el adaptador de Evolution entrega `obtenerBytes()`, NO una URL.
         // Antes se pasaba `url ?? ""` y toda imagen real caía en «sin_imagen»:
         // el cliente entraba en un bucle de reenvíos y la visión nunca corría.
@@ -294,7 +301,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       }
 
       // A) Si llegó un comprobante de pago adjunto (imagen o PDF), verificar con el flujo estricto de comprobante
-      if (comprobante && comprobante.datos) {
+      if (comprobante !== undefined) {
         const urlBase = (deps.urlPublica ?? "https://server-production-3709.up.railway.app").replace(/\/+$/, "");
         const efectos = decidirRuta({
           lead,
