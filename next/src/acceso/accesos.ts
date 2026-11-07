@@ -13,7 +13,7 @@
 import { randomBytes } from "node:crypto";
 import type { Consultar } from "../db/repositorio.ts";
 
-export const DIAS_POR_DEFECTO = 3650; // 10 años (coherencia con promesa comercial de Acceso Vitalicio)
+export const DIAS_POR_DEFECTO = 30; // Membresía activa por 30 días (modelo de recurrencia y valor continuo)
 /** 24 bytes -> 32 caracteres base64url. Adivinarlo no es viable. */
 export const BYTES_TOKEN = 24;
 

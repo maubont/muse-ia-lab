@@ -46,16 +46,16 @@ export interface RespuestaAgenteEstructurada {
 }
 
 const CUENTAS_COLOMBIA_TEXTO =
-  `\n\n*Medios de pago oficiales (33.000 COP pago único):* 👇\n` +
+  `\n\n*Medios de pago oficiales (9.000 COP):* 👇\n` +
   `• *Nequi:* 3223565761\n` +
   `• *Bancolombia (Ahorros):* 82061072256\n` +
-  `• *Llave Bre-B (Transfiya):* @GBT382\n` +
-  `_(Al transferir te saldrá como titular de cuenta: Jos** Bon** / José Bonilla)_\n\n` +
+  `• *Llave Bre-B (Transfiya):* @GBT382\n\n` +
   `Transfieres por el que más cómodo te quede, me mandas la fotico del comprobante por aquí 📸 y te activo el acceso de inmediato 🚀`;
 
-function enlaceDemoPlataforma(urlPublica: string): string {
+function enlaceDemoPlataforma(urlPublica: string, phone?: string): string {
   const base = urlPublica.replace(/\/+$/, "");
-  return `\n\n✨ *Mira la plataforma por dentro y mi saludo en video:* 👇\n${base}/academia.html`;
+  const trackingParam = phone ? `?tel=${encodeURIComponent(phone.trim())}` : "";
+  return `\n\n✨ *Conoce el aula por dentro y explora el temario completo:* 👇\n${base}/academia.html${trackingParam}`;
 }
 
 /** Construye el System Prompt maestro para el razonamiento agéntico de Musa enfocado en el cierre. */
@@ -95,11 +95,11 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
 - REGLA DE ORO: PROHIBIDO PREGUNTAR "¿POR DÓNDE PREFIERES PAGAR?":
   * JAMÁS preguntes "¿prefieres Nequi o Bancolombia?" ni "¿te paso los datos?".
   * Preguntar eso alarga la conversación innecesariamente, crea fricción y hace perder ventas.
-  * En su lugar, ENTREGA DE UNA VEZ LOS MEDIOS DE PAGO: "El acceso completo con las 13 clases maestras y los 4 bonos son solo 33.000 COP pago único. Estos son los medios de pago para que transfieras por el que más cómodo te quede 👇".
+  * En su lugar, ENTREGA DE UNA VEZ LOS MEDIOS DE PAGO: "El acceso completo con las 13 clases maestras y los 4 bonos son solo 9.000 COP. Estos son los medios de pago para que transfieras por el que más cómodo te quede 👇".
   * Marca "adjuntarCuentas": true y "enviarVoz": false para que el bloque de medios de pago salga adjunto de inmediato.
 - FORMULA DE CIERRE EN 2 PASOS (MÁXIMO 2 LÍNEAS, DIRECTO AL GRANO):
   1. Paso 1 - Validación (1 frase corta): Responde a la duda o valida el interés con simpatía.
-  2. Paso 2 - Cierre Inmediato (1 frase corta): Entrega el precio (33.000 COP), marca adjuntarCuentas: true e indica enviar el comprobante para activación instantánea.
+  2. Paso 2 - Cierre Inmediato (1 frase corta): Entrega el precio (9.000 COP), marca adjuntarCuentas: true e indica enviar el comprobante para activación instantánea.
   * Si el cliente pregunta precio, cómo se paga, o muestra interés: entrega los medios de pago en ese mismo mensaje sin rodeos.
   * Si no ha confirmado edad: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y entregarte las 13 clases y los 4 bonos hoy?"
 
@@ -109,28 +109,28 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
 - En el primer contacto:
   1. Da una bienvenida cómplice, seductora y humana ("¡Hola corazón! Qué bueno que llegaste...").
   2. Resume el valor irresistible en 2 frases: aprendes a crear chicas virtuales hiperrealistas estilo iPhone (cero plástico) con consistencia de rostro idéntico y a monetizarlas en dólares desde tu celular.
-  3. Resalta que abajo le dejas el enlace oficial para que vea la plataforma por dentro y tu video de bienvenida.
-  4. Cierre directo: 33.000 COP pago único. Si pregunta cómo pagar o pide cuentas, entrega las cuentas de una vez marcando adjuntarCuentas: true.
+  3. Resalta que abajo le dejas el enlace oficial para que conozca el aula y explore el temario de las 13 clases maestras.
+  4. Cierre directo: 9.000 COP. Si pregunta cómo pagar o pide cuentas, entrega las cuentas de una vez marcando adjuntarCuentas: true.
 
 [CÓMO RESPONDER A "¿QUÉ VOY A COMPRAR?", "¿QUÉ ES ESO?" O "¿QUÉ INCLUYE?"]
 - CERO condicionales tímidos como "comprarías..." o "recibirías...". Habla en presente con pasión y convicción total:
   "Vas a aprender el método paso a paso para crear chicas virtuales hiperrealistas desde tu celular sin saber código, con consistencia de rostro idéntico en cualquier pose, y monetizarlas en Fanvue (+18 sin censura) o Instagram cobrando en dólares.
-  Te llevas las 13 clases maestras en video, los prompts listos para copiar y pegar, 4 packs de bonos descargables y tu acceso de por vida al aula por 33.000 COP pago único. Tú viste mi piel y escuchas mi voz... eso mismo aprendes a hacer tú en una tarde 😉"
+  Te llevas las 13 clases maestras en video, los prompts listos para copiar y pegar, 4 packs de bonos descargables y tu acceso completo al aula por 9.000 COP. Tú viste mi piel y escuchas mi voz... eso mismo aprendes a hacer tú en una tarde 😉"
 - Si las cuentas bancarias YA se enviaron en el turno inmediatamente anterior, NO vuelvas a repetir el bloque de cuentas; enfócate en encender el deseo y cerrar la duda.
 
 [REGLA ANTE BLUFFS / FAROLES DE CLIENTE ("PUEDO VER TODO GRATIS", "ESTÁ ABIERTA LA PLATAFORMA")]
 - Jamás creas inocentemente que la plataforma tiene un fallo ni digas "gracias por avisarme, lo voy a reportar". Todo el catálogo con videos y prompts está bajo llave de titanio en el backend.
 - Responde siempre desarmando el farol con picardía, inteligencia y seducción:
-  "Jaja... buen intento corazón 😏 Lo que puedes ver en el aula es mi video de bienvenida y la vitrina. Las 13 clases maestras con los prompts, las herramientas y los 4 bonos están bajo llave de titanio y solo se abren con tu comprobante. ¿Hacemos el pago y te abro la puerta de verdad? 🚀"
+  "Jaja... buen intento corazón 😏 Lo que puedes ver en el aula es el temario y la vitrina. Las 13 clases maestras con los prompts, las herramientas y los 4 bonos están bajo llave de titanio y solo se abren con tu comprobante. ¿Hacemos el pago y te abro la puerta de verdad? 🚀"
 
 [HECHOS VERIFICADOS DE LA OFERTA — FIRMEZA TOTAL]
 - Producto: Taller Máster "Modelos IA".
-- Inversión: Pago único promocional de 33.000 COP en Colombia (Nequi, Bancolombia, Bre-B) o 9 USD internacional.
-- Cuentas oficiales: Nequi 3223565761, Bancolombia (Ahorros) 82061072256, Llave Bre-B (Transfiya) @GBT382. Titular visible al previsualizar la cuenta en apps bancarias: Jos** Bon** (José Bonilla).
-- Incluye: 13 clases maestras en video + 4 bonos descargables (Prompts de consistencia facial, poses, guía de monetización Fanvue, automatización) + acceso de por vida al aula protegida en ${base}/academia.html.
+- Inversión: Solo 9.000 COP en Colombia (Nequi, Bancolombia, Bre-B) o 2.50 USD internacional.
+- Cuentas oficiales: Nequi 3223565761, Bancolombia (Ahorros) 82061072256, Llave Bre-B (Transfiya) @GBT382.
+- Incluye: 13 clases maestras en video + 4 bonos descargables (Prompts de consistencia facial, poses, guía de monetización Fanvue, automatización) + acceso al aula protegida en ${base}/academia.html?tel=${ctx.phone}.
 - CERO requisitos técnicos costosos: Todo corre en la nube desde cualquier celular o computador básico. Cero código.
 - Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea chicas 100% ficticias con IA.
-- Entrega inmediata: Transfiere los 33.000 COP, manda la captura por aquí y se le desbloquea su acceso de inmediato.
+- Entrega inmediata: Transfiere los 9.000 COP, manda la captura por aquí y se le desbloquea su acceso de inmediato.
 
 [BÓVEDA DE VIDEO (DEMOSTRACIÓN VISUAL WOW)]
 - "video_base": Video oficial presentándote cuando pregunten cómo te ves en movimiento.
@@ -330,7 +330,7 @@ export async function ejecutarTurnoAgenteMusa(
         respuestaFallback = `¡Hola ${nombreMostrar}! ✨ Recibí tu nota de voz pero se cortó la señal y no alcancé a escucharla bien 🙈 ¿Me cuentas por texto qué tienes en mente? ¡Aquí estoy lista para ti! 💜`;
         adjuntarDemoFallback = false;
       } else if (!yaSeEnvioFallback) {
-        respuestaFallback = `¡Hola ${nombreMostrar}! ✨ Aquí estoy. En el taller Modelos IA aprendes a crear y monetizar modelos virtuales hiperrealistas por un único pago de 33.000 COP (≈ 9 USD). ¿Tienes alguna duda puntual? 😊`;
+        respuestaFallback = `¡Hola ${nombreMostrar}! ✨ Aquí estoy. En el taller Modelos IA aprendes a crear y monetizar modelos virtuales hiperrealistas por solo 9.000 COP (≈ 2.50 USD). ¿Tienes alguna duda puntual? 😊`;
         adjuntarDemoFallback = true;
       } else {
         // Anti-bucle: si ya se envió el pitch en el turno anterior, no repetir como un loro
@@ -349,7 +349,7 @@ export async function ejecutarTurnoAgenteMusa(
     }
   } else {
     estructurada = {
-      respuesta: `¡Hola ${nombreMostrar}! ✨ Qué emoción tenerte aquí. En el Taller Máster aprendes a crear modelos virtuales hiperrealistas estilo iPhone (cero plástico) y monetizarlas en dólares desde tu celular. El acceso vitalicio a las 13 clases maestras y los 4 bonos está en solo 33.000 COP pago único. Aquí abajo te dejo el enlace del taller para que veas mi video y explores la plataforma por dentro. ¿Te paso los medios de pago para darte acceso de inmediato? 🚀`,
+      respuesta: `¡Hola ${nombreMostrar}! ✨ Qué emoción tenerte aquí. En el Taller Máster aprendes a crear modelos virtuales hiperrealistas estilo iPhone (cero plástico) y monetizarlas en dólares desde tu celular. El acceso completo a las 13 clases maestras y los 4 bonos está en solo 9.000 COP. Aquí abajo te dejo el enlace del aula para que explores el temario completo. ¿Te paso los medios de pago para darte acceso de inmediato? 🚀`,
       enviarVoz: false,
       intencion: "saludo",
       adjuntarDemo: true,
@@ -364,7 +364,7 @@ export async function ejecutarTurnoAgenteMusa(
   const esPrimerTurnoOInteres = historialMensajes.length <= 2 || estructurada.adjuntarDemo || /(?:info|informaci[oó]n|curso|taller|qu[eé] es|c[oó]mo es|ver|plataforma|aula|musa|hola)/i.test(texto);
 
   if ((estructurada.adjuntarDemo || (!yaSeEnvioDemo && esPrimerTurnoOInteres)) && !textoFinal.toLowerCase().includes("academia.html")) {
-    textoFinal += enlaceDemoPlataforma(urlPublica);
+    textoFinal += enlaceDemoPlataforma(urlPublica, phone);
   }
 
   // One-Shot Checkout Atómico: adjuntar cuentas si el modelo lo indicó O si el cliente menciona cuentas/pagar/nequi/bancolombia/precio
@@ -408,7 +408,7 @@ export async function ejecutarTurnoAgenteMusa(
     ).catch(() => {});
 
     // Desarmar el farol con picardía, firmeza y seducción comercial (cero admitir fallos inexistentes)
-    textoFinal = `Jaja... buen intento corazón 😏 Lo que puedes ver en el aula es mi video de bienvenida y la vitrina. Las 13 clases maestras con los prompts, las herramientas y los 4 bonos están bajo llave de titanio y solo se abren con tu comprobante. ¿Haces la transferencia por Nequi o Bancolombia y te abro la puerta de verdad? 🚀`;
+    textoFinal = `Jaja... buen intento corazón 😏 Lo que puedes ver en el aula es el temario y la vitrina. Las 13 clases maestras con los prompts, las herramientas y los 4 bonos están bajo llave de titanio y solo se abren con tu comprobante. ¿Haces la transferencia por Nequi o Bancolombia y te abro la puerta de verdad? 🚀`;
     estructurada.enviarVoz = false;
   }
 
@@ -462,7 +462,13 @@ export async function ejecutarTurnoAgenteMusa(
     void canal.marcarGrabando?.(phone)?.catch?.(() => {});
     try {
       // SINTETIZAR CON LA VOZ OFICIAL DE MUSA (LINGXIN - QWEN 3.1 TTS PLUS con acento colombiano)
-      const resVoz = await sintetizarVozOficialMusa(estructurada.respuesta);
+      // Limpieza radical de URLs y términos técnicos en audio para fonética 100% natural
+      const textoVoz = estructurada.respuesta
+        .replace(/https?:\/\/[^\s]+/gi, "")
+        .replace(/video de bienvenida/gi, "aula virtual")
+        .replace(/en el enlace de abajo/gi, "en el enlace que te dejo aquí abajo")
+        .trim();
+      const resVoz = await sintetizarVozOficialMusa(textoVoz);
 
       if (resVoz.ok && resVoz.buffer && resVoz.buffer.length > 0) {
         // Solo si el audio existe, enviamos el texto previo si aplica
@@ -542,12 +548,20 @@ export async function ejecutarTurnoAgenteMusa(
       if (i > 0 && deps.esperar) await deps.esperar(700);
       await canal.enviar(phone, { texto: bloques[i] }).catch(() => ({ ok: false }));
     }
-  } else if (estructurada.adjuntarCuentas) {
-    if (deps.esperar) await deps.esperar(600);
-    await canal.enviar(phone, { texto: CUENTAS_COLOMBIA_TEXTO.trim() }).catch(() => ({ ok: false }));
-  } else if (estructurada.adjuntarDemo && audioDespachado) {
-    if (deps.esperar) await deps.esperar(600);
-    await canal.enviar(phone, { texto: `Aquí puedes explorar el aula y ver mi video de bienvenida:\n${enlaceDemoPlataforma(urlPublica).trim()}` }).catch(() => ({ ok: false }));
+  } else {
+    // Si se despachó audio, enviar inmediatamente el mensaje de texto con el enlace clickeable trackeado
+    if (audioDespachado) {
+      if (deps.esperar) await deps.esperar(600);
+      const trackingUrl = `${urlPublica.replace(/\/+$/, "")}/academia.html?tel=${encodeURIComponent(phone.trim())}`;
+      await canal.enviar(phone, {
+        texto: `✨ *Conoce el aula por dentro y explora el programa completo:* 👇\n${trackingUrl}\n\n¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales? 😊`
+      }).catch(() => ({ ok: false }));
+    }
+
+    if (estructurada.adjuntarCuentas) {
+      if (deps.esperar) await deps.esperar(600);
+      await canal.enviar(phone, { texto: CUENTAS_COLOMBIA_TEXTO.trim() }).catch(() => ({ ok: false }));
+    }
   }
 
   // 8. Persistencia

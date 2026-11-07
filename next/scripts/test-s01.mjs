@@ -18,7 +18,7 @@ const filas = JSON.parse(readFileSync(new URL("../../seed/musa_settings.json", i
 const crudo = Object.fromEntries(filas.map((f) => [f.key, f.value]));
 const CFG = {
   funnelCopy: crudo.funnel_copy,
-  precio: crudo.precio ?? { usd: 9, cop: 33000 },
+  precio: crudo.precio ?? { usd: 2.5, cop: 9000 },
   precioBsHoy: crudo.precio_bs_hoy ?? { bs: 7800 },
   cuentasVe: crudo.cuentas_ve ?? {},
   cuentasCo: crudo.cuentas_co ?? {},
@@ -49,8 +49,8 @@ const conAvatar = (extra = {}) => decidirLeadNuevo({
   const e = sinAvatar({ pidePrecio: true });
   const saludo = de(e, "enviar")[0].textos;
   t("preguntó precio: tres mensajes", saludo.length, 3);
-  t("el tercero es el precio", saludo[2].includes("33.000"), true);
-  t("mensajePrecioRapido usa COP", mensajePrecioRapido(CFG).includes("33.000 COP"), true);
+  t("el tercero es el precio", saludo[2].includes("9.000"), true);
+  t("mensajePrecioRapido usa COP", mensajePrecioRapido(CFG).includes("9.000 COP"), true);
 }
 
 // ============================== sin avatar (puente) ==============================

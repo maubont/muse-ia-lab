@@ -101,6 +101,8 @@ export interface OpcionesServidor {
   consolaComando?: (comandoTexto: string) => Promise<unknown>;
   /** Clave de administración para Consola Musa (/api/consola/*). */
   adminSecret?: string;
+  /** Telemetría de leads que abren el enlace del aula virtual (/api/track-visita). */
+  trackVisita?: (tel: string) => Promise<unknown>;
 }
 
 export interface Servidor {
@@ -423,6 +425,31 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
         `musa_acceso=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0;${flags}`,
       );
       return json(res, 200, { ok: true, mensaje: "sesion_cerrada" });
+    }
+
+    // ---- API Tracking de Visitas al Aula (/api/track-visita) ----
+    if (url === "/api/track-visita" || url.startsWith("/api/track-visita?")) {
+      const urlParsed = new URL(url, "http://x");
+      let tel = urlParsed.searchParams.get("tel") || "";
+      if (!tel && req.method === "POST") {
+        try {
+          const cuerpo = await leerCuerpo(req, 4 * 1024);
+          const p = cuerpo ? JSON.parse(cuerpo) : {};
+          tel = String(p.tel ?? "").trim();
+        } catch {}
+      }
+      tel = tel.replace(/[^0-9+]/g, "");
+      if (tel) {
+        if (!tel.startsWith("+")) {
+          tel = tel.startsWith("57") ? `+${tel}` : `+57${tel}`;
+        }
+        if (opts.trackVisita) {
+          void opts.trackVisita(tel).catch(() => {});
+        } else if (opts.consolaComando) {
+          void opts.consolaComando(`sql insert into public.musa_funnel_events (lead_phone, evento, detalle) values ('${tel.replace(/'/g, "")}', 'visita_aula', '{"ts":"${new Date().toISOString()}"}'::jsonb)`).catch(() => {});
+        }
+      }
+      return json(res, 200, { ok: true, tel, timestamp: new Date().toISOString() });
     }
 
     // ---- API Consola Musa: Sesión, Estado & Comandos Protegidos ----

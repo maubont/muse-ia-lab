@@ -28,7 +28,7 @@ function t(etiqueta, real, esperado) {
     { phone: "+573001234567", nombre: "Laura", estadoFunnel: "S06_CIERRE", mayor18: true },
     "https://musa.test"
   );
-  t("fallback cierre incluye precio", fb.includes("33.000 COP"), true);
+  t("fallback cierre incluye precio", fb.includes("9.000 COP"), true);
   t("fallback cierre incluye demo gratis", fb.includes("https://musa.test/academia.html"), true);
   t("fallback cierre incluye cierre guiado", fb.includes("Nequi o Bancolombia"), true);
 }
@@ -47,7 +47,7 @@ function t(etiqueta, real, esperado) {
     "https://musa.test"
   );
   t("prompt incluye nombre", sp.includes("Mauricio"), true);
-  t("prompt incluye hechos clave (33.000 COP)", sp.includes("33.000 COP"), true);
+  t("prompt incluye hechos clave (9.000 COP)", sp.includes("9.000 COP"), true);
   t("prompt incluye instrucción ManyChat bot", sp.includes("Módulo 12"), true);
   t("prompt prohíbe corazones violetas", sp.includes("ESTÁ ESTRICTAMENTE PROHIBIDO usar corazones morados"), true);
 }
@@ -61,7 +61,7 @@ function t(etiqueta, real, esperado) {
   );
   t("sin api key: ok es false pero seguro", res.ok, false);
   t("sin api key: origen fallback_seguro", res.origen, "fallback_seguro");
-  t("sin api key: texto contiene precio", res.texto.includes("33.000 COP"), true);
+  t("sin api key: texto contiene precio", res.texto.includes("9.000 COP"), true);
 }
 
 console.log(`test-ia-conversacion: ${ok} ok, ${fallas} fallas`);

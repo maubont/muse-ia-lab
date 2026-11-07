@@ -398,8 +398,8 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
       if (!apiKey) {
         const msg =
-          "¡Aquí estoy para ayudarte! ✨ Recuerda que el curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a Musa Studio) tiene un único pago promocional de *33.000 COP* (≈ *9 USD*).\n\n" +
-          "✨ Si deseas conocer la plataforma antes de decidirte, puedes ver el *video de bienvenida* y el temario aquí:\n" +
+          "¡Aquí estoy para ayudarte! ✨ Recuerda que el curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso completo a Musa Studio) tiene un valor de solo *9.000 COP* (≈ *2.50 USD*).\n\n" +
+          "✨ Si deseas conocer la plataforma antes de decidirte, puedes explorar el temario aquí:\n" +
           "https://server-production-3709.up.railway.app/academia.html\n\n" +
           "¿Te gustaría que te comparta los datos de Nequi o Bancolombia para activar tu acceso completo, o tienes alguna duda específica?";
         await canal.enviar(phone, { texto: msg }).catch(() => ({ ok: false }));
@@ -535,24 +535,24 @@ export function crearRepositorio(deps: DepsRepositorio): Repositorio {
 
     async responderObjecion(phone, args) {
       const respuestas: Record<number, string> = {
-        1: "Te entiendo de corazón ✨ En internet hay que ser precavido y haces bien en dudar. Puedes explorar la plataforma y ver mi *video de bienvenida* aquí 👇\nhttps://server-production-3709.up.railway.app/academia.html\n\nMírala unos minutos para que conozcas el estudio tú mismo con tus propios ojos ✨ ¿Te abrió bien el enlace? 😊",
-        2: "Te entiendo ✨ Por eso el acceso es de solo *33.000 COP* (≈ *9 USD*) en un único pago de por vida, sin mensualidades ni cobros ocultos, e incluye los 13 módulos y los 4 bonos completos.",
+        1: "Te entiendo de corazón ✨ En internet hay que ser precavido y haces bien en dudar. Puedes explorar el temario del aula aquí 👇\nhttps://server-production-3709.up.railway.app/academia.html\n\nMírala unos minutos para que conozcas el estudio tú mismo con tus propios ojos ✨ ¿Te abrió bien el enlace? 😊",
+        2: "Te entiendo ✨ Por eso el acceso es de solo *9.000 COP* (≈ *2.50 USD*), sin mensualidades ocultas, e incluye los 13 módulos y los 4 bonos completos.",
         3: "¡Sí! 🚀 Apenas verifico tu comprobante te entrego por este mismo chat tu enlace personal a Musa Academy con los 13 módulos y los 4 bonos listos para ver.",
         4: "Totalmente 💪 El curso arranca desde CERO en el Módulo 1 y te lleva paso a paso hasta crear y monetizar tu primer modelo virtual, sin necesidad de experiencia previa.",
         5: "Sí 🌎 Todo el curso es 100 % online y tanto las herramientas de IA como las plataformas de monetización funcionan desde Colombia y cualquier país.",
-        6: "Son *33.000 COP* (≈ *9 USD*) pago único 🙌 Puedes pagar por *Nequi, llave Bre-B o Bancolombia*. ¿Te paso los datos para hacerlo ahora?",
-        7: "Incluye *13 módulos prácticos* (creación de modelos hiperrealistas, consistencia facial, video IA, TikTok/Instagram, Telegram, Fanvue, ManyChat y prompts) + *4 bonos exclusivos* + la *Guía Rápida de Implementación* por *33.000 COP* (≈ *9 USD*) pago único.",
+        6: "Son *9.000 COP* (≈ *2.50 USD*) 🙌 Puedes pagar por *Nequi, llave Bre-B o Bancolombia*. ¿Te paso los datos para hacerlo ahora?",
+        7: "Incluye *13 módulos prácticos* (creación de modelos hiperrealistas, consistencia facial, video IA, TikTok/Instagram, Telegram, Fanvue, ManyChat y prompts) + *4 bonos exclusivos* + la *Guía Rápida de Implementación* por *9.000 COP* (≈ *2.50 USD*).",
         8: "Sí 😊 Crear y gestionar personajes ficticios generados con IA es completamente legal. El curso enseña a crear identidades 100 % originales.",
         9: "¡Por supuesto! ✨ Tú nunca muestras tu cara ni tu cuerpo: creas y diriges modelos virtuales con IA detrás de cámara.",
         10: "Te garantizamos la entrega inmediata y verificable de los 13 módulos + 4 bonos en tu área privada apenas envíes tu comprobante, con soporte directo por este mismo WhatsApp 📲",
-        11: "Lo hicimos accesible a propósito (*33.000 COP* / *9 USD* pago único) para que cualquier persona en Colombia pueda empezar sin barreras.",
+        11: "Lo hicimos accesible a propósito (*9.000 COP* / *2.50 USD*) para que cualquier persona en Colombia pueda empezar sin barreras.",
         12: "¡Claro, tómate tu tiempo! 😊 Recuerda que en tus primeras 24 horas tienes incluida de regalo la *Guía Rápida de Implementación*. Cuando quieras continuar, solo avísame cuando desees continuar ✨",
         13: "Sí 😄 Soy Musa, la asistente virtual de Modelos IA. Y automatizar la atención así con IA es justamente una de las habilidades que aprenderás dentro del curso 😉",
       };
 
       const temasObjecion: Record<number, string> = {
-        1: "El lead pide una muestra, ver la plataforma o desconfianza. Valida con empatía, menciona el video de bienvenida en la academia (https://server-production-3709.up.railway.app/academia.html) y pregunta si le pasas datos de Nequi o Bancolombia.",
-        2: "El lead pregunta por el precio o siente que es caro. Explica que son solo 33.000 COP (≈ 9 USD) en único pago de por vida sin mensualidades.",
+        1: "El lead pide una muestra, ver la plataforma o desconfianza. Valida con empatía, menciona el temario en la academia (https://server-production-3709.up.railway.app/academia.html) y pregunta si le pasas datos de Nequi o Bancolombia.",
+        2: "El lead pregunta por el precio o siente que es caro. Explica que son solo 9.000 COP (≈ 2.50 USD) sin mensualidades ocultas.",
         3: "El lead pregunta si la entrega es inmediata. Confirma que se entrega al instante tras validar el comprobante por este mismo chat.",
         4: "El lead pregunta si necesita un computador potente o si puede desde el celular. Aclara con calidez que todo corre en la nube y puede hacerlo desde su celular o PC básico.",
         5: "El lead pregunta si funciona en su país. Confirma que las herramientas y plataformas funcionan desde Colombia y cualquier país.",

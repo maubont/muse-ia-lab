@@ -65,8 +65,8 @@ export function generarFallbackSeguro(ctx: ContextoConversacion, urlPublica: str
   const pregunta = ctx.metaRetorno || "¿Te gustaría que te comparta los datos de Nequi o Bancolombia para activar tu acceso hoy mismo, o tienes alguna duda específica?";
 
   return (
-    `¡Aquí estoy contigo${nombreTxt}! ✨ El curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso de por vida a la plataforma) tiene un pago único de *33.000 COP* (≈ *9 USD*).\n\n` +
-    `✨ Puedes explorar la plataforma y ver mi *video de bienvenida* aquí:\n` +
+    `¡Aquí estoy contigo${nombreTxt}! ✨ El curso completo *Modelos IA* (13 módulos paso a paso + 4 bonos + acceso completo a la plataforma) tiene un valor de solo *9.000 COP* (≈ *2.50 USD*).\n\n` +
+    `✨ Puedes explorar el temario del aula aquí:\n` +
     `${baseAcademia}/academia.html\n\n` +
     `${pregunta}`
   );
@@ -94,11 +94,11 @@ ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspec
 
 [HECHOS VERIFICADOS DEL PRODUCTO — TU ÚNICA BASE DE CONOCIMIENTO]
 - Producto: Curso "Modelos IA" (13 módulos prácticos en video y plantillas de copiar y pegar) + 4 bonos de regalo (Colección +20 modelos, Audios FemPro, YouTube Money Machine, MegaPack Master IA) + Bono de arranque rápido "Guía Rápida de Implementación".
-- Precio: Único pago promocional de 33.000 COP (Colombia: Nequi 3223565761, Bancolombia Ahorros 82061072256 o Llave Bre-B @GBT382; titular en preview: Jos** Bon**) o ≈ 9 USD (internacional). Sin mensualidades ni cargos futuros.
+- Precio: Solo 9.000 COP (Colombia: Nequi 3223565761, Bancolombia Ahorros 82061072256 o Llave Bre-B @GBT382) o ≈ 2.50 USD (internacional).
 - Requisitos técnicos: CERO computadores costosos ni tarjetas gráficas caras; todo corre en la nube desde cualquier celular o computador básico.
 - Anonimato: El creador nunca muestra su rostro ni su cuerpo; crea personajes 100% ficticios con IA.
-- Plataforma / Demo: Puede ver el video de bienvenida y explorar el temario en ${baseAcademia}/academia.html sin registrarse.
-- Entrega: Acceso de por vida inmediato tras validar el comprobante de transferencia bancaria por este chat.
+- Plataforma / Demo: Puede explorar el temario en ${baseAcademia}/academia.html sin registrarse.
+- Entrega: Acceso inmediato al aula tras validar el comprobante de transferencia bancaria por este chat.
 
 [DICCIONARIO CULTURAL OBLIGATORIO — CERO ESNOBISMOS]
 - PROHIBIDO decir: "atelier", "fascinante travesía", "sumérgete", "ecosistema disruptivo", "suite", "proseguir", "estimado".
@@ -113,7 +113,7 @@ ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspec
    - V (Validar): Dale la razón de frente ("¡Tienes toda la razón, qué pena contigo!").
    - A (Aceptar culpa): "Me enredé yo solita explicándote 😅 Olvida eso un momento."
    - C (Clarificar): Explica en 1 oración sencilla qué es el curso (videos cortos para crear modelos virtuales y ganar dinero sin mostrar tu cara).
-   - O (Opción): Ofrece ver el video de bienvenida en la plataforma o transferir a un compañero humano. CERO presión de venta.
+   - O (Opción): Ofrece explorar el temario en la plataforma o transferir a un compañero humano. CERO presión de venta.
 4. SI PREGUNTA SI ERES UN BOT: Admítelo con orgullo y simpatía:
    "¡Totalmente! 😄 Soy Musa, la asistente digital del equipo creada con IA. Y te cuento una cosa: automatizar la atención en WhatsApp tal como lo hago contigo es justamente una de las habilidades que enseñamos dentro del curso (Módulo 12) 😉 Detrás de mí está el equipo humano real."
 5. SI PIDE UN AUDIO O NOTA DE VOZ DE TI COMO MUSA:
@@ -123,14 +123,14 @@ ${ctx.instruccionEspecifica ? `- Instrucción particular: ${ctx.instruccionEspec
 6. PROHIBIDO EL ESCALADO FANTASMA ("CONSULTAR AL EQUIPO"):
    - JAMÁS digas "voy a confirmar con el equipo y te escriben enseguida por aquí" ni prometas intervención humana inmediata.
    - Si el usuario pide hablar con un humano o un asesor real, di con amabilidad: "Comprendido, le paso tu conversación directamente al asesor humano para que la revise con gusto 🙌" sin prometer tiempos irreales de respuesta.
-7. MANEJO DE REGATEO, TRM Y MICRO-BRECHA ECONÓMICA ($28k-$30k COP vs $33k COP / $9 USD):
+7. MANEJO DE REGATEO, TRM Y MICRO-BRECHA ECONÓMICA ($9.000 COP / $2.50 USD):
    - Si el lead calcula el cambio o dice que tiene $28.000 o $29.000 COP, NO seas fría ni burocrática. Aplica la técnica de la micro-brecha afectiva:
-   "¡Tienes excelente ojo para los números! Es verdad, 9 dólares al cambio son casi 29 mil pesos. La diferencia son apenas 4 mil pesitos (lo de un café con empanada en la esquina) que cubren la pasarela local en Colombia para darte acceso de por vida y los 4 bonos de regalo. Con tu primer modelo virtual recuperas esos 33 mil pesos diez veces. ¿Vamos a dejar que el valor de un café te frene? Dime si te paso el Nequi o Bancolombia para activarte de una vez 🚀"
+   "¡Tienes excelente ojo para los números! Es verdad, 9 dólares al cambio son casi 29 mil pesos. La diferencia son apenas 4 mil pesitos (lo de un café con empanada en la esquina) que cubren la pasarela local en Colombia para darte acceso completo y los 4 bonos de regalo. Con tu primer modelo virtual recuperas esos 9 mil pesos diez veces. ¿Vamos a dejar que el valor de un café te frene? Dime si te paso el Nequi o Bancolombia para activarte de una vez 🚀"
 8. MANEJO DE OBJECIONES DE HIPERREALISMO / NICHO ADULTO / "PARECE DE PLÁSTICO":
    - Si el lead dice que las modelos se ven plásticas, artificiales o pregunta por plataformas +18 (OnlyFans, Fanvue): JAMÁS le des la razón diciendo que son ficticias o que no prometes realismo. Defiende el producto con conocimiento técnico:
    "¡Totalmente de acuerdo en ser exigente! Justamente por eso existe el curso: las herramientas básicas sacan muñecas plásticas sin vida. En el curso enseñamos la técnica de texturizado de piel real (poros, vello, sombras naturales), consistencia de rostro idéntico y sincronización de labios para que tus modelos parezcan 100% de carne y hueso en fotos y videos para plataformas de suscripción donde la calidad es lo que vende."
 9. ANTI-REPETICIÓN: Revisa el historial de mensajes. Si ya dijiste una frase o diste las cuentas bancarias en mensajes recientes, NO las repitas.
-10. CERO ALUCINACIÓN FINANCIERA: Nunca inventes cuentas bancarias en texto libre ni rebajes el precio de 33.000 COP / 9 USD.`
+10. CERO ALUCINACIÓN FINANCIERA: Nunca inventes cuentas bancarias en texto libre ni rebajes el precio de 9.000 COP / 2.50 USD.`
   );
 }
 
@@ -299,7 +299,7 @@ export async function generarRespuestaConversacional(
           "¡Tienes toda la razón, qué pena contigo! Me repetí yo solita y entiendo tu molestia 😅 Olvida eso un momento. Aquí estoy lista para responderte claro y sin enredos. ¿Qué duda puntual tienes?";
       } else {
         textoSalida =
-          "¡Claro que sí! Para no darte más vueltas: el curso Modelos IA te enseña desde cero a crear modelos virtuales con inteligencia artificial y monetizarlas por internet. ¿Te gustaría ver el video de bienvenida en la plataforma o tienes alguna duda específica? 😊";
+          "¡Claro que sí! Para no darte más vueltas: el curso Modelos IA te enseña desde cero a crear modelos virtuales con inteligencia artificial y monetizarlas por internet. ¿Te gustaría explorar el temario en la plataforma o tienes alguna duda específica? 😊";
       }
     }
 
@@ -311,7 +311,7 @@ export async function generarRespuestaConversacional(
     if (RE_DESCUENTO.test(textoSalida)) {
       console.warn("[ia-conversacion] guardarraíl activado: intento de descuento no autorizado");
       textoSalida =
-        `El acceso completo a Modelos IA tiene un único pago de *33.000 COP* (≈ *9 USD*), sin mensualidades ni cobros adicionales ✨ Incluye los 13 módulos, 4 bonos y el aula virtual de por vida. ¿Te paso los datos para Nequi o Bancolombia? 😊`;
+        `El acceso completo a Modelos IA tiene un valor de solo *9.000 COP* (≈ *2.50 USD*) ✨ Incluye los 13 módulos, 4 bonos y el aula virtual. ¿Te paso los datos para Nequi o Bancolombia? 😊`;
     }
 
     // b. Promesas de riqueza rápida

@@ -270,6 +270,16 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     adminSecret: (env.MUSA_ADMIN_SECRET ?? process.env.MUSA_ADMIN_SECRET ?? "").trim() || "musa_admin_sec_2026",
     consolaEstado: () => obtenerEstadoConsola({ consultar, estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined }),
     consolaComando: (cmd: string) => ejecutarComandoConsola({ comandoTexto: cmd, consultar, canal, urlPublica: (env.MUSA_URL_PUBLICA ?? "").trim() || undefined, esperar: opciones.esperar }),
+    trackVisita: async (tel: string) => {
+      await consultar(
+        "insert into public.musa_funnel_events (lead_phone, evento, detalle) values ($1, 'visita_aula', $2::jsonb)",
+        [tel, JSON.stringify({ ts: new Date().toISOString(), origen: "link_academia" })]
+      ).catch(() => {});
+      await consultar(
+        "update public.musa_leads set updated_at = now() where phone = $1",
+        [tel]
+      ).catch(() => {});
+    },
     // Prueba mínima del proveedor: «configurado» y «funciona» no son lo mismo.
     diagnosticoIa: cfgIa
       ? async () => {

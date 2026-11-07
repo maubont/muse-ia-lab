@@ -43,10 +43,10 @@
           {
             "key": "precio",
             "value": {
-              "cop": 33000,
-              "usd": 9,
+              "cop": 9000,
+              "usd": 2.5,
               "margen_bs": 1.02,
-              "montos_extra": [],
+              "montos_extra": [33000],
               "nota_montos_extra": "Montos válidos además del precio base (upsell/bump). Vacío = solo el precio base. Los valores se suman en COP."
             },
             "updated_at": "2026-06-12T05:20:04.311Z"

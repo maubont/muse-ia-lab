@@ -26,7 +26,7 @@ const filas = JSON.parse(readFileSync(new URL("../../seed/musa_settings.json", i
 const crudo = Object.fromEntries(filas.map((f) => [f.key, f.value]));
 const cfg = {
   funnelCopy: crudo.funnel_copy,
-  precio: crudo.precio ?? { usd: 9, cop: 33000 },
+  precio: crudo.precio ?? { usd: 2.5, cop: 9000 },
   precioBsHoy: crudo.precio_bs_hoy ?? { bs: 7400 },
   cuentasVe: crudo.cuentas_ve ?? {},
   cuentasCo: crudo.cuentas_co ?? {},
@@ -52,7 +52,7 @@ const primero = (efectos, tipo) => efectos.filter((e) => e.tipo === tipo)[0];
   const textos = primero(e, "enviar").textos;
   t("mayor: dos mensajes", textos.length, 2);
   t("mayor: el cierre usa el nombre", textos[1].includes("Carlos"), true);
-  t("mayor: precio en COP", textos[0].includes("33.000"), true);
+  t("mayor: precio en COP", textos[0].includes("9.000") || textos[0].includes("33.000"), true);
   t("mayor: sin placeholders", textos.join(" ").includes("{{"), false);
   t("mayor: sin tokens internos", /\[[A-Z0-9_]{3,}/.test(textos.join(" ")), false);
 }

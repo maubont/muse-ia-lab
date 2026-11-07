@@ -189,14 +189,14 @@ export function endurecer(
 
   // 4) El monto tiene que cuadrar. Cualquier diferencia, a humano.
   const esperado = d.moneda && String(d.moneda).toUpperCase() === "USD"
-    ? Number(cfg.precio?.usd ?? 9)
-    : Number(cfg.precio?.cop ?? 33000);
+    ? Number(cfg.precio?.usd ?? 2.5)
+    : Number(cfg.precio?.cop ?? 9000);
   // MONTOS VÁLIDOS, no un único monto. Con un solo valor, cualquier comprador de un
   // upsell caía irremediablemente en cola humana. La lista sale de la configuración.
   const extra = (cfg.precio as { montos_extra?: unknown })?.montos_extra;
   const adicionales = Array.isArray(extra)
     ? extra.map((v) => Number(v)).filter((n) => Number.isFinite(n) && n > 0)
-    : [];
+    : [33000];
   const validos = [esperado, ...adicionales];
   const cuadra = d.monto != null && validos.some((v) => Math.abs(d.monto! - v) <= 0.01);
   if (!cuadra) {

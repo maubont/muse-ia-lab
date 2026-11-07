@@ -57,7 +57,7 @@ const MOTIVOS_ESPANOL: Record<string, string> = {
   aprobado_por_operador: "Aprobado manualmente por el operador",
   vision_fallida: "Visión IA no pudo leer la captura",
   destinatario_no_coincide: "El número de destino no coincide con Nequi/Bre-B oficial",
-  monto_insuficiente: "El monto pagado es menor al precio del curso ($33.000 COP)",
+  monto_insuficiente: "El monto pagado es menor al precio del curso ($9.000 COP)",
   referencia_duplicada: "Referencia de pago ya utilizada anteriormente",
   imagen_duplicada: "La imagen del comprobante ya había sido enviada",
   fuera_de_horario: "Recibido fuera de horario de verificación automática",
@@ -257,7 +257,8 @@ export async function obtenerEstadoConsola(deps: {
         (select count(*)::int from public.musa_leads where pagado = true) as leads_pagados,
         (select count(*)::int from public.musa_leads where escalado_humano = true and pagado = false) as escalados,
         (select count(*)::int from public.musa_payments where status = 'revision') as pagos_revision,
-        (select count(*)::int from public.musa_payments where status = 'aprobado') as pagos_aprobados
+        (select count(*)::int from public.musa_payments where status = 'aprobado') as pagos_aprobados,
+        (select count(*)::int from public.musa_funnel_events where evento = 'visita_aula' and created_at > now() - interval '24 hours') as visitas_aula_24h
     `).catch(() => ({ rows: [{}] })),
     consultar(`
       select p.short_id, p.lead_phone, p.metodo, p.ref_normalizada, p.monto, p.moneda,
@@ -309,6 +310,7 @@ export async function obtenerEstadoConsola(deps: {
       pagosEnRevision: Number(m.pagos_revision ?? 0),
       pagosAprobados: Number(m.pagos_aprobados ?? 0),
       escaladosHumanos: Number(m.escalados ?? 0),
+      visitasAula24h: Number(m.visitas_aula_24h ?? 0),
       reconciliacionSinAcceso: 0,
     },
     pagos,

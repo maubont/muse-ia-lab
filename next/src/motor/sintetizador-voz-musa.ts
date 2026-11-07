@@ -62,7 +62,8 @@ export async function sintetizarVozOficialMusa(
   // 1. Intentar primero con Alibaba Qwen 3.1 TTS Plus (Lingxin Colombiana)
   if (qwenKey) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 9500);
+    const timeoutMs = Math.max(25000, textoLimpio.length * 50);
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
 
     try {
       const resp = await fetch(

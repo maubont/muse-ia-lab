@@ -16,13 +16,11 @@ const img1 = "next/landing/assets/musa-mirror-corset.jpg";
 const img2 = "next/landing/assets/musa-penthouse-lipbite.jpg";
 const img3 = "next/landing/assets/musa-closeup.jpg";
 const img4 = "next/landing/assets/musa-sensual-penthouse.jpg";
-const audioPath = "creativos-revisar/audio-creativo-lingxin.mp3";
+const audioPath = "next/landing/audio/voz-creativo-sensual.mp3";
 
 const salidaLocal = "creativos-revisar/videos/creativo-musa-master-916.mp4";
 const salidaLanding1 = "next/landing/videos/creativo-musa-master-916.mp4";
-const salidaLanding2 = "next/landing/videos/creativo-musa-sensual-movimiento.mp4";
-const salidaLanding3 = "next/landing/videos/creativo-musa-v7-final.mp4";
-const salidaLanding4 = "next/landing/videos/creativo-musa-lingxin-oficial.mp4";
+const salidaLandingOficial = "next/landing/videos/creativo-musa-oficial-2026.mp4";
 
 function esc(t) {
   return t.replace(/%/g, "%%").replace(/:/g, "\\:").replace(/'/g, "\\'");
@@ -70,23 +68,23 @@ const filterComplex = [
   "[dock1]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("¿LA IA PARECE PLÁSTICO?  ·  MÍRAME BIEN") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1485:enable='between(t,0,8.8)'[d1_1]",
   "[d1_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("CREA TU CHICA VIRTUAL") + "':fontcolor=white:fontsize=44:x=(w-text_w)/2:y=1535:enable='between(t,0,8.8)'[d1_2]",
   "[d1_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Consistencia de rostro idéntico y piel real sin código") + "':fontcolor=#CBD5E1:fontsize=30:x=(w-text_w)/2:y=1615:enable='between(t,0,8.8)'[d1_3]",
-  "[d1_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,0,8.8)'[s1_done]",
+  "[d1_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  SOLO $9.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,0,8.8)'[s1_done]",
 
   // 8.4 Textos Fase 2 (8.8 a 17.6s): Expresión y Deseo
   "[s1_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("GESTUALIDAD VIVA  ·  SENSUALIDAD REAL") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1485:enable='between(t,8.8,17.6)'[d2_1]",
   "[d2_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PIEL HUMANA CON POROS") + "':fontcolor=white:fontsize=44:x=(w-text_w)/2:y=1535:enable='between(t,8.8,17.6)'[d2_2]",
   "[d2_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Mirada seductora y mordida de labio · Cero muñecas de cera") + "':fontcolor=#CBD5E1:fontsize=30:x=(w-text_w)/2:y=1615:enable='between(t,8.8,17.6)'[d2_3]",
-  "[d2_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,8.8,17.6)'[s2_done]",
+  "[d2_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  SOLO $9.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,8.8,17.6)'[s2_done]",
 
   // 8.5 Textos Fase 3 (17.6 a 26.6s): Consistencia y Monetización
   "[s2_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("MONETIZACIÓN ANÓNIMA  ·  COBRA EN DÓLARES") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1485:enable='between(t,17.6,26.6)'[d3_1]",
   "[d3_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("MISMO ROSTRO EN CADA FOTO") + "':fontcolor=white:fontsize=44:x=(w-text_w)/2:y=1535:enable='between(t,17.6,26.6)'[d3_2]",
   "[d3_2]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Crea contenido para Fanvue e Instagram desde tu celular") + "':fontcolor=#CBD5E1:fontsize=30:x=(w-text_w)/2:y=1615:enable='between(t,17.6,26.6)'[d3_3]",
-  "[d3_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,17.6,26.6)'[s3_done]",
+  "[d3_3]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("TALLER VIRTUAL INTENSIVO  ·  SOLO $9.000 COP") + "':fontcolor=#10B981:fontsize=32:x=(w-text_w)/2:y=1700:enable='between(t,17.6,26.6)'[s3_done]",
 
   // 8.6 Textos Fase 4 (26.6 a 35.6s): CTA Final y Cierre
   "[s3_done]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("ACCESO INMEDIATO  ·  13 CLASES + 4 BONOS") + "':fontcolor=#C8A97E:fontsize=26:x=(w-text_w)/2:y=1470:enable='between(t,26.6,35.6)'[d4_1]",
-  "[d4_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("PAGO ÚNICO $33.000 COP") + "':fontcolor=#10B981:fontsize=52:x=(w-text_w)/2:y=1525:enable='between(t,26.6,35.6)'[d4_2]",
+  "[d4_1]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("SOLO $9.000 COP") + "':fontcolor=#10B981:fontsize=52:x=(w-text_w)/2:y=1525:enable='between(t,26.6,35.6)'[d4_2]",
   "[d4_2]drawbox=x=90:y=1625:w=900:h=90:color=#25D366@0.95:t=fill:enable='between(t,26.6,35.6)'[cta_box]",
   "[cta_box]drawtext=fontfile=" + FONT_BLACK + ":text='" + esc("▶ ENVIAR MENSAJE A WHATSAPP") + "':fontcolor=#041008:fontsize=34:x=(w-text_w)/2:y=1655:enable='between(t,26.6,35.6)'[d4_3]",
   "[d4_3]drawtext=fontfile=" + FONT_BOLD + ":text='" + esc("Habla conmigo por chat y entra a mi estudio hoy mismo") + "':fontcolor=#94A3B8:fontsize=24:x=(w-text_w)/2:y=1750:enable='between(t,26.6,35.6)'[vout]"
@@ -130,15 +128,11 @@ const stats = fs.statSync(salidaLocal);
 const mb = (stats.size / (1024 * 1024)).toFixed(2);
 console.log(`✓ Render finalizado con éxito en ${duracionSeg}s: ${salidaLocal} (${mb} MB)`);
 
-// Copiar a las rutas de landing
+// Copiar a las rutas de landing requeridas
 fs.copyFileSync(salidaLocal, salidaLanding1);
-fs.copyFileSync(salidaLocal, salidaLanding2);
-fs.copyFileSync(salidaLocal, salidaLanding3);
-fs.copyFileSync(salidaLocal, salidaLanding4);
+fs.copyFileSync(salidaLocal, salidaLandingOficial);
 console.log(`✓ Desplegado en ${salidaLanding1}`);
-console.log(`✓ Desplegado en ${salidaLanding2}`);
-console.log(`✓ Desplegado en ${salidaLanding3}`);
-console.log(`✓ Desplegado en ${salidaLanding4}`);
+console.log(`✓ Desplegado en ${salidaLandingOficial}`);
 
 // Generar thumbnails
 const thumbs = [

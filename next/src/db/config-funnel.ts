@@ -101,7 +101,7 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
 
   return {
     funnelCopy,
-    precio: (mapa.precio ?? { usd: 9, cop: 33000 }) as CfgFunnel["precio"],
+    precio: (mapa.precio ?? { usd: 2.5, cop: 9000 }) as CfgFunnel["precio"],
     precioBsHoy: (mapa.precio_bs_hoy ?? { bs: 7400 }) as CfgFunnel["precioBsHoy"],
     cuentasVe: (mapa.cuentas_ve ?? {}) as Record<string, unknown>,
     cuentasCo: (mapa.cuentas_co ?? {}) as Record<string, unknown>,

@@ -187,12 +187,13 @@ export async function enviarAlertaOperador(
   }
 
   const esAutoNotificacion = normalizarTel(telefonoOperador) === normalizarTel(ctx.phone);
+  if (esAutoNotificacion) {
+    console.log(`[alerta-operador] Operador es el mismo lead (${ctx.phone}). Se omite alerta para evitar bucle/auto-notificación.`);
+    return true;
+  }
   try {
     const textoAlerta = await construirAlertaEstructurada(consultar, ctx);
-    const textoFinal = esAutoNotificacion
-      ? `🧪 *[NOTIFICACIÓN DE ESCALADO INTERNO - PRUEBA DE OPERADOR]*\n\n${textoAlerta}`
-      : textoAlerta;
-    const res = await canal.enviar(telefonoOperador, { texto: textoFinal });
+    const res = await canal.enviar(telefonoOperador, { texto: textoAlerta });
     return res.ok;
   } catch (err) {
     console.error(`[alerta-operador] Error despachando alerta a operador:`, err);
