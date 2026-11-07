@@ -197,6 +197,12 @@ export async function atenderComandoOperador(
       [comando.shortId],
     );
     await consultar(
+      `update public.musa_leads
+          set pagado = true, estado_funnel = 'S10_CLIENTE', updated_at = now()
+        where phone = $1`,
+      [telefono],
+    ).catch(() => ({ rows: [] }));
+    await consultar(
       `insert into public.musa_funnel_events (lead_phone, evento, detalle)
        values ($1, 'pago_aprobado_operador', $2::jsonb)`,
       [telefono, JSON.stringify({ short_id: comando.shortId })],
