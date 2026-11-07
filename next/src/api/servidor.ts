@@ -183,7 +183,10 @@ function servirLanding(raiz: string, pedida: string): { rutaCompleta: string; ti
   const relativa = normalizar(decodeURIComponent(limpia)).replace(/^([/\\])+/, "");
   if (relativa.includes("..")) return null;
 
-  const destino = unirRuta(raiz, relativa === "" ? "index.html" : relativa);
+  let destino = unirRuta(raiz, relativa === "" ? "index.html" : relativa);
+  if (!existeRuta(destino) && relativa.startsWith("videos/creativo-musa-")) {
+    destino = unirRuta(raiz, "videos/creativo-musa-master-916.mp4");
+  }
   const dentro = normalizar(destino).startsWith(normalizar(raiz));
   if (!dentro || !existeRuta(destino) || !statSync(destino).isFile()) return null;
 
