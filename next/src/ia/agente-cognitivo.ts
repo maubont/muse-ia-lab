@@ -655,19 +655,19 @@ export async function ejecutarSeguimiento60Segundos(opts: {
       return { enviado: false, motivo: "lead_ya_respondio" };
     }
 
-    // 3. Verificar que no se haya enviado ya el seguimiento de 60s a este lead
+    // 3. Verificar que no se haya enviado ya el seguimiento de 60s en esta sesión
     const { rows: segRows } = await consultar(
-      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'seguimiento_60s' limit 1",
-      [phone],
+      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'seguimiento_60s' and created_at > $2::timestamptz limit 1",
+      [phone, desdeTimestampIso],
     );
     if (segRows.length > 0) {
       return { enviado: false, motivo: "ya_enviado" };
     }
 
-    // 4. Detectar por telemetría si el prospecto hizo clic en el enlace del aula (`visita_aula`)
+    // 4. Detectar por telemetría si el prospecto hizo clic en el enlace del aula (`visita_aula`) en esta sesión
     const { rows: visitaRows } = await consultar(
-      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'visita_aula' limit 1",
-      [phone],
+      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'visita_aula' and created_at > $2::timestamptz limit 1",
+      [phone, desdeTimestampIso],
     );
     const visitoAula = visitaRows.length > 0;
 
