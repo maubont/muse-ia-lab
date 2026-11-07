@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Musa Estudio — Ensayo de Personaje Asiática Hiperrealista (6s)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #07090e;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid #ec4899;
+      color: #f472b6;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 40%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.sub {
+      color: #94a3b8;
+      font-size: 14px;
+      text-align: center;
+      max-width: 580px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .video-card {
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(244, 114, 182, 0.3);
+      background: #000;
+    }
+    video {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      display: block;
+      object-fit: cover;
+    }
+    .quote-box {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+    .quote-box strong {
+      color: #f472b6;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .btn-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .btn-play {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+      color: white;
+    }
+    .btn-dl {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="badge">✦ Ensayo de Personaje Nuevo · 6 Segundos</div>
+  <h1>Modelo Asiática Hiperrealista</h1>
+  <p class="sub">Ensayo de prueba con calidad fotográfica de última generación (Google Imagen + síntesis de voz): rostro con poros reales, bustier escotado casual chic y diálogo espontáneo.</p>
+
+  <div class="container">
+    <div class="video-card">
+      <video id="vplayer" controls playsinline preload="auto" poster="https://m2gnzrj8.us-east.insforge.app/api/storage/buckets/musa-avatares/objects/test%2Fensayo-modelo-asiatica.jpg">
+        <source src="/videos/ensayo-modelo-asiatica-6s.mp4" type="video/mp4">
+        <source src="https://m2gnzrj8.us-east.insforge.app/api/storage/buckets/musa-avatares/objects/test%2Fensayo-modelo-asiatica-6s.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <div class="actions">
+      <button class="btn-action btn-play" onclick="playWithAudio()">
+        ▶ REPRODUCIR CON SONIDO
+      </button>
+      <a class="btn-action btn-dl" href="https://m2gnzrj8.us-east.insforge.app/api/storage/buckets/musa-avatares/objects/test%2Fensayo-modelo-asiatica-6s.mp4" download="ensayo-modelo-asiatica-6s.mp4">
+        ⬇ Descargar Video MP4 (6s)
+      </a>
+      <a class="btn-action btn-dl" href="https://m2gnzrj8.us-east.insforge.app/api/storage/buckets/musa-avatares/objects/test%2Fensayo-modelo-asiatica.jpg" target="_blank">
+        🔍 Ver Fotograma Original en Alta Resolución
+      </a>
+    </div>
+
+    <div class="quote-box">
+      <strong>Frase Ocurrente del Video:</strong>
+      "Dicen que la inteligencia artificial no tiene curvas ni sentido del humor... claramente no me habían conocido a mí."
+    </div>
+  </div>
+
+  <script>
+    function playWithAudio() {
+      const v = document.getElementById('vplayer');
+      if (v) {
+        v.muted = false;
+        v.volume = 1.0;
+        v.play();
+      }
+    }
+  </script>
+
+</body>
+</html>
