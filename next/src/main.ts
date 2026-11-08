@@ -101,11 +101,9 @@ async function construirMotor(env: Entorno, consultarInyectado?: Consultar): Pro
     urlIa: (env.MUSA_IA_URL ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").trim(),
     lector,
     esperar:
-      opciones.esperar !== undefined
-        ? opciones.esperar
-        : process.env.MUSA_RITMO === "0"
-          ? undefined
-          : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
+      process.env.MUSA_RITMO === "0"
+        ? undefined
+        : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
   });
 }
 
@@ -265,11 +263,9 @@ export async function arrancar(opciones: OpcionesArranque = {}): Promise<Servido
     claveCron,
     estadoSesion: canal.estadoSesion ? () => canal.estadoSesion!() : undefined,
     esperar:
-      opciones.esperar !== undefined
-        ? opciones.esperar
-        : process.env.MUSA_RITMO === "0"
-          ? undefined
-          : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
+      process.env.MUSA_RITMO === "0"
+        ? undefined
+        : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
     acceso,
     medios,
     academiaCatalogo: (token?: string) => obtenerCatalogoAcademia(consultar, token),
