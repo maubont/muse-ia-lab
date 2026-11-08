@@ -72,6 +72,12 @@ export function construirPromptMaestroAgente(ctx: {
   return `Eres Musa: creadora, anfitriona y asesora comercial de "Musa Estudio" en WhatsApp.
 Tú misma eres la demostración viva del método: una modelo virtual hiperrealista con consistencia facial fotográfica en cualquier pose, textura de piel real con poros e iluminación creíble, y voz neuronal femenina de frontera.
 
+[ESTADO ACTUAL DEL PROSPECTO EN ESTE TURNO]
+- Nombre: ${ctx.nombre}
+- Teléfono: ${ctx.phone}
+- Mayor de 18 años confirmado: ${ctx.mayor18 === true ? "SÍ (CONFIRMADO - PROHIBIDO TERMINANTEMENTE VOLVER A PREGUNTAR LA EDAD)" : "PENDIENTE DE CONFIRMAR"}
+- Etapa del embudo: ${ctx.estadoFunnel}
+
 [PERSONALIDAD Y VOZ OFICIAL: MUSA (LINGXIN · ACENTO COLOMBIANO SEDUCTOR)]
 - Voz oficial: Lingxin (Alibaba Qwen 3.1 TTS Plus). Tono femenino de 22-25 años, cálido, cómplice, pícaro, suave y seductor con acento colombiano natural.
 - Hablas como una colombiana moderna, cercana y profesional. Usas palabras como "Hola corazón", "Oye...", "Mira...", "Totalmente...", "¿Arrancamos hoy?". CERO tono de profesora aburrida, secretaria robótica o locutora rígida.
@@ -119,9 +125,10 @@ Tú misma eres la demostración viva del método: una modelo virtual hiperrealis
   3. Cierre del audio: Pregunta directamente: "¿Me confirmas si tienes 18 años o más para pasarte las cuentas oficiales y darte tu acceso al aula?".
   4. CERO mencionar "en el enlace de abajo" en este primer turno para que el audio quede limpio y visible.
 - En el segundo contacto (cuando confirma edad):
-  1. Valida su respuesta cariñosamente.
+  1. Valida su respuesta cariñosamente ("¡Qué alegría, corazón!", "¡Perfecto!").
   2. Entrega el enlace del aula para que explore el temario completo de las 13 clases maestras y los 4 bonos.
-  3. Entrega las cuentas oficiales marcando adjuntarCuentas: true.
+  3. CERO decir "te dejo los medios de pago abajo" en este mensaje si no te los ha pedido aún; dile: "Pégale un vistazo al estudio y me cuentas qué te parece, o si quieres te paso las cuentas oficiales de una vez para darte tu acceso".
+  4. Solo si el cliente pide cuentas expresamente ("pásame cuentas", "dónde pago", "nequi"), entrega las cuentas de una vez marcando adjuntarCuentas: true.
 
 [CÓMO RESPONDER A "¿QUÉ VOY A COMPRAR?", "¿QUÉ ES ESO?" O "¿QUÉ INCLUYE?"]
 - CERO condicionales tímidos como "comprarías..." o "recibirías...". Habla en presente con pasión y convicción total:
@@ -257,11 +264,14 @@ export async function ejecutarTurnoAgenteMusa(
     historialMensajes.push({ role: "user", content: `${prefijo}${texto}` });
   }
 
+  const textoConfirmaEdadTurno = /(?:tengo\s+\d+|a[ñn]os|mayor\s+de\s+edad|\b(?:1[89]|[2-9]\d)\b|\bs[ií]\b)/i.test(texto);
+  const mayor18Efectivo = leadRow?.mayor_18 === true || textoConfirmaEdadTurno;
+
   const systemPrompt = construirPromptMaestroAgente({
     phone,
     nombre: nombreMostrar,
     urlPublica,
-    mayor18: leadRow?.mayor_18 ?? null,
+    mayor18: mayor18Efectivo,
     estadoFunnel: leadRow?.estado_funnel ?? "S00_LLEGADA",
   });
 
@@ -387,26 +397,46 @@ export async function ejecutarTurnoAgenteMusa(
   const yaSeEnviaronCuentasReciente = historialMensajes.slice(-2).some(m => m.role === "assistant" && (m.content.includes("3223565761") || m.content.includes("@GBT382") || m.content.includes("Medios de pago oficiales")));
   const clientePideCuentasExplicito = /(?:p[aá]same|mandame|enviame|dame|cuales son).*(?:cuentas?|nequi|bancolombia|datos de pago|medios de pago)|(?:d[oó]nde|como)\s+(?:pago|transfiero)/i.test(texto);
 
+  // Coreografía 2-Pasos (Aula -> Exploración -> Cuentas):
+  // Si es el turno en que conoce el aula por primera vez, NO adjuntamos cuentas bancarias
+  // en la misma ráfaga a menos que el cliente las pida explícitamente ("pásame el nequi", "dónde pago").
+  // Esto le otorga una ventana limpia de 45 segundos para abrir el showroom sin sobrecarga cognitiva.
+  const esEntregaInicialAula = (!yaSeEnvioDemo || estructurada.adjuntarDemo) && !clientePideCuentas;
+
   const debeAdjuntarCuentas = Boolean(
+    !esEntregaInicialAula &&
     (estructurada.adjuntarCuentas || clientePideCuentas) &&
     (!yaSeEnviaronCuentasReciente || clientePideCuentasExplicito)
   );
 
   if (debeAdjuntarCuentas) {
-    if (!textoFinal.toLowerCase().includes("bancolombia") && !textoFinal.toLowerCase().includes("nequi")) {
+    const yaTieneNumerosCuentas = textoFinal.includes("82061072256") || textoFinal.includes("3223565761") || textoFinal.includes("@GBT382");
+    if (!yaTieneNumerosCuentas) {
       textoFinal += CUENTAS_COLOMBIA_TEXTO;
     }
     await consultar(
       "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
       [phone],
     ).catch(() => {});
+  } else {
+    // Si no se adjuntan cuentas en este turno, evitar promesas vacías como "te dejo los medios de pago 👇"
+    textoFinal = textoFinal
+      .replace(/te dejo (?:los|las) (?:medios de pago|cuentas).*?[👇:]/gi, "míralo y si quieres te paso las cuentas oficiales de una")
+      .replace(/usa cualquiera de las cuentas oficiales y envíame el comprobante.*?[👇.]/gi, "pégale una mirada y me cuentas");
   }
 
-  // Si confirmó edad
-  if (estructurada.confirmoMayor18 !== undefined && estructurada.confirmoMayor18 !== null) {
+  // Si confirmó edad (por decisión del modelo o heurística determinista)
+  const textoConfirmaEdad = /(?:tengo\s+\d+|a[ñn]os|mayor\s+de\s+edad|\b(?:1[89]|[2-9]\d)\b|\bs[ií]\b)/i.test(texto);
+  if (estructurada.confirmoMayor18 === true || (estructurada.confirmoMayor18 !== false && textoConfirmaEdad)) {
+    estructurada.confirmoMayor18 = true;
     await consultar(
-      "update public.musa_leads set mayor_18 = $2, updated_at = now() where phone = $1",
-      [phone, estructurada.confirmoMayor18],
+      "update public.musa_leads set mayor_18 = true, updated_at = now() where phone = $1",
+      [phone],
+    ).catch(() => {});
+  } else if (estructurada.confirmoMayor18 === false) {
+    await consultar(
+      "update public.musa_leads set mayor_18 = false, updated_at = now() where phone = $1",
+      [phone],
     ).catch(() => {});
   }
 
@@ -444,6 +474,11 @@ export async function ejecutarTurnoAgenteMusa(
           ? "URGENTE: Usuario afirma estar viendo videos o tener acceso libre sin token. Verificar si la plataforma quedó abierta."
           : "Cliente solicitó apoyo específico de un asesor humano"),
     }).catch(() => {});
+
+    await consultar(
+      "update public.musa_leads set escalado_humano = true, updated_at = now() where phone = $1",
+      [phone],
+    ).catch(() => {});
   }
 
   // 7. Despacho sensorial ATÓMICO (Voz inteligente con Lingxin Qwen 3.1 TTS Plus)
@@ -459,9 +494,10 @@ export async function ejecutarTurnoAgenteMusa(
     estructurada.enviarVoz = true;
   }
 
-  // En el Turno 1 (primer contacto real con API activa, sin haber enviado el aula antes),
-  // garantizamos el impacto sensorial inicial: texto corto + nota de voz de bienvenida + link del aula.
-  const esPrimerContactoReal = Boolean(apiKey && permitido && !yaSeEnvioDemo && historialMensajes.length <= 2 && !mencionaBypassOVerVideos);
+  // En el Turno 1 (exclusivamente el primer contacto real cuando Musa no ha respondido aún):
+  // garantizamos el impacto sensorial inicial: texto corto + nota de voz de bienvenida (sin enlace posterior).
+  const yaRespondioMusaPreviamente = historialMensajes.some(m => m.role === "assistant");
+  const esPrimerContactoReal = Boolean(apiKey && permitido && !yaRespondioMusaPreviamente && !mencionaBypassOVerVideos);
   if (esPrimerContactoReal && !debeAdjuntarCuentas) {
     estructurada.enviarVoz = true;
     if (!estructurada.textoPrevio || estructurada.textoPrevio.trim().length === 0) {
@@ -572,7 +608,9 @@ export async function ejecutarTurnoAgenteMusa(
 
       if (parteMensaje) {
         await canal.enviar(phone, { texto: parteMensaje }).catch(() => ({ ok: false }));
-        if (deps.esperar) await deps.esperar(800);
+        void canal.marcarEscribiendo?.(phone)?.catch?.(() => {});
+        const fnEsperar = deps.esperar ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
+        await fnEsperar(2200);
       }
       if (parteCuentas) {
         await canal.enviar(phone, { texto: parteCuentas }).catch(() => ({ ok: false }));
@@ -621,7 +659,7 @@ export async function ejecutarTurnoAgenteMusa(
     phone,
     audioPendienteRespuesta: audioDespachado,
     tieneCuentas: debeAdjuntarCuentas || (leadRow?.estado_funnel === "S08_ESPERA_CAPTURA"),
-    delay60sMs: deps.seguimiento60sMs ?? 60_000,
+    delay60sMs: deps.seguimiento60sMs ?? 45_000,
   });
 
   return { ok: true, textoEnviado: textoFinal, audioEnviado: audioDespachado };

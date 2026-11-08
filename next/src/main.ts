@@ -100,6 +100,12 @@ async function construirMotor(env: Entorno, consultarInyectado?: Consultar): Pro
     modeloIa: (env.MUSA_IA_MODELO ?? process.env.MUSA_IA_MODELO ?? "gpt-6-luna").trim(),
     urlIa: (env.MUSA_IA_URL ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").trim(),
     lector,
+    esperar:
+      opciones.esperar !== undefined
+        ? opciones.esperar
+        : process.env.MUSA_RITMO === "0"
+          ? undefined
+          : (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
   });
 }
 
