@@ -329,6 +329,12 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
             [
               { tipo: "evento", nombre: "pago_duplicado", detalle: { motivo: "referencia_ya_registrada" } },
               { tipo: "notificar_operador", texto: `Pago con referencia repetida: ${mensaje.telefono}` },
+              {
+                tipo: "enviar",
+                textos: [
+                  "Veo que este comprobante tiene un número de referencia que ya teníamos registrado previamente ✨ Si realizaste una nueva transferencia, por favor compárteme la captura donde se vea el nuevo número de comprobante, o si tuviste algún inconveniente, un asesor humano te atenderá con gusto 😊",
+                ],
+              },
             ],
             { repo, phone: mensaje.telefono },
           );
