@@ -98,8 +98,8 @@ function diagnosticarLead(
   if (/audio|voz|escuchar|nota de voz|habla|hablar/i.test(textoCompleto)) {
     dilema = "Pide escuchar nota de voz o validar realismo acústico de Musa.";
     icebreaker = "¡Hola! Te escribe el asesor de Muse IA Lab. Vi tu inquietud sobre la voz y consistencia de las modelos: en el curso enseñamos a clonar voces y sincronizar labios para que se escuchen 100% humanas. ¿Te paso los datos para que arranques hoy?";
-  } else if (/descuento|rebaja|28 mil|29 mil|30 mil|alcanza/i.test(textoCompleto)) {
-    dilema = "Negociación de micro-brecha de precio frente a los 33.000 COP.";
+  } else if (/descuento|rebaja|15 mil|18 mil|20 mil|alcanza/i.test(textoCompleto)) {
+    dilema = "Negociación o duda frente al valor de los 20.000 COP.";
     icebreaker = "¡Hola! Te escribe el asesor de Muse IA Lab. Vi que estabas revisando el valor para transferir. Para que no te quedes por fuera, cuéntame con cuánto cuentas hoy y te ayudo a activar tu acceso de inmediato 🚀";
   } else if (/plastico|plástico|realismo|fanvue|onlyfans|\+18|adulto|anonimo|anónimo/i.test(textoCompleto)) {
     dilema = "Dudas sobre hiperrealismo en plataformas de suscripción (+18) o anonimato.";

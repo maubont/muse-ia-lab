@@ -23,6 +23,23 @@ import { normalizar } from "../../../functions/motor/guardarrailes.ts";
 import { recordatoriosParaEstado, cuandoEnviar, ajustarAHorario } from "./recordatorios.ts";
 import { dentroDeHorarioRazonable } from "./politica-contacto.ts";
 import { MSG_PAGO_REENVIO } from "./s08.ts";
+import { limpiarSeguimientosPendientes } from "../ia/agente-cognitivo.ts";
+
+const colasPorTelefono = new Map<string, Promise<unknown>>();
+
+async function serializarPorTelefono<T>(phone: string, fn: () => Promise<T>): Promise<T> {
+  const clave = phone.trim();
+  const anterior = colasPorTelefono.get(clave) ?? Promise.resolve();
+  const actual = anterior.catch(() => {}).then(fn);
+  colasPorTelefono.set(clave, actual);
+  try {
+    return await actual;
+  } finally {
+    if (colasPorTelefono.get(clave) === actual) {
+      colasPorTelefono.delete(clave);
+    }
+  }
+}
 
 export interface DepsMotorReal {
   consultar: Consultar;
@@ -133,8 +150,10 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
 
   return {
     async procesar(mensaje: MensajeEntrante): Promise<MensajeSaliente[]> {
-      const t0 = Date.now();
-      const cfg = await configuracion();
+      return serializarPorTelefono(mensaje.telefono, async () => {
+        limpiarSeguimientosPendientes(mensaje.telefono);
+        const t0 = Date.now();
+        const cfg = await configuracion();
 
       // 0. el lead volvió: no hay nada que recordarle
       await consultar(SQL_CANCELAR_RECORDATORIOS, [mensaje.telefono]).catch(() => ({ rows: [] }));
@@ -402,7 +421,7 @@ export function crearMotorReal(deps: DepsMotorReal): Motor {
       return [];
 
       // El motor envía por los efectos; devolver algo aquí duplicaría el envío.
-      return [];
+      });
     },
   };
 }

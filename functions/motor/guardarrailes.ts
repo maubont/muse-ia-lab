@@ -150,7 +150,7 @@ export function clasificarEdadHeuristico(normRaw: string): string | null {
     // horizontes futuros explícitos
     /\b(el (otro|proximo|que viene) (ano|anio|año)|el ano que viene|el año que viene|proximo ano|el ano entrante|en (un|dos|tres) (ano|anos|año|años)|el mes que viene|en \w+ cumplo)\b/.test(norm);
   if (
-    /(soy menor|menor de edad|no tengo 18|no soy mayor|no soy mayor de edad|aun soy menor|todavia soy menor)/.test(norm)
+    /(soy menor|menor de edad|no tengo 18|no soy mayor|no soy mayor de edad|aun soy menor|todavia soy menor|menos de 18|no (?:he|eh) cumplido(?: los)? 18|casi (?:cumplo |tengo )?18|proximo a cumplir 18)/.test(norm)
   ) {
     return "menor";
   }
@@ -173,7 +173,7 @@ export function clasificarEdadHeuristico(normRaw: string): string | null {
   // Extractor de número: SOLO si NO hay contexto de "cumplir en el futuro" (para
   // no leer el "18" de "el año que viene cumplo los 18" como edad actual).
   if (!cumplirFuturo) {
-    const num = norm.match(/\b(\d{1,2})\b/);
+    const num = norm.match(/\b(\d{1,2})(?=(?:\s*(?:ano|anio|año)s?)?(?:\b|$)|(?:ano|anio|año)s?\b)/);
     if (num) {
       const n = parseInt(num[1], 10);
       if (n >= 10 && n <= 17) return "menor";
@@ -183,7 +183,7 @@ export function clasificarEdadHeuristico(normRaw: string): string | null {
     // Hay "cumplir futuro" + un número en rango de edad menor (p.ej. "cumplo 17"):
     // tratarlo como menor; si el número fuese >=18 con negación previa ya salió
     // arriba como menor, así que aquí cualquier número adolescente confirma menor.
-    const num = norm.match(/\b(\d{1,2})\b/);
+    const num = norm.match(/\b(\d{1,2})(?=(?:\s*(?:ano|anio|año)s?)?(?:\b|$)|(?:ano|anio|año)s?\b)/);
     if (num) {
       const n = parseInt(num[1], 10);
       if (n >= 10 && n <= 17) return "menor";

@@ -37,9 +37,9 @@ assert.ok(prompt.includes("llave de titanio") || prompt.includes("protegida"), "
 assert.ok(prompt.includes("academia.html"), "Debe incluir el enlace oficial");
 console.log("   ✓ Plataforma y aula protegida validadas.");
 
-// 5. Verificación de Medios de Pago y Precio ($9.000 COP)
+// 5. Verificación de Medios de Pago y Precio ($20.000 COP)
 console.log("5. Verificando hechos económicos y precio...");
-assert.ok(prompt.includes("9.000 COP"), "Debe fijar el precio a 9.000 COP");
+assert.ok(prompt.includes("20.000 COP"), "Debe fijar el precio a 20.000 COP");
 assert.ok(prompt.includes("Nequi"), "Debe incluir Nequi");
 assert.ok(prompt.includes("Bancolombia"), "Debe incluir Bancolombia");
 assert.ok(prompt.includes("@GBT382"), "Debe incluir llave Bre-B @GBT382");

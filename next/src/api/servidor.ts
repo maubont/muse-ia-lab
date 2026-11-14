@@ -669,7 +669,10 @@ export function crearServidor(opts: OpcionesServidor): Servidor {
       const texto = (payload.texto ?? "").trim();
       if (!texto) return json(res, 400, { ok: false, error: "texto_requerido" });
 
-      const apiKey = (process.env.DASHSCOPE_API_KEY || process.env.ALIBABA_API_KEY || "sk-ws-H.DIRMRHH.dEXC.MEQCIAFsXhFxsdXJQGcdcAQfGxC5H_CZ1hasvCVMCqnpv6eRAiBwEebSbx4MvzjAUp6ZjFJtUbZxOxeZoGPTFDp02HYU2w").trim();
+      const apiKey = (process.env.DASHSCOPE_API_KEY || process.env.ALIBABA_API_KEY || "").trim();
+      if (!apiKey) {
+        return json(res, 503, { ok: false, error: "dashscope_api_key_no_configurada" });
+      }
       const voz = payload.voz || "longanlingxin_v3.1";
       const modelo = payload.modelo || "qwen-audio-3.1-tts-plus";
       const instruccion = payload.instruccion || "Hablar en español con tono cálido, femenino, sensual y cercano.";

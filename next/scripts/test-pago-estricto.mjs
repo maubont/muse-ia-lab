@@ -33,7 +33,7 @@ const ahora = new Date();
 const hoyBogota = ahora.toISOString().slice(0, 10);
 
 const datos = (extra = {}) => ({
-  metodo: "Nequi", monto: 33000, moneda: "COP", fecha: hoyBogota, hora: "10:00",
+  metodo: "Nequi", monto: 20000, moneda: "COP", fecha: hoyBogota, hora: "10:00",
   numero_referencia: "M-123", destino: NEQUI, numeros_detectados: [],
   nombre_destinatario: null, banco_o_app: "Nequi", estado_operacion: "exitosa",
   es_captura_completa: true, senales_manipulacion: [],
@@ -130,10 +130,10 @@ const decidir = (d, extra) => evaluarPago(CFG, d, true, { ahora, ...extra });
 
 // ============================== monto ==============================
 {
-  t("monto exacto: aprueba", decidir(datos({ monto: 33000 })).accion, "AUTO_APROBAR");
-  t("monto corto: humano", decidir(datos({ monto: 32000 })).accion, "COLA_HUMANA");
-  t("monto largo: humano", decidir(datos({ monto: 34000 })).accion, "COLA_HUMANA");
-  t("el doble: humano (antes pasaba)", decidir(datos({ monto: 66000 })).accion, "COLA_HUMANA");
+  t("monto exacto: aprueba", decidir(datos({ monto: 20000 })).accion, "AUTO_APROBAR");
+  t("monto corto: humano", decidir(datos({ monto: 19000 })).accion, "COLA_HUMANA");
+  t("monto largo: humano", decidir(datos({ monto: 21000 })).accion, "COLA_HUMANA");
+  t("el doble: humano (antes pasaba)", decidir(datos({ monto: 40000 })).accion, "COLA_HUMANA");
   t("monto nulo: humano", decidir(datos({ monto: null })).accion, "COLA_HUMANA");
 }
 
@@ -182,7 +182,7 @@ const decidir = (d, extra) => evaluarPago(CFG, d, true, { ahora, ...extra });
 {
   const cfg = { ...CFG, precio: { ...CFG.precio, montos_extra: [72900] } };
   const conBump = (monto, c = cfg) => evaluarPago(c, datos({ monto }), true, { ahora }).accion;
-  t("bump: el precio base sigue valiendo", conBump(33000), "AUTO_APROBAR");
+  t("bump: el precio base sigue valiendo", conBump(20000), "AUTO_APROBAR");
   t("bump: el monto del pack también", conBump(72900), "AUTO_APROBAR");
   t("bump: un monto inventado sigue a humano", conBump(80000), "COLA_HUMANA");
   t("bump: sin configurar, el pack va a humano", evaluarPago(CFG, datos({ monto: 72900 }), true, { ahora }).accion, "COLA_HUMANA");

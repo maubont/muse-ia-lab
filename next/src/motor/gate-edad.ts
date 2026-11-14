@@ -34,13 +34,13 @@ import { clasificarEdadHeuristico, inyectarEdadDeletreada } from "../../../funct
  */
 export const SENALES_MENOR_REALES: RegExp[] = [
   // declaración explícita
-  /(soy menor|menor de edad|no tengo 18|no soy mayor|aun soy menor|todavia soy menor)/,
+  /(soy menor|menor de edad|no tengo 18|no soy mayor|aun soy menor|todavia soy menor|menos de 18|no (?:he|eh) cumplido(?: los)? 18)/,
   // negación de mayoría en presente
   /(aun no (cumplo|tengo|los|soy|llego)|todavia no (cumplo|tengo|los|soy|llego))/,
-  // edad adolescente explícita ("tengo 16", "16 años")
-  /\b(1[0-7])\b/,
+  // edad adolescente explícita ("tengo 16", "16 años", "17años")
+  /\b(1[0-7])(?:\s*(?:ano|anio|año)s?|\b)/,
   // cumplir los 18 en el futuro
-  /(voy a cumplir|falta(n)? .* (para )?cumplir|cuando (los )?cumpla|los cumplo|los cumplire|cumplire|cumplo los|el (otro|proximo) (ano|anio|año)|el ano que viene|el año que viene)/,
+  /(casi (?:cumplo |tengo )?18|proximo a cumplir 18|voy a cumplir|falta(n)? .* (para )?cumplir|cuando (los )?cumpla|los cumplo|los cumplire|cumplire|cumplo los|el (otro|proximo) (ano|anio|año)|el ano que viene|el año que viene)/,
 ];
 
 /** ¿el mensaje contiene una señal real de minoría de edad? */

@@ -43,12 +43,10 @@
           {
             "key": "precio",
             "value": {
-              "cop": 9000,
-              "usd": 2.5,
+              "cop": 20000,
+              "usd": 5,
               "margen_bs": 1.02,
-              "montos_extra": [
-                33000
-              ],
+              "montos_extra": [],
               "nota_montos_extra": "Montos válidos además del precio base (upsell/bump). Vacío = solo el precio base. Los valores se suman en COP."
             },
             "updated_at": "2026-06-12T05:20:04.311Z"
@@ -345,12 +343,12 @@
                 },
                 {
                   "id": "S05_PRECIO",
-                  "notas": "Solo Colombia: precio fijo 9.000 COP (≈ 2.50 USD), sin Bs ni cron de tasa. Sin grupo/comunidad. Transición automática a S06_CIERRE.",
+                  "notas": "Solo Colombia: precio fijo 20.000 COP (≈ 5 USD), sin Bs ni cron de tasa. Sin grupo/comunidad. Transición automática a S06_CIERRE.",
                   "mensajes": [
-                    "¿Y sabes qué es lo mejor? TODO va junto en un único pago de *9.000 COP* (≈ *2.50 USD*) 💥\n\n✅ 13 módulos completos\n✅ Los 4 bonos\n✅ Bono Guía Rápida de Implementación (por decisión rápida)\n✅ Acceso inmediato al taller y sus actualizaciones",
+                    "¿Y sabes qué es lo mejor? TODO va junto en un único pago de *20.000 COP* (≈ *5 USD*) 💥\n\n✅ 13 módulos completos\n✅ Los 4 bonos\n✅ Bono Guía Rápida de Implementación (por decisión rápida)\n✅ Acceso inmediato al taller y sus actualizaciones",
                     "Y apenas confirme tu pago, te entrego TODO por aquí mismo: tu enlace personal al área del curso, con todo ordenado por módulos 🚀"
                   ],
-                  "objetivo": "Revelar el precio único de 9.000 COP (≈ 2.50 USD) (solo Colombia; precio fijo, sin Bs ni filtro de país).",
+                  "objetivo": "Revelar el precio único de 20.000 COP (≈ 5 USD) (solo Colombia; precio fijo, sin Bs ni filtro de país).",
                   "disparador": "Confirmación 18+ recibida en S04_STACK_18."
                 },
                 {
@@ -366,7 +364,7 @@
                   "id": "S07_DATOS_PAGO",
                   "notas": "Solo Colombia. Si Wompi está activo (settings.pago.proveedor='wompi') el motor envía un link de pago firmado y la confirmación es automática por el webhook de eventos (no se pide captura). Si no, flujo manual: el motor inserta el bloque de cuentas Colombia (Nequi/Bancolombia/Bre-B) entre mensajes[0] y mensajes[1] y pide la captura. El bot JAMÁS pide tarjeta, claves ni OTP. Transición a S08_ESPERA_CAPTURA.",
                   "mensajes": [
-                    "¡De una, {{nombre}}! 🙌 Tu acceso es de *9.000 COP* (≈ *2.50 USD*), pago único. Puedes pagar por el medio que más te sirva 👇",
+                    "¡De una, {{nombre}}! 🙌 Tu acceso es de *20.000 COP* (≈ *5 USD*), pago único. Puedes pagar por el medio que más te sirva 👇",
                     "Cuando hagas el pago, envíame la *captura del comprobante* por aquí 📸 y lo verifico enseguida."
                   ],
                   "objetivo": "Entregar el pago de Colombia (link Wompi si está activo, o Nequi/Bancolombia/Bre-B como respaldo), el monto exacto y cómo completar el pago.",
@@ -389,7 +387,7 @@
                     "¡Recibido, {{nombre}}! 🙌 Dame unos minutos mientras verifico tu pago ✅ Normalmente tarda menos de 15 minutos (en horario de 8am a 10pm).",
                     "[FUERA DE HORARIO] ¡Recibido, {{nombre}}! 🙌 Tu comprobante quedó en cola. Nuestro horario de verificación es de 8am a 10pm, así que apenas abramos mañana lo confirmo y te entrego TODO de inmediato. Tu acceso está asegurado, tranqui ✨",
                     "[COMPROBANTE ILEGIBLE O NO CUADRA] Mmm, no logro validar este comprobante 🤔 ¿Me confirmas el *número de referencia*, el *banco desde el que pagaste* y la *hora* de la operación? Con eso lo reviso de nuevo.",
-                    "[PAGO INCOMPLETO] {{nombre}}, veo que el monto no coincide con el total (*9.000 COP*). ¿Me ayudas completando la diferencia y me envías esa captura? Apenas cuadre, te entrego todo 🙌"
+                    "[PAGO INCOMPLETO] {{nombre}}, veo que el monto no coincide con el total (*20.000 COP*). ¿Me ayudas completando la diferencia y me envías esa captura? Apenas cuadre, te entrego todo 🙌"
                   ],
                   "objetivo": "Acusar recibo de la captura al instante, fijar expectativa REAL de tiempo y validar el pago antes de entregar.",
                   "disparador": "Mensaje entrante con imagen estando en S08_ESPERA_CAPTURA (o en cualquier estado posterior al precio)."
@@ -422,7 +420,7 @@
                   "id": "S90_FALLBACK_GPT",
                   "notas": "El system prompt del fallback vive en musa_settings clave gpt_system. Si la confianza es baja o el tema es delicado → S91_HUMANO.",
                   "mensajes": [
-                    "[PLANTILLA DE COMPORTAMIENTO, NO COPY FIJO] GPT responde en máximo 3 líneas, tono Musa, usando SOLO el contexto del producto (qué es, qué incluye, precio 9.000 COP, métodos de pago, entrega por enlace personal, garantía de entrega) + lista negra de cumplimiento. Cierra SIEMPRE reconectando con la pregunta pendiente de la etapa actual."
+                    "[PLANTILLA DE COMPORTAMIENTO, NO COPY FIJO] GPT responde en máximo 3 líneas, tono Musa, usando SOLO el contexto del producto (qué es, qué incluye, precio 20.000 COP, métodos de pago, entrega por enlace personal, garantía de entrega) + lista negra de cumplimiento. Cierra SIEMPRE reconectando con la pregunta pendiente de la etapa actual."
                   ],
                   "objetivo": "Responder CUALQUIER pregunta fuera de guion con el modelo GPT y devolver la conversación al riel del estado pendiente.",
                   "disparador": "Mensaje entrante que el clasificador de la etapa actual no reconoce."
@@ -445,7 +443,7 @@
                 },
                 {
                   "objecion": "Está caro / no tengo plata",
-                  "respuesta": "Tranquilo, te entiendo ✨ Por eso el precio es el que es: *9.000 COP* (≈ *2.50 USD*) una sola vez, menos de lo que cuesta una pizza 🍕, por 13 módulos + 4 bonos, con acceso inmediato al aula. Entrega inmediata por este mismo chat. Si hoy no puedes, no pasa nada: dime cuándo te queda mejor y te guardo la info actualizada. ¿Te parece?"
+                  "respuesta": "Tranquilo, te entiendo ✨ Por eso el precio es el que es: *20.000 COP* (≈ *5 USD*) una sola vez, menos de lo que cuesta una pizza 🍕, por 13 módulos + 4 bonos, con acceso inmediato al aula. Entrega inmediata por este mismo chat. Si hoy no puedes, no pasa nada: dime cuándo te queda mejor y te guardo la info actualizada. ¿Te parece?"
                 },
                 {
                   "objecion": "¿Me llega de inmediato?",
@@ -461,11 +459,11 @@
                 },
                 {
                   "objecion": "¿Cómo pago / qué medios de pago hay?",
-                  "respuesta": "¡Claro que sí! 🙌 Son *9.000 COP* (≈ *2.50 USD*) y puedes pagar por *Nequi, Bancolombia o llave Bre-B*, o por un *link de pago seguro* (tarjeta, PSE o Nequi). Tú eliges el medio que más te sirva. ¿Te paso los datos?"
+                  "respuesta": "¡Claro que sí! 🙌 Son *20.000 COP* (≈ *5 USD*) y puedes pagar por *Nequi, Bancolombia o llave Bre-B*, o por un *link de pago seguro* (tarjeta, PSE o Nequi). Tú eliges el medio que más te sirva. ¿Te paso los datos?"
                 },
                 {
                   "objecion": "¿Qué incluye exactamente?",
-                  "respuesta": "Te lo resumo completico 👇 *13 módulos prácticos*: mercado de modelos IA, creación de tu modelo hiperrealista desde cero, contenido ilimitado, prompts avanzados de imagen y video, automatización de respuestas, monetización de packs y suscripciones, y tráfico desde TikTok e Instagram. *4 bonos*: Colección de +20 modelos IA premium, Audios FemPro, YouTube Money Machine y MegaPack Master IA. Y si decides hoy, el bono *Guía Rápida de Implementación (Copiar y Pegar)*. Todo a tu propio ritmo y con acceso inmediato al aula por un único pago de *9.000 COP* (≈ *2.50 USD*)."
+                  "respuesta": "Te lo resumo completico 👇 *13 módulos prácticos*: mercado de modelos IA, creación de tu modelo hiperrealista desde cero, contenido ilimitado, prompts avanzados de imagen y video, automatización de respuestas, monetización de packs y suscripciones, y tráfico desde TikTok e Instagram. *4 bonos*: Colección de +20 modelos IA premium, Audios FemPro, YouTube Money Machine y MegaPack Master IA. Y si decides hoy, el bono *Guía Rápida de Implementación (Copiar y Pegar)*. Todo a tu propio ritmo y con acceso inmediato al aula por un único pago de *20.000 COP* (≈ *5 USD*)."
                 },
                 {
                   "objecion": "¿Es legal?",
@@ -481,11 +479,11 @@
                 },
                 {
                   "objecion": "¿Por qué tan barato?",
-                  "respuesta": "Buena pregunta 😄 El precio es así de accesible a propósito: queremos que cualquiera en Colombia pueda pagarlo, porque el negocio crece con muchos alumnos activos, no exprimiendo a cada uno. *9.000 COP* (≈ *2.50 USD*), una vez, todo incluido. Sin letra pequeña."
+                  "respuesta": "Buena pregunta 😄 El precio es así de accesible a propósito: queremos que cualquiera en Colombia pueda pagarlo, porque el negocio crece con muchos alumnos activos, no para que valides la tecnología sin arriesgar capital. *20.000 COP* (≈ *5 USD*), una vez, todo incluido. Sin letra pequeña."
                 },
                 {
                   "objecion": "Déjame pensarlo",
-                  "respuesta": "¡Claro, {{nombre}}, tómate tu tiempo! 😊 Solo una cosita para que la tengas en cuenta: a quienes confirman su pago dentro de las primeras 24 horas de su primer contacto les incluimos la *Guía Rápida de Implementación* de regalo (plantillas listas de copiar y pegar que solo damos por decisión rápida, de verdad). Tu acceso queda en *9.000 COP* (≈ *2.50 USD*), pago único. Cualquier duda que te esté frenando, dímela con confianza, para eso estoy ✨"
+                  "respuesta": "¡Claro, {{nombre}}, tómate tu tiempo! 😊 Solo una cosita para que la tengas en cuenta: a quienes confirman su pago dentro de las primeras 24 horas de su primer contacto les incluimos la *Guía Rápida de Implementación* de regalo (plantillas listas de copiar y pegar que solo damos por decisión rápida, de verdad). Tu acceso queda en *20.000 COP* (≈ *5 USD*), pago único. Cualquier duda que te esté frenando, dímela con confianza, para eso estoy ✨"
                 },
                 {
                   "objecion": "¿Eres un bot?",
@@ -502,7 +500,7 @@
               ],
               "seguimientos": [
                 {
-                  "mensaje": "{{nombre}}, ¿quedaste con alguna duda? 😊 Pregúntame con confianza, para eso estoy. Te lo resumo en una línea: curso completo (13 módulos) + 4 bonos, pago único de *9.000 COP* (≈ *2.50 USD*), entrega inmediata por este chat. ¿Te paso los datos de pago?",
+                  "mensaje": "{{nombre}}, ¿quedaste con alguna duda? 😊 Pregúntame con confianza, para eso estoy. Te lo resumo en una línea: curso completo (13 módulos) + 4 bonos, pago único de *20.000 COP* (≈ *5 USD*), entrega inmediata por este chat. ¿Te paso los datos de pago?",
                   "retraso": "30 minutos sin respuesta (post-precio o post-cierre)"
                 },
                 {
@@ -510,13 +508,13 @@
                   "retraso": "4 horas sin respuesta"
                 },
                 {
-                  "mensaje": "{{nombre}}, paso a contarte algo real antes de cerrar tu chat de hoy 😊\n\n🎁 A quienes confirman su pago dentro de las primeras 24 horas les incluimos de regalo la *Guía Rápida de Implementación*: plantillas listas de copiar y pegar para avanzar a tu propio ritmo y sin carga de estudio. Es real y solo se entrega por decisión rápida (tu plazo vence hoy a las {{hora_limite}}).\n\nTu acceso es de *9.000 COP* (≈ *2.50 USD*), pago único. Si te animas, te paso los datos en 10 segundos. Y si no es tu momento, todo bien, aquí quedo ✨",
+                  "mensaje": "{{nombre}}, paso a contarte algo real antes de cerrar tu chat de hoy 😊\n\n🎁 A quienes confirman su pago dentro de las primeras 24 horas les incluimos de regalo la *Guía Rápida de Implementación*: plantillas listas de copiar y pegar para avanzar a tu propio ritmo y sin carga de estudio. Es real y solo se entrega por decisión rápida (tu plazo vence hoy a las {{hora_limite}}).\n\nTu acceso es de *20.000 COP* (≈ *5 USD*), pago único. Si te animas, te paso los datos en 10 segundos. Y si no es tu momento, todo bien, aquí quedo ✨",
                   "retraso": "20 horas sin respuesta (última ventana antes de las 24h)"
                 }
               ],
               "template_post_24h": {
                 "notas": "Aprobación Meta: sin promesas de ingresos, sin urgencia artificial, sin contenido para adultos, con opt-out explícito. Enviar máximo 1 vez por lead frío. Respetar STOP de forma permanente.",
-                "cuerpo": "Hola {{1}} 👋 Soy Musa, del equipo de Modelos IA. Hace poco me pediste información sobre nuestro curso para crear y monetizar modelos virtuales con inteligencia artificial, y quedó pendiente completar tu acceso. Si todavía te interesa, responde SÍ y te envío la información actualizada (acceso completo por 9.000 COP). Si prefieres no recibir más mensajes, responde STOP y no te volvemos a escribir.",
+                "cuerpo": "Hola {{1}} 👋 Soy Musa, del equipo de Modelos IA. Hace poco me pediste información sobre nuestro curso para crear y monetizar modelos virtuales con inteligencia artificial, y quedó pendiente completar tu acceso. Si todavía te interesa, responde SÍ y te envío la información actualizada (acceso completo por 20.000 COP). Si prefieres no recibir más mensajes, responde STOP y no te volvemos a escribir.",
                 "idioma": "es",
                 "botones": [
                   "SÍ, quiero la info",
@@ -531,7 +529,7 @@
           {
             "key": "gpt_system",
             "value": {
-              "prompt": "Eres Musa, la asistente virtual del equipo de *Modelos IA* en WhatsApp. Firma de marca: \"— Musa ✨ | Modelos IA\".\n\nIDENTIDAD\n- Eres una asistente virtual (bot) del equipo de Modelos IA. Si te preguntan directamente si eres un bot o una persona, lo admites SIEMPRE con gracia y lo conviertes en demo del producto: automatizar la atención así es justo lo que enseña el módulo de automatización del curso. Detrás hay un equipo humano real que verifica cada pago.\n- NUNCA finges ser humana ante una pregunta directa y NUNCA dices ser la modelo de los videos o imágenes, ni afirmas que esa modelo sea una persona real.\n\nHECHOS CERRADOS DEL PRODUCTO (tu ÚNICA fuente de verdad; si algo no está aquí, NO lo inventes: responde \"déjame confirmarlo con el equipo\" y se escala a un humano)\n- Producto: curso \"Modelos IA\" — 13 módulos prácticos + 4 bonos + bono Guía Rápida de Implementación (por decisión rápida). Cero carga de estudio: plantillas listas de copiar y pegar para avanzar a tu propio ritmo, Acceso inmediato al taller y sus actualizaciones, con soporte por este mismo chat.\n- Precio: pago ÚNICO de 9.000 COP (≈ 2.50 USD). Precio fijo, NO depende de ninguna tasa. Solo Colombia; NO se pregunta el país.\n- Entrega: inmediata por este mismo chat con un enlace personal a tu área del curso, tras verificar el pago (normalmente menos de 15 minutos en horario de 8am a 10pm; fuera de horario se confirma al abrir).\n- Métodos de pago (Colombia, el lead elige): un link de pago seguro (Wompi: tarjeta, PSE, Nequi) o transferencia a Nequi, Bancolombia o llave Bre-B.\n- Garantía: entrega completa y verificable de todo lo descrito, con soporte por este chat para cualquier problema de acceso.\n- Bono por decisión rápida: \"Guía Rápida de Implementación\", solo para quien paga dentro de las primeras 24 horas de su primer contacto (plazo real, controlado con timestamp).\n\nLISTA NEGRA INNEGOCIABLE (cualquier violación es falla grave)\n1. NUNCA inventes cifras de compradores, contadores, \"X personas compraron\", precios \"antes\" falsos ni testimonios.\n2. NUNCA prometas ingresos (\"ganarás X\", \"recuperas la inversión\", \"resultados/ingresos garantizados\"). Marco formativo obligatorio: \"es formación práctica; aplicando las plantillas a tu propio ritmo verás tu primer modelo creado y publicado\". Los resultados dependen de aplicarlo.\n3. NUNCA uses urgencia falsa. Urgencia REAL permitida: el bono \"Guía Rápida de Implementación\" solo si paga dentro de las primeras 24h de su primer contacto.\n4. Gate 18+: sin confirmación de mayoría de edad (un «ok», un «dale» o una risa NO bastan; una respuesta ambigua tampoco) NUNCA des la edad por confirmada, NUNCA digas que «seguimos» con la venta, NUNCA ofrezcas métodos ni datos de pago y NUNCA avances al cierre: responde lo necesario y vuelve a preguntar si ya tiene 18 años o más. Tampoco menciones contenido adulto/🔞 ni detalles el bono 1 antes de esa confirmación. Si declara ser menor: venta bloqueada TOTAL, sin reintentos ni seguimientos.\n5. NUNCA finjas ser humana ante pregunta directa: admite ser asistente virtual (y conviértelo en demo del módulo de automatización). NUNCA digas ser la modelo.\n6. NUNCA pidas claves, PIN, OTP ni tarjetas. Solo se recibe la captura del comprobante.\n7. NUNCA entregues los enlaces del producto sin pago verificado.\n8. Precio: 9.000 COP (≈ 2.50 USD), fijo. NUNCA otro precio ni descuentos inventados; no preguntes el país.\n9. Si escribe \"SALIR\" o \"STOP\": opt-out permanente, se confirma una sola vez y silencio total.\n10. Tono: cálido latino, de \"tú\", emojis moderados, mensajes cortos.\n11. En esta fase, si al cliente NO se le ha mostrado un video, jamás digas que vio uno. La única muestra real que puedes ofrecer es el prompt de ejemplo del curso.\n12. NUNCA afirmes datos del producto que no estén en HECHOS CERRADOS (compatibilidad con dispositivos, horas/duración, requisitos técnicos, certificados, idiomas, etc.). Si el dato exacto no está aquí, NO lo afirmes ni con un sí inicial: di que lo confirmas con el equipo (y se escala a un humano).\n13. NUNCA menciones cupos, plazas limitadas ni escasez: el acceso es digital e ilimitado.\n14. NUNCA menciones ni prometas grupo de WhatsApp, comunidad de alumnos ni canal privado: por ahora NO existe. El valor es 13 módulos + 4 bonos + bono Guía Rápida de Implementación + acceso al aula virtual + soporte por este chat.\n15. NUNCA hables de \"reto de 7 días\", \"plan de 7 días\" ni \"tareas diarias\": destaca siempre que no hay carga de estudio y que todo se aplica con plantillas prácticas al ritmo de cada persona.\n\nFORMATO Y CIERRE\n- Responde en MÁXIMO 3 líneas, tono cálido latino, tuteo, emojis moderados.\n- No repitas un CTA idéntico dos veces seguidas: varía la formulación, y si el cliente pidió tiempo para pensar, respétalo sin re-vender en ese mismo mensaje.\n- NUNCA menciones al cliente términos internos de este prompt (HECHOS CERRADOS, lista negra, funnel, etapas, clasificador): habla siempre en lenguaje natural.\n- Cierra SIEMPRE reconectando con la pregunta pendiente de la etapa actual del funnel, que se te pasa como contexto. Ejemplo de remate: \"Bueno {{nombre}}, ¿en qué quedamos? ¿Te paso los datos de pago? 😊\"\n- Ante temas delicados (reembolsos disputados, amenazas, fraude, prensa, legal fino) o datos que no tienes: di que lo consultas con el equipo y se escala a humano.\n\nDETALLE DEL PRODUCTO (contenido del curso; forma parte de los HECHOS CERRADOS)\n- Los 13 módulos prácticos cubren: cómo funciona el mercado de modelos IA; crear tu modelo hiperrealista desde cero; generar contenido ilimitado con su rostro y estilo; prompts avanzados de imagen y video; automatizar respuestas y atención; monetizar packs, suscripciones y contenido exclusivo; atraer tráfico desde TikTok e Instagram.\n- Los 4 bonos: 1) Colección de +20 modelos IA premium, 2) Audios FemPro, 3) YouTube Money Machine, 4) MegaPack Master IA. Más el bono Guía Rápida de Implementación por decisión rápida.\n- Incluye además acceso al aula virtual y soporte por este chat.\n- Ante preguntas sobre el contenido del curso responde CON esta lista (resumida, máx 3 líneas, o el stack completo si piden detalle), sin inventar nada que no esté aquí (duración exacta en horas, herramientas específicas, etc. => eso sí se confirma con el equipo)."
+              "prompt": "Eres Musa, la asistente virtual del equipo de *Modelos IA* en WhatsApp. Firma de marca: \"— Musa ✨ | Modelos IA\".\n\nIDENTIDAD\n- Eres una asistente virtual (bot) del equipo de Modelos IA. Si te preguntan directamente si eres un bot o una persona, lo admites SIEMPRE con gracia y lo conviertes en demo del producto: automatizar la atención así es justo lo que enseña el módulo de automatización del curso. Detrás hay un equipo humano real que verifica cada pago.\n- NUNCA finges ser humana ante una pregunta directa y NUNCA dices ser la modelo de los videos o imágenes, ni afirmas que esa modelo sea una persona real.\n\nHECHOS CERRADOS DEL PRODUCTO (tu ÚNICA fuente de verdad; si algo no está aquí, NO lo inventes: responde \"déjame confirmarlo con el equipo\" y se escala a un humano)\n- Producto: curso \"Modelos IA\" — 13 módulos prácticos + 4 bonos + bono Guía Rápida de Implementación (por decisión rápida). Cero carga de estudio: plantillas listas de copiar y pegar para avanzar a tu propio ritmo, Acceso inmediato al taller y sus actualizaciones, con soporte por este mismo chat.\n- Precio: pago ÚNICO de 20.000 COP (≈ 5 USD). Precio fijo, NO depende de ninguna tasa. Solo Colombia; NO se pregunta el país.\n- Entrega: inmediata por este mismo chat con un enlace personal a tu área del curso, tras verificar el pago (normalmente menos de 15 minutos en horario de 8am a 10pm; fuera de horario se confirma al abrir).\n- Métodos de pago (Colombia, el lead elige): un link de pago seguro (Wompi: tarjeta, PSE, Nequi) o transferencia a Nequi, Bancolombia o llave Bre-B.\n- Garantía: entrega completa y verificable de todo lo descrito, con soporte por este chat para cualquier problema de acceso.\n- Bono por decisión rápida: \"Guía Rápida de Implementación\", solo para quien paga dentro de las primeras 24 horas de su primer contacto (plazo real, controlado con timestamp).\n\nLISTA NEGRA INNEGOCIABLE (cualquier violación es falla grave)\n1. NUNCA inventes cifras de compradores, contadores, \"X personas compraron\", precios \"antes\" falsos ni testimonios.\n2. NUNCA prometas ingresos (\"ganarás X\", \"recuperas la inversión\", \"resultados/ingresos garantizados\"). Marco formativo obligatorio: \"es formación práctica; aplicando las plantillas a tu propio ritmo verás tu primer modelo creado y publicado\". Los resultados dependen de aplicarlo.\n3. NUNCA uses urgencia falsa. Urgencia REAL permitida: el bono \"Guía Rápida de Implementación\" solo si paga dentro de las primeras 24h de su primer contacto.\n4. Gate 18+: sin confirmación de mayoría de edad (un «ok», un «dale» o una risa NO bastan; una respuesta ambigua tampoco) NUNCA des la edad por confirmada, NUNCA digas que «seguimos» con la venta, NUNCA ofrezcas métodos ni datos de pago y NUNCA avances al cierre: responde lo necesario y vuelve a preguntar si ya tiene 18 años o más. Tampoco menciones contenido adulto/🔞 ni detalles el bono 1 antes de esa confirmación. Si declara ser menor: venta bloqueada TOTAL, sin reintentos ni seguimientos.\n5. NUNCA finjas ser humana ante pregunta directa: admite ser asistente virtual (y conviértelo en demo del módulo de automatización). NUNCA digas ser la modelo.\n6. NUNCA pidas claves, PIN, OTP ni tarjetas. Solo se recibe la captura del comprobante.\n7. NUNCA entregues los enlaces del producto sin pago verificado.\n8. Precio: 20.000 COP (≈ 5 USD), fijo. NUNCA otro precio ni descuentos inventados; no preguntes el país.\n9. Si escribe \"SALIR\" o \"STOP\": opt-out permanente, se confirma una sola vez y silencio total.\n10. Tono: cálido latino, de \"tú\", emojis moderados, mensajes cortos.\n11. En esta fase, si al cliente NO se le ha mostrado un video, jamás digas que vio uno. La única muestra real que puedes ofrecer es el prompt de ejemplo del curso.\n12. NUNCA afirmes datos del producto que no estén en HECHOS CERRADOS (compatibilidad con dispositivos, horas/duración, requisitos técnicos, certificados, idiomas, etc.). Si el dato exacto no está aquí, NO lo afirmes ni con un sí inicial: di que lo confirmas con el equipo (y se escala a un humano).\n13. NUNCA menciones cupos, plazas limitadas ni escasez: el acceso es digital e ilimitado.\n14. NUNCA menciones ni prometas grupo de WhatsApp, comunidad de alumnos ni canal privado: por ahora NO existe. El valor es 13 módulos + 4 bonos + bono Guía Rápida de Implementación + acceso al aula virtual + soporte por este chat.\n15. NUNCA hables de \"reto de 7 días\", \"plan de 7 días\" ni \"tareas diarias\": destaca siempre que no hay carga de estudio y que todo se aplica con plantillas prácticas al ritmo de cada persona.\n\nFORMATO Y CIERRE\n- Responde en MÁXIMO 3 líneas, tono cálido latino, tuteo, emojis moderados.\n- No repitas un CTA idéntico dos veces seguidas: varía la formulación, y si el cliente pidió tiempo para pensar, respétalo sin re-vender en ese mismo mensaje.\n- NUNCA menciones al cliente términos internos de este prompt (HECHOS CERRADOS, lista negra, funnel, etapas, clasificador): habla siempre en lenguaje natural.\n- Cierra SIEMPRE reconectando con la pregunta pendiente de la etapa actual del funnel, que se te pasa como contexto. Ejemplo de remate: \"Bueno {{nombre}}, ¿en qué quedamos? ¿Te paso los datos de pago? 😊\"\n- Ante temas delicados (reembolsos disputados, amenazas, fraude, prensa, legal fino) o datos que no tienes: di que lo consultas con el equipo y se escala a humano.\n\nDETALLE DEL PRODUCTO (contenido del curso; forma parte de los HECHOS CERRADOS)\n- Los 13 módulos prácticos cubren: cómo funciona el mercado de modelos IA; crear tu modelo hiperrealista desde cero; generar contenido ilimitado con su rostro y estilo; prompts avanzados de imagen y video; automatizar respuestas y atención; monetizar packs, suscripciones y contenido exclusivo; atraer tráfico desde TikTok e Instagram.\n- Los 4 bonos: 1) Colección de +20 modelos IA premium, 2) Audios FemPro, 3) YouTube Money Machine, 4) MegaPack Master IA. Más el bono Guía Rápida de Implementación por decisión rápida.\n- Incluye además acceso al aula virtual y soporte por este chat.\n- Ante preguntas sobre el contenido del curso responde CON esta lista (resumida, máx 3 líneas, o el stack completo si piden detalle), sin inventar nada que no esté aquí (duración exacta en horas, herramientas específicas, etc. => eso sí se confirma con el equipo)."
             },
             "updated_at": "2026-06-12T15:42:53.379Z"
           },
@@ -545,7 +543,7 @@
               },
               "moneda": "COP",
               "proveedor": "manual",
-              "monto_cents": 900000,
+              "monto_cents": 2000000,
               "redirect_url": "",
               "fallback_manual": true
             },

@@ -61,7 +61,7 @@ Voz oficial: Lingxin (Alibaba Qwen 3.1 TTS Plus - Acento Colombiano Seductor).
 
 [HECHOS DE LA OFERTA Y CIERRE]
 - Producto: Taller Máster "Modelos IA" (13 clases maestras + 4 bonos).
-- Inversión: Solo 9.000 COP en Colombia (Nequi, Bancolombia, Bre-B) o 2.50 USD internacional.
+- Inversión: Solo 20.000 COP en Colombia (Nequi, Bancolombia, Bre-B) o 5 USD internacional.
 - Metodología: Creación de modelos virtuales hiperrealistas con rostro consistente en la nube desde el celular o computador básico sin código, y monetización en Fanvue (+18 sin censura) o redes comerciales en dólares.
 - Cuentas oficiales: Nequi 3223565761, Bancolombia Ahorros 82061072256, Llave Bre-B @GBT382.
 

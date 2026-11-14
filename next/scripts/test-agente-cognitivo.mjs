@@ -15,11 +15,32 @@ const prompt = construirPromptMaestroAgente({
   estadoFunnel: "S00_LLEGADA",
 });
 
-assert.ok(prompt.includes("9.000 COP"), "Debe contener el precio exacto");
+assert.ok(prompt.includes("20.000 COP"), "Debe contener el precio exacto");
+assert.ok(prompt.includes("SÍ (CONFIRMADO"), "mayor18=true debe marcar confirmado");
 assert.ok(prompt.toLowerCase().includes("lingxin") || prompt.toLowerCase().includes("voz"), "Debe orientar a la voz de Musa");
 assert.ok(!prompt.includes("💜"), "Cero corazones morados en el prompt");
 assert.ok(!prompt.includes("🙏"), "Cero manitos de súplica en el prompt");
 assert.ok(prompt.includes("academia.html"), "Debe incluir el enlace de demo gratis");
+assert.ok(!prompt.includes("9.000 COP"), "No debe quedar el precio anterior de 9.000 COP");
+
+const promptPendiente = construirPromptMaestroAgente({
+  phone: "+573001112233",
+  nombre: "",
+  urlPublica: "https://server-production-3709.up.railway.app",
+  mayor18: null,
+  estadoFunnel: "S00_LLEGADA",
+});
+assert.ok(promptPendiente.includes("PENDIENTE DE CONFIRMAR"), "mayor18=null debe quedar pendiente, nunca bloqueado");
+assert.ok(!promptPendiente.includes("MENOR DE EDAD BLOQUEADO"), "mayor18=null no debe tratarse como menor");
+
+const promptMenor = construirPromptMaestroAgente({
+  phone: "+573001112233",
+  nombre: "",
+  urlPublica: "https://server-production-3709.up.railway.app",
+  mayor18: false,
+  estadoFunnel: "S92_MENOR",
+});
+assert.ok(promptMenor.includes("MENOR DE EDAD BLOQUEADO"), "mayor18=false debe marcar bloqueo de menor");
 console.log("   ✓ Prompt maestro agéntico validado.");
 
 // 2. Simulación de Turno Cognitivo (Modo Sin API Key / Fallback Empático)
@@ -78,12 +99,12 @@ assert.ok(/taller|curso|modelo/i.test(res.textoEnviado), "Debe responder sobre e
 assert.ok(mensajesEnviados.length > 0, "Debe enviar mensaje al canal");
 console.log("   ✓ Turno agéntico despachado con éxito.");
 
-// 3. Verificación de fonética en español para 9.000 COP en notas de voz
-console.log("3. Verificando fonética de 9.000 COP en prepararTextoParaVoz...");
-const fonetica = prepararTextoParaVoz("El acceso al taller son solo 9.000 COP por las 13 clases y 4 bonos...");
-assert.ok(fonetica.includes("nueve mil pesos"), `Debe pronunciar 'nueve mil pesos', obtenido: ${fonetica}`);
-assert.ok(!fonetica.includes("dólares.000"), "Jamás debe corromper 9.000 COP con dólares");
-console.log("   ✓ Fonética colombiana de 9.000 COP validada.");
+// 3. Verificación de fonética en español para 20.000 COP en notas de voz
+console.log("3. Verificando fonética de 20.000 COP en prepararTextoParaVoz...");
+const fonetica = prepararTextoParaVoz("El acceso al taller son solo 20.000 COP por las 13 clases y 4 bonos...");
+assert.ok(fonetica.includes("veinte mil pesos"), `Debe pronunciar 'veinte mil pesos', obtenido: ${fonetica}`);
+assert.ok(!fonetica.includes("dólares.000"), "Jamás debe corromper 20.000 COP con dólares");
+console.log("   ✓ Fonética colombiana de 20.000 COP validada.");
 
 // 4. Verificación del Reactor Inteligente de 60 Segundos (Con clic en Aula vs Sin clic)
 console.log("4. Verificando Reactor Inteligente de 60 Segundos...");
@@ -111,7 +132,7 @@ const resConClic = await ejecutarSeguimiento60Segundos({
 assert.equal(resConClic.enviado, true, "Debe enviar seguimiento a los 60s si no respondió");
 assert.equal(resConClic.visitoAula, true, "Debe detectar que visitó el aula");
 assert.ok(resConClic.texto.includes("Vi que acabas de entrar a mirar el aula"), "Debe personalizar el mensaje reconociendo la visita al aula");
-assert.ok(resConClic.texto.includes("9.000 COP"), "Debe cerrar a 9.000 COP");
+assert.ok(resConClic.texto.includes("20.000 COP"), "Debe cerrar a 20.000 COP");
 
 // Caso B: Prospecto NO hizo clic en el enlace del aula y es +18
 const resSinClic = await ejecutarSeguimiento60Segundos({
@@ -128,7 +149,7 @@ const resSinClic = await ejecutarSeguimiento60Segundos({
 });
 assert.equal(resSinClic.enviado, true, "Debe enviar seguimiento a los 60s aunque no haya abierto el link");
 assert.equal(resSinClic.visitoAula, false, "Debe detectar que no visitó el aula aún");
-assert.ok(resSinClic.texto.includes("pudiste abrir el enlace del aula"), "Debe invitar cálidamente a abrir el enlace y dejar cuentas");
+assert.ok(resSinClic.texto.toLowerCase().includes("pudiste abrir el enlace del aula"), "Debe invitar cálidamente a abrir el enlace y dejar cuentas");
 
 // Caso D: Prospecto visitó el aula pero NO ha confirmado +18 -> NO debe entregar cuentas
 const resSinEdad = await ejecutarSeguimiento60Segundos({

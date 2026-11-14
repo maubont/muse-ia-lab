@@ -57,7 +57,7 @@ const MOTIVOS_ESPANOL: Record<string, string> = {
   aprobado_por_operador: "Aprobado manualmente por el operador",
   vision_fallida: "Visión IA no pudo leer la captura",
   destinatario_no_coincide: "El número de destino no coincide con Nequi/Bre-B oficial",
-  monto_insuficiente: "El monto pagado es menor al precio del curso ($9.000 COP)",
+  monto_insuficiente: "El monto pagado es menor al precio del curso ($20.000 COP)",
   referencia_duplicada: "Referencia de pago ya utilizada anteriormente",
   imagen_duplicada: "La imagen del comprobante ya había sido enviada",
   fuera_de_horario: "Recibido fuera de horario de verificación automática",

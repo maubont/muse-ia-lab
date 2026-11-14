@@ -26,7 +26,7 @@ const filas = JSON.parse(readFileSync(new URL("../../seed/musa_settings.json", i
 const crudo = Object.fromEntries(filas.map((f) => [f.key, f.value]));
 const cfg = {
   funnelCopy: crudo.funnel_copy,
-  precio: crudo.precio ?? { usd: 2.5, cop: 9000 },
+  precio: crudo.precio ?? { usd: 5, cop: 20000 },
   precioBsHoy: crudo.precio_bs_hoy ?? { bs: 7400 },
   cuentasVe: crudo.cuentas_ve ?? {},
   cuentasCo: crudo.cuentas_co ?? {},
@@ -52,7 +52,7 @@ const primero = (efectos, tipo) => efectos.filter((e) => e.tipo === tipo)[0];
   const textos = primero(e, "enviar").textos;
   t("mayor: dos mensajes", textos.length, 2);
   t("mayor: el cierre usa el nombre", textos[1].includes("Carlos"), true);
-  t("mayor: precio en COP", textos[0].includes("9.000") || textos[0].includes("33.000"), true);
+  t("mayor: precio en COP", textos[0].includes("20.000") || textos[0].includes("9.000") || textos[0].includes("33.000"), true);
   t("mayor: sin placeholders", textos.join(" ").includes("{{"), false);
   t("mayor: sin tokens internos", /\[[A-Z0-9_]{3,}/.test(textos.join(" ")), false);
 }
@@ -92,9 +92,18 @@ const primero = (efectos, tipo) => efectos.filter((e) => e.tipo === tipo)[0];
 }
 
 {
-  // Nota de voz transcrita: edad deletreada.
+  // Nota de voz transcrita: edad deletreada y evasiones de menor de edad.
   const e = decidir("tengo diecisiete", "tengo diecisiete");
   t("edad deletreada menor", primero(e, "estado").nuevo, "S92_MENOR");
+
+  const e2 = decidir("tengo menos de 18", "tengo menos de 18");
+  t("menos de 18 -> menor", primero(e2, "estado").nuevo, "S92_MENOR");
+
+  const e3 = decidir("casi 18 pero quiero entrar", "casi 18 pero quiero entrar");
+  t("casi 18 -> menor", primero(e3, "estado").nuevo, "S92_MENOR");
+
+  const e4 = decidir("tengo 17años", "tengo 17anos");
+  t("17anos sin espacio -> menor", primero(e4, "estado").nuevo, "S92_MENOR");
 }
 
 // ============================== AMBIGÜEDAD ==============================

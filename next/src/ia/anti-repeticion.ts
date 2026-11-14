@@ -132,9 +132,17 @@ const EMOJIS_PROHIBIDOS = /[🙏🥺🤫🙄💜]/gu;
  */
 export function sanitizarRespuesta(texto: string, usuarioMolesto = false): string {
   if (!texto) return "";
-  let limpio = texto.replace(EMOJIS_PROHIBIDOS, "");
+  let limpio = texto
+    .replace(EMOJIS_PROHIBIDOS, "")
+    .replace(
+      /(?<![\p{Extended_Pictographic}\u2600-\u27BF#*0-9])[\uFE0E\uFE0F\u20E3\u{1F3FB}-\u{1F3FF}]+|\u200D(?![\p{Extended_Pictographic}\u2600-\u27BF])/gu,
+      "",
+    );
   if (usuarioMolesto) {
-    limpio = limpio.replace(/\p{Extended_Pictographic}/gu, "");
+    limpio = limpio.replace(
+      /[\p{Extended_Pictographic}\u2600-\u27BF\uFE0E\uFE0F\u200D\u20E3\u{1F3FB}-\u{1F3FF}]/gu,
+      "",
+    );
   }
 
   // Deduplicar URLs idénticas si aparecen más de una vez en el mismo texto

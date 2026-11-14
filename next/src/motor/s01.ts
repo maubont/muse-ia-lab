@@ -34,7 +34,7 @@ export interface EntradaLeadNuevo {
 
 /** Solo Colombia: precio fijo en COP sin mención a USD. */
 export function mensajePrecioRapido(cfg: CfgCopy): string {
-  const cop = formatMiles(Number(cfg.precio?.cop ?? 9000));
+  const cop = formatMiles(Number(cfg.precio?.cop ?? 20000));
   return `El acceso completo cuesta *${cop} COP* 💥 Incluye el método completo para crear y monetizar modelos virtuales + 4 bonos VIP con acceso inmediato al aula.`;
 }
 

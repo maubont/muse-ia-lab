@@ -55,12 +55,18 @@ function sanitizarFunnelCopy(fc: CfgFunnel["funnelCopy"]): CfgFunnel["funnelCopy
       .replace(/Plan de Acci[oó]n 7 D[ií]as/gi, "Guía Rápida de Implementación")
       .replace(/tu paso a paso para arrancar esta misma semana/gi, "tus plantillas listas para avanzar a tu propio ritmo y sin carga de estudio")
       .replace(/el paso a paso exacto de tu primera semana/gi, "plantillas listas de copiar y pegar para avanzar a tu propio ritmo y sin carga de estudio")
-      .replace(/\*33\.000 COP\*\s*\(≈\s*\*9 USD\*\)/g, "*9.000 COP* (≈ *2.50 USD*)")
-      .replace(/33\.000 COP\s*\(≈\s*9 USD\)/g, "9.000 COP (≈ 2.50 USD)")
-      .replace(/33\.000 COP/g, "9.000 COP")
-      .replace(/\*9 USD\*/g, "*2.50 USD*")
-      .replace(/≈ 9 USD/g, "≈ 2.50 USD")
-      .replace(/\b9 USD\b/g, "2.50 USD")
+      .replace(/\*33\.000 COP\*\s*\(≈\s*\*9 USD\*\)/g, "*20.000 COP* (≈ *5 USD*)")
+      .replace(/33\.000 COP\s*\(≈\s*9 USD\)/g, "20.000 COP (≈ 5 USD)")
+      .replace(/33\.000 COP/g, "20.000 COP")
+      .replace(/\*9\.000 COP\*\s*\(≈\s*\*2\.50 USD\*\)/g, "*20.000 COP* (≈ *5 USD*)")
+      .replace(/9\.000 COP\s*\(≈\s*2\.50 USD\)/g, "20.000 COP (≈ 5 USD)")
+      .replace(/9\.000 COP/g, "20.000 COP")
+      .replace(/\*9 USD\*/g, "*5 USD*")
+      .replace(/≈ 9 USD/g, "≈ 5 USD")
+      .replace(/\b9 USD\b/g, "5 USD")
+      .replace(/\*2\.50 USD\*/g, "*5 USD*")
+      .replace(/≈ 2\.50 USD/g, "≈ 5 USD")
+      .replace(/\b2\.50 USD\b/g, "5 USD")
       .replace(/\*acceso de por vida\*/gi, "*acceso inmediato al aula*")
       .replace(/Acceso de por vida, sin mensualidades/gi, "Acceso inmediato al taller y sus actualizaciones")
       .replace(/acceso de por vida, sin mensualidades/gi, "acceso inmediato al aula virtual")
@@ -87,7 +93,7 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
   const funnelCopy = sanitizarFunnelCopy((mapa.funnel_copy ?? { etapas: [] }) as CfgFunnel["funnelCopy"]);
 
   // Auto-sanitización en la base de datos si contenía copy antiguo o precio antiguo
-  if (mapa.funnel_copy && /google drive|plan de acci[oó]n 7 d[ií]as|esta misma semana|tu primera semana|33\.000|de por vida/i.test(JSON.stringify(mapa.funnel_copy))) {
+  if (mapa.funnel_copy && /google drive|plan de acci[oó]n 7 d[ií]as|esta misma semana|tu primera semana|33\.000|9\.000|2\.50 USD|de por vida/i.test(JSON.stringify(mapa.funnel_copy))) {
     consultar(
       "update public.musa_settings set value = $1::jsonb, updated_at = now() where key = 'funnel_copy'",
       [JSON.stringify(funnelCopy)],
@@ -114,7 +120,7 @@ export async function leerConfigFunnel(consultar: Consultar): Promise<CfgFunnel>
 
   return {
     funnelCopy,
-    precio: (mapa.precio ?? { usd: 2.5, cop: 9000 }) as CfgFunnel["precio"],
+    precio: (mapa.precio ?? { usd: 5, cop: 20000 }) as CfgFunnel["precio"],
     precioBsHoy: (mapa.precio_bs_hoy ?? { bs: 7400 }) as CfgFunnel["precioBsHoy"],
     cuentasVe: (mapa.cuentas_ve ?? {}) as Record<string, unknown>,
     cuentasCo: (mapa.cuentas_co ?? {}) as Record<string, unknown>,

@@ -124,7 +124,7 @@ export function resolverPlaceholders(texto: string, lead: LeadNombre, cfg: CfgCo
   }
   t = t
     .replace(/\{\{precio_bs\}\}/g, formatMiles(Number(cfg.precioBsHoy?.bs ?? 7400)))
-    .replace(/\{\{precio_cop\}\}/g, formatMiles(Number(cfg.precio?.cop ?? 9000)))
+    .replace(/\{\{precio_cop\}\}/g, formatMiles(Number(cfg.precio?.cop ?? 20000)))
     .replace(/\{\{cuentas_venezuela\}\}/g, bloqueCuentasVE(cfg))
     .replace(/\{\{cuentas_colombia\}\}/g, bloqueCuentasCO(cfg))
     .replace(/\{\{link_grupo\}\}/g, cfg.entrega?.link_grupo ?? "");

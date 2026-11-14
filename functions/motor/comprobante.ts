@@ -97,9 +97,9 @@ export function nuestrosDestinos(cfg: CfgComprobante): string[] {
 /** Precio esperado para la moneda del comprobante. null = moneda desconocida. */
 export function precioEsperado(cfg: CfgComprobante, moneda: string | null): number | null {
   switch ((moneda || "").toUpperCase()) {
-    case "COP": return Number(cfg.precio?.cop ?? 33000);
+    case "COP": return Number(cfg.precio?.cop ?? 20000);
     case "VES": return Number(cfg.precioBsHoy?.bs ?? 7400);
-    case "USD": return Number(cfg.precio?.usd ?? 9);
+    case "USD": return Number(cfg.precio?.usd ?? 5);
     default: return null;
   }
 }

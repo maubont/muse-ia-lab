@@ -52,7 +52,7 @@ export class QwenVoiceClient {
   private defaultInstruction: string;
 
   constructor(config: QwenVoiceConfig = {}) {
-    this.apiKey = config.apiKey || process.env.DASHSCOPE_API_KEY || "sk-ws-H.DIRMRHH.dEXC.MEQCIAFsXhFxsdXJQGcdcAQfGxC5H_CZ1hasvCVMCqnpv6eRAiBwEebSbx4MvzjAUp6ZjFJtUbZxOxeZoGPTFDp02HYU2w";
+    this.apiKey = (config.apiKey || process.env.DASHSCOPE_API_KEY || process.env.ALIBABA_API_KEY || "").trim();
     this.endpoint = config.endpoint || process.env.DASHSCOPE_ENDPOINT || "https://dashscope-intl.aliyuncs.com";
     this.defaultVoice = config.defaultVoice || "longanlingxin_v3.1";
     this.defaultModelTTS = config.defaultModelTTS || "qwen-audio-3.1-tts-plus";

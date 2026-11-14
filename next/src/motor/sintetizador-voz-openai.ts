@@ -15,6 +15,8 @@ export interface ConfigSintetizadorOpenAI {
   voz?: "nova" | "shimmer" | "alloy" | "echo" | "fable" | "onyx" | "sage" | "coral" | "verse" | string;
   /** Velocidad de habla (1.0 = normal, 1.05 = ágil y conversacional) */
   velocidad?: number;
+  /** Evita volver a normalizar un texto ya preparado por el orquestador */
+  saltarPreparacion?: boolean;
 }
 
 /**
@@ -43,33 +45,60 @@ export function prepararTextoParaVoz(texto: string): string {
     .replace(/\bAI\b/g, "inteligencia artificial")
     .replace(/\bFanvue\b/gi, "Fanviú")
     .replace(/\bOnlyFans\b/gi, "Onlifans")
+    .replace(/\bBre-?B\b/gi, "Bre Be")
     .replace(/\bprompts?\b/gi, "instrucciones")
-    // Suavizar números y precios para pronunciación natural y fluida en Colombia
-    .replace(/\$?\s*9\.000\s*(?:COP|pesos\s*colombianos|pesos)?/gi, "nueve mil pesos")
-    .replace(/\b9\s*mil\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "nueve mil pesos")
-    .replace(/\$?\s*33\.000\s*(?:COP|pesos\s*colombianos|pesos)?/gi, "treinta y tres mil pesos")
-    .replace(/\$?\s*30\.000\s*(?:COP|pesos\s*colombianos|pesos)?/gi, "treinta mil pesos")
-    .replace(/\$?\s*2[.,]50?\s*(?:USD|dolares|dólares)\b/gi, "dos dólares con cincuenta")
-    .replace(/\b9\s*(?:USD|dolares|dólares)\b/gi, "nueve dólares")
+    // Suavizar aproximaciones y números con lookbehind (?<!\d) para no corromper "15 USD" ni "120.000"
+    .replace(/\(\s*≈\s*5(?:[.,]00?)?\s*(?:USD|dolares|dólares)\s*\)/gi, ", unos cinco dólares,")
+    .replace(/[\u2248]/g, "unos ")
+    .replace(/\+\s*600[.,]?000(?:\s*(?:COP|pesos))?\b/gi, "más de seiscientos mil pesos")
+    .replace(/\baprox\.?\s*/gi, "aproximadamente ")
+    .replace(/(^|\s)\$?\s*(?<!\d)20[.,]?000\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1veinte mil pesos")
+    .replace(/(^|\s)(?<!\d)20\s*mil\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1veinte mil pesos")
+    .replace(/(^|\s)\$?\s*(?<!\d)600[.,]?000\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1seiscientos mil pesos")
+    .replace(/(^|\s)\$?\s*(?<!\d)33[.,]?000\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1treinta y tres mil pesos")
+    .replace(/(^|\s)\$?\s*(?<!\d)30[.,]?000\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1treinta mil pesos")
+    .replace(/(^|\s)\$?\s*(?<!\d)9[.,]?000\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1nueve mil pesos")
+    .replace(/(^|\s)(?<!\d)9\s*mil\s*(?:COP|pesos\s*colombianos|pesos)?\b/gi, "$1nueve mil pesos")
+    .replace(
+      /(?<!\d)1[.,]5\s*(?:a|[–—-])\s*2[.,]5\s*(?:millones(?:\s+de)?\s*(?:COP|pesos)?|M\b(?:\s*(?:de\s*)?(?:COP|pesos))?)/gi,
+      "uno punto cinco a dos punto cinco millones de pesos",
+    )
+    .replace(/(^|\s)\$?\s*(?<!\d)5(?:[.,]00?)?\s*(?:USD|dolares|dólares)\b/gi, "$1cinco dólares")
+    .replace(/(^|\s)\$?\s*(?<!\d)2[.,]50?\s*(?:USD|dolares|dólares)\b/gi, "$1dos dólares con cincuenta")
+    .replace(/(^|\s)(?<!\d)9\s*(?:USD|dolares|dólares)\b/gi, "$1nueve dólares")
+    .replace(/(?<!\d)(\d+)\s*x\s*(?:a|[–—-])\s*(\d+)\s*x\b/gi, "$1 a $2 veces")
+    .replace(/(?<!\d)(\d+)\s*x\b/gi, "$1 veces")
+    .replace(/(?<!\d)(\d+)\s*[–—-]\s*(\d+)(?=\s|$|[.,!?;:])/g, "$1 a $2")
+    .replace(/(?<!\d)(\d+)\s*(?:USD|dolares|dólares)\b/gi, "$1 dólares")
+    .replace(/(?<!\d)(\d{1,2})[.,](\d{1,2})(?!\d)/g, "$1 punto $2")
+    .replace(/\+18\b/g, "mayores de dieciocho")
+    .replace(/\bmillon(es)?\s+(?:de\s+)?pesos\b/gi, "millón$1 de pesos")
+    .replace(/\bmillónes\b/gi, "millones")
     .replace(/\bCOP\b/g, "pesos")
-    .replace(/\b13\s*clases\b/gi, "trece clases")
-    .replace(/\b13\s*módulos\b/gi, "trece módulos")
-    .replace(/\b4\s*bonos\b/gi, "cuatro bonos")
-    .replace(/\b18\s*años\b/gi, "dieciocho años")
-    .replace(/\b30\s*días\b/gi, "treinta días")
+    .replace(/(?<!\d)13\s*clases\b/gi, "trece clases")
+    .replace(/(?<!\d)13\s*módulos\b/gi, "trece módulos")
+    .replace(/(?<!\d)4\s*bonos\b/gi, "cuatro bonos")
+    .replace(/(?<!\d)18\s*años\b/gi, "dieciocho años")
+    .replace(/(?<!\d)30\s*días\b/gi, "treinta días")
     // Pausas conversacionales orgánicas (puntos suspensivos a pausa suave con coma)
     .replace(/\.{2,}/g, ", ")
-    // Erradicar emojis y pictogramas Unicode
-    .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}]/gu, "")
-    // Espacios repetidos y saltos de línea
+    // Erradicar emojis, pictogramas y selectores Unicode huérfanos
+    .replace(
+      /[\p{Extended_Pictographic}\u2600-\u27BF\u2300-\u23FF\uFE0E\uFE0F\u200D\u20E3\u{1F3FB}-\u{1F3FF}]/gu,
+      "",
+    )
+    // Limpiar signos sueltos y espacios repetidos
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .replace(/,\s*,+/g, ",")
     .replace(/[ \t]+/g, " ")
     .replace(/\n+/g, ". ")
+    .replace(/\.\s*\./g, ".")
     .trim();
 
-  // Limitar longitud para notas de voz de WhatsApp (máximo 450 caracteres para ~25-30 segundos de audio)
-  if (limpio.length > 500) {
-    const punto = limpio.lastIndexOf(".", 500);
-    limpio = punto > 250 ? limpio.slice(0, punto + 1) : limpio.slice(0, 500);
+  // Limitar longitud para notas de voz de WhatsApp (máximo 650 caracteres sin truncar en 500)
+  if (limpio.length > 650) {
+    const punto = limpio.lastIndexOf(".", 650);
+    limpio = punto > 320 ? limpio.slice(0, punto + 1) : limpio.slice(0, 650);
   }
 
   return limpio;
@@ -89,7 +118,7 @@ export async function sintetizarAudioOpenAI(
     return null;
   }
 
-  const textoParaAudio = prepararTextoParaVoz(texto);
+  const textoParaAudio = cfg.saltarPreparacion ? texto : prepararTextoParaVoz(texto);
   if (!textoParaAudio || textoParaAudio.length < 3) return null;
 
   const baseUrl = (cfg.baseUrl ?? process.env.MUSA_IA_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
@@ -99,7 +128,7 @@ export async function sintetizarAudioOpenAI(
   const velocidad = cfg.velocidad ?? 1.02;
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
+  const timer = setTimeout(() => ctrl.abort(), 12000);
 
   try {
     const res = await fetch(`${baseUrl}/audio/speech`, {

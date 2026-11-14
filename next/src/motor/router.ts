@@ -250,9 +250,9 @@ export function decidirRuta(e: EntradaRuta): Efecto[] {
             {
               tipo: "enviar",
               textos: [
-                "¡Claro que sí! Aquí tienes de nuevo las cuentas para tu acceso de *9.000 COP* 👇",
+                "¡Claro que sí! Aquí tienes de nuevo las cuentas para tu acceso de *20.000 COP* 👇",
                 resolverPlaceholders("{{cuentas_colombia}}", lead as LeadNombre, cfg),
-                "Apenas hagas la transferencia, me mandas la fotico del comprobante por aquí 📸 y te activo el acceso enseguida 🚀",
+                "Apenas hagas la transferencia, me mandas la captura del comprobante por aquí 📸 y te activo el acceso enseguida 🚀",
               ],
             },
           ];
