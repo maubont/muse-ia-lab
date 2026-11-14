@@ -658,7 +658,7 @@ export async function ejecutarTurnoAgenteMusa(
     canal,
     phone,
     audioPendienteRespuesta: audioDespachado,
-    tieneCuentas: debeAdjuntarCuentas || (leadRow?.estado_funnel === "S08_ESPERA_CAPTURA"),
+    tieneCuentas: mayor18Efectivo && (debeAdjuntarCuentas || (leadRow?.estado_funnel === "S08_ESPERA_CAPTURA")),
     delay60sMs: deps.seguimiento60sMs ?? 45_000,
   });
 
@@ -690,12 +690,14 @@ export async function ejecutarSeguimiento60Segundos(opts: {
   const { consultar, canal, phone, desdeTimestampIso, audioPendiente } = opts;
 
   try {
-    // 1. Verificar estado actual del lead
+    // 1. Verificar estado actual del lead (incluyendo mayoría de edad)
     const { rows: leadRows } = await consultar(
-      "select pagado, opt_out, escalado_humano, estado_funnel from public.musa_leads where phone = $1",
+      "select pagado, opt_out, escalado_humano, estado_funnel, mayor_18 from public.musa_leads where phone = $1",
       [phone],
     );
-    const lead = leadRows[0] as { pagado?: boolean; opt_out?: boolean; escalado_humano?: boolean; estado_funnel?: string } | undefined;
+    const lead = leadRows[0] as
+      | { pagado?: boolean; opt_out?: boolean; escalado_humano?: boolean; estado_funnel?: string; mayor_18?: boolean | null }
+      | undefined;
     if (lead && (lead.pagado || lead.opt_out || lead.escalado_humano)) {
       return { enviado: false, motivo: "lead_inactivo_o_pagado" };
     }
@@ -709,27 +711,44 @@ export async function ejecutarSeguimiento60Segundos(opts: {
       return { enviado: false, motivo: "lead_ya_respondio" };
     }
 
-    // 3. Verificar que no se haya enviado ya el seguimiento de 60s en esta sesión
+    // 3. Verificar que no se haya enviado ya el seguimiento de 60s en las últimas 2 horas
     const { rows: segRows } = await consultar(
-      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'seguimiento_60s' and created_at > $2::timestamptz limit 1",
-      [phone, desdeTimestampIso],
+      "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'seguimiento_60s' and created_at > now() - interval '2 hours' limit 1",
+      [phone],
     );
     if (segRows.length > 0) {
       return { enviado: false, motivo: "ya_enviado" };
     }
 
-    // 4. Detectar por telemetría si el prospecto hizo clic en el enlace del aula (`visita_aula`) en esta sesión
+    // 4. Detectar si el prospecto ya recibió cuentas oficiales previamente y si visitó el aula
+    const { rows: cuentasRows } = await consultar(
+      "select id from public.musa_messages where lead_phone = $1 and direction = 'out' and body like '%82061072256%' limit 1",
+      [phone],
+    );
+    const yaTieneCuentas = cuentasRows.length > 0;
+    if (yaTieneCuentas) {
+      return { enviado: false, motivo: "ya_tiene_cuentas" };
+    }
+
     const { rows: visitaRows } = await consultar(
       "select id from public.musa_funnel_events where lead_phone = $1 and evento = 'visita_aula' and created_at > $2::timestamptz limit 1",
       [phone, desdeTimestampIso],
     );
     const visitoAula = visitaRows.length > 0;
+    const esMayor18 = lead?.mayor_18 === true;
 
-    // 5. Construir el mensaje de cierre según el estado exacto de la conversación
+    // 5. Construir el mensaje de cierre respetando SIEMPRE el gate legal +18
     let mensajeCierre: string;
-    if (audioPendiente) {
-      // Si en el turno anterior solo se envió el audio (Solución B) y el lead no ha respondido:
-      mensajeCierre = `Corazón 👀 ¿pudiste escuchar la nota de voz que te dejé aquí arriba? Dale play para que me escuches ✨\n\n¿Me confirmas si tienes 18 años o más para pasarte el temario de las 13 clases y las cuentas oficiales? 😊`;
+    if (!esMayor18) {
+      if (visitoAula) {
+        mensajeCierre = `¡Oye corazón! 👀✨ Vi que acabas de entrar a mirar el aula virtual. ¿Qué te parecieron las 13 clases y los 4 bonos?\n\nSi te animas a empezar hoy por solo *9.000 COP*, confírmame por aquí si tienes 18 años o más para pasarte las cuentas oficiales 😊`;
+      } else if (audioPendiente) {
+        mensajeCierre = `Corazón 👀 ¿pudiste escuchar la nota de voz que te dejé aquí arriba? Dale play para que me escuches ✨\n\n¿Me confirmas si tienes 18 años o más para pasarte el temario de las 13 clases y las cuentas oficiales? 😊`;
+      } else {
+        mensajeCierre = `Corazón 👀 ¿pudiste ver el enlace del aula que te dejé aquí arriba? Dale un toque para que conozcas las 13 clases y los 4 bonos ✨\n\nSi te gustaría activarlo hoy por solo *9.000 COP*, confírmame si tienes 18 años o más para pasarte las cuentas oficiales 😊`;
+      }
+    } else if (audioPendiente) {
+      mensajeCierre = `Corazón 👀 ¿pudiste escuchar la nota de voz que te dejé aquí arriba? Dale play ✨ Si te animas a activar hoy tu acceso por *9.000 COP*, aquí tienes los medios de pago oficiales 👇${CUENTAS_COLOMBIA_TEXTO}`;
     } else if (visitoAula) {
       mensajeCierre = `¡Oye corazón! 👀✨ Vi que acabas de entrar a mirar el aula virtual. ¿Qué te parecieron las 13 clases maestras y los 4 bonos VIP?\n\nAprovecha que hoy tienes el acceso por solo *9.000 COP*. Aquí te dejo las cuentas oficiales para activarte de una vez 👇${CUENTAS_COLOMBIA_TEXTO}`;
     } else {
@@ -741,11 +760,13 @@ export async function ejecutarSeguimiento60Segundos(opts: {
       return { enviado: false, motivo: "fallo_envio_canal" };
     }
 
-    // 6. Actualizar funnel y registrar mensaje + evento
-    await consultar(
-      "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
-      [phone],
-    ).catch(() => ({ rows: [] }));
+    // 6. Actualizar funnel (solo pasar a S08_ESPERA_CAPTURA si ya confirmó +18 y recibió cuentas) y registrar mensaje + evento
+    if (esMayor18) {
+      await consultar(
+        "update public.musa_leads set estado_funnel = 'S08_ESPERA_CAPTURA', updated_at = now() where phone = $1",
+        [phone],
+      ).catch(() => ({ rows: [] }));
+    }
 
     await consultar(
       "insert into public.musa_messages (lead_phone, direction, body, media_type) values ($1, 'out', $2, null)",

@@ -95,10 +95,10 @@ const canal60s = {
   },
 };
 
-// Caso A: Prospecto SÍ hizo clic en el enlace del aula (visita_aula presente)
+// Caso A: Prospecto SÍ hizo clic en el enlace del aula (visita_aula presente) y es +18
 const resConClic = await ejecutarSeguimiento60Segundos({
   consultar: async (sql) => {
-    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false }] };
+    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false, mayor_18: true }] };
     if (sql.includes("direction = 'in'")) return { rows: [] };
     if (sql.includes("evento = 'seguimiento_60s'")) return { rows: [] };
     if (sql.includes("evento = 'visita_aula'")) return { rows: [{ id: 1 }] };
@@ -113,10 +113,10 @@ assert.equal(resConClic.visitoAula, true, "Debe detectar que visitó el aula");
 assert.ok(resConClic.texto.includes("Vi que acabas de entrar a mirar el aula"), "Debe personalizar el mensaje reconociendo la visita al aula");
 assert.ok(resConClic.texto.includes("9.000 COP"), "Debe cerrar a 9.000 COP");
 
-// Caso B: Prospecto NO hizo clic en el enlace del aula
+// Caso B: Prospecto NO hizo clic en el enlace del aula y es +18
 const resSinClic = await ejecutarSeguimiento60Segundos({
   consultar: async (sql) => {
-    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false }] };
+    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false, mayor_18: true }] };
     if (sql.includes("direction = 'in'")) return { rows: [] };
     if (sql.includes("evento = 'seguimiento_60s'")) return { rows: [] };
     if (sql.includes("evento = 'visita_aula'")) return { rows: [] };
@@ -129,6 +129,23 @@ const resSinClic = await ejecutarSeguimiento60Segundos({
 assert.equal(resSinClic.enviado, true, "Debe enviar seguimiento a los 60s aunque no haya abierto el link");
 assert.equal(resSinClic.visitoAula, false, "Debe detectar que no visitó el aula aún");
 assert.ok(resSinClic.texto.includes("pudiste abrir el enlace del aula"), "Debe invitar cálidamente a abrir el enlace y dejar cuentas");
+
+// Caso D: Prospecto visitó el aula pero NO ha confirmado +18 -> NO debe entregar cuentas
+const resSinEdad = await ejecutarSeguimiento60Segundos({
+  consultar: async (sql) => {
+    if (sql.includes("from public.musa_leads")) return { rows: [{ pagado: false, opt_out: false, escalado_humano: false, mayor_18: false }] };
+    if (sql.includes("direction = 'in'")) return { rows: [] };
+    if (sql.includes("evento = 'seguimiento_60s'")) return { rows: [] };
+    if (sql.includes("evento = 'visita_aula'")) return { rows: [{ id: 2 }] };
+    return { rows: [] };
+  },
+  canal: canal60s,
+  phone: "+573004445566",
+  desdeTimestampIso: new Date(Date.now() - 60000).toISOString(),
+});
+assert.equal(resSinEdad.enviado, true, "Debe enviar seguimiento invitando a confirmar edad");
+assert.equal(resSinEdad.texto.includes("82061072256"), false, "PROHIBIDO entregar cuentas si mayor_18 es false");
+assert.ok(resSinEdad.texto.includes("18 años"), "Debe pedir confirmación de mayoría de edad");
 
 // Caso C: Prospecto YA respondió antes de los 60s -> se cancela
 const resYaRespondio = await ejecutarSeguimiento60Segundos({
