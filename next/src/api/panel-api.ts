@@ -407,12 +407,16 @@ export async function ejecutarComandoConsola(deps: {
     const tel = "+" + mReiniciar[1].replace(/\D/g, "");
     await consultar(
       `update public.musa_leads
-          set estado_funnel = 'S00_LLEGADA', mayor_18 = false, pagado = false, escalado_humano = false, updated_at = now()
+          set estado_funnel = 'S00_LLEGADA', mayor_18 = null, pagado = false, escalado_humano = false, updated_at = now()
         where phone = $1`,
       [tel],
     );
     await consultar(
       "delete from public.musa_messages where lead_phone = $1",
+      [tel],
+    ).catch(() => ({ rows: [] }));
+    await consultar(
+      "delete from public.musa_funnel_events where lead_phone = $1 and evento in ('bloqueo_menor_edad', 'visita_aula')",
       [tel],
     ).catch(() => ({ rows: [] }));
     await consultar(

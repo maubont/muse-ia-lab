@@ -183,6 +183,144 @@ assert.equal(resYaRespondio.enviado, false, "No debe interrumpir si el cliente y
 assert.equal(resYaRespondio.motivo, "lead_ya_respondio");
 console.log("   ✓ Reactor inteligente de 60 segundos validado (Con clic / Sin clic / Cancelación).");
 
+// 6. Regresión: lead en S00_LLEGADA con mayor_18=false legacy (sin S92_MENOR ni bloqueo_menor_edad) NO debe bloquearse como menor
+{
+  const {
+    construirPromptMaestroAgente: buildPrompt,
+    ejecutarTurnoAgenteMusa: runTurno,
+    limpiarSeguimientosPendientes: clearTimers,
+  } = await import("../src/ia/agente-cognitivo.ts");
+
+  const promptPendiente = buildPrompt({
+    phone: "+573001112233",
+    nombre: "Carlos",
+    urlPublica: "https://ejemplo.test",
+    mayor18: null,
+    estadoFunnel: "S00_LLEGADA",
+  });
+  assert.ok(promptPendiente.includes("PENDIENTE DE CONFIRMAR"), "Prompt con mayor18=null debe indicar PENDIENTE DE CONFIRMAR");
+  assert.equal(promptPendiente.includes("MENOR DE EDAD BLOQUEADO"), false, "Prompt con mayor18=null NO debe bloquear como menor");
+
+  const fetchOriginal = globalThis.fetch;
+  let promptEnviadoIa = "";
+  const sqlEjecutados = [];
+  const eventosInsertados = [];
+  const envios = [];
+
+  globalThis.fetch = async (url, init) => {
+    const u = String(url);
+    if (u.includes("/chat/completions")) {
+      const body = JSON.parse(String(init?.body || "{}"));
+      promptEnviadoIa = body.messages?.[0]?.content || "";
+      return {
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    respuesta: "Hola Carlos, qué gusto saludarte. ¿Ya conocías cómo funciona el entrenamiento o te cuento desde cero?",
+                    enviarVoz: false,
+                    intencion: "saludo",
+                    videoAccion: "ninguno",
+                    adjuntarCuentas: false,
+                    confirmoMayor18: null,
+                  }),
+                },
+              },
+            ],
+            usage: { prompt_tokens: 100, completion_tokens: 40 },
+          }),
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  respuesta: "Hola Carlos, qué gusto saludarte. ¿Ya conocías cómo funciona el entrenamiento o te cuento desde cero?",
+                  enviarVoz: false,
+                  intencion: "saludo",
+                  videoAccion: "ninguno",
+                  adjuntarCuentas: false,
+                  confirmoMayor18: null,
+                }),
+              },
+            },
+          ],
+          usage: { prompt_tokens: 100, completion_tokens: 40 },
+        }),
+      };
+    }
+    throw new Error(`Fetch inesperado en test regresión reset: ${u}`);
+  };
+
+  try {
+    const resResetLegacy = await runTurno(
+      {
+        consultar: async (sql, params) => {
+          sqlEjecutados.push({ sql, params });
+          if (sql.includes("insert into public.musa_funnel_events")) {
+            eventosInsertados.push({ sql, params });
+          }
+          if (sql.includes("from public.musa_leads")) {
+            return {
+              rows: [
+                {
+                  nombre: null,
+                  profile_name: "Carlos",
+                  estado_funnel: "S00_LLEGADA",
+                  mayor_18: false,
+                  pagado: false,
+                },
+              ],
+            };
+          }
+          return { rows: [] };
+        },
+        canal: {
+          async enviar(_tel, payload) {
+            envios.push(payload);
+            return { ok: true, id: "msg-reset-1" };
+          },
+          async marcarEscribiendo() {},
+          async marcarGrabando() {},
+        },
+        apiKey: "test-key-regresion",
+        baseUrl: "https://api.openai.com/v1",
+        modelo: "gpt-6.1-terra",
+        urlPublica: "https://ejemplo.test",
+        esperar: async () => {},
+        seguimiento60sMs: 5000,
+      },
+      {
+        phone: "+573001112233",
+        nombrePerfil: "Carlos",
+        texto: "Hola, me interesa información",
+        esAudioEntrante: false,
+      },
+    );
+
+    assert.equal(resResetLegacy.ok, true, "El turno con mayor_18=false legacy en S00_LLEGADA debe completar ok");
+    assert.ok(promptEnviadoIa.includes("PENDIENTE DE CONFIRMAR"), "La IA debe recibir PENDIENTE DE CONFIRMAR en S00_LLEGADA con mayor_18=false legacy");
+    assert.equal(promptEnviadoIa.includes("MENOR DE EDAD BLOQUEADO"), false, "PROHIBIDO inyectar MENOR DE EDAD BLOQUEADO en S00_LLEGADA con mayor_18=false legacy");
+    assert.equal(
+      sqlEjecutados.some((q) => q.sql.includes("S92_MENOR") || (Array.isArray(q.params) && q.params.includes("S92_MENOR"))),
+      false,
+      "No debe transicionar a S92_MENOR un lead en S00_LLEGADA sin señal de menor",
+    );
+    const evTurno = eventosInsertados.find((e) => e.sql.includes("turno_agente_cognitivo"));
+    assert.ok(evTurno, "Debe registrar evento turno_agente_cognitivo");
+    const detalle = JSON.parse(String(evTurno.params?.[1] || "{}"));
+    assert.equal(detalle.esMenor, false, "No debe marcar esMenor=true cuando solo había mayor_18=false legacy en S00_LLEGADA");
+    assert.ok(envios.length >= 1, "Debe enviar respuesta al prospecto");
+    console.log("   ✓ Regresión S00_LLEGADA + mayor_18=false legacy validada (no bloquea como menor).");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+    clearTimers("+573001112233");
+  }
+}
+
 console.log("\n=======================================================");
 console.log("TODAS LAS PRUEBAS DEL AGENTE COGNITIVO PASARON (100%)");
 console.log("=======================================================");

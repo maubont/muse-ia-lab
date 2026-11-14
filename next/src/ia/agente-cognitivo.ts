@@ -387,7 +387,7 @@ export async function ejecutarTurnoAgenteMusa(
         /^(?:s[ií](?:\s*,\s*|\s+)(?:tengo|soy|ya|claro|mayor)|(?:ya\s+)?mayor\s+de\s+edad|s[ií]|claro|obvio|por\s+supuesto|(?:1[89]|[2-9]\d))(?:\s*[.!😊👍]*)?$/i.test(
           texto.trim(),
         )));
-  const esMenorPrevioORow = esMenorPrevio || leadRow?.mayor_18 === false;
+  const esMenorPrevioORow = esMenorPrevio;
   const mayor18Efectivo = !esMenorTurno && !esMenorPrevioORow && (leadRow?.mayor_18 === true || textoConfirmaEdadTurno);
   const mayor18ParaPrompt: boolean | null =
     esMenorTurno || esMenorPrevioORow ? false : mayor18Efectivo ? true : null;
